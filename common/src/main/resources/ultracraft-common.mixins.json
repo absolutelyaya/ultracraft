@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "absolutelyaya.ultracraft.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "MixinTitleScreen"
+  ],
+  "mixins": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "ultracraft",
+  "version": "${version}",
+  "name": "Ultracraft",
+  "description": "Ultrakill moment",
+  "authors": [
+    "Absolutelyaya"
+  ],
+  "contact": {
+    "sources": "https://github.com/absolutelyaya/Ultracraft"
+  },
+  "license": "MIT",
+  "icon": "assets/ultracraft/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "absolutelyaya.ultracraft.fabric.UltracraftFabric"
+    ]
+  },
+  "mixins": [
+    "ultracraft.mixins.json"
+  ],
+  "depends": {
+    "fabric": "*",
+    "minecraft": ">=1.19.2",
+    "architectury": ">=6.2.43"
+  }
+}
