@@ -3,9 +3,12 @@
   "package": "absolutelyaya.ultracraft.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "HandRendererMixin",
     "MixinTitleScreen"
   ],
   "mixins": [
+    "HandSwapMixin",
+    "LivingEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,3 +1,6 @@
 {
-  "item.ultracraft.example_item": "Example Item"
+  "item.ultracraft.blue_skull": "Blue Skull",
+  "item.ultracraft.red_skull": "Red Skull",
+
+  "itemGroup.ultracraft.items": "ULTRACRAFT"
 }

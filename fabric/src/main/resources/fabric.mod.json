@@ -14,6 +14,9 @@
   "icon": "assets/ultracraft/icon.png",
   "environment": "*",
   "entrypoints": {
+    "client": [
+      "absolutelyaya.ultracraft.fabric.client.UltracraftClientFabric"
+    ],
     "main": [
       "absolutelyaya.ultracraft.fabric.UltracraftFabric"
     ]
