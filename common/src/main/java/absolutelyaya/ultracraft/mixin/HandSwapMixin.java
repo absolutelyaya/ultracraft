@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.accessor.ClientPlayerAccessor;
+import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.registry.BlockTagRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import dev.architectury.networking.NetworkManager;
@@ -10,6 +11,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.BlockStateParticleEffect;
@@ -18,6 +20,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -25,8 +28,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
+import java.util.List;
+
 @Mixin(MinecraftClient.class)
-public class HandSwapMixin
+public abstract class HandSwapMixin
 {
 	@Shadow @Nullable public ClientPlayerEntity player;
 	
@@ -40,15 +45,12 @@ public class HandSwapMixin
 			if(!((ClientPlayerAccessor)player).Punch())
 				return;
 			
+			Entity entity = null;
 			if(crosshairTarget != null)
 			{
 				if(crosshairTarget.getType().equals(HitResult.Type.ENTITY))
 				{
-					Entity entity = ((EntityHitResult)crosshairTarget).getEntity();
-					PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-					buf.writeInt(entity.getId());
-					buf.writeBoolean(!player.getStackInHand(Hand.OFF_HAND).isEmpty());
-					NetworkManager.sendToServer(PacketRegistry.PUNCH_ENTITY_PACKET_ID, buf);
+					entity = ((EntityHitResult)crosshairTarget).getEntity();
 				}
 				else if(crosshairTarget.getType().equals(HitResult.Type.BLOCK))
 				{
@@ -62,8 +64,42 @@ public class HandSwapMixin
 					player.playSound(state.getSoundGroup().getHitSound(), 1f, 1f);
 					if(state.isIn(BlockTagRegistry.PUNCH_BREAKABLE))
 						player.world.breakBlock(hit.getBlockPos(), true, player);
+					return;
 				}
 			}
+			
+			Vec3d forward = player.getRotationVecClient();
+			Vec3d pos = player.getCameraPosVec(0f).add(forward.normalize().multiply(1));
+			List<ProjectileEntity> projectiles = player.world.getEntitiesByClass(ProjectileEntity.class,
+					new Box(pos.x - 0.75f, pos.y - 0.75f, pos.z - 0.75f, pos.x + 0.75f, pos.y + 0.75f, pos.z + 0.75f),
+					(e) -> !((ProjectileEntityAccessor)e).isParried());
+			if(projectiles.size() > 0)
+				entity = getNearestProjectile(projectiles, pos);
+			
+			if(entity != null)
+			{
+				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+				buf.writeInt(entity.getId());
+				buf.writeBoolean(!player.getStackInHand(Hand.OFF_HAND).isEmpty());
+				NetworkManager.sendToServer(PacketRegistry.PUNCH_ENTITY_PACKET_ID, buf);
+			}
 		}
+	}
+	
+	ProjectileEntity getNearestProjectile(List<ProjectileEntity> projectiles, Vec3d to)
+	{
+		double nearestDistance = 100.0;
+		ProjectileEntity nearest = null;
+		
+		for (ProjectileEntity e : projectiles)
+		{
+			double distance = e.squaredDistanceTo(to);
+			if(distance < nearestDistance)
+			{
+				nearest = e;
+				nearestDistance = distance;
+			}
+		}
+		return nearest;
 	}
 }

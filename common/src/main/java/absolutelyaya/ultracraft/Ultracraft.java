@@ -20,7 +20,9 @@ public class Ultracraft
     
         TickEvent.SERVER_POST.register(minecraft -> {
             if(freezeTicks > 0)
+            {
                 freezeTicks--;
+            }
         });
     }
     

@@ -8,8 +8,10 @@
     "MixinTitleScreen"
   ],
   "mixins": [
+    "EntityMixin",
     "HandSwapMixin",
     "LivingEntityMixin",
+    "ProjectileEntityMixin",
     "WorldMixin"
   ],
   "injectors": {

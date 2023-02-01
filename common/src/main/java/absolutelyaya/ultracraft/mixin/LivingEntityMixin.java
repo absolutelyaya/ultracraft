@@ -25,13 +25,10 @@ public abstract class LivingEntityMixin extends Entity implements ClientPlayerAc
 		super(type, world);
 	}
 	
-	@Inject(method = "tick", at = @At("HEAD"), cancellable = true)
+	@Inject(method = "tick", at = @At("HEAD"))
 	void onTick(CallbackInfo ci)
 	{
 		timeFrozen = Ultracraft.isTimeFrozen();
-		if (timeFrozen)
-			ci.cancel();
-		
 		if(!timeFrozen || punchTicks < 2)
 			punchTick();
 	}

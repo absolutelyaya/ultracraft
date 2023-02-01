@@ -1,10 +1,12 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import dev.architectury.networking.NetworkManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
@@ -29,14 +31,16 @@ public class PacketRegistry
 				if(flame)
 					target.setFireTicks(100);
 				boolean fatal = !target.isAlive();
-				if(fatal)
+				if(target instanceof ProjectileEntity p)
 				{
 					Ultracraft.Freeze(10);
 					world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
+					ProjectileEntityAccessor pa = (ProjectileEntityAccessor)p;
+					pa.setParried(true, player);
 				}
 				else
 					world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.75f, 0.5f);
-				Vec3d vel = target.getPos().subtract(player.getPos()).normalize().multiply(fatal ? 2f : 1f);
+				Vec3d vel = player.getRotationVecClient().normalize().multiply(fatal ? 2f : 1f).multiply(target instanceof ProjectileEntity ? 2.5f : 1f);
 				target.setVelocity(vel);
 			}
 		});
