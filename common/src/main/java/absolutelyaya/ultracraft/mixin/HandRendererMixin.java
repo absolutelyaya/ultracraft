@@ -35,7 +35,7 @@ public abstract class HandRendererMixin
 		ClientPlayerAccessor playerAccessor = ((ClientPlayerAccessor)player);
 		if(hand == Hand.OFF_HAND && (playerAccessor.IsPunching() || !item.isEmpty()))
 		{
-			swingProgress = playerAccessor.GetPunchProgress(tickDelta);
+			swingProgress = playerAccessor.GetPunchProgress(Ultracraft.isTimeFrozen() ? 0f : tickDelta);
 			matrices.push();
 			renderArmHoldingItem(matrices, vertexConsumers, light, equipProgress, swingProgress, player.getMainArm().getOpposite());
 			matrices.pop();

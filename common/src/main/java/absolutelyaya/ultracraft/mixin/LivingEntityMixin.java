@@ -1,23 +1,39 @@
 package absolutelyaya.ultracraft.mixin;
 
+import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ClientPlayerAccessor;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LivingEntity.class)
-public class LivingEntityMixin implements ClientPlayerAccessor
+public abstract class LivingEntityMixin extends Entity implements ClientPlayerAccessor
 {
 	int punchTicks, punchDuration = 6;
 	boolean punching;
 	float punchProgress, prevPunchProgress;
 	
-	@Inject(method = "tick", at = @At("HEAD"))
+	boolean timeFrozen;
+	
+	public LivingEntityMixin(EntityType<?> type, World world)
+	{
+		super(type, world);
+	}
+	
+	@Inject(method = "tick", at = @At("HEAD"), cancellable = true)
 	void onTick(CallbackInfo ci)
 	{
-		punchTick();
+		timeFrozen = Ultracraft.isTimeFrozen();
+		if (timeFrozen)
+			ci.cancel();
+		
+		if(!timeFrozen || punchTicks < 2)
+			punchTick();
 	}
 	
 	void punchTick()
@@ -31,22 +47,28 @@ public class LivingEntityMixin implements ClientPlayerAccessor
 				punchTicks = 0;
 				punching = false;
 			}
+			else if(timeFrozen)
+				punchTicks = 1;
 		}
 		else
 			punchTicks = 0;
 		
 		prevPunchProgress = punchProgress;
 		punchProgress = (float)punchTicks / (float)i;
+		if(timeFrozen)
+			prevPunchProgress = punchProgress;
 	}
 	
 	@Override
-	public void Punch()
+	public boolean Punch()
 	{
 		if(!punching)
 		{
-			punchTicks = -1;
+			punchTicks = 0;
 			punching = true;
+			return true;
 		}
+		return false;
 	}
 	
 	@Override
@@ -57,7 +79,10 @@ public class LivingEntityMixin implements ClientPlayerAccessor
 			++f;
 		}
 		
-		return prevPunchProgress + f * tickDelta;
+		if (Ultracraft.isTimeFrozen())
+			return punchProgress;
+		else
+			return prevPunchProgress + f * tickDelta;
 	}
 	
 	@Override

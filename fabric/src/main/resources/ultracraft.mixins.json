@@ -7,7 +7,8 @@
   ],
   "mixins": [
     "HandSwapMixin",
-    "LivingEntityMixin"
+    "LivingEntityMixin",
+    "LivingEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

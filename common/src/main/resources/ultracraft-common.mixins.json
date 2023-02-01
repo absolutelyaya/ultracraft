@@ -4,11 +4,13 @@
   "compatibilityLevel": "JAVA_17",
   "client": [
     "HandRendererMixin",
+    "LivingEntityRendererMixin",
     "MixinTitleScreen"
   ],
   "mixins": [
     "HandSwapMixin",
-    "LivingEntityMixin"
+    "LivingEntityMixin",
+    "WorldMixin"
   ],
   "injectors": {
     "defaultRequire": 1
