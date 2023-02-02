@@ -1,10 +1,12 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.MeleeParriable;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import dev.architectury.networking.NetworkManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.sound.SoundCategory;
@@ -37,6 +39,13 @@ public class PacketRegistry
 					world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
 					ProjectileEntityAccessor pa = (ProjectileEntityAccessor)p;
 					pa.setParried(true, player);
+				}
+				else if (target instanceof MeleeParriable mp && (!(mp instanceof MobEntity) || ((MobEntity)mp).isAttacking()))
+				{
+					Ultracraft.Freeze(10);
+					target.damage(DamageSource.mob(player), 20); //total damage: 30
+					world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
+					player.heal(4);
 				}
 				else
 					world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.75f, 0.5f);

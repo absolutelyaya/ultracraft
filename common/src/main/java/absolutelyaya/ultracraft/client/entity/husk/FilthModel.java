@@ -35,17 +35,21 @@ public class FilthModel extends AnimatedGeoModel<FilthEntity>
 	{
 		super.setLivingAnimations(entity, uniqueID, customPredicate);
 		IBone head = this.getAnimationProcessor().getBone("Head");
+		IBone chest = this.getAnimationProcessor().getBone("TorsoUpper");
+		
+		if(chest != null)
+			chest.setRotationY((float)Math.toRadians(Math.cos((double)entity.age * 3.25) * Math.PI * 0.8));
 		
 		float f = ((float) Math.PI / 180F);
 		if(MinecraftClient.getInstance().isPaused())
 			return;
 		
 		EntityModelData extraData = (EntityModelData)customPredicate.getExtraDataOfType(EntityModelData.class).get(0);
-		if(head != null && entity.getAnimation() != 3)
+		if(head != null && entity.getAnimation() != 1)
 		{
 			head.setRotationX(head.getRotationX() + extraData.headPitch * f);
 			head.setRotationY(extraData.netHeadYaw * f);
-			head.setRotationZ(extraData.netHeadYaw * f * (head.getRotationX() / 180));
+			head.setRotationZ((float)Math.toRadians(Math.cos((double)entity.age * 3.25) * Math.PI * 1.2));
 		}
 	}
 }

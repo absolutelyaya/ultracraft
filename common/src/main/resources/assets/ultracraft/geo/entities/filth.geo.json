@@ -29,7 +29,7 @@
 				{
 					"name": "Head",
 					"parent": "TorsoUpper",
-					"pivot": [0, 26, -2],
+					"pivot": [0, 26, 0],
 					"cubes": [
 						{"origin": [-4, 29, -6], "size": [8, 5, 8], "uv": [0, 0]},
 						{"origin": [-4, 28, -6], "size": [8, 4, 8], "inflate": 0.05, "uv": [32, 47]}

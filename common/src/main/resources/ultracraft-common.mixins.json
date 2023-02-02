@@ -3,6 +3,7 @@
   "package": "absolutelyaya.ultracraft.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "ChatSendMixin",
     "HandRendererMixin",
     "LivingEntityRendererMixin",
     "MixinTitleScreen"
