@@ -1,9 +1,6 @@
 package absolutelyaya.ultracraft;
 
-import absolutelyaya.ultracraft.registry.BlockRegistry;
-import absolutelyaya.ultracraft.registry.BlockTagRegistry;
-import absolutelyaya.ultracraft.registry.ItemRegistry;
-import absolutelyaya.ultracraft.registry.PacketRegistry;
+import absolutelyaya.ultracraft.registry.*;
 import dev.architectury.event.events.common.TickEvent;
 
 public class Ultracraft
@@ -13,6 +10,7 @@ public class Ultracraft
     
     public static void init()
     {
+        EntityRegistry.register();
         BlockRegistry.register();
         ItemRegistry.register();
         PacketRegistry.register();
