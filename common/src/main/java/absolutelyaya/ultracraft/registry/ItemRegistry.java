@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.item.HellBulletItem;
 import dev.architectury.registry.CreativeTabRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
@@ -17,6 +18,8 @@ public class ItemRegistry
 			() -> new Item(new Item.Settings().group(ULTRACRAFT_TAB)));
 	public static final RegistrySupplier<Item> RED_SKULL = ITEMS.register("red_skull",
 			() -> new Item(new Item.Settings().group(ULTRACRAFT_TAB)));
+	public static final RegistrySupplier<Item> HELL_BULLET = ITEMS.register("hell_bullet",
+			() -> new HellBulletItem(new Item.Settings().fireproof().maxCount(25).group(ULTRACRAFT_TAB)));
 	public static void register()
 	{
 		ITEMS.register();

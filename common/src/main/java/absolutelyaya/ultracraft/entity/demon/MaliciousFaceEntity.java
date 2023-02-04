@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.entity.demon;
 
+import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
@@ -16,7 +17,6 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.thrown.SnowballEntity;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundEvent;
@@ -206,7 +206,7 @@ public class MaliciousFaceEntity extends GhastEntity
 	
 	public void shootBullet(LivingEntity target)
 	{
-		SnowballEntity bullet = new SnowballEntity(this.world, this);
+		HellBulletEntity bullet = HellBulletEntity.spawn(this, this.world);
 		double d = target.getEyeY() - 0f;
 		double e = target.getX() - getX();
 		double f = d - bullet.getY();
@@ -355,7 +355,7 @@ public class MaliciousFaceEntity extends GhastEntity
 		@Override
 		public void start()
 		{
-			shots = 5;
+			shots = 8;
 		}
 		
 		@Override
@@ -370,7 +370,7 @@ public class MaliciousFaceEntity extends GhastEntity
 			if(timer-- <= 0)
 			{
 				shots--;
-				timer = 5;
+				timer = 2;
 				face.shootBullet(target);
 				face.dataTracker.set(SALVAE_COOLDOWN, 100 + (int)(face.random.nextFloat() * 60));
 			}
