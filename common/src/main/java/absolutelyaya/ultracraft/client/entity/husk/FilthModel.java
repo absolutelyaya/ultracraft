@@ -14,19 +14,19 @@ public class FilthModel extends AnimatedGeoModel<FilthEntity>
 	@Override
 	public Identifier getModelResource(FilthEntity object)
 	{
-		return new Identifier(Ultracraft.MOD_ID, "geo/entities/filth.geo.json");
+		return new Identifier(Ultracraft.MOD_ID, "geo/entity/filth.geo.json");
 	}
 	
 	@Override
 	public Identifier getTextureResource(FilthEntity object)
 	{
-		return new Identifier(Ultracraft.MOD_ID, "textures/entities/filth.png");
+		return new Identifier(Ultracraft.MOD_ID, "textures/entity/filth.png");
 	}
 	
 	@Override
 	public Identifier getAnimationResource(FilthEntity animatable)
 	{
-		return new Identifier(Ultracraft.MOD_ID, "animations/entities/filth.animation.json");
+		return new Identifier(Ultracraft.MOD_ID, "animations/entity/filth.animation.json");
 	}
 	
 	@SuppressWarnings({"unchecked"})

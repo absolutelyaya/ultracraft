@@ -24,7 +24,7 @@ public class FilthRenderer extends GeoEntityRenderer<FilthEntity>
 	@Override
 	public Identifier getTextureResource(FilthEntity object)
 	{
-		return new Identifier(Ultracraft.MOD_ID, "textures/entities/filth.png");
+		return new Identifier(Ultracraft.MOD_ID, "textures/entity/filth.png");
 	}
 	
 	@Override

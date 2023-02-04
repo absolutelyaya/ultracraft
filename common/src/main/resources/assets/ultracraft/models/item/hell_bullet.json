@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "ultracraft:items/hell_bullet"
+    "layer0": "ultracraft:item/hell_bullet"
   }
 }

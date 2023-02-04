@@ -1,7 +1,7 @@
 {
   "parent": "ultracraft:item/skull",
   "textures": {
-    "0": "ultracraft:items/red_skull",
-    "particle": "ultracraft:items/red_skull"
+    "0": "ultracraft:item/red_skull",
+    "particle": "ultracraft:item/red_skull"
   }
 }

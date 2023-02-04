@@ -11,7 +11,7 @@ import net.minecraft.util.registry.Registry;
 
 public class ItemRegistry
 {
-	public static final ItemGroup ULTRACRAFT_TAB = CreativeTabRegistry.create(new Identifier(Ultracraft.MOD_ID, "items"),
+	public static final ItemGroup ULTRACRAFT_TAB = CreativeTabRegistry.create(new Identifier(Ultracraft.MOD_ID, "item"),
 			() -> new ItemStack(ItemRegistry.BLUE_SKULL.get()));
 	public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Ultracraft.MOD_ID, Registry.ITEM_KEY);
 	public static final RegistrySupplier<Item> BLUE_SKULL = ITEMS.register("blue_skull",

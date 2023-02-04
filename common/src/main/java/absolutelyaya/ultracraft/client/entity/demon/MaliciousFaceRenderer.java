@@ -18,7 +18,7 @@ public class MaliciousFaceRenderer extends MobEntityRenderer<MaliciousFaceEntity
 	@Override
 	public Identifier getTexture(MaliciousFaceEntity entity)
 	{
-		return new Identifier(Ultracraft.MOD_ID, entity.isCracked() ? "textures/entities/malicious_face_cracked.png" : "textures/entities/malicious_face.png");
+		return new Identifier(Ultracraft.MOD_ID, entity.isCracked() ? "textures/entity/malicious_face_cracked.png" : "textures/entity/malicious_face.png");
 	}
 	
 	@Override
