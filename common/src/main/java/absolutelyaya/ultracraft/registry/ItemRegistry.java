@@ -20,6 +20,8 @@ public class ItemRegistry
 			() -> new Item(new Item.Settings().group(ULTRACRAFT_TAB)));
 	public static final RegistrySupplier<Item> HELL_BULLET = ITEMS.register("hell_bullet",
 			() -> new HellBulletItem(new Item.Settings().fireproof().maxCount(25).group(ULTRACRAFT_TAB)));
+	public static final RegistrySupplier<Item> ELEVATOR = ITEMS.register("elevator",
+			() -> new BlockItem(BlockRegistry.ELEVATOR.get(), new Item.Settings().group(ULTRACRAFT_TAB)));
 	public static void register()
 	{
 		ITEMS.register();
