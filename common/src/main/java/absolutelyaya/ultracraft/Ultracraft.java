@@ -15,6 +15,7 @@ public class Ultracraft
         ItemRegistry.register();
         PacketRegistry.register();
         BlockTagRegistry.register();
+        ModelPredicateRegistry.registerModels();
     
         TickEvent.SERVER_POST.register(minecraft -> {
             if(freezeTicks > 0)

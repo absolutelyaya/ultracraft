@@ -1,0 +1,24 @@
+{
+  "parent": "minecraft:item/handheld",
+  "textures": {
+    "layer0": "minecraft:item/stone_hoe"
+  },
+  "overrides": [
+    {
+      "predicate": {"ultracraft:cooldown": 1},
+      "model": "ultracraft:item/revolver/pierce3"
+    },
+    {
+      "predicate": {"minecraft:use_time": 0.01},
+      "model": "ultracraft:item/revolver/pierce0"
+    },
+    {
+      "predicate": {"minecraft:use_time": 0.25},
+      "model": "ultracraft:item/revolver/pierce1"
+    },
+    {
+      "predicate": {"minecraft:use_time": 0.5},
+      "model": "ultracraft:item/revolver/pierce2"
+    }
+  ]
+}

@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.accessor.ClientPlayerAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
+import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.BlockTagRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
@@ -12,6 +13,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.sound.MusicType;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.network.Packet;
@@ -31,6 +33,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
@@ -41,6 +44,8 @@ public abstract class HandSwapMixin
 	@Shadow @Nullable public ClientPlayerEntity player;
 	
 	@Shadow @Nullable public HitResult crosshairTarget;
+	
+	@Shadow @Nullable public ClientWorld world;
 	
 	@Redirect(method = "handleInputEvents()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"))
 	void OnHandSwap(ClientPlayNetworkHandler instance, Packet<?> packet)
@@ -113,5 +118,22 @@ public abstract class HandSwapMixin
 	{
 		if (cir.getReturnValue().equals(MusicType.MENU))
 			cir.setReturnValue(new MusicSound(SoundRegistry.THE_FIRE_IS_GONE.get(), 20, 600, true));
+	}
+	
+	@Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
+	void onDoAttack(CallbackInfoReturnable<Boolean> cir)
+	{
+		if(player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem gun)
+		{
+			gun.onPrimaryFire(world, player);
+			cir.setReturnValue(false);
+		}
+	}
+	
+	@Inject(method = "handleBlockBreaking", at = @At("HEAD"), cancellable = true)
+	void onHandleBlockBreaking(boolean bl, CallbackInfo ci)
+	{
+		if(player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem)
+			ci.cancel();
 	}
 }

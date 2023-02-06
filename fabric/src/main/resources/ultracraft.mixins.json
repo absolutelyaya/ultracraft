@@ -6,7 +6,8 @@
     "HandRendererMixin",
     "LivingEntityRendererMixin",
     "ChatSendMixin",
-    "TitleScreenMixin"
+    "TitleScreenMixin",
+    "WorldRendererMixin"
   ],
   "mixins": [
     "HandSwapMixin",

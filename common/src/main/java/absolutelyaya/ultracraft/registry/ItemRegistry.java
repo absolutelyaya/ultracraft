@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.item.HellBulletItem;
+import absolutelyaya.ultracraft.item.RevolverItem;
 import dev.architectury.registry.CreativeTabRegistry;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.RegistrySupplier;
@@ -22,6 +23,9 @@ public class ItemRegistry
 			() -> new HellBulletItem(new Item.Settings().fireproof().maxCount(25).group(ULTRACRAFT_TAB)));
 	public static final RegistrySupplier<Item> ELEVATOR = ITEMS.register("elevator",
 			() -> new BlockItem(BlockRegistry.ELEVATOR.get(), new Item.Settings().group(ULTRACRAFT_TAB)));
+	
+	public static final RegistrySupplier<RevolverItem> PIERCE_REVOLVER = ITEMS.register("pierce_revolver",
+			() -> new RevolverItem(new Item.Settings().group(ULTRACRAFT_TAB)));
 	public static void register()
 	{
 		ITEMS.register();

@@ -6,9 +6,12 @@ import absolutelyaya.ultracraft.client.entity.projectile.HellBulletRenderer;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
 import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 
 public class UltracraftClient
 {
+	public static HitscanHandler HITSCAN_HANDLER;
+	
 	public static void init()
 	{
 		//EntityRenderers
@@ -17,5 +20,9 @@ public class UltracraftClient
 		EntityRendererRegistry.register(EntityRegistry.HELL_BULLET, HellBulletRenderer::new);
 		
 		SoundRegistry.register();
+		
+		HITSCAN_HANDLER = new HitscanHandler();
+		
+		ClientTickEvents.START_CLIENT_TICK.register((client) -> HITSCAN_HANDLER.tick());
 	}
 }
