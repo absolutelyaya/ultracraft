@@ -10,7 +10,7 @@
     "WorldRendererMixin"
   ],
   "mixins": [
-    "HandSwapMixin",
+    "MinecraftClientMixin",
     "LivingEntityMixin",
     "ProjectileEntityMixin",
     "EntityMixin",

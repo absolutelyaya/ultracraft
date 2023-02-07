@@ -39,7 +39,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 
 @Mixin(MinecraftClient.class)
-public abstract class HandSwapMixin
+public abstract class MinecraftClientMixin
 {
 	@Shadow @Nullable public ClientPlayerEntity player;
 	
@@ -123,9 +123,10 @@ public abstract class HandSwapMixin
 	@Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
 	void onDoAttack(CallbackInfoReturnable<Boolean> cir)
 	{
-		if(player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem gun)
+		if(player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem)
 		{
-			gun.onPrimaryFire(world, player);
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			NetworkManager.sendToServer(PacketRegistry.PRIMARY_SHOT_PACKET_ID, buf);
 			cir.setReturnValue(false);
 		}
 	}

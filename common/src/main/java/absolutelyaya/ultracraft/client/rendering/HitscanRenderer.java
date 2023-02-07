@@ -1,6 +1,6 @@
 package absolutelyaya.ultracraft.client.rendering;
 
-import absolutelyaya.ultracraft.client.HitscanHandler;
+import absolutelyaya.ultracraft.client.ClientHitscanHandler;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
@@ -11,7 +11,7 @@ import java.awt.*;
 
 public class HitscanRenderer
 {
-	public void render(HitscanHandler.Hitscan hitscan, MatrixStack matrixStack, Camera camera)
+	public void render(ClientHitscanHandler.Hitscan hitscan, MatrixStack matrixStack, Camera camera)
 	{
 		RenderSystem.setShader(GameRenderer::getPositionColorShader);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);

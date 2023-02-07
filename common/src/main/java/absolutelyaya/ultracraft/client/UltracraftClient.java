@@ -10,7 +10,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 
 public class UltracraftClient
 {
-	public static HitscanHandler HITSCAN_HANDLER;
+	public static ClientHitscanHandler HITSCAN_HANDLER;
 	
 	public static void init()
 	{
@@ -21,7 +21,7 @@ public class UltracraftClient
 		
 		SoundRegistry.register();
 		
-		HITSCAN_HANDLER = new HitscanHandler();
+		HITSCAN_HANDLER = new ClientHitscanHandler();
 		
 		ClientTickEvents.START_CLIENT_TICK.register((client) -> HITSCAN_HANDLER.tick());
 	}

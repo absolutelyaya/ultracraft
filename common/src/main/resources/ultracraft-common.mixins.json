@@ -11,7 +11,7 @@
   ],
   "mixins": [
     "EntityMixin",
-    "HandSwapMixin",
+    "MinecraftClientMixin",
     "LivingEntityMixin",
     "ProjectileEntityMixin",
     "WorldMixin"

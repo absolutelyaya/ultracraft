@@ -9,14 +9,14 @@ import net.minecraft.util.math.Vec3d;
 import java.util.HashSet;
 import java.util.Set;
 
-public class HitscanHandler
+public class ClientHitscanHandler
 {
 	HitscanRenderer renderer = new HitscanRenderer();
 	Set<Hitscan> hitscans = new HashSet<>();
 	
-	public void addEntry(Vec3d from, Vec3d to, float pitch, byte type)
+	public void addEntry(Vec3d from, Vec3d to, byte type)
 	{
-		hitscans.add(new Hitscan(from, to, pitch, type));
+		hitscans.add(new Hitscan(from, to, type));
 	}
 	
 	public void tick()
@@ -38,15 +38,13 @@ public class HitscanHandler
 	{
 		public final Vec3d from, to;
 		public final HitscanType type;
-		public final float pitch;
 		int age;
 		
-		public Hitscan(Vec3d from, Vec3d to, float pitch, byte type)
+		public Hitscan(Vec3d from, Vec3d to, byte type)
 		{
 			this.from = from;
 			this.to = to;
 			this.type = HitscanType.values()[type];
-			this.pitch = pitch;
 		}
 		
 		public boolean tick()

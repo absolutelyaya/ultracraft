@@ -3,6 +3,8 @@ package absolutelyaya.ultracraft.registry;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.MeleeParriable;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
+import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import dev.architectury.networking.NetworkManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
@@ -18,9 +20,12 @@ import net.minecraft.world.World;
 public class PacketRegistry
 {
 	public static final Identifier PUNCH_ENTITY_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch");
+	public static final Identifier PRIMARY_SHOT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "primary_shot");
+	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
 	
 	public static void register()
 	{
+		//Client to Server
 		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PUNCH_ENTITY_PACKET_ID, (buf, context) -> {
 			PlayerEntity player = context.getPlayer();
 			World world = player.getWorld();
@@ -53,5 +58,18 @@ public class PacketRegistry
 				target.setVelocity(vel);
 			}
 		});
+		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PRIMARY_SHOT_PACKET_ID, (buf, context) -> {
+			PlayerEntity player = context.getPlayer();
+			if (player.getMainHandStack().getItem() instanceof AbstractWeaponItem gun)
+				gun.onPrimaryFire(player.world, player);
+		});
+		
+		//Server to Client
+		NetworkManager.registerReceiver(NetworkManager.Side.S2C, HITSCAN_PACKET_ID, ((buf, context) -> {
+			UltracraftClient.HITSCAN_HANDLER.addEntry(
+					new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble()),
+					new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble()),
+					buf.readByte());
+		}));
 	}
 }
