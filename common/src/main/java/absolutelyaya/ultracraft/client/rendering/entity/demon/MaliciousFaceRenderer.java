@@ -1,4 +1,4 @@
-package absolutelyaya.ultracraft.client.entity.demon;
+package absolutelyaya.ultracraft.client.rendering.entity.demon;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;

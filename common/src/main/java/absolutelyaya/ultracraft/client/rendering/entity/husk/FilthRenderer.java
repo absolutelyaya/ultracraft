@@ -1,16 +1,13 @@
-package absolutelyaya.ultracraft.client.entity.husk;
+package absolutelyaya.ultracraft.client.rendering.entity.husk;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.entity.husk.FilthEntity;
-import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.*;
-import software.bernie.geckolib3.geo.render.built.GeoBone;
 import software.bernie.geckolib3.geo.render.built.GeoModel;
 import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
 

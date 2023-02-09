@@ -1,24 +1,86 @@
 {
-  "parent": "minecraft:item/handheld",
-  "textures": {
-    "layer0": "minecraft:item/stone_hoe"
-  },
-  "overrides": [
-    {
-      "predicate": {"ultracraft:cooldown": 1},
-      "model": "ultracraft:item/revolver/pierce3"
+  "credit": "Made by Absolutelyaya",
+  "parent": "builtin/entity",
+  "texture_size": [
+    32,
+    32
+  ],
+  "display": {
+    "thirdperson_righthand": {
+      "translation": [
+        0,
+        1.25,
+        -3.25
+      ]
     },
-    {
-      "predicate": {"minecraft:use_time": 0.01},
-      "model": "ultracraft:item/revolver/pierce0"
+    "thirdperson_lefthand": {
+      "translation": [
+        0,
+        1.25,
+        -3.25
+      ]
     },
-    {
-      "predicate": {"minecraft:use_time": 0.25},
-      "model": "ultracraft:item/revolver/pierce1"
+    "firstperson_righthand": {
+      "translation": [
+        -2,
+        2.5,
+        0
+      ]
     },
-    {
-      "predicate": {"minecraft:use_time": 0.5},
-      "model": "ultracraft:item/revolver/pierce2"
+    "firstperson_lefthand": {
+      "translation": [
+        -2,
+        2.5,
+        0
+      ]
+    },
+    "ground": {
+      "translation": [
+        0,
+        2,
+        0
+      ],
+      "scale": [
+        0.5,
+        0.5,
+        0.5
+      ]
+    },
+    "gui": {
+      "rotation": [
+        30,
+        -45,
+        0
+      ],
+      "translation": [
+        0.75,
+        -0.25,
+        0
+      ],
+      "scale": [
+        1.25,
+        1.25,
+        1.25
+      ]
+    },
+    "head": {
+      "translation": [
+        0,
+        2.25,
+        -7.25
+      ]
+    },
+    "fixed": {
+      "rotation": [
+        90,
+        90,
+        -90
+      ],
+      "translation": [
+        -0.75,
+        0,
+        0
+      ]
     }
-  ]
+  }
 }

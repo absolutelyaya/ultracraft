@@ -1,4 +1,4 @@
-package absolutelyaya.ultracraft.client.entity.projectile;
+package absolutelyaya.ultracraft.client.rendering.entity.projectile;
 
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import net.minecraft.client.render.VertexConsumerProvider;

@@ -1,4 +1,4 @@
-package absolutelyaya.ultracraft.client.entity.husk;
+package absolutelyaya.ultracraft.client.rendering.entity.husk;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.entity.husk.FilthEntity;
