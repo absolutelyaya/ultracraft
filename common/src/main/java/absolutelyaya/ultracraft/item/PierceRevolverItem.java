@@ -31,7 +31,6 @@ public class PierceRevolverItem extends AbstractWeaponItem implements IAnimatabl
 	private static final int ANIM_DISCHARGE = 1;
 	private static final int ANIM_SHOT = 2;
 	protected int approxUseTime = -1, primaryCooldown;
-	float lastRotSpeed;
 	
 	public PierceRevolverItem(Settings settings)
 	{
@@ -82,8 +81,26 @@ public class PierceRevolverItem extends AbstractWeaponItem implements IAnimatabl
 			final int id = GeckoLibUtil.guaranteeIDForStack(user.getMainHandStack(), (ServerWorld)world);
 			GeckoLibNetwork.syncAnimation(user, this, id, ANIM_SHOT);
 			ServerHitscanHandler.performHitscan(user, (byte)0, 4);
-			primaryCooldown = 5;
+			primaryCooldown = 10;
 		}
+	}
+	
+	@Override
+	public int getItemBarStep(ItemStack stack)
+	{
+		return (int)((float)(10 - primaryCooldown) / 10f * 14f);
+	}
+	
+	@Override
+	public boolean isItemBarVisible(ItemStack stack)
+	{
+		return primaryCooldown > 0;
+	}
+	
+	@Override
+	public int getItemBarColor(ItemStack stack)
+	{
+		return 0x28ccdf;
 	}
 	
 	@Override
@@ -94,14 +111,12 @@ public class PierceRevolverItem extends AbstractWeaponItem implements IAnimatabl
 			if(user instanceof PlayerEntity player)
 			{
 				if(world.isClient)
-				{
 					approxCooldown = 50;
-					approxUseTime = -1;
-				}
 				else
 				{
 					final int id = GeckoLibUtil.guaranteeIDForStack(stack, (ServerWorld) world);
 					GeckoLibNetwork.syncAnimation(player, this, id, ANIM_DISCHARGE);
+					approxUseTime = -1;
 				}
 				player.getItemCooldownManager().set(this, 50);
 			}
@@ -110,6 +125,13 @@ public class PierceRevolverItem extends AbstractWeaponItem implements IAnimatabl
 				ServerHitscanHandler.performHitscan(user, (byte)1, 10, 3);
 			}
 		}
+		else if(!world.isClient && user instanceof PlayerEntity player)
+		{
+			approxUseTime = -1;
+			final int id = GeckoLibUtil.guaranteeIDForStack(stack, (ServerWorld) world);
+			GeckoLibNetwork.syncAnimation(player, this, id, ANIM_CHARGE);
+		}
+		approxUseTime = -1;
 	}
 	
 	@Override
@@ -158,14 +180,9 @@ public class PierceRevolverItem extends AbstractWeaponItem implements IAnimatabl
 		{
 			case ANIM_CHARGE -> {
 				float rotSpeed = 1f - (getMaxUseTime(null) - getApproxUseTime()) / (float)(getMaxUseTime(null));
-				if(rotSpeed == 0f)
-				{
-					rotSpeed = MathHelper.lerp(0.05f, lastRotSpeed, 0f);
-				}
-				lastRotSpeed = rotSpeed;
 				if(controller.getCurrentAnimation() == null || !controller.getCurrentAnimation().animationName.equals("charged"))
 					controller.setAnimation(new AnimationBuilder().addAnimation("charged", true));
-				controller.setAnimationSpeed(Math.min(rotSpeed, 1f));
+				controller.setAnimationSpeed(MathHelper.clamp(rotSpeed, 0f, 1f));
 				controller.markNeedsReload();
 			}
 			case ANIM_DISCHARGE -> {
