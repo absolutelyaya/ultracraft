@@ -2,11 +2,12 @@
   "item.ultracraft.blue_skull": "Blue Skull",
   "item.ultracraft.red_skull": "Red Skull",
   "item.ultracraft.hell_bullet": "Hell Bullet",
+  "item.ultracraft.pierce_revolver": "Pierce Revolver",
 
   "block.ultracraft.elevator": "Elevator Casing",
 
   "entity.ultracraft.filth": "Filth",
   "entity.ultracraft.malicious_face": "Malicious Face",
 
-  "itemGroup.ultracraft.items": "ULTRACRAFT"
+  "itemGroup.ultracraft.item": "ULTRACRAFT"
 }

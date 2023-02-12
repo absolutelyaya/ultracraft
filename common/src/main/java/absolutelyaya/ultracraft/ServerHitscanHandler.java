@@ -35,7 +35,12 @@ public class ServerHitscanHandler
 		NetworkManager.sendToPlayers(world.getPlayers(), PacketRegistry.HITSCAN_PACKET_ID, buf);
 	}
 	
-	public static void performHitscan(LivingEntity user, byte type, int damage, boolean pierces)
+	public static void performHitscan(LivingEntity user, byte type, int damage)
+	{
+		performHitscan(user, type, damage, 1);
+	}
+	
+	public static void performHitscan(LivingEntity user, byte type, int damage, int maxHits)
 	{
 		World world = user.getWorld();
 		Vec3d origin = user.getPos().add(new Vec3d(0f, user.getStandingEyeHeight(), 0f));
@@ -53,16 +58,17 @@ public class ServerHitscanHandler
 			EntityHitResult eHit = ProjectileUtil.raycast(user, from, to, box, (entity) -> !entities.contains(entity), 64f * 64f);
 			if(eHit == null)
 				break;
-			searchForEntities = eHit.getType() != HitResult.Type.MISS && pierces;
-			if(eHit.getType() != HitResult.Type.MISS)
+			searchForEntities = eHit.getType() != HitResult.Type.MISS && maxHits > 0;
+			if(searchForEntities)
 			{
+				maxHits--;
 				from = eHit.getPos();
-				if(entities.size() == 0 && !pierces)
+				if(entities.size() == 0 || maxHits == 0)
 					visualTo = eHit.getPos();
 				entities.add(eHit.getEntity());
 			}
 		}
 		entities.forEach((e) -> e.damage(ProjectileDamageSource.mob(user), damage));
-		sendPacket((ServerWorld)user.world, origin.add(new Vec3d(-0.5f, -0.1f, 0f).rotateY(-(float)Math.toRadians(user.getYaw()))), visualTo, type);
+		sendPacket((ServerWorld)user.world, origin.add(new Vec3d(-0.5f, -0.3f, 0f).rotateY(-(float)Math.toRadians(user.getYaw()))), visualTo, type);
 	}
 }

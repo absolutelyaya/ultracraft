@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.item;
 
 import absolutelyaya.ultracraft.ServerHitscanHandler;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -28,7 +29,8 @@ public class PierceRevolverItem extends AbstractWeaponItem implements IAnimatabl
 	private static final String controllerName = "pierceRevolverController";
 	private static final int ANIM_CHARGE = 0;
 	private static final int ANIM_DISCHARGE = 1;
-	protected int approxUseTime;
+	private static final int ANIM_SHOT = 2;
+	protected int approxUseTime = -1, primaryCooldown;
 	float lastRotSpeed;
 	
 	public PierceRevolverItem(Settings settings)
@@ -43,13 +45,27 @@ public class PierceRevolverItem extends AbstractWeaponItem implements IAnimatabl
 		ItemStack itemStack = user.getStackInHand(hand);
 		user.setCurrentHand(hand);
 		if(world.isClient)
-			approxUseTime++;
-		else
-		{
-			final int id = GeckoLibUtil.guaranteeIDForStack(user.getStackInHand(hand), (ServerWorld) world);
-			GeckoLibNetwork.syncAnimation(user, this, id, ANIM_CHARGE);
-		}
+			approxUseTime = 0;
 		return TypedActionResult.consume(itemStack);
+	}
+	
+	@Override
+	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
+	{
+		super.inventoryTick(stack, world, entity, slot, selected);
+		if(world.isClient)
+			return;
+		if(approxUseTime >= 0)
+		{
+			approxUseTime++;
+			if(entity instanceof PlayerEntity player)
+			{
+				final int id = GeckoLibUtil.guaranteeIDForStack(stack, (ServerWorld) world);
+				GeckoLibNetwork.syncAnimation(player, this, id, ANIM_CHARGE);
+			}
+		}
+		if(primaryCooldown > 0)
+			primaryCooldown--;
 	}
 	
 	@Override
@@ -61,9 +77,12 @@ public class PierceRevolverItem extends AbstractWeaponItem implements IAnimatabl
 	@Override
 	public void onPrimaryFire(World world, PlayerEntity user)
 	{
-		if(!world.isClient)
+		if(!world.isClient && primaryCooldown <= 0)
 		{
-			ServerHitscanHandler.performHitscan(user, (byte)0, 4, false);
+			final int id = GeckoLibUtil.guaranteeIDForStack(user.getMainHandStack(), (ServerWorld)world);
+			GeckoLibNetwork.syncAnimation(user, this, id, ANIM_SHOT);
+			ServerHitscanHandler.performHitscan(user, (byte)0, 4);
+			primaryCooldown = 5;
 		}
 	}
 	
@@ -77,7 +96,7 @@ public class PierceRevolverItem extends AbstractWeaponItem implements IAnimatabl
 				if(world.isClient)
 				{
 					approxCooldown = 50;
-					approxUseTime = 0;
+					approxUseTime = -1;
 				}
 				else
 				{
@@ -88,7 +107,7 @@ public class PierceRevolverItem extends AbstractWeaponItem implements IAnimatabl
 			}
 			if(!world.isClient)
 			{
-				ServerHitscanHandler.performHitscan(user, (byte)1, 10, true);
+				ServerHitscanHandler.performHitscan(user, (byte)1, 10, 3);
 			}
 		}
 	}
@@ -118,7 +137,7 @@ public class PierceRevolverItem extends AbstractWeaponItem implements IAnimatabl
 	@Override
 	public void registerControllers(AnimationData data)
 	{
-		data.addAnimationController(new AnimationController<>(this, "controller", 20, this::predicate));
+		data.addAnimationController(new AnimationController<>(this, controllerName, 1, this::predicate));
 	}
 	
 	@Override
@@ -132,24 +151,32 @@ public class PierceRevolverItem extends AbstractWeaponItem implements IAnimatabl
 	{
 		@SuppressWarnings("rawtypes")
 		final AnimationController controller = GeckoLibUtil.getControllerForID(this.factory, id, controllerName);
+		if(controller == null)
+			return;
 		
 		switch (state)
 		{
 			case ANIM_CHARGE -> {
-				controller.markNeedsReload();
 				float rotSpeed = 1f - (getMaxUseTime(null) - getApproxUseTime()) / (float)(getMaxUseTime(null));
 				if(rotSpeed == 0f)
 				{
 					rotSpeed = MathHelper.lerp(0.05f, lastRotSpeed, 0f);
 				}
 				lastRotSpeed = rotSpeed;
-				controller.setAnimationSpeed(rotSpeed);
-				controller.setAnimation(new AnimationBuilder().addAnimation("Soaryn_chest_popup", false));
+				if(controller.getCurrentAnimation() == null || !controller.getCurrentAnimation().animationName.equals("charged"))
+					controller.setAnimation(new AnimationBuilder().addAnimation("charged", true));
+				controller.setAnimationSpeed(Math.min(rotSpeed, 1f));
+				controller.markNeedsReload();
 			}
 			case ANIM_DISCHARGE -> {
+				controller.setAnimation(new AnimationBuilder().addAnimation("discharge", false));
 				controller.setAnimationSpeed(1);
 				controller.markNeedsReload();
-				controller.setAnimation(new AnimationBuilder().addAnimation("Soaryn_chest_popup", false));
+			}
+			case ANIM_SHOT -> {
+				controller.setAnimation(new AnimationBuilder().addAnimation("shot", false));
+				controller.setAnimationSpeed(1);
+				controller.markNeedsReload();
 			}
 		}
 	}
