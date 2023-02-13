@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft;
 
 import absolutelyaya.ultracraft.registry.*;
 import dev.architectury.event.events.common.TickEvent;
+import org.apache.commons.compress.compressors.lz77support.LZ77Compressor;
 
 public class Ultracraft
 {
@@ -12,6 +13,7 @@ public class Ultracraft
     {
         EntityRegistry.register();
         BlockRegistry.register();
+        BlockEntityRegistry.register();
         ItemRegistry.register();
         PacketRegistry.register();
         BlockTagRegistry.register();

@@ -23,6 +23,8 @@ public class ItemRegistry
 			() -> new HellBulletItem(new Item.Settings().fireproof().maxCount(25).group(ULTRACRAFT_TAB)));
 	public static final RegistrySupplier<Item> ELEVATOR = ITEMS.register("elevator",
 			() -> new BlockItem(BlockRegistry.ELEVATOR.get(), new Item.Settings().group(ULTRACRAFT_TAB)));
+	public static final RegistrySupplier<Item> PEDESTAL = ITEMS.register("pedestal",
+			() -> new BlockItem(BlockRegistry.PEDESTAL.get(), new Item.Settings().group(ULTRACRAFT_TAB)));
 	
 	public static final RegistrySupplier<PierceRevolverItem> PIERCE_REVOLVER = ITEMS.register("pierce_revolver",
 			() -> new PierceRevolverItem(new Item.Settings().group(ULTRACRAFT_TAB)));

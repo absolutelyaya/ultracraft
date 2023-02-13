@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.accessor.ClientPlayerAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
+import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.BlockTagRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
@@ -50,49 +51,50 @@ public abstract class MinecraftClientMixin
 	@Redirect(method = "handleInputEvents()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"))
 	void OnHandSwap(ClientPlayNetworkHandler instance, Packet<?> packet)
 	{
-		if(player != null)
+		if(player == null || !((ClientPlayerAccessor)player).Punch())
+			return;
+		
+		Entity entity = null;
+		if(crosshairTarget == null)
+			return;
+		if(crosshairTarget.getType().equals(HitResult.Type.ENTITY))
 		{
-			if(!((ClientPlayerAccessor)player).Punch())
-				return;
-			
-			Entity entity = null;
-			if(crosshairTarget != null)
+			entity = ((EntityHitResult)crosshairTarget).getEntity();
+		}
+		else if(crosshairTarget.getType().equals(HitResult.Type.BLOCK))
+		{
+			BlockHitResult hit = ((BlockHitResult)crosshairTarget);
+			BlockState state = player.world.getBlockState(hit.getBlockPos());
+			if(state.getBlock() instanceof IPunchableBlock punchable)
 			{
-				if(crosshairTarget.getType().equals(HitResult.Type.ENTITY))
-				{
-					entity = ((EntityHitResult)crosshairTarget).getEntity();
-				}
-				else if(crosshairTarget.getType().equals(HitResult.Type.BLOCK))
-				{
-					BlockHitResult hit = ((BlockHitResult)crosshairTarget);
-					BlockState state = player.world.getBlockState(hit.getBlockPos());
-					Vec3d pos = hit.getPos();
-					for (int i = 0; i < 6; i++)
-					{
-						player.world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), pos.x, pos.y, pos.z, 0f, 0f, 0f);
-					}
-					player.playSound(state.getSoundGroup().getHitSound(), 1f, 1f);
-					if(state.isIn(BlockTagRegistry.PUNCH_BREAKABLE))
-						player.world.breakBlock(hit.getBlockPos(), true, player);
-					return;
-				}
+				if (punchable.onPunch(player, hit.getBlockPos()))
+					return; //if punch interaction was successful, don't display break particles and stuff
 			}
-			
-			Vec3d forward = player.getRotationVecClient();
-			Vec3d pos = player.getCameraPosVec(0f).add(forward.normalize().multiply(1));
-			List<ProjectileEntity> projectiles = player.world.getEntitiesByClass(ProjectileEntity.class,
-					new Box(pos.x - 0.75f, pos.y - 0.75f, pos.z - 0.75f, pos.x + 0.75f, pos.y + 0.75f, pos.z + 0.75f),
-					(e) -> !((ProjectileEntityAccessor)e).isParried());
-			if(projectiles.size() > 0)
-				entity = getNearestProjectile(projectiles, pos);
-			
-			if(entity != null)
+			Vec3d pos = hit.getPos();
+			for (int i = 0; i < 6; i++)
 			{
-				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-				buf.writeInt(entity.getId());
-				buf.writeBoolean(!player.getStackInHand(Hand.OFF_HAND).isEmpty());
-				NetworkManager.sendToServer(PacketRegistry.PUNCH_ENTITY_PACKET_ID, buf);
+				player.world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), pos.x, pos.y, pos.z, 0f, 0f, 0f);
 			}
+			player.playSound(state.getSoundGroup().getHitSound(), 1f, 1f);
+			if(state.isIn(BlockTagRegistry.PUNCH_BREAKABLE))
+				player.world.breakBlock(hit.getBlockPos(), true, player);
+			return;
+		}
+		
+		Vec3d forward = player.getRotationVecClient();
+		Vec3d pos = player.getCameraPosVec(0f).add(forward.normalize().multiply(1));
+		List<ProjectileEntity> projectiles = player.world.getEntitiesByClass(ProjectileEntity.class,
+				new Box(pos.x - 0.75f, pos.y - 0.75f, pos.z - 0.75f, pos.x + 0.75f, pos.y + 0.75f, pos.z + 0.75f),
+				(e) -> !((ProjectileEntityAccessor)e).isParried());
+		if(projectiles.size() > 0)
+			entity = getNearestProjectile(projectiles, pos);
+		
+		if(entity != null)
+		{
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeInt(entity.getId());
+			buf.writeBoolean(!player.getStackInHand(Hand.OFF_HAND).isEmpty());
+			NetworkManager.sendToServer(PacketRegistry.PUNCH_ENTITY_PACKET_ID, buf);
 		}
 	}
 	
