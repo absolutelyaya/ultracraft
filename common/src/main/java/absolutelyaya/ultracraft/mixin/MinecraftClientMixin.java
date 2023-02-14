@@ -67,6 +67,9 @@ public abstract class MinecraftClientMixin
 			BlockState state = player.world.getBlockState(hit.getBlockPos());
 			if(state.getBlock() instanceof IPunchableBlock punchable)
 			{
+				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+				buf.writeBlockPos(hit.getBlockPos());
+				NetworkManager.sendToServer(PacketRegistry.PUNCH_BLOCK_PACKET_ID, buf);
 				if (punchable.onPunch(player, hit.getBlockPos()))
 					return; //if punch interaction was successful, don't display break particles and stuff
 			}

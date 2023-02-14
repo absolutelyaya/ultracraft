@@ -58,8 +58,6 @@ public class PedestalBlockEntity extends BlockEntity
 		super.writeNbt(nbt);
 		if (!getStack().isEmpty())
 			nbt.put("holding", getStack().writeNbt(new NbtCompound()));
-		
-		//TODO: sync with server
 	}
 	
 	public ItemStack getStack()

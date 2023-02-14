@@ -3,23 +3,33 @@ package absolutelyaya.ultracraft.registry;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.MeleeParriable;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
+import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import dev.architectury.networking.NetworkManager;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.client.util.NetworkUtils;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import java.util.logging.Logger;
+
 public class PacketRegistry
 {
-	public static final Identifier PUNCH_ENTITY_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch");
+	public static final Identifier PUNCH_ENTITY_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_entiy");
+	public static final Identifier PUNCH_BLOCK_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_block");
 	public static final Identifier PRIMARY_SHOT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "primary_shot");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
 	
@@ -57,6 +67,20 @@ public class PacketRegistry
 				Vec3d vel = player.getRotationVecClient().normalize().multiply(fatal ? 2f : 1f).multiply(target instanceof ProjectileEntity ? 2.5f : 1f);
 				target.setVelocity(vel);
 			}
+		});
+		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PUNCH_BLOCK_PACKET_ID, (buf, context) -> {
+			PlayerEntity player = context.getPlayer();
+			World world = player.getWorld();
+			BlockPos target = buf.readBlockPos();
+			
+			context.queue(() -> {
+				if(target != null)
+				{
+					BlockState state = world.getBlockState(target);
+					if(state.getBlock() instanceof IPunchableBlock punchable)
+						punchable.onPunch(player, target);
+				}
+			});
 		});
 		NetworkManager.registerReceiver(NetworkManager.Side.C2S, PRIMARY_SHOT_PACKET_ID, (buf, context) -> {
 			PlayerEntity player = context.getPlayer();

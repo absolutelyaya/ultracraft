@@ -24,8 +24,7 @@ public class ElevatorBlock extends Block
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder)
 	{
-		builder.add(LAYER);
-		builder.add(SIDE);
+		builder.add(LAYER, SIDE);
 	}
 	
 	@Nullable
