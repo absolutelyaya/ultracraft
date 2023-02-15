@@ -179,6 +179,11 @@ public class FilthEntity extends HostileEntity implements IAnimatable, MeleeParr
 			super.pushAwayFrom(entity);
 	}
 	
+	@Override
+	public void onParried(PlayerEntity parrier) {
+	
+	}
+	
 	static class FilthLungeAttackGoal extends Goal
 	{
 		FilthEntity mob;

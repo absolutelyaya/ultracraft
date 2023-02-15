@@ -51,6 +51,7 @@ public class PedestalBlockEntity extends BlockEntity
 			stack = ItemStack.fromNbt(nbt.getCompound("holding"));
 		else
 			stack = ItemStack.EMPTY;
+		//TODO: send to clients
 	}
 	
 	protected void writeNbt(NbtCompound nbt)

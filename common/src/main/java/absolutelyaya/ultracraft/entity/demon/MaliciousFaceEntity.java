@@ -1,5 +1,7 @@
 package absolutelyaya.ultracraft.entity.demon;
 
+import absolutelyaya.ultracraft.ServerHitscanHandler;
+import absolutelyaya.ultracraft.accessor.MeleeParriable;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -13,6 +15,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.entity.mob.HostileEntity;
@@ -28,16 +31,18 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
+import net.minecraft.world.explosion.Explosion;
 
 import java.util.EnumSet;
 import java.util.List;
 
-public class MaliciousFaceEntity extends GhastEntity
+public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 {
-	protected static final TrackedData<Integer> SALVAE_COOLDOWN = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Boolean> CRACKED = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> DEAD = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> LANDED = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Boolean> CHARGING = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	
 	public MaliciousFaceEntity(EntityType<? extends GhastEntity> entityType, World world)
 	{
@@ -60,7 +65,8 @@ public class MaliciousFaceEntity extends GhastEntity
 	protected void initGoals()
 	{
 		goalSelector.add(0, new HoverIntoSightGoal(this));
-		goalSelector.add(1, new MaliciousSalvaeGoal(this));
+		goalSelector.add(1, new MaliciousBeamGoal(this));
+		goalSelector.add(2, new MaliciousSalvaeGoal(this));
 		
 		targetSelector.add(0, new ActiveTargetGoal<>(this, PlayerEntity.class, 4, false, false, (a) -> true));
 	}
@@ -69,10 +75,11 @@ public class MaliciousFaceEntity extends GhastEntity
 	protected void initDataTracker()
 	{
 		super.initDataTracker();
-		dataTracker.startTracking(SALVAE_COOLDOWN, 200);
+		dataTracker.startTracking(ATTACK_COOLDOWN, 200);
 		dataTracker.startTracking(CRACKED, false);
 		dataTracker.startTracking(DEAD, false);
 		dataTracker.startTracking(LANDED, false);
+		dataTracker.startTracking(CHARGING, false);
 	}
 	
 	@Override
@@ -107,7 +114,7 @@ public class MaliciousFaceEntity extends GhastEntity
 	public void tickMovement()
 	{
 		super.tickMovement();
-		if(getTarget() != null)
+		if(getTarget() != null && !isAttacking())
 		{
 			lookAtEntity(getTarget(), 180, 180);
 			setBodyYaw(headYaw);
@@ -117,23 +124,30 @@ public class MaliciousFaceEntity extends GhastEntity
 			bodyYaw = getYaw();
 			headYaw = getYaw();
 		}
-		if(dataTracker.get(SALVAE_COOLDOWN) > 0)
-			dataTracker.set(SALVAE_COOLDOWN, dataTracker.get(SALVAE_COOLDOWN) - 1);
+		if(dataTracker.get(ATTACK_COOLDOWN) > 0)
+			dataTracker.set(ATTACK_COOLDOWN, dataTracker.get(ATTACK_COOLDOWN) - 1);
 		if(dataTracker.get(DEAD))
 		{
 			Vec3d vel = getVelocity();
 			double q = vel.y;
 			if (hasStatusEffect(StatusEffects.LEVITATION))
 			{
-				q += (0.05 * (double)(getStatusEffect(StatusEffects.LEVITATION).getAmplifier() + 1) - vel.y) * 0.2;
+				StatusEffectInstance levitation = getStatusEffect(StatusEffects.LEVITATION);
+				if(levitation != null)
+					q += (0.05 * (double)(levitation.getAmplifier() + 1) - vel.y) * 0.2;
 				onLanding();
 			}
 			else if (!hasNoGravity())
-			{
 				q -= 0.08;
-			}
-			
 			this.setVelocity(0f, q * 0.98f, 0f);
+		}
+		if(dataTracker.get(CHARGING))
+		{
+			Vec3d particlePos = getPos().add(getRotationVector().multiply(1f));
+			Vec3d offset = new Vec3d(random.nextDouble() * 0.8, random.nextDouble() * 0.8, random.nextDouble() * 0.8);
+			offset = offset.multiply(random.nextBoolean() ? 1f : -1f);
+			world.addParticle(ParticleTypes.FLAME, particlePos.x + offset.x, particlePos.y + offset.y, particlePos.z + offset.z,
+					-offset.x * 0.1, -offset.y * 0.1, -offset.z * 0.1);
 		}
 	}
 	
@@ -240,6 +254,17 @@ public class MaliciousFaceEntity extends GhastEntity
 		return dataTracker.get(CRACKED);
 	}
 	
+	private float getHealthPercent()
+	{
+		return getHealth() / getMaxHealth();
+	}
+	
+	@Override
+	public void onParried(PlayerEntity parrier)
+	{
+		world.createExplosion(parrier, getX(), getY(), getZ(), 4f, Explosion.DestructionType.NONE);
+	}
+	
 	static class MaliciousMoveControl extends MoveControl
 	{
 		private final GhastEntity face;
@@ -284,6 +309,10 @@ public class MaliciousFaceEntity extends GhastEntity
 				}
 				else
 					face.setVelocity(face.getVelocity().add(forward.multiply(0.1 * speed)));
+				
+				float upward = (face.getBlockY() - face.world.getTopY(Heightmap.Type.MOTION_BLOCKING, face.getBlockX(),
+						face.getBlockZ())) < 4 ? (float)speed * 0.1f : 0f;
+				face.setVelocity(face.getVelocity().add(0f, upward, 0f));
 			}
 		}
 		
@@ -308,9 +337,11 @@ public class MaliciousFaceEntity extends GhastEntity
 		public boolean canStart()
 		{
 			MoveControl control = face.moveControl;
-			if(face.getTarget() == null || face.canSee(face.getTarget()))
+			int floorDistance = face.getBlockY() - face.world.getTopY(Heightmap.Type.MOTION_BLOCKING, face.getBlockX(), face.getBlockZ());
+			if((face.getTarget() == null || face.canSee(face.getTarget())))
 			{
-				((MaliciousMoveControl)control).stopMoving();
+				if(floorDistance >= 4)
+					((MaliciousMoveControl)control).stopMoving();
 				return false;
 			}
 			target = face.getTarget();
@@ -349,13 +380,13 @@ public class MaliciousFaceEntity extends GhastEntity
 		public boolean canStart()
 		{
 			target = face.getTarget();
-			return target != null && face.canSee(target) && face.dataTracker.get(SALVAE_COOLDOWN) <= 0;
+			return target != null && face.canSee(target) && face.dataTracker.get(ATTACK_COOLDOWN) <= 0;
 		}
 		
 		@Override
 		public void start()
 		{
-			shots = 8;
+			shots = 6;
 		}
 		
 		@Override
@@ -372,14 +403,92 @@ public class MaliciousFaceEntity extends GhastEntity
 				shots--;
 				timer = 2;
 				face.shootBullet(target);
-				face.dataTracker.set(SALVAE_COOLDOWN, 100 + (int)(face.random.nextFloat() * 60));
+				face.dataTracker.set(ATTACK_COOLDOWN, 100 + (int)(face.random.nextFloat() * 60));
 			}
 		}
 		
 		@Override
 		public boolean shouldContinue()
 		{
-			return shots > 0 && target != null;
+			return shots > 0 && target != null && !face.dataTracker.get(DEAD);
+		}
+	}
+	
+	static class MaliciousBeamGoal extends Goal
+	{
+		MaliciousFaceEntity face;
+		LivingEntity target;
+		int timer;
+		Vec3d lastTargetPos, targetPos;
+		
+		MaliciousBeamGoal(MaliciousFaceEntity face)
+		{
+			this.face = face;
+			setControls(EnumSet.of(Control.LOOK, Control.MOVE));
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			target = face.getTarget();
+			if(target == null || !face.canSee(target) || face.dataTracker.get(ATTACK_COOLDOWN) > 0)
+				return false;
+			return face.random.nextFloat() > face.getHealthPercent() - 0.2f;
+		}
+		
+		@Override
+		public void start()
+		{
+			timer = 200;
+			face.dataTracker.set(ATTACK_COOLDOWN, 200);
+		}
+		
+		@Override
+		public boolean shouldRunEveryTick()
+		{
+			return true;
+		}
+		
+		@Override
+		public void tick()
+		{
+			if(--timer > 20)
+			{
+				face.dataTracker.set(CHARGING, true);
+				lastTargetPos = target.getPos();
+			}
+			if(timer == 20)
+			{
+				Vec3d dir = target.getPos().subtract(lastTargetPos);
+				targetPos = target.getPos().add(dir.normalize().multiply(4)).add(0, 1, 0);
+				face.setAttacking(true);
+				face.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING, 2f, 1.2f);
+			}
+			if(timer < 20)
+			{
+				face.lookControl.lookAt(targetPos);
+				face.dataTracker.set(CHARGING, false);
+			}
+			if(timer <= 0)
+			{
+				ServerHitscanHandler.performHitscan(face, (byte)5, 0, 2f);
+				face.dataTracker.set(ATTACK_COOLDOWN, 100 + (int)(face.random.nextFloat() * 60));
+				face.dataTracker.set(CHARGING, false);
+			}
+		}
+		
+		@Override
+		public void stop()
+		{
+			super.stop();
+			face.setAttacking(false);
+			face.dataTracker.set(CHARGING, false);
+		}
+		
+		@Override
+		public boolean shouldContinue()
+		{
+			return timer > 0 && target != null && !face.dataTracker.get(DEAD);
 		}
 	}
 }

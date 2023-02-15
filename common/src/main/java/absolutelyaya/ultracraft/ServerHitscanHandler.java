@@ -16,6 +16,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
+import net.minecraft.world.explosion.Explosion;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,10 +38,20 @@ public class ServerHitscanHandler
 	
 	public static void performHitscan(LivingEntity user, byte type, int damage)
 	{
-		performHitscan(user, type, damage, 1);
+		performHitscan(user, type, damage, 1, 0);
 	}
 	
 	public static void performHitscan(LivingEntity user, byte type, int damage, int maxHits)
+	{
+		performHitscan(user, type, damage, maxHits, 0);
+	}
+	
+	public static void performHitscan(LivingEntity user, byte type, int damage, float explosionPower)
+	{
+		performHitscan(user, type, damage, 1, explosionPower);
+	}
+	
+	public static void performHitscan(LivingEntity user, byte type, int damage, int maxHits, float explosionPower)
 	{
 		World world = user.getWorld();
 		Vec3d origin = user.getPos().add(new Vec3d(0f, user.getStandingEyeHeight(), 0f));
@@ -69,6 +80,8 @@ public class ServerHitscanHandler
 			}
 		}
 		entities.forEach((e) -> e.damage(ProjectileDamageSource.mob(user), damage));
+		if(explosionPower > 0f)
+			world.createExplosion(null, to.x, to.y, to.z, explosionPower, Explosion.DestructionType.NONE);
 		sendPacket((ServerWorld)user.world, origin.add(new Vec3d(-0.5f, -0.3f, 0f).rotateY(-(float)Math.toRadians(user.getYaw()))), visualTo, type);
 	}
 }
