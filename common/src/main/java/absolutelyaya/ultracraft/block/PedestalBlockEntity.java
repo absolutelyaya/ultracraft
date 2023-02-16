@@ -41,9 +41,9 @@ public class PedestalBlockEntity extends BlockEntity
 			stack = player.getOffHandStack();
 			player.getInventory().offHand.set(0, ItemStack.EMPTY);
 		}
-		//if both stacks are not empty, do nothing, but don't count it as punching a regular block.
 		if(world != null)
 			world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_LISTENERS);
+		//if both stacks are not empty, do nothing, but don't count it as punching a regular block.
 		return true;
 	}
 	

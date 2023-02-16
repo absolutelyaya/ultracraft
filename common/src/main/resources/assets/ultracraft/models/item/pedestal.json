@@ -1,3 +1,17 @@
 {
-  "parent": "ultracraft:block/pedestal"
+  "parent": "ultracraft:block/pedestal",
+  "overrides": [
+    {
+      "predicate": {
+        "ultracraft:type": 0.1
+      },
+      "model": "ultracraft:block/blue_pedestal"
+    },
+    {
+      "predicate": {
+        "ultracraft:type": 0.2
+      },
+      "model": "ultracraft:block/red_pedestal"
+    }
+  ]
 }

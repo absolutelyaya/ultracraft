@@ -2,7 +2,7 @@
 	"credit": "Made by Absolutelyaya",
 	"textures": {
 		"1": "minecraft:block/cobblestone",
-		"particles": "minecraft:block/cobblestone"
+		"particle": "minecraft:block/cobblestone"
 	},
 	"elements": [
 		{

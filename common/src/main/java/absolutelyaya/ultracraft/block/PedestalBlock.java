@@ -6,6 +6,10 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.util.ActionResult;
@@ -15,6 +19,9 @@ import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
@@ -109,7 +116,59 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 		return getWeakRedstonePower(state, world, pos, direction);
 	}
 	
-	enum Type implements StringIdentifiable
+	@Override
+	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit)
+	{
+		ItemStack stack = player.getStackInHand(hand);
+		if(stack.isOf(Items.BLUE_DYE) && !state.get(TYPE).equals(Type.BLUE))
+		{
+			useDye(world, pos, state, player, stack, Type.BLUE);
+			return ActionResult.CONSUME;
+		}
+		else if(stack.isOf(Items.RED_DYE) && !state.get(TYPE).equals(Type.RED))
+		{
+			useDye(world, pos, state, player, stack, Type.RED);
+			return ActionResult.CONSUME;
+		}
+		else if(stack.isOf(Items.WATER_BUCKET) && !state.get(TYPE).equals(Type.NONE))
+		{
+			world.setBlockState( pos, state.with(TYPE, Type.NONE));
+			if(!player.isCreative())
+				player.setStackInHand(hand, new ItemStack(Items.BUCKET));
+			world.playSound(null, pos, SoundEvents.ITEM_BUCKET_EMPTY, SoundCategory.PLAYERS, 1f, 1f);
+			for (int i = 0; i < 16; i++)
+			{
+				Vec3d ppos = new Vec3d(world.random.nextDouble(), world.random.nextDouble(), world.random.nextDouble());
+				world.addParticle(ParticleTypes.SPLASH, pos.getX() + ppos.x, pos.getY() + ppos.y, pos.getZ() + ppos.z,
+						0f, 0f, 0f);
+			}
+			return ActionResult.CONSUME;
+		}
+		else return super.onUse(state, world, pos, player, hand, hit);
+	}
+	
+	void useDye(World world, BlockPos pos, BlockState state, PlayerEntity player, ItemStack dye, Type newType)
+	{
+		world.setBlockState(pos, state.with(TYPE, newType));
+		if(!player.isCreative())
+			dye.decrement(1);
+		world.playSound(null, pos, SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER, SoundCategory.PLAYERS, 1f, 1f);
+		world.addBlockBreakParticles(pos, state.with(TYPE, newType));
+	}
+	
+	@Override
+	public VoxelShape getCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context)
+	{
+		return VoxelShapes.cuboid(1f / 16f, 0, 1f / 16f, 1 - 1f / 16f, 1f, 1 - 1f / 16f);
+	}
+	
+	@Override
+	public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context)
+	{
+		return getCollisionShape(state, world, pos, context);
+	}
+	
+	public enum Type implements StringIdentifiable
 	{
 		NONE("none"),
 		BLUE("blue"),

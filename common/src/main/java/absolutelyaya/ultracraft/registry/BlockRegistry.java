@@ -13,9 +13,9 @@ public class BlockRegistry
 {
 	public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(Ultracraft.MOD_ID, Registry.BLOCK_KEY);
 	public static final RegistrySupplier<Block> ELEVATOR = BLOCKS.register("elevator",
-			() -> new ElevatorBlock(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK).mapColor(MapColor.DULL_RED)));
+			() -> new ElevatorBlock(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK).mapColor(MapColor.DULL_RED).requiresTool()));
 	public static final RegistrySupplier<Block> PEDESTAL = BLOCKS.register("pedestal",
-			() -> new PedestalBlock(AbstractBlock.Settings.copy(Blocks.COBBLESTONE).mapColor(MapColor.GRAY).nonOpaque()));
+			() -> new PedestalBlock(AbstractBlock.Settings.copy(Blocks.COBBLESTONE).mapColor(MapColor.GRAY).nonOpaque().requiresTool()));
 	
 	public static void register()
 	{

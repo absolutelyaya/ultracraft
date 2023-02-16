@@ -462,7 +462,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 				Vec3d dir = target.getPos().subtract(lastTargetPos);
 				targetPos = target.getPos().add(dir.normalize().multiply(4)).add(0, 1, 0);
 				face.setAttacking(true);
-				face.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING, 2f, 1.2f);
+				face.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING, 2f, 1.75f);
 			}
 			if(timer < 20)
 			{
