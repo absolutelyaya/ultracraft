@@ -5,9 +5,11 @@ import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceRende
 import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.HellBulletRenderer;
 import absolutelyaya.ultracraft.client.rendering.item.PierceRevolverRenderer;
+import absolutelyaya.ultracraft.particle.MaliciousChargeParticle;
 import absolutelyaya.ultracraft.registry.*;
 import dev.architectury.event.events.common.TickEvent;
 import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
+import dev.architectury.registry.client.particle.ParticleProviderRegistry;
 import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -20,10 +22,14 @@ public class UltracraftClient
 	
 	public static void init()
 	{
+		ParticleRegistry.init();
+		
 		//EntityRenderers
 		EntityRendererRegistry.register(EntityRegistry.FILTH, FilthRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.MALICIOUS_FACE, MaliciousFaceRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.HELL_BULLET, HellBulletRenderer::new);
+		//Particles
+		ParticleProviderRegistry.register(ParticleRegistry.MALICIOUS_CHARGE.get(), MaliciousChargeParticle.MaliciousChargeParticleFactory::new);
 		
 		BlockEntityRendererRegistry.register(BlockEntityRegistry.PEDESTAL.get(), PedestalBlockEntityRenderer::new);
 		

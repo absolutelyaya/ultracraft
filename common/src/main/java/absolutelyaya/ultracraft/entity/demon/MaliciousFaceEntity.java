@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.entity.demon;
 import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.accessor.MeleeParriable;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
+import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
@@ -141,13 +142,13 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 				q -= 0.08;
 			this.setVelocity(0f, q * 0.98f, 0f);
 		}
-		if(dataTracker.get(CHARGING))
+		if(dataTracker.get(CHARGING) && age % 4 == 0)
 		{
 			Vec3d particlePos = getPos().add(getRotationVector().multiply(1f));
-			Vec3d offset = new Vec3d(random.nextDouble() * 0.8, random.nextDouble() * 0.8, random.nextDouble() * 0.8);
+			Vec3d offset = new Vec3d(random.nextDouble() * 1.6, random.nextDouble() * 1.6, random.nextDouble() * 1.6);
 			offset = offset.multiply(random.nextBoolean() ? 1f : -1f);
-			world.addParticle(ParticleTypes.FLAME, particlePos.x + offset.x, particlePos.y + offset.y, particlePos.z + offset.z,
-					-offset.x * 0.1, -offset.y * 0.1, -offset.z * 0.1);
+			world.addParticle(ParticleRegistry.MALICIOUS_CHARGE.get(), particlePos.x + offset.x, particlePos.y + offset.y, particlePos.z + offset.z,
+					-offset.x * 0.04, -offset.y * 0.04, -offset.z * 0.04);
 		}
 	}
 	
