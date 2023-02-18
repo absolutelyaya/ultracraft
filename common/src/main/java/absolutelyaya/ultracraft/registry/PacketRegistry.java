@@ -4,7 +4,6 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.MeleeParriable;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
-import absolutelyaya.ultracraft.block.PedestalBlockEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import dev.architectury.networking.NetworkManager;
@@ -14,7 +13,6 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
@@ -83,7 +81,7 @@ public class PacketRegistry
 			if (player.getMainHandStack().getItem() instanceof AbstractWeaponItem gun)
 				gun.onPrimaryFire(player.world, player);
 			else
-				Ultracraft.LOGGER.warn(player + " tried to use primary fire action of a non-weapon Item!");
+				Ultracraft.LOGGER.warn(player + " tried to use primary fire action but is holding a non-weapon Item!");
 		});
 		
 		//Server to Client

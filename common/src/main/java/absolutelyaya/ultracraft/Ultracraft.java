@@ -1,11 +1,12 @@
 package absolutelyaya.ultracraft;
 
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.registry.*;
 import com.mojang.logging.LogUtils;
+import dev.architectury.event.events.common.LifecycleEvent;
 import dev.architectury.event.events.common.TickEvent;
+import dev.architectury.platform.Platform;
 import org.slf4j.Logger;
-
-import java.util.logging.Level;
 
 public class Ultracraft
 {
@@ -21,7 +22,7 @@ public class Ultracraft
         ItemRegistry.register();
         PacketRegistry.register();
         BlockTagRegistry.register();
-        ModelPredicateRegistry.registerModels();
+        SoundRegistry.register();
     
         TickEvent.SERVER_POST.register(minecraft -> {
             if(freezeTicks > 0)
@@ -29,6 +30,9 @@ public class Ultracraft
                 freezeTicks--;
             }
         });
+        
+        if(Platform.isForge())
+            LifecycleEvent.SETUP.register(UltracraftClient::init);
         
         LOGGER.info("Ultracraft initialized.");
     }

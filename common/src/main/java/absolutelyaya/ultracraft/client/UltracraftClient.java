@@ -5,15 +5,15 @@ import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceRende
 import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.HellBulletRenderer;
 import absolutelyaya.ultracraft.client.rendering.item.PierceRevolverRenderer;
-import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
-import absolutelyaya.ultracraft.registry.EntityRegistry;
-import absolutelyaya.ultracraft.registry.ItemRegistry;
-import absolutelyaya.ultracraft.registry.SoundRegistry;
+import absolutelyaya.ultracraft.registry.*;
+import dev.architectury.event.events.common.TickEvent;
 import dev.architectury.registry.client.level.entity.EntityRendererRegistry;
 import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
 
+@Environment(EnvType.CLIENT)
 public class UltracraftClient
 {
 	public static ClientHitscanHandler HITSCAN_HANDLER;
@@ -27,11 +27,11 @@ public class UltracraftClient
 		
 		BlockEntityRendererRegistry.register(BlockEntityRegistry.PEDESTAL.get(), PedestalBlockEntityRenderer::new);
 		
-		SoundRegistry.register();
+		ModelPredicateRegistry.registerModels();
 		
 		HITSCAN_HANDLER = new ClientHitscanHandler();
 		
-		ClientTickEvents.START_CLIENT_TICK.register((client) -> HITSCAN_HANDLER.tick());
+		TickEvent.PLAYER_POST.register((client) -> HITSCAN_HANDLER.tick());
 		
 		GeoItemRenderer.registerItemRenderer(ItemRegistry.PIERCE_REVOLVER.get(), new PierceRevolverRenderer());
 	}
