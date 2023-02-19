@@ -13,6 +13,8 @@ public class Ultracraft
     public static final String MOD_ID = "ultracraft";
     public static final Logger LOGGER = LogUtils.getLogger();
     static int freezeTicks;
+    public static Option FreezeOption = Option.FREE;
+    public static Option HiVelOption = Option.FREE;
     
     public static void init()
     {
@@ -23,6 +25,7 @@ public class Ultracraft
         PacketRegistry.register();
         BlockTagRegistry.register();
         SoundRegistry.register();
+        KeybindRegistry.register();
     
         TickEvent.SERVER_POST.register(minecraft -> {
             if(freezeTicks > 0)
@@ -44,8 +47,16 @@ public class Ultracraft
     
     public static void freeze(int ticks)
     {
+        if(!UltracraftClient.isFreezeEnabled())
+            return;
         freezeTicks += ticks;
         LOGGER.info("Freezing for " + ticks + " ticks. (Intentional Visual Effect! Do not report!)");
-        //TODO: add freeze effect option. It'd be a good idea to make it server based and synced to the client upon joining due to otherwise unavoidable desyncing.
+    }
+    
+    public enum Option
+    {
+        FORCE_ON,
+        FORCE_OFF,
+        FREE
     }
 }

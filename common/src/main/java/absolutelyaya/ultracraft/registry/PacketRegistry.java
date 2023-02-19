@@ -25,7 +25,9 @@ public class PacketRegistry
 	public static final Identifier PUNCH_ENTITY_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_entiy");
 	public static final Identifier PUNCH_BLOCK_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_block");
 	public static final Identifier PRIMARY_SHOT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "primary_shot");
+	
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
+	public static final Identifier SERVER_OPTIONS_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "join_server");
 	
 	public static void register()
 	{
@@ -90,6 +92,11 @@ public class PacketRegistry
 					new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble()),
 					new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble()),
 					buf.readByte());
+		}));
+		NetworkManager.registerReceiver(NetworkManager.Side.S2C, SERVER_OPTIONS_PACKET_ID, ((buf, context) -> {
+			Ultracraft.FreezeOption = buf.readEnumConstant(Ultracraft.Option.class);
+			Ultracraft.HiVelOption = buf.readEnumConstant(Ultracraft.Option.class);
+			Ultracraft.LOGGER.info("Synced Server Options!");
 		}));
 	}
 }

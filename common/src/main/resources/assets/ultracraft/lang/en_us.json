@@ -10,5 +10,8 @@
   "entity.ultracraft.filth": "Filth",
   "entity.ultracraft.malicious_face": "Malicious Face",
 
-  "itemGroup.ultracraft.item": "ULTRACRAFT"
+  "itemGroup.ultracraft.item": "ULTRACRAFT",
+
+  "message.ultracraft.hi-vel-forced": "This Server is forcing §bHigh Velocity Mode§r to be %s",
+  "message.ultracraft.freeze-forced": "This Server is forcing the time-freeze effect to be %s"
 }
