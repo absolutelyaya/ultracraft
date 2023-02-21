@@ -6,13 +6,14 @@
     "ChatSendMixin",
     "HandRendererMixin",
     "LivingEntityRendererMixin",
+    "PlayerRendererMixin",
     "TitleScreenMixin",
     "WorldRendererMixin"
   ],
   "mixins": [
     "EntityMixin",
-    "MinecraftClientMixin",
     "LivingEntityMixin",
+    "MinecraftClientMixin",
     "ProjectileEntityMixin",
     "WorldMixin"
   ],

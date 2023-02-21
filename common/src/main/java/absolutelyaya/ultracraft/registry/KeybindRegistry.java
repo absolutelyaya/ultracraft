@@ -5,6 +5,7 @@ import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
 public class KeybindRegistry
@@ -21,7 +22,9 @@ public class KeybindRegistry
 			{
 				//TODO: add High Velocity Mode (dashing & sliding)
 				//TODO: Visual Indicator for HiVelMode
+				//TODO: render wings on Players in HiVelMode
 				UltracraftClient.toggleHiVelEnabled();
+				client.player.sendMessage(Text.of("toggle"));
 			}
 		});
 	}

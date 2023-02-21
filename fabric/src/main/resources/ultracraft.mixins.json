@@ -7,7 +7,8 @@
     "LivingEntityRendererMixin",
     "ChatSendMixin",
     "TitleScreenMixin",
-    "WorldRendererMixin"
+    "WorldRendererMixin",
+    "PlayerRendererMixin"
   ],
   "mixins": [
     "MinecraftClientMixin",

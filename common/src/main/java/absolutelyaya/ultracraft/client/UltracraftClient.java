@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.client;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.client.rendering.block.entity.PedestalBlockEntityRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceRenderer;
+import absolutelyaya.ultracraft.client.rendering.entity.feature.WingsModel;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.HellBulletRenderer;
 import absolutelyaya.ultracraft.client.rendering.item.PierceRevolverRenderer;
@@ -14,13 +15,17 @@ import dev.architectury.registry.client.particle.ParticleProviderRegistry;
 import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import software.bernie.geckolib3.renderers.geo.GeoItemRenderer;
 
 @Environment(EnvType.CLIENT)
 public class UltracraftClient
 {
+	public static final EntityModelLayer WINGS_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "wings"), "main");
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	static boolean FreezeOption = true;
 	static boolean HiVelMode = true;
@@ -35,6 +40,8 @@ public class UltracraftClient
 		EntityRendererRegistry.register(EntityRegistry.HELL_BULLET, HellBulletRenderer::new);
 		//Particles
 		ParticleProviderRegistry.register(ParticleRegistry.MALICIOUS_CHARGE.get(), MaliciousChargeParticle.MaliciousChargeParticleFactory::new);
+		//Entity model layers
+		EntityModelLayerRegistry.registerModelLayer(WINGS_LAYER, WingsModel::getTexturedModelData);
 		
 		BlockEntityRendererRegistry.register(BlockEntityRegistry.PEDESTAL.get(), PedestalBlockEntityRenderer::new);
 		
