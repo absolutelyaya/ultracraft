@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.registry;
 
+import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
@@ -24,7 +25,7 @@ public class KeybindRegistry
 				//TODO: Visual Indicator for HiVelMode
 				//TODO: render wings on Players in HiVelMode
 				UltracraftClient.toggleHiVelEnabled();
-				client.player.sendMessage(Text.of("toggle"));
+				((WingedPlayerEntity)client.player).setWingsVisible(UltracraftClient.isHiVelEnabled());
 			}
 		});
 	}

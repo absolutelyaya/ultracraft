@@ -15,7 +15,8 @@
     "LivingEntityMixin",
     "ProjectileEntityMixin",
     "EntityMixin",
-    "WorldMixin"
+    "WorldMixin",
+    "PlayerEntityMixin"
   ],
   "injectors": {
     "defaultRequire": 1
