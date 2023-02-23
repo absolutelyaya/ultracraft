@@ -25,6 +25,7 @@ public class PacketRegistry
 	public static final Identifier PUNCH_ENTITY_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_entiy");
 	public static final Identifier PUNCH_BLOCK_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_block");
 	public static final Identifier PRIMARY_SHOT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "primary_shot");
+	public static final Identifier DASH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash");
 	
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
 	public static final Identifier SERVER_OPTIONS_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "join_server");
@@ -84,6 +85,15 @@ public class PacketRegistry
 				gun.onPrimaryFire(player.world, player);
 			else
 				Ultracraft.LOGGER.warn(player + " tried to use primary fire action but is holding a non-weapon Item!");
+		});
+		NetworkManager.registerReceiver(NetworkManager.Side.C2S, DASH_PACKET_ID, (buf, context) -> {
+			PlayerEntity player = context.getPlayer();
+			Vec3d dir = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
+			
+			context.queue(() -> {
+				player.setVelocity(dir);
+				System.out.println(player.getVelocity());
+			});
 		});
 		
 		//Server to Client

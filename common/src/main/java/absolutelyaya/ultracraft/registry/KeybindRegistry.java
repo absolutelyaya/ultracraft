@@ -6,7 +6,6 @@ import dev.architectury.event.events.client.ClientTickEvent;
 import dev.architectury.registry.client.keymappings.KeyMappingRegistry;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
 public class KeybindRegistry

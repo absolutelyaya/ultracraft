@@ -8,7 +8,8 @@
     "ChatSendMixin",
     "TitleScreenMixin",
     "WorldRendererMixin",
-    "PlayerRendererMixin"
+    "PlayerRendererMixin",
+    "ClientPlayerEntityMixin"
   ],
   "mixins": [
     "MinecraftClientMixin",

@@ -28,7 +28,7 @@ public class UltracraftClient
 	public static final EntityModelLayer WINGS_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "wings"), "main");
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	static boolean FreezeOption = true;
-	static boolean HiVelMode = true;
+	static boolean HiVelMode = false;
 	
 	public static void init()
 	{

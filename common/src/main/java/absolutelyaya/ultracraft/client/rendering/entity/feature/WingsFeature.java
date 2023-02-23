@@ -15,6 +15,7 @@ import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3f;
 
 public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>> extends FeatureRenderer<T, M>
 {
@@ -36,6 +37,8 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 			this.getContextModel().copyStateTo(this.wings);
 			this.wings.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, winged);
 			VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE), false, false);
+			matrices.multiply(Vec3f.POSITIVE_X.getRadialQuaternion(entity.isSneaking() ? (float)Math.toRadians(20f) : 0f));
+			matrices.translate(0f , entity.isSneaking() ? 0.15f : 0f, 0f);
 			this.wings.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
 		}
 	}
