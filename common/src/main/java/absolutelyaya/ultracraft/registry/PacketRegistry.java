@@ -3,16 +3,21 @@ package absolutelyaya.ultracraft.registry;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.MeleeParriable;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
+import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import dev.architectury.networking.NetworkManager;
+import io.netty.buffer.Unpooled;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
@@ -20,15 +25,18 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import java.util.Random;
+
 public class PacketRegistry
 {
 	public static final Identifier PUNCH_ENTITY_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_entiy");
 	public static final Identifier PUNCH_BLOCK_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_block");
 	public static final Identifier PRIMARY_SHOT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "primary_shot");
-	public static final Identifier DASH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash");
+	public static final Identifier DASH_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_c2s");
 	
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
 	public static final Identifier SERVER_OPTIONS_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "join_server");
+	public static final Identifier DASH_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_s2c");
 	
 	public static void register()
 	{
@@ -86,13 +94,21 @@ public class PacketRegistry
 			else
 				Ultracraft.LOGGER.warn(player + " tried to use primary fire action but is holding a non-weapon Item!");
 		});
-		NetworkManager.registerReceiver(NetworkManager.Side.C2S, DASH_PACKET_ID, (buf, context) -> {
+		NetworkManager.registerReceiver(NetworkManager.Side.C2S, DASH_C2S_PACKET_ID, (buf, context) -> {
 			PlayerEntity player = context.getPlayer();
 			Vec3d dir = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
 			
+			buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeUuid(player.getUuid());
+			buf.writeDouble(dir.x);
+			buf.writeDouble(dir.y);
+			buf.writeDouble(dir.z);
+			
+			NetworkManager.sendToPlayers(((ServerWorld)player.world).getPlayers(), DASH_S2C_PACKET_ID, buf);
+			
 			context.queue(() -> {
 				player.setVelocity(dir);
-				System.out.println(player.getVelocity());
+				((WingedPlayerEntity)player).onDash();
 			});
 		});
 		
@@ -108,5 +124,20 @@ public class PacketRegistry
 			Ultracraft.HiVelOption = buf.readEnumConstant(Ultracraft.Option.class);
 			Ultracraft.LOGGER.info("Synced Server Options!");
 		}));
+		NetworkManager.registerReceiver(NetworkManager.Side.S2C, DASH_S2C_PACKET_ID, (buf, context) -> {
+			PlayerEntity player = context.getPlayer().world.getPlayerByUuid(buf.readUuid());
+			Vec3d dir = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
+			Random rand = new Random();
+			
+			((WingedPlayerEntity)player).onDash();
+			Vec3d pos;
+			for (int i = 0; i < 16; i++)
+			{
+				Vec3d particleVel = new Vec3d(-dir.x, -dir.y, -dir.z).multiply(rand.nextDouble() * 0.33 + 0.1);
+				pos = player.getPos().add((rand.nextDouble() - 0.5) * player.getWidth(),
+						rand.nextDouble() * player.getHeight(), (rand.nextDouble() - 0.5) * player.getWidth()).subtract(dir.multiply(0.2));
+				player.world.addParticle(ParticleTypes.CLOUD, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
+			}
+		});
 	}
 }
