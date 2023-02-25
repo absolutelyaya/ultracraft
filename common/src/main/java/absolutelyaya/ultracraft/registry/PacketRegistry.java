@@ -16,7 +16,6 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -131,12 +130,12 @@ public class PacketRegistry
 			
 			((WingedPlayerEntity)player).onDash();
 			Vec3d pos;
-			for (int i = 0; i < 16; i++)
+			for (int i = 0; i < 5; i++)
 			{
 				Vec3d particleVel = new Vec3d(-dir.x, -dir.y, -dir.z).multiply(rand.nextDouble() * 0.33 + 0.1);
-				pos = player.getPos().add((rand.nextDouble() - 0.5) * player.getWidth(),
-						rand.nextDouble() * player.getHeight(), (rand.nextDouble() - 0.5) * player.getWidth()).subtract(dir.multiply(0.2));
-				player.world.addParticle(ParticleTypes.CLOUD, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
+				pos = player.getPos().add((rand.nextDouble() - 0.5) * player.getWidth() * 2,
+						rand.nextDouble() * player.getHeight() + 0.5, (rand.nextDouble() - 0.5) * player.getWidth() * 2).add(dir.multiply(0.25));
+				player.world.addParticle(ParticleRegistry.DASH.get(), pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
 			}
 		});
 	}

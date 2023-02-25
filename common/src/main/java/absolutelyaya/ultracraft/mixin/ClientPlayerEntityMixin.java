@@ -11,6 +11,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.encryption.PlayerPublicKey;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
@@ -42,7 +43,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Inject(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 1), cancellable = true)
 	public void onSendSneakChangedPacket(CallbackInfo ci)
 	{
-		if(UltracraftClient.isHiVelEnabled())
+		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying)
 		{
 			if(isSneaking() && !((WingedPlayerEntity)this).isDashing())
 			{
@@ -72,7 +73,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			if(((WingedPlayerEntity)this).isDashing())
 			{
 				setVelocity(dashDir);
-				if(jumping)
+				if(jumping && !world.getBlockState(new BlockPos(getPos().subtract(0f, 0.49f, 0f))).isAir())
 				{
 					((WingedPlayerEntity)this).onDashJump();
 					addVelocity(0f, getJumpVelocity(), 0f);
@@ -81,7 +82,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			}
 			if(((WingedPlayerEntity)this).wasDashing())
 			{
-				setVelocity(Vec3d.ZERO);
+				if(onGround)
+					setVelocity(Vec3d.ZERO);
+				else
+					setVelocity(dashDir.multiply(0.3));
 				dashDir = Vec3d.ZERO;
 				ci.cancel();
 			}

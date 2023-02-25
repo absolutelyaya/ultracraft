@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -50,7 +51,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Override
 	public void onDash()
 	{
-		dashingTicks = 5;
+		dashingTicks = 3;
 	}
 	
 	@Override
@@ -112,8 +113,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			Vec3d dir = getVelocity();
 			Vec3d particleVel = new Vec3d(-dir.x, -dir.y, -dir.z).multiply(random.nextDouble() * 0.33 + 0.1);
 			Vec3d pos = getPos().add((random.nextDouble() - 0.5) * getWidth(),
-					random.nextDouble() * getHeight(), (random.nextDouble() - 0.5) * getWidth()).subtract(dir.multiply(0.2));
-			world.addParticle(ParticleTypes.CLOUD, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
+					random.nextDouble() * getHeight(), (random.nextDouble() - 0.5) * getWidth()).add(dir.multiply(0.25));
+			world.addParticle(ParticleRegistry.DASH.get(), pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
 		}
 	}
 }

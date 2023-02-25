@@ -12,6 +12,8 @@ public class ParticleRegistry
 	public static final DeferredRegister<ParticleType<?>> PARTICLE_TYPES = DeferredRegister.create(Ultracraft.MOD_ID, Registry.PARTICLE_TYPE_KEY);
 	public static final RegistrySupplier<DefaultParticleType> MALICIOUS_CHARGE = PARTICLE_TYPES.register("malicious_charge",
 			() -> new DefaultParticleType(false));
+	public static final RegistrySupplier<DefaultParticleType> DASH = PARTICLE_TYPES.register("dash",
+			() -> new DefaultParticleType(false));
 	
 	public static void init()
 	{

@@ -74,10 +74,10 @@ public abstract class BillboardStripeParticle extends Particle
 			vec3f2.add(x, y, z);
 		}
 		
-		vertexConsumer.vertex(vec3fs[0].getX(), vec3fs[0].getY(), vec3fs[0].getZ()).texture(sprite.getMinU(), sprite.getMinV()).color(1f, 1f, 1f, alpha).light(15728880).next();
-		vertexConsumer.vertex(vec3fs[1].getX(), vec3fs[1].getY(), vec3fs[1].getZ()).texture(sprite.getMaxU(), sprite.getMinV()).color(1f, 1f, 1f, alpha).light(15728880).next();
-		vertexConsumer.vertex(vec3fs[2].getX(), vec3fs[2].getY(), vec3fs[2].getZ()).texture(sprite.getMaxU(), sprite.getMaxV()).color(1f, 1f, 1f, alpha).light(15728880).next();
-		vertexConsumer.vertex(vec3fs[3].getX(), vec3fs[3].getY(), vec3fs[3].getZ()).texture(sprite.getMinU(), sprite.getMaxV()).color(1f, 1f, 1f, alpha).light(15728880).next();
+		vertexConsumer.vertex(vec3fs[0].getX(), vec3fs[0].getY(), vec3fs[0].getZ()).texture(sprite.getMinU(), sprite.getMinV()).color(red, green, blue, alpha).light(15728880).next();
+		vertexConsumer.vertex(vec3fs[1].getX(), vec3fs[1].getY(), vec3fs[1].getZ()).texture(sprite.getMaxU(), sprite.getMinV()).color(red, green, blue, alpha).light(15728880).next();
+		vertexConsumer.vertex(vec3fs[2].getX(), vec3fs[2].getY(), vec3fs[2].getZ()).texture(sprite.getMaxU(), sprite.getMaxV()).color(red, green, blue, alpha).light(15728880).next();
+		vertexConsumer.vertex(vec3fs[3].getX(), vec3fs[3].getY(), vec3fs[3].getZ()).texture(sprite.getMinU(), sprite.getMaxV()).color(red, green, blue, alpha).light(15728880).next();
 		
 		if(debugging)
 		{

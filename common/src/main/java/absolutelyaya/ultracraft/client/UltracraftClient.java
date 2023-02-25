@@ -7,6 +7,7 @@ import absolutelyaya.ultracraft.client.rendering.entity.feature.WingsModel;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.HellBulletRenderer;
 import absolutelyaya.ultracraft.client.rendering.item.PierceRevolverRenderer;
+import absolutelyaya.ultracraft.particle.DashParticle;
 import absolutelyaya.ultracraft.particle.MaliciousChargeParticle;
 import absolutelyaya.ultracraft.registry.*;
 import dev.architectury.event.events.common.TickEvent;
@@ -40,6 +41,7 @@ public class UltracraftClient
 		EntityRendererRegistry.register(EntityRegistry.HELL_BULLET, HellBulletRenderer::new);
 		//Particles
 		ParticleProviderRegistry.register(ParticleRegistry.MALICIOUS_CHARGE.get(), MaliciousChargeParticle.MaliciousChargeParticleFactory::new);
+		ParticleProviderRegistry.register(ParticleRegistry.DASH.get(), DashParticle.DashParticleFactory::new);
 		//Entity model layers
 		EntityModelLayerRegistry.registerModelLayer(WINGS_LAYER, WingsModel::getTexturedModelData);
 		
