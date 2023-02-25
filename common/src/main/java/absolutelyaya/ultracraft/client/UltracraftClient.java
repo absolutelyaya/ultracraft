@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.client;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.client.rendering.block.entity.PedestalBlockEntityRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.WingsModel;
@@ -17,6 +18,7 @@ import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.text.Text;
@@ -30,6 +32,8 @@ public class UltracraftClient
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	static boolean FreezeOption = true;
 	static boolean HiVelMode = false;
+	
+	static UltraHudRenderer hudRenderer;
 	
 	public static void init()
 	{
@@ -54,6 +58,11 @@ public class UltracraftClient
 		TickEvent.PLAYER_POST.register((client) -> HITSCAN_HANDLER.tick());
 		
 		GeoItemRenderer.registerItemRenderer(ItemRegistry.PIERCE_REVOLVER.get(), new PierceRevolverRenderer());
+		
+		hudRenderer = new UltraHudRenderer();
+		WorldRenderEvents.END.register((context) -> {
+			hudRenderer.render(context.matrixStack(), context.tickDelta(), context.camera());
+		});
 	}
 	
 	//if no Server override return client setting
