@@ -18,7 +18,6 @@ import dev.architectury.registry.client.rendering.BlockEntityRendererRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
@@ -61,12 +60,7 @@ public class UltracraftClient
 		GeoItemRenderer.registerItemRenderer(ItemRegistry.PIERCE_REVOLVER.get(), new PierceRevolverRenderer());
 		
 		hudRenderer = new UltraHudRenderer();
-		WorldRenderEvents.END.register((context) -> {
-			hudRenderer.render(context.matrixStack(), context.tickDelta(), context.camera());
-		});
-		HudRenderCallback.EVENT.register(((matrixStack, tickDelta) -> {
-			//hudRenderer.render(matrixStack, tickDelta, MinecraftClient.getInstance().gameRenderer.getCamera());
-		}));
+		WorldRenderEvents.END.register((context) -> hudRenderer.render(context.tickDelta(), context.camera()));
 	}
 	
 	//if no Server override return client setting

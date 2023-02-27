@@ -23,4 +23,10 @@ public interface WingedPlayerEntity
 	boolean isDashing();
 	
 	boolean wasDashing();
+	
+	int getStamina();
+	
+	boolean consumeStamina();
+	
+	int getWingHintDisplayTicks();
 }

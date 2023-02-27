@@ -6,10 +6,10 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -17,10 +17,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(PlayerEntity.class)
 public abstract class PlayerEntityMixin extends LivingEntity implements WingedPlayerEntity
 {
+	@Shadow public abstract boolean isCreative();
+	
 	boolean wingsActive;
 	byte wingState, lastState;
 	float wingAnimTime;
-	int dashingTicks = -2;
+	int dashingTicks = -2, stamina, wingHintDisplayTicks;
 	
 	protected PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world)
 	{
@@ -94,12 +96,38 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	{
 		wingsActive = b;
 		setWingState((byte)(b ? 1 : 0));
+		wingHintDisplayTicks = 60;
 	}
 	
 	@Override
 	public boolean isWingsVisible()
 	{
 		return wingsActive;
+	}
+	
+	@Override
+	public int getStamina()
+	{
+		return stamina;
+	}
+	
+	@Override
+	public boolean consumeStamina()
+	{
+		if(isCreative())
+			return true;
+		if(stamina >= 30)
+		{
+			stamina = Math.max(stamina - 30, 0);
+			return true;
+		}
+		return false;
+	}
+	
+	@Override
+	public int getWingHintDisplayTicks()
+	{
+		return wingHintDisplayTicks;
 	}
 	
 	@Inject(method = "tickMovement", at = @At("HEAD"))
@@ -116,5 +144,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 					random.nextDouble() * getHeight(), (random.nextDouble() - 0.5) * getWidth()).add(dir.multiply(0.25));
 			world.addParticle(ParticleRegistry.DASH.get(), pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
 		}
+		if(stamina < 90)
+			stamina++;
+		if(wingHintDisplayTicks > 0)
+			wingHintDisplayTicks--;
 	}
 }

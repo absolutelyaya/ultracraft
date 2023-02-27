@@ -43,10 +43,16 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Inject(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 1), cancellable = true)
 	public void onSendSneakChangedPacket(CallbackInfo ci)
 	{
+		WingedPlayerEntity winged = ((WingedPlayerEntity)this);
 		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying)
 		{
-			if(isSneaking() && !((WingedPlayerEntity)this).isDashing())
+			if(isSneaking() && !winged.isDashing())
 			{
+				if(!winged.consumeStamina())
+				{
+					ci.cancel();
+					return;
+				}
 				Vec3d dir = new Vec3d(getX() - lastX, 0f, getZ() - lastZ).normalize();
 				if(dir.lengthSquared() < 0.9f)
 					dir = Vec3d.fromPolar(0f, getYaw()).normalize();
@@ -58,7 +64,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				NetworkManager.sendToServer(PacketRegistry.DASH_C2S_PACKET_ID, buf);
 				setVelocity(dir);
 				dashDir = dir;
-				((WingedPlayerEntity)this).onDash();
+				winged.onDash();
 				lastSneaking = isSneaking();
 				ci.cancel();
 			}
@@ -68,19 +74,22 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Inject(method = "sendMovementPackets", at = @At(value = "HEAD"), cancellable = true)
 	public void onSendMovementPackets(CallbackInfo ci)
 	{
+		WingedPlayerEntity winged = ((WingedPlayerEntity)this);
 		if(UltracraftClient.isHiVelEnabled())
 		{
-			if(((WingedPlayerEntity)this).isDashing())
+			if(winged.isDashing())
 			{
 				setVelocity(dashDir);
 				if(jumping && !world.getBlockState(new BlockPos(getPos().subtract(0f, 0.49f, 0f))).isAir())
 				{
-					((WingedPlayerEntity)this).onDashJump();
+					winged.onDashJump();
+					if(!winged.consumeStamina())
+						setVelocity(dashDir.multiply(0.3));
 					addVelocity(0f, getJumpVelocity(), 0f);
 				}
 				ci.cancel();
 			}
-			if(((WingedPlayerEntity)this).wasDashing())
+			if(winged.wasDashing())
 			{
 				if(onGround)
 					setVelocity(Vec3d.ZERO);
