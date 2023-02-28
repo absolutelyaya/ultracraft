@@ -1,7 +1,0 @@
-{
-	"parent": "ultracraft:block/pedestal",
-	"textures": {
-		"1": "ultracraft:block/blue_cobble",
-		"particle": "ultracraft:block/blue_cobble"
-	}
-}
