@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=none": {
+      "model": "ultracraft:block/pedestal"
+    },
+    "type=blue": {
+      "model": "ultracraft:block/blue_pedestal"
+    },
+    "type=red": {
+      "model": "ultracraft:block/red_pedestal"
+    }
+  }
+}

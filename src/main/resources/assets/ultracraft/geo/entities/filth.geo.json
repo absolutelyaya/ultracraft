@@ -1,0 +1,83 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.filth",
+				"texture_width": 64,
+				"texture_height": 64,
+				"visible_bounds_width": 5,
+				"visible_bounds_height": 3.5,
+				"visible_bounds_offset": [0, 1.25, 0]
+			},
+			"bones": [
+				{
+					"name": "Root",
+					"pivot": [0, 13, 0],
+					"cubes": [
+						{"origin": [-3.5, 13, -2], "size": [7, 8.5, 3], "inflate": -0.2, "uv": [0, 25]}
+					]
+				},
+				{
+					"name": "TorsoUpper",
+					"parent": "Root",
+					"pivot": [0, 21, -2],
+					"cubes": [
+						{"origin": [-3.5, 21, -2], "size": [7, 5, 3], "inflate": 0.15, "uv": [20, 25]}
+					]
+				},
+				{
+					"name": "Head",
+					"parent": "TorsoUpper",
+					"pivot": [0, 26, 0],
+					"cubes": [
+						{"origin": [-4, 29, -6], "size": [8, 5, 8], "uv": [0, 0]},
+						{"origin": [-4, 28, -6], "size": [8, 4, 8], "inflate": 0.05, "uv": [32, 47]}
+					]
+				},
+				{
+					"name": "LowerJaw",
+					"parent": "Head",
+					"pivot": [0, 29, 2],
+					"cubes": [
+						{"origin": [-4, 26, -6], "size": [8, 3, 8], "uv": [24, 5]},
+						{"origin": [-4, 26, -6], "size": [8, 4, 8], "inflate": 0.1, "uv": [0, 47]},
+						{"origin": [-4, 26, -6], "size": [8, 4, 8], "inflate": 0.25, "uv": [0, 13]}
+					]
+				},
+				{
+					"name": "RightLeg",
+					"parent": "Root",
+					"pivot": [-1.5, 14, -0.5],
+					"cubes": [
+						{"origin": [-3.5, 8, -2], "size": [3.5, 7, 3], "uv": [24, 36]}
+					]
+				},
+				{
+					"name": "RightLegLower",
+					"parent": "RightLeg",
+					"pivot": [-1.5, 8, -2],
+					"cubes": [
+						{"origin": [-3.5, 0, -2], "size": [3.5, 8, 3], "uv": [36, 36]}
+					]
+				},
+				{
+					"name": "LeftLeg",
+					"parent": "Root",
+					"pivot": [1.5, 14, -0.5],
+					"cubes": [
+						{"origin": [0, 8, -2], "size": [3.5, 7, 3], "uv": [0, 36]}
+					]
+				},
+				{
+					"name": "LeftLegLower",
+					"parent": "LeftLeg",
+					"pivot": [1.5, 8, -2],
+					"cubes": [
+						{"origin": [0, 0, -2], "size": [3.5, 8, 3], "uv": [12, 36]}
+					]
+				}
+			]
+		}
+	]
+}
