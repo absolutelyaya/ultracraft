@@ -37,8 +37,16 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 			this.getContextModel().copyStateTo(this.wings);
 			this.wings.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, winged);
 			VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE), false, false);
-			matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(entity.isSneaking() ? (float)Math.toRadians(20f) : 0f));
-			matrices.translate(0f , entity.isSneaking() ? 0.15f : 0f, 0f);
+			if(entity.isSneaking())
+			{
+				matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(20f));
+				matrices.translate(0f , 0.15f, 0f);
+			}
+			if(entity.isSprinting())
+			{
+				matrices.translate(0f , 13f / 16f, 8f / 16f);
+				matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-45f));
+			}
 			this.wings.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
 		}
 	}

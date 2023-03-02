@@ -128,7 +128,7 @@ public class UltraHudRenderer extends DrawableHelper
 		Matrix4f matrix = matrices.peek().getPositionMatrix();
 		client.textRenderer.draw(Text.of(text), x, y, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
 				matrix, immediate, false, Color.ofRGBA(0f, 0f, 0f, 0.5f * alpha).getColor(), 15728880);
-		matrix.translate(new Vector3f(0f, 0f, 0.06f));
+		matrix.translate(0f, 0f, -0.1f);
 		client.textRenderer.draw(Text.of(text), x, y, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
 				matrix, immediate, false, 0, 15728880);
 	}

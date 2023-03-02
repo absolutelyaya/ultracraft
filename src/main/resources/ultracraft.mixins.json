@@ -11,8 +11,10 @@
     "WorldMixin"
   ],
   "client": [
+    "BipedModelMixin",
     "ChatSendMixin",
     "ClientPlayerEntityMixin",
+    "GameRendererMixin",
     "HandRendererMixin",
     "LivingEntityRendererMixin",
     "MinecraftClientMixin",

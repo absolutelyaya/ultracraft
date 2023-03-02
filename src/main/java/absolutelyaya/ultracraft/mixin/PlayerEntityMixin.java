@@ -84,11 +84,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public byte getWingState()
 	{
 		if(isDashing())
-		{
-			if(wingState != 2)
-				setWingState((byte)0);
-		}
-		else if (wingState == 0 && isOnGround())
+			setWingState((byte)0);
+		else if (isSprinting())
+			setWingState((byte)2);
+		else if ((wingState == 0 && isOnGround()) || (wingState == 2 && !isSprinting()))
 			setWingState((byte)1);
 		return wingState;
 	}

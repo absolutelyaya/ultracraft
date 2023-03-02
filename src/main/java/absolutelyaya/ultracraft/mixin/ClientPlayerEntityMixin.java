@@ -13,7 +13,6 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Final;
@@ -106,7 +105,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			{
 				if(isSprinting() != lastSprinting)
 					sendSprintingPacket();
-				setVelocity(slideDir.multiply(0.5).add(0f, getVelocity().y, 0f));
+				setVelocity(slideDir.multiply(0.25).add(0f, getVelocity().y, 0f));
 				if(jumping)
 					setSprinting(false);
 				ci.cancel();
