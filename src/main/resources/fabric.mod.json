@@ -19,6 +19,9 @@
     ],
     "main": [
       "absolutelyaya.ultracraft.Ultracraft"
+    ],
+    "mm:early_risers": [
+      "absolutelyaya.ultracraft.EarlyRiser"
     ]
   },
   "mixins": [

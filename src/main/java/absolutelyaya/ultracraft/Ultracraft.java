@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.registry.*;
 import com.mojang.logging.LogUtils;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import org.slf4j.Logger;
 
@@ -31,7 +32,7 @@ public class Ultracraft implements ModInitializer
             if(freezeTicks > 0)
                 freezeTicks--;
         });
-    
+        
         LOGGER.info("Ultracraft initialized.");
     }
     

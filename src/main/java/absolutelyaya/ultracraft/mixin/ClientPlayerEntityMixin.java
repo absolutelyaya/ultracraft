@@ -6,17 +6,23 @@ import absolutelyaya.ultracraft.registry.PacketRegistry;
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ClientPlayerEntity.class)
 public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
@@ -36,21 +42,42 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	
 	@Shadow private boolean lastSneaking;
 	
-	Vec3d dashDir = Vec3d.ZERO;
+	@Shadow public abstract void setSprinting(boolean sprinting);
 	
-	@Inject(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 1), cancellable = true)
+	@Shadow @Final public ClientPlayNetworkHandler networkHandler;
+	@Shadow private double lastBaseY;
+	@Shadow private int ticksSinceLastPositionPacketSent;
+	@Shadow private float lastYaw;
+	@Shadow private boolean lastOnGround;
+	@Shadow private boolean autoJumpEnabled;
+	@Shadow @Final protected MinecraftClient client;
+	@Shadow public int ticksSinceSprintingChanged;
+	
+	@Shadow protected abstract void sendSprintingPacket();
+	
+	@Shadow private boolean lastSprinting;
+	Vec3d dashDir = Vec3d.ZERO;
+	Vec3d slideDir = Vec3d.ZERO;
+	
+	@Inject(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 0), cancellable = true)
 	public void onSendSneakChangedPacket(CallbackInfo ci)
 	{
 		WingedPlayerEntity winged = ((WingedPlayerEntity)this);
+		if(tryDash(winged))
+		{
+			lastSneaking = isSneaking();
+			ci.cancel();
+		}
+	}
+	
+	boolean tryDash(WingedPlayerEntity winged)
+	{
 		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying)
 		{
-			if(isSneaking() && !winged.isDashing())
+			if(isSneaking() && !lastSneaking && !winged.isDashing())
 			{
 				if(!winged.consumeStamina())
-				{
-					ci.cancel();
-					return;
-				}
+					return true;
 				Vec3d dir = new Vec3d(getX() - lastX, 0f, getZ() - lastZ).normalize();
 				if(dir.lengthSquared() < 0.9f)
 					dir = Vec3d.fromPolar(0f, getYaw()).normalize();
@@ -63,10 +90,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				setVelocity(dir);
 				dashDir = dir;
 				winged.onDash();
-				lastSneaking = isSneaking();
-				ci.cancel();
+				return true;
 			}
 		}
+		return false;
 	}
 	
 	@Inject(method = "sendMovementPackets", at = @At(value = "HEAD"), cancellable = true)
@@ -75,6 +102,15 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		WingedPlayerEntity winged = ((WingedPlayerEntity)this);
 		if(UltracraftClient.isHiVelEnabled())
 		{
+			if(isSprinting())
+			{
+				if(isSprinting() != lastSprinting)
+					sendSprintingPacket();
+				setVelocity(slideDir.multiply(0.5).add(0f, getVelocity().y, 0f));
+				if(jumping)
+					setSprinting(false);
+				ci.cancel();
+			}
 			if(winged.isDashing())
 			{
 				setVelocity(dashDir);
@@ -96,6 +132,40 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				dashDir = Vec3d.ZERO;
 				ci.cancel();
 			}
+			if(ci.isCancelled())
+			{
+				if(tryDash(winged))
+					setSprinting(false);
+				networkHandler.sendPacket(new PlayerMoveC2SPacket.Full(getX(), getY(), getZ(), getYaw(), getPitch(), onGround));
+				lastX = getX();
+				lastBaseY = getY();
+				lastZ = getZ();
+				ticksSinceLastPositionPacketSent = 0;
+				lastYaw = getYaw();
+				lastOnGround = onGround;
+				autoJumpEnabled = client.options.getAutoJump().getValue();
+			}
 		}
+	}
+	
+	@Inject(method = "setSprinting", at = @At(value = "HEAD"), cancellable = true)
+	public void onSetSprinting(boolean sprinting, CallbackInfo ci)
+	{
+		if(UltracraftClient.isHiVelEnabled())
+		{
+			this.setFlag(3, sprinting); //sprinting flag
+			if(sprinting)
+				slideDir = Vec3d.fromPolar(0f, getYaw()).normalize();
+			ticksSinceSprintingChanged = 0;
+			ci.cancel();
+		}
+	}
+	
+	@Inject(method = "canSprint", at = @At(value = "RETURN"), cancellable = true)
+	void onCanSprint(CallbackInfoReturnable<Boolean> cir)
+	{
+		WingedPlayerEntity winged = ((WingedPlayerEntity)this);
+		if((winged.isWingsVisible() && !isSprinting() && !onGround) || winged.isDashing())
+			cir.setReturnValue(false);
 	}
 }

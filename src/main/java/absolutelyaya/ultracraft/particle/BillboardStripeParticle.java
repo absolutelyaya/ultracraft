@@ -64,22 +64,22 @@ public abstract class BillboardStripeParticle extends Particle
 		Vec3d camForward = new Vec3d(camera.getHorizontalPlane());
 		Vec3d right = dir.crossProduct(camForward).normalize();
 		
-		Vector3f[] vec3fs = new Vector3f[]{new Vector3f((Vector3fc)right.multiply(-width / 2)),
-				new Vector3f((Vector3fc)right.multiply(width / 2)),
-				new Vector3f((Vector3fc)right.multiply(width / 2).subtract(dir.multiply(length))),
-				new Vector3f((Vector3fc)right.multiply(-width / 2).subtract(dir.multiply(length)))};
+		Vec3d[] vec3ds = new Vec3d[]{right.multiply(-width / 2),
+				right.multiply(width / 2),
+				right.multiply(width / 2).subtract(dir.multiply(length)),
+				right.multiply(-width / 2).subtract(dir.multiply(length))};
 		
 		for(int k = 0; k < 4; ++k) {
-			Vector3f vec3f2 = vec3fs[k];
+			Vec3d vec3d2 = vec3ds[k];
 			if(debugging)
-				world.addParticle(ParticleTypes.FLAME, vec3f2.x() + this.x, vec3f2.y() + this.y, vec3f2.z() + this.z, 0f, 0f, 0f);
-			vec3f2.add(x, y, z);
+				world.addParticle(ParticleTypes.FLAME, vec3d2.x + this.x, vec3d2.y + this.y, vec3d2.z + this.z, 0f, 0f, 0f);
+			vec3ds[k] = vec3d2.add(x, y, z);
 		}
 		
-		vertexConsumer.vertex(vec3fs[0].x(), vec3fs[0].y(), vec3fs[0].z()).texture(sprite.getMinU(), sprite.getMinV()).color(red, green, blue, alpha).light(15728880).next();
-		vertexConsumer.vertex(vec3fs[1].x(), vec3fs[1].y(), vec3fs[1].z()).texture(sprite.getMaxU(), sprite.getMinV()).color(red, green, blue, alpha).light(15728880).next();
-		vertexConsumer.vertex(vec3fs[2].x(), vec3fs[2].y(), vec3fs[2].z()).texture(sprite.getMaxU(), sprite.getMaxV()).color(red, green, blue, alpha).light(15728880).next();
-		vertexConsumer.vertex(vec3fs[3].x(), vec3fs[3].y(), vec3fs[3].z()).texture(sprite.getMinU(), sprite.getMaxV()).color(red, green, blue, alpha).light(15728880).next();
+		vertexConsumer.vertex(vec3ds[0].x, vec3ds[0].y, vec3ds[0].z).texture(sprite.getMinU(), sprite.getMinV()).color(red, green, blue, alpha).light(15728880).next();
+		vertexConsumer.vertex(vec3ds[1].x, vec3ds[1].y, vec3ds[1].z).texture(sprite.getMaxU(), sprite.getMinV()).color(red, green, blue, alpha).light(15728880).next();
+		vertexConsumer.vertex(vec3ds[2].x, vec3ds[2].y, vec3ds[2].z).texture(sprite.getMaxU(), sprite.getMaxV()).color(red, green, blue, alpha).light(15728880).next();
+		vertexConsumer.vertex(vec3ds[3].x, vec3ds[3].y, vec3ds[3].z).texture(sprite.getMinU(), sprite.getMaxV()).color(red, green, blue, alpha).light(15728880).next();
 		
 		if(debugging)
 		{

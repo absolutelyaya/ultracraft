@@ -1,24 +1,33 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
+import com.chocohead.mm.api.ClassTinkerers;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Mixin(PlayerEntity.class)
 public abstract class PlayerEntityMixin extends LivingEntity implements WingedPlayerEntity
 {
 	@Shadow public abstract boolean isCreative();
 	
+	@Shadow @Final @Mutable private static Map<EntityPose, EntityDimensions> POSE_DIMENSIONS;
 	boolean wingsActive;
 	byte wingState, lastState;
 	float wingAnimTime;
@@ -27,6 +36,40 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	protected PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world)
 	{
 		super(entityType, world);
+	}
+	
+	@Inject(method = "<init>", at = @At("TAIL"))
+	private void onInit(CallbackInfo ci)
+	{
+		POSE_DIMENSIONS = new HashMap<>(POSE_DIMENSIONS);
+		POSE_DIMENSIONS.put(ClassTinkerers.getEnum(EntityPose.class, "SLIDE"), EntityDimensions.changing(0.6f, 1f));
+	}
+	
+	@Redirect(method = "updatePose", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;setPose(Lnet/minecraft/entity/EntityPose;)V"))
+	void onUpdatePose(PlayerEntity instance, EntityPose entityPose)
+	{
+		WingedPlayerEntity winged = ((WingedPlayerEntity)instance);
+		boolean hiVelMode = winged.isWingsVisible();
+		if(hiVelMode)
+		{
+			if(winged.isDashing())
+				setPose(ClassTinkerers.getEnum(EntityPose.class, "DASH"));
+			else if(isSprinting())
+				setPose(ClassTinkerers.getEnum(EntityPose.class, "SLIDE"));
+			else
+				setPose(entityPose);
+		}
+		else
+			setPose(entityPose);
+	}
+	
+	@Inject(method = "getActiveEyeHeight", at = @At("HEAD"), cancellable = true)
+	void onGetActiveEyeHeight(EntityPose pose, EntityDimensions dimensions, CallbackInfoReturnable<Float> cir)
+	{
+		if(pose.equals(ClassTinkerers.getEnum(EntityPose.class, "SLIDE")))
+			cir.setReturnValue(0.4f);
+		else if(pose.equals(ClassTinkerers.getEnum(EntityPose.class, "DASH")))
+			cir.setReturnValue(1.27f);
 	}
 	
 	@Override
@@ -148,5 +191,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			stamina++;
 		if(wingHintDisplayTicks > 0)
 			wingHintDisplayTicks--;
+	}
+	
+	@Inject(method = "adjustMovementForSneaking", at = @At("HEAD"), cancellable = true)
+	void onAdjustMovementForSneaking(Vec3d movement, MovementType type, CallbackInfoReturnable<Vec3d> cir)
+	{
+		if(UltracraftClient.isHiVelEnabled())
+			cir.setReturnValue(movement);
 	}
 }
