@@ -6,7 +6,9 @@ import absolutelyaya.ultracraft.registry.PacketRegistry;
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.input.Input;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -20,6 +22,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -55,6 +58,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Shadow protected abstract void sendSprintingPacket();
 	
 	@Shadow private boolean lastSprinting;
+	@Shadow public Input input;
 	Vec3d dashDir = Vec3d.ZERO;
 	Vec3d slideDir = Vec3d.ZERO;
 	
@@ -101,13 +105,20 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		WingedPlayerEntity winged = ((WingedPlayerEntity)this);
 		if(UltracraftClient.isHiVelEnabled())
 		{
+			if(client.options.sprintKey.isPressed() && !horizontalCollision && !jumping)
+			{
+				BlockPos pos = new BlockPos(getPos().add(Vec3d.fromPolar(0f, getYaw()).normalize()));
+				if(!isSprinting())
+					setSprinting(!world.getBlockState(new BlockPos(getPos().subtract(0f, 0.49f, 0f))).isAir() &&
+										 !world.getBlockState(pos).isSolidBlock(world, pos));
+			}
+			else
+				setSprinting(false);
 			if(isSprinting())
 			{
 				if(isSprinting() != lastSprinting)
 					sendSprintingPacket();
-				setVelocity(slideDir.multiply(0.25).add(0f, getVelocity().y, 0f));
-				if(jumping)
-					setSprinting(false);
+				setVelocity(slideDir.multiply(0.5).add(0f, getVelocity().y, 0f));
 				ci.cancel();
 			}
 			if(winged.isDashing())
@@ -147,20 +158,30 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		}
 	}
 	
+	@Redirect(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;hasForwardMovement()Z"))
+	boolean onTickMovement(Input instance)
+	{
+		WingedPlayerEntity winged = ((WingedPlayerEntity)this);
+		if(winged.isWingsVisible())
+			return true;
+		else
+			return input.hasForwardMovement();
+	}
+	
 	@Inject(method = "setSprinting", at = @At(value = "HEAD"), cancellable = true)
 	public void onSetSprinting(boolean sprinting, CallbackInfo ci)
 	{
 		if(UltracraftClient.isHiVelEnabled())
 		{
 			this.setFlag(3, sprinting); //sprinting flag
-			if(sprinting)
+			if(sprinting && !lastSprinting)
 				slideDir = Vec3d.fromPolar(0f, getYaw()).normalize();
 			ticksSinceSprintingChanged = 0;
 			ci.cancel();
 		}
 	}
 	
-	@Inject(method = "canSprint", at = @At(value = "RETURN"), cancellable = true)
+	@Inject(method = "canSprint", at = @At(value = "HEAD"), cancellable = true)
 	void onCanSprint(CallbackInfoReturnable<Boolean> cir)
 	{
 		WingedPlayerEntity winged = ((WingedPlayerEntity)this);

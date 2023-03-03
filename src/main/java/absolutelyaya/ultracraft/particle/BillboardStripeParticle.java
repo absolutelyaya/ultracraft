@@ -11,18 +11,18 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3f;
-import org.joml.Vector3fc;
 
 public abstract class BillboardStripeParticle extends Particle
 {
 	float length, width, maxLength = 2f;
 	Sprite sprite;
+	Vec3d acceleration = Vec3d.ZERO;
 	boolean debugging = false;
 	
 	protected BillboardStripeParticle(ClientWorld world, double x, double y, double z)
 	{
 		super(world, x, y, z);
-		alpha = 1f;
+		alpha = 0f;
 	}
 	
 	Vec3d getVelocity()
@@ -40,14 +40,21 @@ public abstract class BillboardStripeParticle extends Particle
 		this.width = width;
 	}
 	
+	public void setAcceleration(Vec3d acceleration)
+	{
+		this.acceleration = acceleration;
+	}
+	
 	@Override
 	public void tick()
 	{
 		super.tick();
+		if(age <= 3)
+			alpha = age / 3f;
 		if(age - maxAge + 20 > 0)
-		{
 			alpha = (maxAge - age) / 20f;
-		}
+		if(acceleration.lengthSquared() > 0)
+			setVelocity(velocityX + acceleration.x, velocityY + acceleration.y, velocityZ + acceleration.z);
 	}
 	
 	@Override
@@ -58,7 +65,10 @@ public abstract class BillboardStripeParticle extends Particle
 		float x = (float)(MathHelper.lerp(tickDelta, this.prevPosX, this.x) - vec3d.getX());
 		float y = (float)(MathHelper.lerp(tickDelta, this.prevPosY, this.y) - vec3d.getY());
 		float z = (float)(MathHelper.lerp(tickDelta, this.prevPosZ, this.z) - vec3d.getZ());
-		length = Math.min(maxLength, (float)MathHelper.lerp(tickDelta, length , length + getVelocity().length()));
+		if(acceleration.lengthSquared() > 0)
+			length = maxLength * (float)getVelocity().length();
+		else
+			length = Math.min(maxLength, (float)MathHelper.lerp(tickDelta, length , length + getVelocity().length()));
 		Vec3d dir = getVelocity().normalize().multiply(-1f);
 		
 		Vec3d camForward = new Vec3d(camera.getHorizontalPlane());

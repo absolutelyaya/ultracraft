@@ -16,6 +16,10 @@ repositories {
     maven { url 'https://jitpack.io' }
 }
 
+configurations {
+    shade
+}
+
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -29,8 +33,7 @@ dependencies {
     modImplementation 'software.bernie.geckolib:geckolib-fabric-1.19.3:4.0.4'
 
     //Fabric-ASM
-    modImplementation "com.github.Chocohead:Fabric-ASM:${project.fabric_asm_version}"
-    include "com.github.Chocohead:Fabric-ASM:${project.fabric_asm_version}"
+    modImplementation(include "com.github.Chocohead:Fabric-ASM:${project.fabric_asm_version}")
 }
 
 processResources {

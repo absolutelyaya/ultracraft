@@ -12,10 +12,12 @@
   ],
   "client": [
     "BipedModelMixin",
+    "CameraMixin",
     "ChatSendMixin",
     "ClientPlayerEntityMixin",
     "GameRendererMixin",
     "HandRendererMixin",
+    "KeyboardInputMixin",
     "LivingEntityRendererMixin",
     "MinecraftClientMixin",
     "PlayerRendererMixin",

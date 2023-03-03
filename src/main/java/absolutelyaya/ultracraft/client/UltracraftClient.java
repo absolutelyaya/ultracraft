@@ -9,6 +9,7 @@ import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.HellBulletRenderer;
 import absolutelyaya.ultracraft.particle.DashParticle;
 import absolutelyaya.ultracraft.particle.MaliciousChargeParticle;
+import absolutelyaya.ultracraft.particle.SlideParticle;
 import absolutelyaya.ultracraft.registry.*;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -48,6 +49,7 @@ public class UltracraftClient implements ClientModInitializer
 		//Particles
 		ParticleFactoryRegistry.getInstance().register(ParticleRegistry.MALICIOUS_CHARGE, MaliciousChargeParticle.MaliciousChargeParticleFactory::new);
 		ParticleFactoryRegistry.getInstance().register(ParticleRegistry.DASH, DashParticle.DashParticleFactory::new);
+		ParticleFactoryRegistry.getInstance().register(ParticleRegistry.SLIDE, SlideParticle.SlideParticleFactory::new);
 		//Entity model layers
 		EntityModelLayerRegistry.registerModelLayer(WINGS_LAYER, WingsModel::getTexturedModelData);
 		

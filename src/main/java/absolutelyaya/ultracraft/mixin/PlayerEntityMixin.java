@@ -172,7 +172,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		return wingHintDisplayTicks;
 	}
 	
-	@Inject(method = "tickMovement", at = @At("HEAD"))
+	@Inject(method = "tickMovement", at = @At("TAIL"))
 	void onTick(CallbackInfo ci)
 	{
 		if(getWingAnimTime() < 1f)
@@ -181,10 +181,17 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		{
 			dashingTicks--;
 			Vec3d dir = getVelocity();
-			Vec3d particleVel = new Vec3d(-dir.x, -dir.y, -dir.z).multiply(random.nextDouble() * 0.33 + 0.1);
+			Vec3d particleVel = new Vec3d(-dir.x, 0, -dir.z).multiply(random.nextDouble() * 0.33 + 0.1);
 			Vec3d pos = getPos().add((random.nextDouble() - 0.5) * getWidth(),
 					random.nextDouble() * getHeight(), (random.nextDouble() - 0.5) * getWidth()).add(dir.multiply(0.25));
 			world.addParticle(ParticleRegistry.DASH, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
+		}
+		if(isSprinting() && isWingsVisible())
+		{
+			Vec3d dir = getVelocity().multiply(1.0, 0.0, 1.0).normalize();
+			Vec3d particleVel = new Vec3d(-dir.x, -dir.y, -dir.z).multiply(random.nextDouble() * 0.1 + 0.025);
+			Vec3d pos = getPos().add(dir.multiply(1.5));
+			world.addParticle(ParticleRegistry.SLIDE, pos.x, pos.y + 0.1, pos.z, particleVel.x, particleVel.y, particleVel.z);
 		}
 		if(stamina < 90)
 			stamina++;

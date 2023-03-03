@@ -10,9 +10,9 @@ import net.minecraft.util.math.Vec3d;
 
 import java.util.Random;
 
-public class DashParticle extends BillboardStripeParticle
+public class SlideParticle extends BillboardStripeParticle
 {
-	protected DashParticle(ClientWorld world, double x, double y, double z)
+	protected SlideParticle(ClientWorld world, double x, double y, double z)
 	{
 		super(world, x, y, z);
 	}
@@ -27,20 +27,20 @@ public class DashParticle extends BillboardStripeParticle
 		this.setSprite(spriteProvider.getSprite(this.random));
 	}
 	
-	public record DashParticleFactory(SpriteProvider spriteProvider) implements ParticleFactory<DefaultParticleType>
+	public record SlideParticleFactory(SpriteProvider spriteProvider) implements ParticleFactory<DefaultParticleType>
 	{
 		@Override
 		public Particle createParticle(DefaultParticleType parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ)
 		{
-			DashParticle particle = new DashParticle(world, x, y, z);
+			SlideParticle particle = new SlideParticle(world, x, y, z);
 			Random rand = new Random();
 			particle.setSprite(spriteProvider);
 			particle.width = 0.20f;
 			particle.maxLength = 0.8f + rand.nextFloat() * 0.5f;
 			particle.maxAge = 10 + rand.nextInt(16);
-			particle.setColor(0.75f, 0.75f, 0.75f);
-			Vec3d dir = new Vec3d(velocityX, velocityY, velocityZ).normalize();
-			particle.setVelocity(dir.x, dir.y, dir.z);
+			particle.setColor(0.8f, 0.75f, 0.3f);
+			particle.setVelocity(rand.nextDouble() - 0.5, rand.nextDouble() * 0.3, rand.nextDouble() - 0.5);
+			particle.setAcceleration(new Vec3d(velocityX, velocityY, velocityZ));
 			return particle;
 		}
 	}

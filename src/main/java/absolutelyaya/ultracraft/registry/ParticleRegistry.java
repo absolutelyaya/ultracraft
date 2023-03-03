@@ -13,6 +13,8 @@ public class ParticleRegistry
 			new Identifier(Ultracraft.MOD_ID, "malicious_charge"), FabricParticleTypes.simple());
 	public static final DefaultParticleType DASH = Registry.register(Registries.PARTICLE_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "dash"), FabricParticleTypes.simple());
+	public static final DefaultParticleType SLIDE = Registry.register(Registries.PARTICLE_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "slide"), FabricParticleTypes.simple());
 	
 	public static void init()
 	{
