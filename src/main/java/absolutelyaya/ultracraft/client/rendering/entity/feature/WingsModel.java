@@ -34,9 +34,9 @@ public class WingsModel<T extends LivingEntity> extends AnimalModel<T>
 	private final ModelPart RightWing4Root;
 	private final ModelPart RightWing4;
 	
-	private final Vec3d[] InitialPose = new Vec3d[] {new Vec3d(0.0f, -27.5f, 0.0f), new Vec3d(18.63f, -50.02f, -23.75f), new Vec3d(0.0f, -25.0f, 0.0f), new Vec3d(0.0f, -40.0f, 0.0f), new Vec3d(0.0f, -17.5f, 0.0f), new Vec3d(-7.85f, -31.63f, 14.72f), new Vec3d(0.0f, -10.0f, 0.0f), new Vec3d(-15.0f, -32.0f, 26.82f)};
+	private final Vec3d[] DashPose = new Vec3d[] {new Vec3d(0.0f, -27.5f, 0.0f), new Vec3d(18.63f, -50.02f, -23.75f), new Vec3d(0.0f, -25.0f, 0.0f), new Vec3d(0.0f, -40.0f, 0.0f), new Vec3d(0.0f, -17.5f, 0.0f), new Vec3d(-7.85f, -31.63f, 14.72f), new Vec3d(0.0f, -10.0f, 0.0f), new Vec3d(-15.0f, -32.0f, 26.82f)};
 	private final Vec3d[] RestPose = new Vec3d[] {new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f)};
-	private final Vec3d[] DashPose = new Vec3d[] {new Vec3d(-5.87f, 25.32f, 1.04f), new Vec3d(-41.78f, -26.66f, -6.44f), new Vec3d(-5.08f, 2.28f, 0.23f), new Vec3d(-45.48f, -3.48f, 7.06f), new Vec3d(-4.90f, -9.90f, 4.64f), new Vec3d(-41.38f, -2.08f, 5.19f), new Vec3d(-8.91f, -28.04f, 16.49f), new Vec3d(-45.84f, -3.34f, -7.08f)};
+	private final Vec3d[] SlidePose = new Vec3d[] {new Vec3d(0.0f + 70, -27.5f, 0.0f - 12), new Vec3d(18.63f, -50.02f + 20, -23.75f + 22.5), new Vec3d(0.0f + 70, -25.0f, 0.0f - 18), new Vec3d(0.0f,  -40.0f + 10, 0.0f - 5), new Vec3d(0.0f + 70, -17.5f, 0.0f - 24), new Vec3d(-7.85f, -31.63f + 7.5, 14.72f - 10), new Vec3d(0.0f + 70, -10.0f, 0.0f - 32), new Vec3d(-15.0f, -32.0f + 5, 26.82f - 15)};
 	
 	private final Vec3d[] CurrentPose = new Vec3d[] {new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f)};
 	
@@ -62,7 +62,7 @@ public class WingsModel<T extends LivingEntity> extends AnimalModel<T>
 		RightWing4Root = Root.getChild("RightWing4Root");
 		RightWing4 = RightWing4Root.getChild("RightWing4");
 		
-		System.arraycopy(InitialPose, 0, CurrentPose, 0, 8);
+		System.arraycopy(DashPose, 0, CurrentPose, 0, 8);
 	}
 	
 	public static TexturedModelData getTexturedModelData()
@@ -150,9 +150,9 @@ public class WingsModel<T extends LivingEntity> extends AnimalModel<T>
 	Vec3d[] getPoseFromIndex(byte idx)
 	{
 		return switch(idx) {
-			case 0 -> InitialPose.clone();
+			case 0 -> DashPose.clone();
 			default -> RestPose.clone(); // 1 = rest! Default being here is intentional.
-			case 2 -> DashPose.clone();
+			case 2 -> SlidePose.clone();
 		};
 	}
 	

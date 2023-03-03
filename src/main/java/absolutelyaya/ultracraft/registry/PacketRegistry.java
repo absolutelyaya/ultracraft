@@ -39,6 +39,7 @@ public class PacketRegistry
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
 	public static final Identifier SERVER_OPTIONS_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "join_server");
 	public static final Identifier DASH_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_s2c");
+	public static final Identifier RESPAWN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "respawn");
 	
 	public static void registerC2S()
 	{
@@ -142,5 +143,9 @@ public class PacketRegistry
 				player.world.addParticle(ParticleRegistry.DASH, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
 			}
 		});
+		ClientPlayNetworking.registerGlobalReceiver(RESPAWN_PACKET_ID, ((client, handler, buf, sender) -> {
+			if(client.player != null)
+				((WingedPlayerEntity)client.player).setWingsVisible(buf.readBoolean());
+		}));
 	}
 }

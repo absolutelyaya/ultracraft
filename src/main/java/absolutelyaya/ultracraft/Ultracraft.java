@@ -4,9 +4,14 @@ import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.registry.*;
 import com.mojang.logging.LogUtils;
+import io.netty.buffer.Unpooled;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import org.slf4j.Logger;
 
 public class Ultracraft implements ModInitializer
@@ -35,7 +40,12 @@ public class Ultracraft implements ModInitializer
         });
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
             ((WingedPlayerEntity)newPlayer).setWingsVisible(((WingedPlayerEntity)oldPlayer).isWingsVisible());
-            //TODO: doesn't do anyhing apparently
+            for (ServerPlayerEntity p : ((ServerWorld)newPlayer.world).getPlayers())
+            {
+                PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+                buf.writeBoolean(((WingedPlayerEntity)oldPlayer).isWingsVisible());
+                ServerPlayNetworking.send(p, PacketRegistry.RESPAWN_PACKET_ID, buf);
+            }
         });
         
         LOGGER.info("Ultracraft initialized.");
