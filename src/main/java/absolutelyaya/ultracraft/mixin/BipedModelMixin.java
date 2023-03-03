@@ -25,6 +25,7 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AnimalMode
 	@Shadow @Final public ModelPart leftArm;
 	@Shadow @Final public ModelPart rightArm;
 	
+	@Shadow @Final public ModelPart hat;
 	boolean justSlid;
 	
 	@Inject(method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At("HEAD"), cancellable = true)
@@ -53,6 +54,9 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AnimalMode
 			rightArm.rotate(new Vector3f(-67.6f, 12.53f, -0.44f).mul(MathHelper.RADIANS_PER_DEGREE));
 			leftLeg.rotate(new Vector3f(-82.49f, 2.47f, 0.32f).mul(MathHelper.RADIANS_PER_DEGREE));
 			rightLeg.rotate(new Vector3f(-75.86f, -7.11f, -2.36f).mul(MathHelper.RADIANS_PER_DEGREE));
+			
+			hat.copyTransform(head);
+			
 			justSlid = true;
 			ci.cancel();
 		}

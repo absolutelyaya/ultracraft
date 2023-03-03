@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft;
 
+import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.registry.*;
 import com.mojang.logging.LogUtils;
@@ -31,6 +32,10 @@ public class Ultracraft implements ModInitializer
         ServerTickEvents.END_SERVER_TICK.register(minecraft -> {
             if(freezeTicks > 0)
                 freezeTicks--;
+        });
+        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+            ((WingedPlayerEntity)newPlayer).setWingsVisible(((WingedPlayerEntity)oldPlayer).isWingsVisible());
+            //TODO: doesn't do anyhing apparently
         });
         
         LOGGER.info("Ultracraft initialized.");

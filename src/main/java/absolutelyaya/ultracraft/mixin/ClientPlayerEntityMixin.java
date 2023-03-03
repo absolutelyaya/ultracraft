@@ -6,7 +6,6 @@ import absolutelyaya.ultracraft.registry.PacketRegistry;
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.input.Input;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
