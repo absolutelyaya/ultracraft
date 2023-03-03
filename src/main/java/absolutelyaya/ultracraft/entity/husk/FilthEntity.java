@@ -32,7 +32,7 @@ public class FilthEntity extends HostileEntity implements GeoEntity, MeleeParria
 {
 	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
 	private static final RawAnimation RUN_ANIM = RawAnimation.begin().thenLoop("run");
-	private static final RawAnimation ATTACK_ANIM = RawAnimation.begin().thenPlay("attack").thenLoop("idle");
+	private static final RawAnimation ATTACK_ANIM = RawAnimation.begin().thenLoop("attack");
 	private static final RawAnimation THROWBACK_ANIM = RawAnimation.begin().thenLoop("throwback");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	protected static final TrackedData<Byte> ANIMATION = DataTracker.registerData(FilthEntity.class, TrackedDataHandlerRegistry.BYTE);

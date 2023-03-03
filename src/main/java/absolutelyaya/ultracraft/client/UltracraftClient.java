@@ -10,6 +10,9 @@ import absolutelyaya.ultracraft.client.rendering.entity.projectile.HellBulletRen
 import absolutelyaya.ultracraft.particle.DashParticle;
 import absolutelyaya.ultracraft.particle.MaliciousChargeParticle;
 import absolutelyaya.ultracraft.particle.SlideParticle;
+import absolutelyaya.ultracraft.particle.goop.GoopDropParticle;
+import absolutelyaya.ultracraft.particle.goop.GoopParticle;
+import absolutelyaya.ultracraft.particle.goop.GoopStringParticle;
 import absolutelyaya.ultracraft.registry.*;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -20,7 +23,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.text.Text;
@@ -47,9 +49,13 @@ public class UltracraftClient implements ClientModInitializer
 		EntityRendererRegistry.register(EntityRegistry.MALICIOUS_FACE, MaliciousFaceRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.HELL_BULLET, HellBulletRenderer::new);
 		//Particles
-		ParticleFactoryRegistry.getInstance().register(ParticleRegistry.MALICIOUS_CHARGE, MaliciousChargeParticle.MaliciousChargeParticleFactory::new);
-		ParticleFactoryRegistry.getInstance().register(ParticleRegistry.DASH, DashParticle.DashParticleFactory::new);
-		ParticleFactoryRegistry.getInstance().register(ParticleRegistry.SLIDE, SlideParticle.SlideParticleFactory::new);
+		ParticleFactoryRegistry particleRegistry = ParticleFactoryRegistry.getInstance();
+		particleRegistry.register(ParticleRegistry.MALICIOUS_CHARGE, MaliciousChargeParticle.MaliciousChargeParticleFactory::new);
+		particleRegistry.register(ParticleRegistry.DASH, DashParticle.DashParticleFactory::new);
+		particleRegistry.register(ParticleRegistry.SLIDE, SlideParticle.SlideParticleFactory::new);
+		particleRegistry.register(ParticleRegistry.GOOP_DROP, GoopDropParticle.GoopDropParticleFactory::new);
+		particleRegistry.register(ParticleRegistry.GOOP, GoopParticle.GoopParticleFactory::new);
+		particleRegistry.register(ParticleRegistry.GOOP_STRING, GoopStringParticle.GoopStringParticleFactory::new);
 		//Entity model layers
 		EntityModelLayerRegistry.registerModelLayer(WINGS_LAYER, WingsModel::getTexturedModelData);
 		

@@ -149,6 +149,8 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 			world.addParticle(ParticleRegistry.MALICIOUS_CHARGE, particlePos.x + offset.x, particlePos.y + offset.y, particlePos.z + offset.z,
 					-offset.x * 0.04, -offset.y * 0.04, -offset.z * 0.04);
 		}
+		//TODO: add tendrils
+		//TODO: add blood (goop strings) when cracked and increase at lower health
 	}
 	
 	@Override

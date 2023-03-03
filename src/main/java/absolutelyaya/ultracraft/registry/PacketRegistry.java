@@ -7,6 +7,7 @@ import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
+import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -40,6 +41,7 @@ public class PacketRegistry
 	public static final Identifier SERVER_OPTIONS_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "join_server");
 	public static final Identifier DASH_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_s2c");
 	public static final Identifier RESPAWN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "respawn");
+	public static final Identifier BLEED_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "bleed");
 	
 	public static void registerC2S()
 	{
@@ -129,6 +131,8 @@ public class PacketRegistry
 			Ultracraft.LOGGER.info("Synced Server Options!");
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(DASH_S2C_PACKET_ID, (client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
 			PlayerEntity player = client.player;
 			Vec3d dir = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
 			Random rand = new Random();
@@ -147,5 +151,18 @@ public class PacketRegistry
 			if(client.player != null)
 				((WingedPlayerEntity)client.player).setWingsVisible(buf.readBoolean());
 		}));
+		ClientPlayNetworking.registerGlobalReceiver(BLEED_PACKET_ID, (((client, handler, buf, responseSender) -> {
+			if(client.player == null)
+				return;
+			float amount = buf.readFloat();
+			Vec3d pos = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
+			double halfheight = buf.readDouble();
+			Random rand = new Random();
+			for (int i = 0; i < 3 * amount; i++)
+				client.player.world.addParticle(new GoopDropParticleEffect(new Vec3d(0.56, 0.09, 0.01),
+								0.6f + rand.nextFloat() * 0.4f), pos.x, pos.y + halfheight, pos.z,
+						rand.nextDouble() - 0.5, rand.nextDouble() - 0.5, rand.nextDouble() - 0.5);
+			//TODO: if within healing distance, add splatters to screen
+		})));
 	}
 }
