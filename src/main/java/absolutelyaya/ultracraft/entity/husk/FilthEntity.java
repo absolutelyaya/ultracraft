@@ -40,6 +40,7 @@ public class FilthEntity extends HostileEntity implements GeoEntity, MeleeParria
 	private static final byte ANIMATION_ATTACK = 1;
 	private static final byte ANIMATION_THROWBACK = 2;
 	static int throwbackTicks;
+	//TODO add semi-random attack cooldown?
 	
 	public FilthEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{

@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import com.chocohead.mm.api.ClassTinkerers;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.*;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -70,6 +71,13 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			cir.setReturnValue(0.4f);
 		else if(pose.equals(ClassTinkerers.getEnum(EntityPose.class, "DASH")))
 			cir.setReturnValue(1.27f);
+	}
+	
+	@Inject(method = "damage", at = @At("HEAD"), cancellable = true)
+	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
+	{
+		if(isDashing())
+			cir.setReturnValue(false);
 	}
 	
 	@Override
