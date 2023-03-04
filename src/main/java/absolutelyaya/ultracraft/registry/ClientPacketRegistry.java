@@ -4,12 +4,15 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.Random;
 
+@Environment(EnvType.CLIENT)
 public class ClientPacketRegistry
 {
 	public static void registerS2C()
@@ -48,6 +51,8 @@ public class ClientPacketRegistry
 			}
 		});
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.RESPAWN_PACKET_ID, ((client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
 			PlayerEntity player = client.player.world.getPlayerByUuid(buf.readUuid());
 			if(player != null)
 				((WingedPlayerEntity)player).setWingsVisible(buf.readBoolean());
@@ -65,5 +70,12 @@ public class ClientPacketRegistry
 						rand.nextDouble() - 0.5, rand.nextDouble() - 0.5, rand.nextDouble() - 0.5);
 			//TODO: if within healing distance, add splatters to screen
 		})));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SET_HIGH_VELOCITY_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
+			PlayerEntity player = client.player.world.getPlayerByUuid(buf.readUuid());
+			if(player != null)
+				((WingedPlayerEntity)player).setWingsVisible(buf.readBoolean());
+		}));
 	}
 }

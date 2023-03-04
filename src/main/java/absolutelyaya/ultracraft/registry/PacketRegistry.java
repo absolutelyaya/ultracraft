@@ -28,7 +28,7 @@ public class PacketRegistry
 	public static final Identifier PUNCH_ENTITY_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_entiy");
 	public static final Identifier PUNCH_BLOCK_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_block");
 	public static final Identifier PRIMARY_SHOT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "primary_shot");
-	public static final Identifier SET_HIGH_VELOCITY_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "sethivel");
+	public static final Identifier SET_HIGH_VELOCITY_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "sethivel_c2s");
 	public static final Identifier DASH_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_c2s");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
@@ -37,6 +37,7 @@ public class PacketRegistry
 	public static final Identifier DASH_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_s2c");
 	public static final Identifier RESPAWN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "respawn");
 	public static final Identifier BLEED_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "bleed");
+	public static final Identifier SET_HIGH_VELOCITY_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "sethivel_s2c");
 	
 	public static void registerC2S()
 	{
@@ -90,18 +91,24 @@ public class PacketRegistry
 			else
 				Ultracraft.LOGGER.warn(player + " tried to use primary fire action but is holding a non-weapon Item!");
 		});
-		ServerPlayNetworking.registerGlobalReceiver(SET_HIGH_VELOCITY_PACKET_ID, (server, player, handler, buf, sender) -> {
-			((WingedPlayerEntity)player).setWingsVisible(buf.readBoolean());
+		ServerPlayNetworking.registerGlobalReceiver(SET_HIGH_VELOCITY_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
+			WingedPlayerEntity winged = (WingedPlayerEntity)player;
+			boolean b = buf.readBoolean();
+			if(winged != null)
+				winged.setWingsVisible(b);
+			buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeUuid(player.getUuid());
+			buf.writeBoolean(b);
+			for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
+				ServerPlayNetworking.send(p, SET_HIGH_VELOCITY_S2C_PACKET_ID, buf);
 		});
 		ServerPlayNetworking.registerGlobalReceiver(DASH_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			Vec3d dir = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
-			
 			buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeUuid(player.getUuid());
 			buf.writeDouble(dir.x);
 			buf.writeDouble(dir.y);
 			buf.writeDouble(dir.z);
-			
 			for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
 				ServerPlayNetworking.send(p, DASH_S2C_PACKET_ID, buf);
 			

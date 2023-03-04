@@ -27,7 +27,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ClientPlayerEntity.class)
-public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
+public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity implements WingedPlayerEntity
 {
 	public ClientPlayerEntityMixin(ClientWorld world, GameProfile profile)
 	{
@@ -65,7 +65,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Inject(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 0), cancellable = true)
 	public void onSendSneakChangedPacket(CallbackInfo ci)
 	{
-		WingedPlayerEntity winged = ((WingedPlayerEntity)this);
+		WingedPlayerEntity winged = this;
 		if(tryDash(winged))
 		{
 			lastSneaking = isSneaking();
@@ -103,7 +103,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Inject(method = "sendMovementPackets", at = @At(value = "HEAD"), cancellable = true)
 	public void onSendMovementPackets(CallbackInfo ci)
 	{
-		WingedPlayerEntity winged = ((WingedPlayerEntity)this);
+		WingedPlayerEntity winged = this;
 		if(UltracraftClient.isHiVelEnabled())
 		{
 			if(client.options.sprintKey.isPressed() && !horizontalCollision && !jumping)
@@ -162,11 +162,18 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Redirect(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;hasForwardMovement()Z"))
 	boolean onTickMovement(Input instance)
 	{
-		WingedPlayerEntity winged = ((WingedPlayerEntity)this);
+		WingedPlayerEntity winged = this;
 		if(winged.isWingsVisible())
 			return true;
 		else
 			return input.hasForwardMovement();
+	}
+	
+	@Inject(method = "tick", at = @At(value = "HEAD"))
+	void onTick(CallbackInfo ci)
+	{
+		if(getWingAnimTime() < 1f)
+			setWingAnimTime(getWingAnimTime() + MinecraftClient.getInstance().getTickDelta());
 	}
 	
 	@Inject(method = "setSprinting", at = @At(value = "HEAD"), cancellable = true)
@@ -185,7 +192,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Inject(method = "canSprint", at = @At(value = "HEAD"), cancellable = true)
 	void onCanSprint(CallbackInfoReturnable<Boolean> cir)
 	{
-		WingedPlayerEntity winged = ((WingedPlayerEntity)this);
+		WingedPlayerEntity winged = this;
 		if((winged.isWingsVisible() && !isSprinting() && !onGround) || winged.isDashing())
 			cir.setReturnValue(false);
 	}

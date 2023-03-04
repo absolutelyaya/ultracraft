@@ -134,9 +134,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	}
 	
 	@Override
-	public void setWingAnimTime(int i)
+	public void setWingAnimTime(float f)
 	{
-		wingAnimTime = i;
+		wingAnimTime = f;
 	}
 	
 	@Override
@@ -181,8 +181,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Inject(method = "tickMovement", at = @At("TAIL"))
 	void onTick(CallbackInfo ci)
 	{
-		if(getWingAnimTime() < 1f)
-			wingAnimTime += 0.03f; //TODO: move to client mixin
 		if(dashingTicks >= -1)
 		{
 			dashingTicks--;

@@ -14,10 +14,13 @@ import absolutelyaya.ultracraft.particle.goop.GoopDropParticle;
 import absolutelyaya.ultracraft.particle.goop.GoopParticle;
 import absolutelyaya.ultracraft.particle.goop.GoopStringParticle;
 import absolutelyaya.ultracraft.registry.*;
+import io.netty.buffer.Unpooled;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -25,6 +28,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import software.bernie.geckolib.network.GeckoLibNetwork;
@@ -71,6 +75,13 @@ public class UltracraftClient implements ClientModInitializer
 		hudRenderer = new UltraHudRenderer();
 		WorldRenderEvents.END.register((context) -> hudRenderer.render(context.tickDelta(), context.camera()));
 		
+		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeUuid(client.player.getUuid());
+			buf.writeBoolean(HiVelMode);
+			ClientPlayNetworking.send(PacketRegistry.SET_HIGH_VELOCITY_C2S_PACKET_ID, buf);
+		});
+		
 		ClientPacketRegistry.registerS2C();
 		GeckoLibNetwork.registerClientReceiverPackets();
 		
@@ -102,5 +113,9 @@ public class UltracraftClient implements ClientModInitializer
 			MinecraftClient.getInstance().player.sendMessage(
 					Text.translatable("message.ultracraft.hi-vel-forced",
 							Ultracraft.HiVelOption.equals(Ultracraft.Option.FORCE_ON) ? "Enabled" : "Disabled"), true);
+		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+		buf.writeUuid(MinecraftClient.getInstance().player.getUuid());
+		buf.writeBoolean(HiVelMode);
+		ClientPlayNetworking.send(PacketRegistry.SET_HIGH_VELOCITY_C2S_PACKET_ID, buf);
 	}
 }

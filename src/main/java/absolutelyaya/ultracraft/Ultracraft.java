@@ -36,7 +36,7 @@ public class Ultracraft implements ModInitializer
         ServerTickEvents.END_SERVER_TICK.register(minecraft -> {
             tickFreeze();
         });
-        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+        ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
             ((WingedPlayerEntity)newPlayer).setWingsVisible(((WingedPlayerEntity)oldPlayer).isWingsVisible());
             for (ServerPlayerEntity p : ((ServerWorld)newPlayer.world).getPlayers())
             {

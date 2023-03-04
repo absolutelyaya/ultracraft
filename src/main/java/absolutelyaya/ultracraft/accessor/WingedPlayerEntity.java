@@ -10,7 +10,7 @@ public interface WingedPlayerEntity
 	
 	float getWingAnimTime();
 	
-	void setWingAnimTime(int i);
+	void setWingAnimTime(float f);
 	
 	void setWingsVisible(boolean b);
 	

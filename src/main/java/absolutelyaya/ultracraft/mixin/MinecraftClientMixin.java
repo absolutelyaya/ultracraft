@@ -59,9 +59,7 @@ public abstract class MinecraftClientMixin
 		if(crosshairTarget == null)
 			return;
 		if(crosshairTarget.getType().equals(HitResult.Type.ENTITY))
-		{
 			entity = ((EntityHitResult)crosshairTarget).getEntity();
-		}
 		else if(crosshairTarget.getType().equals(HitResult.Type.BLOCK))
 		{
 			BlockHitResult hit = ((BlockHitResult)crosshairTarget);
