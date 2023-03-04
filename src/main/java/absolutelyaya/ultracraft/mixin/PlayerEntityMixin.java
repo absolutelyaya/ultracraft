@@ -1,10 +1,8 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
-import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import com.chocohead.mm.api.ClassTinkerers;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
@@ -184,7 +182,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	void onTick(CallbackInfo ci)
 	{
 		if(getWingAnimTime() < 1f)
-			wingAnimTime += MinecraftClient.getInstance().getTickDelta();
+			wingAnimTime += 0.03f; //TODO: move to client mixin
 		if(dashingTicks >= -1)
 		{
 			dashingTicks--;
@@ -210,7 +208,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Inject(method = "adjustMovementForSneaking", at = @At("HEAD"), cancellable = true)
 	void onAdjustMovementForSneaking(Vec3d movement, MovementType type, CallbackInfoReturnable<Vec3d> cir)
 	{
-		if(UltracraftClient.isHiVelEnabled())
+		if(isWingsVisible())
 			cir.setReturnValue(movement);
 	}
 }

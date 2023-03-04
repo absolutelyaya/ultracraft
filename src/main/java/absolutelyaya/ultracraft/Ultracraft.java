@@ -1,7 +1,6 @@
 package absolutelyaya.ultracraft;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
-import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.registry.*;
 import com.mojang.logging.LogUtils;
 import io.netty.buffer.Unpooled;
@@ -25,6 +24,7 @@ public class Ultracraft implements ModInitializer
     @Override
     public void onInitialize()
     {
+        ParticleRegistry.init();
         EntityRegistry.register();
         BlockRegistry.registerBlocks();
         BlockEntityRegistry.register();
@@ -32,17 +32,16 @@ public class Ultracraft implements ModInitializer
         PacketRegistry.registerC2S();
         BlockTagRegistry.register();
         SoundRegistry.register();
-        KeybindRegistry.register();
     
         ServerTickEvents.END_SERVER_TICK.register(minecraft -> {
-            if(freezeTicks > 0)
-                freezeTicks--;
+            tickFreeze();
         });
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
             ((WingedPlayerEntity)newPlayer).setWingsVisible(((WingedPlayerEntity)oldPlayer).isWingsVisible());
             for (ServerPlayerEntity p : ((ServerWorld)newPlayer.world).getPlayers())
             {
                 PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+                buf.writeUuid(newPlayer.getUuid());
                 buf.writeBoolean(((WingedPlayerEntity)oldPlayer).isWingsVisible());
                 ServerPlayNetworking.send(p, PacketRegistry.RESPAWN_PACKET_ID, buf);
             }
@@ -56,12 +55,25 @@ public class Ultracraft implements ModInitializer
         return freezeTicks > 0;
     }
     
-    public static void freeze(int ticks)
+    public static void freeze(ServerWorld world, int ticks)
     {
-        if(!UltracraftClient.isFreezeEnabled())
-            return;
+        if(world != null)
+        {
+            for (ServerPlayerEntity player : world.getPlayers())
+            {
+                PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+                buf.writeInt(ticks);
+                ServerPlayNetworking.send(player, PacketRegistry.FREEZE_PACKET_ID, buf);
+            }
+        }
         freezeTicks += ticks;
         LOGGER.info("Freezing for " + ticks + " ticks. (Intentional Visual Effect! Do not report!)");
+    }
+    
+    public static void tickFreeze()
+    {
+        if(freezeTicks > 0)
+            freezeTicks--;
     }
     
     public enum Option

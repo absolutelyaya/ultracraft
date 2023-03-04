@@ -42,7 +42,7 @@ public class UltracraftClient implements ClientModInitializer
 	@Override
 	public void onInitializeClient()
 	{
-		ParticleRegistry.init();
+		KeybindRegistry.register();
 		
 		//EntityRenderers
 		EntityRendererRegistry.register(EntityRegistry.FILTH, FilthRenderer::new);
@@ -70,8 +70,10 @@ public class UltracraftClient implements ClientModInitializer
 		hudRenderer = new UltraHudRenderer();
 		WorldRenderEvents.END.register((context) -> hudRenderer.render(context.tickDelta(), context.camera()));
 		
-		PacketRegistry.registerS2C();
+		ClientPacketRegistry.registerS2C();
 		GeckoLibNetwork.registerClientReceiverPackets();
+		
+		ClientTickEvents.END_WORLD_TICK.register(minecraft -> Ultracraft.tickFreeze());
 	}
 	
 	//if no Server override, return client setting

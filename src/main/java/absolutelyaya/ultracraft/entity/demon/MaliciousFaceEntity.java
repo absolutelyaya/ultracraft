@@ -162,6 +162,8 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
+		if(source.equals(DamageSource.FALL))
+			return false;
 		if(getHealth() - amount <= 0f && !dataTracker.get(DEAD))
 		{
 			dataTracker.set(DEAD, true);

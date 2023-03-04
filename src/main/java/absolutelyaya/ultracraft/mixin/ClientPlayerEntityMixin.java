@@ -12,6 +12,7 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.BlockPos;
@@ -85,6 +86,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					dir = Vec3d.fromPolar(0f, getYaw()).normalize();
 				
 				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+				buf.writeUuid(((PlayerEntity)winged).getUuid());
 				buf.writeDouble(dir.x);
 				buf.writeDouble(dir.y);
 				buf.writeDouble(dir.z);
