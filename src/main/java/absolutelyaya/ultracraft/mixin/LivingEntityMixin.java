@@ -62,7 +62,10 @@ public abstract class LivingEntityMixin extends Entity implements ClientPlayerAc
 			ServerPlayNetworking.send((ServerPlayerEntity)player, PacketRegistry.BLEED_PACKET_ID, buf);
 		}
 		for (PlayerEntity player : heal)
+		{
 			player.heal(amount / 1.5f);
+			player.getHungerManager().add((int)(amount / 1.5f), 5f);
+		}
 	}
 	
 	void punchTick()

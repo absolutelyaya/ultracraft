@@ -17,7 +17,7 @@ public class GoopStringParticle extends SpriteAAParticle
 		gravityStrength = random.nextFloat() * 0.25f + 0.1f;
 		maxAge = random.nextInt(15) + 20;
 		setColor((float)color.getX(), (float)color.getY(), (float)color.getZ());
-		this.scale.multiply(scale);
+		this.scale = this.scale.multiply(scale);
 		collidesWithWorld = true;
 	}
 	
@@ -30,11 +30,10 @@ public class GoopStringParticle extends SpriteAAParticle
 	@Override
 	public void move(double dx, double dy, double dz)
 	{
-		///TODO: fix jiterring somehow. maybe using last y delta instead would already fix it?
 		super.move(dx, dy, dz);
 		if (!onGround)
 		{
-			scale.add(-0.001f, (float)-dy, -0.001f);
+			scale = scale.add(-0.001f, (float)-dy, -0.001f);
 		}
 	}
 	

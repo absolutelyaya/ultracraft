@@ -41,9 +41,9 @@ public abstract class SpriteAAParticle extends SpriteBillboardParticle
 		for(int k = 0; k < 4; ++k)
 		{
 			Vec3d Vec3d = Vec3ds[k];
-			Vec3d.rotateY((float)Math.toDegrees(Math.atan2(dir.x, dir.z)));
-			Vec3d.multiply(scale.getX(), scale.getY(), scale.getZ());
-			Vec3d.add(f, g, h);
+			Vec3d = Vec3d.rotateY((float)Math.atan2(dir.x, dir.z));
+			Vec3d = Vec3d.multiply(scale.getX(), scale.getY(), scale.getZ());
+			Vec3ds[k] = Vec3d.add(f, g, h);
 		}
 		
 		int n = this.getBrightness(tickDelta);

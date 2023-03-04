@@ -3,6 +3,8 @@ package absolutelyaya.ultracraft.entity.demon;
 import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.accessor.MeleeParriable;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
+import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
+import absolutelyaya.ultracraft.particle.goop.GoopStringParticleEffect;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -149,8 +151,19 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 			world.addParticle(ParticleRegistry.MALICIOUS_CHARGE, particlePos.x + offset.x, particlePos.y + offset.y, particlePos.z + offset.z,
 					-offset.x * 0.04, -offset.y * 0.04, -offset.z * 0.04);
 		}
+		if(dataTracker.get(CRACKED))
+		{
+			java.util.Random rand = new java.util.Random();
+			EntityDimensions dimensions = getDimensions(getPose());
+			double x = random.nextDouble() * dimensions.width - dimensions.width / 2 + getX();
+			double y = random.nextDouble() * dimensions.height + getY();
+			double z = random.nextDouble() * dimensions.width - dimensions.width / 2 + getZ();
+			if(rand.nextFloat() > 0.5f + getHealth() / getMaxHealth())
+				world.addParticle(new GoopStringParticleEffect(new Vec3d(0.56, 0.09, 0.01),
+								0.4f + rand.nextFloat() * 0.2f), x, y, z,
+						0f, 0f, 0f);
+		}
 		//TODO: add tendrils
-		//TODO: add blood (goop strings) when cracked and increase at lower health
 	}
 	
 	@Override
