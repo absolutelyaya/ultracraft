@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.mixin;
 import absolutelyaya.ultracraft.accessor.ClientPlayerAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.BlockTagRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
@@ -121,15 +122,14 @@ public abstract class MinecraftClientMixin
 	@Inject(method = "getMusicType", at = @At("RETURN"), cancellable = true)
 	void onGetMusicType(CallbackInfoReturnable<MusicSound> cir)
 	{
-		//if (cir.getReturnValue().equals(MusicType.MENU))
-		//	cir.setReturnValue(new MusicSound(SoundRegistry.THE_FIRE_IS_GONE., 20, 600, true));
-		///TODO
+		if (cir.getReturnValue().equals(MusicType.MENU) && UltracraftClient.REPLACE_MENU_MUSIC)
+			cir.setReturnValue(new MusicSound(SoundRegistry.THE_FIRE_IS_GONE, 20, 600, true));
 	}
 	
 	@Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
 	void onDoAttack(CallbackInfoReturnable<Boolean> cir)
 	{
-		if(player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem)
+		if(player != null && player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem)
 		{
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			ClientPlayNetworking.send(PacketRegistry.PRIMARY_SHOT_PACKET_ID, buf);
@@ -140,7 +140,7 @@ public abstract class MinecraftClientMixin
 	@Inject(method = "handleBlockBreaking", at = @At("HEAD"), cancellable = true)
 	void onHandleBlockBreaking(boolean bl, CallbackInfo ci)
 	{
-		if(player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem)
+		if(player != null && player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem)
 			ci.cancel();
 	}
 }

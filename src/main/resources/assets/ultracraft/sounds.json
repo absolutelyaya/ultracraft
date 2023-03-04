@@ -3,5 +3,10 @@
     "sounds": [
       "ultracraft:music/the_fire_is_gone"
     ]
+  },
+  "misc.elevator_fall": {
+    "sounds": [
+      "ultracraft:misc/elevator_fall"
+    ]
   }
 }

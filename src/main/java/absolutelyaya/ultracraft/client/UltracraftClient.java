@@ -34,6 +34,7 @@ public class UltracraftClient implements ClientModInitializer
 {
 	public static final EntityModelLayer WINGS_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "wings"), "main");
 	public static ClientHitscanHandler HITSCAN_HANDLER;
+	public static boolean REPLACE_MENU_MUSIC = true;
 	static boolean FreezeOption = true;
 	static boolean HiVelMode = false;
 	
