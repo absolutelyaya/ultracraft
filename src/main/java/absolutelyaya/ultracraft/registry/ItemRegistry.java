@@ -11,6 +11,8 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.resource.featuretoggle.FeatureFlag;
+import net.minecraft.resource.featuretoggle.FeatureFlags;
 import net.minecraft.util.Identifier;
 
 public class ItemRegistry
@@ -23,7 +25,7 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "hell_bullet"), new HellBulletItem(new Item.Settings().fireproof().maxCount(25)));
 	
 	public static final PierceRevolverItem PIERCE_REVOLVER = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "pierce_revolver"), new PierceRevolverItem(new Item.Settings()));
+			new Identifier(Ultracraft.MOD_ID, "pierce_revolver"), new PierceRevolverItem(new Item.Settings().maxCount(1)));
 	
 	public static final ItemGroup ULTRACRAFT_TAB =
 			FabricItemGroup.builder(new Identifier(Ultracraft.MOD_ID, "item")).icon(() -> new ItemStack(BLUE_SKULL)).build();
