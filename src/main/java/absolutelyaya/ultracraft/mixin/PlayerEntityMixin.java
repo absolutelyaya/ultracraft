@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import com.chocohead.mm.api.ClassTinkerers;
 import net.minecraft.entity.*;
@@ -8,6 +9,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -31,6 +33,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	byte wingState, lastState;
 	float wingAnimTime;
 	int dashingTicks = -2, stamina, wingHintDisplayTicks;
+	GunCooldownManager gunCDM;
 	
 	protected PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world)
 	{
@@ -42,6 +45,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	{
 		POSE_DIMENSIONS = new HashMap<>(POSE_DIMENSIONS);
 		POSE_DIMENSIONS.put(ClassTinkerers.getEnum(EntityPose.class, "SLIDE"), EntityDimensions.changing(0.6f, 1f));
+		gunCDM = new GunCooldownManager((PlayerEntity)(Object)this);
 	}
 	
 	@Redirect(method = "updatePose", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;setPose(Lnet/minecraft/entity/EntityPose;)V"))
@@ -178,8 +182,21 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		return wingHintDisplayTicks;
 	}
 	
-	@Inject(method = "tickMovement", at = @At("TAIL"))
+	@Override
+	public @NotNull GunCooldownManager getGunCooldownManager()
+	{
+		return gunCDM;
+	}
+	
+	@Inject(method = "tick", at = @At("TAIL"))
 	void onTick(CallbackInfo ci)
+	{
+		if(!world.isClient)
+			gunCDM.tickCooldowns();
+	}
+	
+	@Inject(method = "tickMovement", at = @At("TAIL"))
+	void onTickMovement(CallbackInfo ci)
 	{
 		if(dashingTicks >= -1)
 		{

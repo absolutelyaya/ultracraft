@@ -38,6 +38,8 @@ public class PacketRegistry
 	public static final Identifier RESPAWN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "respawn");
 	public static final Identifier BLEED_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "bleed");
 	public static final Identifier SET_HIGH_VELOCITY_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "sethivel_s2c");
+	public static final Identifier UPDATE_GUNCD_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "update_gcd");
+	public static final Identifier SET_GUNCD_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_gcd");
 	
 	public static void registerC2S()
 	{

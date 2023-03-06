@@ -77,5 +77,13 @@ public class ClientPacketRegistry
 			if(player != null)
 				((WingedPlayerEntity)player).setWingsVisible(buf.readBoolean());
 		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.UPDATE_GUNCD_PACKET_ID, ((client, handler, buf, sender) -> {
+			if(client.player != null)
+				((WingedPlayerEntity)client.player).getGunCooldownManager().tickCooldowns();
+		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SET_GUNCD_PACKET_ID, ((client, handler, buf, sender) -> {
+			if(client.player != null)
+				((WingedPlayerEntity)client.player).getGunCooldownManager().setCooldown(buf.readItemStack().getItem(), buf.readInt(), buf.readInt());
+		}));
 	}
 }

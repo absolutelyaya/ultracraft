@@ -1,5 +1,8 @@
 package absolutelyaya.ultracraft.accessor;
 
+import absolutelyaya.ultracraft.client.GunCooldownManager;
+import org.jetbrains.annotations.NotNull;
+
 public interface WingedPlayerEntity
 {
 	void setWingState(byte state);
@@ -29,4 +32,7 @@ public interface WingedPlayerEntity
 	boolean consumeStamina();
 	
 	int getWingHintDisplayTicks();
+	
+	@NotNull
+	GunCooldownManager getGunCooldownManager();
 }

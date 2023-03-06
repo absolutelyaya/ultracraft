@@ -1,7 +1,10 @@
 package absolutelyaya.ultracraft.item;
 
 import absolutelyaya.ultracraft.ServerHitscanHandler;
+import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.PierceRevolverRenderer;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -30,7 +33,7 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 	private static final String controllerName = "pierceRevolverController";
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
-	protected int approxUseTime = -1, primaryCooldown;
+	protected int approxUseTime = -1;
 	RawAnimation AnimationCharge = RawAnimation.begin().thenLoop("charged");
 	RawAnimation AnimationDischarge = RawAnimation.begin().then("discharge", Animation.LoopType.DEFAULT);
 	RawAnimation AnimationShot = RawAnimation.begin().then("shot", Animation.LoopType.DEFAULT);
@@ -46,7 +49,7 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 	{
 		ItemStack itemStack = user.getStackInHand(hand);
 		user.setCurrentHand(hand);
-		if(world.isClient)
+		if(!world.isClient)
 			approxUseTime = 0;
 		return TypedActionResult.consume(itemStack);
 	}
@@ -63,8 +66,6 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 			if(entity instanceof PlayerEntity player)
 				triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "charging");
 		}
-		if(primaryCooldown > 0)
-			primaryCooldown--;
 	}
 	
 	@Override
@@ -76,24 +77,27 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 	@Override
 	public void onPrimaryFire(World world, PlayerEntity user)
 	{
-		if(!world.isClient && primaryCooldown <= 0)
+		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
+		if(!world.isClient && cdm.isUsable(this, 0))
 		{
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), controllerName, "shot");
 			ServerHitscanHandler.performHitscan(user, (byte)0, 4);
-			primaryCooldown = 10;
+			cdm.setCooldown(this, 10, GunCooldownManager.PRIMARY);
 		}
 	}
 	
 	@Override
 	public int getItemBarStep(ItemStack stack)
 	{
-		return (int)((float)(10 - primaryCooldown) / 10f * 14f);
+		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
+		return (int)((float)(10 - cdm.getCooldown(stack.getItem(), GunCooldownManager.PRIMARY)) / 10f * 14f);
 	}
 	
 	@Override
 	public boolean isItemBarVisible(ItemStack stack)
 	{
-		return primaryCooldown > 0;
+		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
+		return cdm.getCooldown(stack.getItem(), GunCooldownManager.PRIMARY) > 0;
 	}
 	
 	@Override
@@ -105,14 +109,14 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 	@Override
 	public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks)
 	{
+		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
 		if(remainingUseTicks <= 0)
 		{
 			if(user instanceof PlayerEntity player)
 			{
-				if(world.isClient)
-					approxCooldown = 50;
-				else
+				if(!world.isClient)
 				{
+					cdm.setCooldown(this, 50, GunCooldownManager.SECONDARY);
 					triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "discharge");
 					approxUseTime = -1;
 				}
