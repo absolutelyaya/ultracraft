@@ -86,7 +86,6 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					dir = Vec3d.fromPolar(0f, getYaw()).normalize();
 				
 				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-				buf.writeUuid(((PlayerEntity)winged).getUuid());
 				buf.writeDouble(dir.x);
 				buf.writeDouble(dir.y);
 				buf.writeDouble(dir.z);
