@@ -17,6 +17,7 @@ import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import org.joml.Vector2i;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.client.RenderProvider;
@@ -66,6 +67,12 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 			if(entity instanceof PlayerEntity player)
 				triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "charging");
 		}
+	}
+	
+	@Override
+	public Vector2i getHUDTexture()
+	{
+		return new Vector2i(0, 0);
 	}
 	
 	@Override

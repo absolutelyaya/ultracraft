@@ -5,6 +5,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import org.joml.Vector2i;
 
 public abstract class AbstractWeaponItem extends Item
 {
@@ -20,4 +21,6 @@ public abstract class AbstractWeaponItem extends Item
 	{
 		super.inventoryTick(stack, world, entity, slot, selected);
 	}
+	
+	public abstract Vector2i getHUDTexture();
 }
