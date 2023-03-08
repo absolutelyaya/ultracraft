@@ -8,6 +8,7 @@ import absolutelyaya.ultracraft.client.rendering.entity.feature.WingsModel;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.HellBulletRenderer;
 import absolutelyaya.ultracraft.particle.DashParticle;
+import absolutelyaya.ultracraft.particle.GroundPoundParticle;
 import absolutelyaya.ultracraft.particle.MaliciousChargeParticle;
 import absolutelyaya.ultracraft.particle.SlideParticle;
 import absolutelyaya.ultracraft.particle.goop.GoopDropParticle;
@@ -58,6 +59,7 @@ public class UltracraftClient implements ClientModInitializer
 		particleRegistry.register(ParticleRegistry.MALICIOUS_CHARGE, MaliciousChargeParticle.MaliciousChargeParticleFactory::new);
 		particleRegistry.register(ParticleRegistry.DASH, DashParticle.DashParticleFactory::new);
 		particleRegistry.register(ParticleRegistry.SLIDE, SlideParticle.SlideParticleFactory::new);
+		particleRegistry.register(ParticleRegistry.GROUND_POUND, GroundPoundParticle.GroundPoundParticleFactory::new);
 		particleRegistry.register(ParticleRegistry.GOOP_DROP, GoopDropParticle.GoopDropParticleFactory::new);
 		particleRegistry.register(ParticleRegistry.GOOP, GoopParticle.GoopParticleFactory::new);
 		particleRegistry.register(ParticleRegistry.GOOP_STRING, GoopStringParticle.GoopStringParticleFactory::new);

@@ -35,4 +35,8 @@ public interface WingedPlayerEntity
 	
 	@NotNull
 	GunCooldownManager getGunCooldownManager();
+	
+	void startGroundPound();
+	
+	void completeGroundPound(boolean strong);
 }

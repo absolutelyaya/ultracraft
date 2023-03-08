@@ -67,7 +67,7 @@ public class Ultracraft implements ModInitializer
             }
         }
         freezeTicks += ticks;
-        LOGGER.info("Freezing for " + ticks + " ticks. (Intentional Visual Effect! Do not report!)");
+        LOGGER.info("Stopping time for " + ticks + " ticks. (Intentional Visual Effect! Do not report!)");
     }
     
     public static void tickFreeze()

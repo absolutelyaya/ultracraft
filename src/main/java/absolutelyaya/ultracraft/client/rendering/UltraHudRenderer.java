@@ -29,6 +29,8 @@ public class UltraHudRenderer extends DrawableHelper
 	
 	public void render(float tickDelta, Camera cam)
 	{
+		if(!MinecraftClient.isHudEnabled())
+			return;
 		if(cam.isThirdPerson())
 			return;
 		MinecraftClient client = MinecraftClient.getInstance();

@@ -30,6 +30,7 @@ public class PacketRegistry
 	public static final Identifier PRIMARY_SHOT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "primary_shot");
 	public static final Identifier SET_HIGH_VELOCITY_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "sethivel_c2s");
 	public static final Identifier DASH_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_c2s");
+	public static final Identifier GROUND_POUND_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ground_pound");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
@@ -117,6 +118,16 @@ public class PacketRegistry
 			server.execute(() -> {
 				player.setVelocity(dir);
 				((WingedPlayerEntity)player).onDash();
+			});
+		});
+		ServerPlayNetworking.registerGlobalReceiver(GROUND_POUND_PACKET_ID, (server, player, handler, buf, sender) -> {
+			boolean start = buf.readBoolean();
+			server.execute(() -> {
+				WingedPlayerEntity winged = (WingedPlayerEntity)player;
+				if(start)
+					winged.startGroundPound();
+				else
+					winged.completeGroundPound(false);
 			});
 		});
 	}

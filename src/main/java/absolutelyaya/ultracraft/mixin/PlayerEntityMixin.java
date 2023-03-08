@@ -29,7 +29,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Shadow public abstract boolean isCreative();
 	
 	@Shadow @Final @Mutable private static Map<EntityPose, EntityDimensions> POSE_DIMENSIONS;
-	boolean wingsActive;
+	boolean wingsActive, groundPounding;
 	byte wingState, lastState;
 	float wingAnimTime;
 	int dashingTicks = -2, stamina, wingHintDisplayTicks;
@@ -188,6 +188,18 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		return gunCDM;
 	}
 	
+	@Override
+	public void startGroundPound()
+	{
+		groundPounding = true;
+	}
+	
+	@Override
+	public void completeGroundPound(boolean strong)
+	{
+		groundPounding = false;
+	}
+	
 	@Inject(method = "tick", at = @At("TAIL"))
 	void onTick(CallbackInfo ci)
 	{
@@ -205,14 +217,23 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			Vec3d particleVel = new Vec3d(-dir.x, 0, -dir.z).multiply(random.nextDouble() * 0.33 + 0.1);
 			Vec3d pos = getPos().add((random.nextDouble() - 0.5) * getWidth(),
 					random.nextDouble() * getHeight(), (random.nextDouble() - 0.5) * getWidth()).add(dir.multiply(0.25));
-			world.addParticle(ParticleRegistry.DASH, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
+			world.addParticle(ParticleRegistry.DASH, true, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
 		}
 		if(isSprinting() && isWingsVisible())
 		{
 			Vec3d dir = getVelocity().multiply(1.0, 0.0, 1.0).normalize();
 			Vec3d particleVel = new Vec3d(-dir.x, -dir.y, -dir.z).multiply(random.nextDouble() * 0.1 + 0.025);
 			Vec3d pos = getPos().add(dir.multiply(1.5));
-			world.addParticle(ParticleRegistry.SLIDE, pos.x, pos.y + 0.1, pos.z, particleVel.x, particleVel.y, particleVel.z);
+			world.addParticle(ParticleRegistry.SLIDE, true, pos.x, pos.y + 0.1, pos.z, particleVel.x, particleVel.y, particleVel.z);
+		}
+		if(groundPounding)
+		{
+			Vec3d particleVel = new Vec3d(0, 1, 0);
+			for (int i = 0; i < random.nextInt(4) + 8; i++)
+			{
+				Vec3d pos = getPos().add((random.nextDouble() - 0.5) * 10.0, 5.0 * ((random.nextDouble() - 0.9) * 2), (random.nextDouble() - 0.5) * 10.0);
+				world.addParticle(ParticleRegistry.GROUND_POUND, true, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
+			}
 		}
 		if(stamina < 90)
 			stamina++;

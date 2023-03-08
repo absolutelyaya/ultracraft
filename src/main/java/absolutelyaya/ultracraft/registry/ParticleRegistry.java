@@ -19,14 +19,14 @@ public class ParticleRegistry
 			new Identifier(Ultracraft.MOD_ID, "dash"), FabricParticleTypes.simple());
 	public static final DefaultParticleType SLIDE = Registry.register(Registries.PARTICLE_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "slide"), FabricParticleTypes.simple());
+	public static final DefaultParticleType GROUND_POUND = Registry.register(Registries.PARTICLE_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "groundpound"), FabricParticleTypes.simple());
+	
 	public static final ParticleType<GoopDropParticleEffect> GOOP_DROP =
 			Registry.register(Registries.PARTICLE_TYPE, new Identifier(Ultracraft.MOD_ID, "goop_drop"),
 					FabricParticleTypes.complex(new GoopDropParticleEffect.Factory()));
 	public static final ParticleType<GoopParticleEffect> GOOP =
 			Registry.register(Registries.PARTICLE_TYPE, new Identifier(Ultracraft.MOD_ID, "goop"),
-					FabricParticleTypes.complex(new GoopParticleEffect.Factory()));
-	public static final ParticleType<GoopParticleEffect> GOOP_NET =
-			Registry.register(Registries.PARTICLE_TYPE, new Identifier(Ultracraft.MOD_ID, "goop_net"),
 					FabricParticleTypes.complex(new GoopParticleEffect.Factory()));
 	public static final ParticleType<GoopStringParticleEffect> GOOP_STRING =
 			Registry.register(Registries.PARTICLE_TYPE, new Identifier(Ultracraft.MOD_ID, "goop_string"),

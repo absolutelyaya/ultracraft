@@ -12,7 +12,6 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.BlockPos;
@@ -61,6 +60,9 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Shadow public Input input;
 	Vec3d dashDir = Vec3d.ZERO;
 	Vec3d slideDir = Vec3d.ZERO;
+	boolean groundPounding, lastGroundPounding, lastJumping, lastSprintPressed;
+	int groundPoundTicks, ticksSinceLastGroundPound = -1, slideTicks;
+	float slideVelocity;
 	
 	@Inject(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 0), cancellable = true)
 	public void onSendSneakChangedPacket(CallbackInfo ci)
@@ -81,7 +83,9 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			{
 				if(!winged.consumeStamina())
 					return true;
-				Vec3d dir = new Vec3d(getX() - lastX, 0f, getZ() - lastZ).normalize();
+				if(groundPounding)
+					groundPounding = false;
+				Vec3d dir = new Vec3d(input.movementSideways, 0f, input.movementForward).rotateY(-(float)Math.toRadians(getYaw())).normalize();
 				if(dir.lengthSquared() < 0.9f)
 					dir = Vec3d.fromPolar(0f, getYaw()).normalize();
 				
@@ -105,26 +109,74 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		WingedPlayerEntity winged = this;
 		if(UltracraftClient.isHiVelEnabled())
 		{
-			if(client.options.sprintKey.isPressed() && !horizontalCollision && !jumping)
+			if(ticksSinceLastGroundPound > -1 && ticksSinceLastGroundPound < 4)
+				ticksSinceLastGroundPound++;
+			//start slide or groundpound
+			if(client.options.sprintKey.isPressed() && !lastSprintPressed && !groundPounding)
 			{
-				BlockPos pos = new BlockPos(getPos().add(Vec3d.fromPolar(0f, getYaw()).normalize()));
-				if(!isSprinting())
-					setSprinting(!world.getBlockState(new BlockPos(getPos().subtract(0f, 0.49f, 0f))).isAir() &&
+				//start ground pound
+				if(world.getBlockState(new BlockPos(getPos().subtract(0f, 0.99f, 0f))).isAir() && !getAbilities().flying)
+				{
+					groundPoundTicks = 0;
+					groundPounding = true;
+					setSprinting(false);
+				}
+				//start slide
+				else if(!horizontalCollision && !jumping)
+				{
+					BlockPos pos = new BlockPos(getPos().add(Vec3d.fromPolar(0f, getYaw()).normalize()));
+					setSprinting(!world.getBlockState(new BlockPos(getPos().subtract(0f, 0.79f, 0f))).isAir() &&
 										 !world.getBlockState(pos).isSolidBlock(world, pos));
+				}
+				//cancel slide because it shouldn't be possible rn anyways
+				else if(isSprinting())
+					setSprinting(false);
+				ci.cancel();
 			}
-			else
-				setSprinting(false);
+			//stop sliding once conditions aren't met anymore
+			else if(isSprinting())
+			{
+				setSprinting(client.options.sprintKey.isPressed() && !groundPounding && !horizontalCollision && !jumping);
+				slideTicks++;
+				if(world.getBlockState(new BlockPos(getPos().subtract(0f, 0.25f, 0f))).isAir())
+					slideTicks = 0;
+				ci.cancel();
+			}
+			//slide velocity
 			if(isSprinting())
 			{
 				if(isSprinting() != lastSprinting)
 					sendSprintingPacket();
-				setVelocity(slideDir.multiply(0.5).add(0f, getVelocity().y, 0f));
+				setVelocity(slideDir.multiply(slideVelocity).add(0f, getVelocity().y, 0f));
 				ci.cancel();
 			}
+			//ground pound velocity
+			if(groundPounding)
+			{
+				groundPoundTicks++;
+				setVelocity(0, -2, 0);
+				//landing
+				if(verticalCollision)
+				{
+					groundPounding = false;
+					ticksSinceLastGroundPound = 0;
+				}
+				ci.cancel();
+			}
+			//high jump after ground pound
+			if(ticksSinceLastGroundPound > -1 && ticksSinceLastGroundPound < 4 && jumping && !lastJumping)
+			{
+				ticksSinceLastGroundPound = -1;
+				setVelocity(0, groundPoundTicks / 20f + 0.42f * 1.5f, 0);
+				groundPoundTicks = 0;
+				ci.cancel();
+			}
+			//dash velocity
 			if(winged.isDashing())
 			{
 				setVelocity(dashDir);
-				if(jumping && !world.getBlockState(new BlockPos(getPos().subtract(0f, 0.49f, 0f))).isAir())
+				//dash jump (preserves velocity)
+				if(jumping && !lastJumping && !world.getBlockState(new BlockPos(getPos().subtract(0f, 0.49f, 0f))).isAir())
 				{
 					winged.onDashJump();
 					if(!winged.consumeStamina())
@@ -133,6 +185,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				}
 				ci.cancel();
 			}
+			//stop dashing
 			if(winged.wasDashing())
 			{
 				if(onGround)
@@ -142,10 +195,9 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				dashDir = Vec3d.ZERO;
 				ci.cancel();
 			}
+			//update movement data
 			if(ci.isCancelled())
 			{
-				if(tryDash(winged))
-					setSprinting(false);
 				networkHandler.sendPacket(new PlayerMoveC2SPacket.Full(getX(), getY(), getZ(), getYaw(), getPitch(), onGround));
 				lastX = getX();
 				lastBaseY = getY();
@@ -154,18 +206,40 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				lastYaw = getYaw();
 				lastOnGround = onGround;
 				autoJumpEnabled = client.options.getAutoJump().getValue();
+				lastJumping = jumping;
+				if(lastGroundPounding != groundPounding)
+				{
+					PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+					buf.writeBoolean(groundPounding);
+					ClientPlayNetworking.send(PacketRegistry.GROUND_POUND_PACKET_ID, buf);
+					if(groundPounding)
+						startGroundPound();
+					else
+						completeGroundPound(false);
+				}
+				lastGroundPounding = groundPounding;
 			}
+			if(isSprinting() && slideVelocity > 0.33f && slideTicks > 50)
+				slideVelocity = Math.max(0.33f, slideVelocity * 0.995f);
+			lastSprintPressed = client.options.sprintKey.isPressed();
 		}
 	}
 	
 	@Redirect(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;hasForwardMovement()Z"))
 	boolean onTickMovement(Input instance)
 	{
-		WingedPlayerEntity winged = this;
-		if(winged.isWingsVisible())
+		if(UltracraftClient.isHiVelEnabled())
 			return true;
 		else
 			return input.hasForwardMovement();
+	}
+	
+	@Redirect(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;setSprinting(Z)V"))
+	void onTickMovement(ClientPlayerEntity instance, boolean sprinting)
+	{
+		//cancel normal sprint triggers when in HiVelMode
+		if(!UltracraftClient.isHiVelEnabled())
+			setSprinting(sprinting);
 	}
 	
 	@Inject(method = "tick", at = @At(value = "HEAD"))
@@ -178,12 +252,14 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Inject(method = "setSprinting", at = @At(value = "HEAD"), cancellable = true)
 	public void onSetSprinting(boolean sprinting, CallbackInfo ci)
 	{
-		if(UltracraftClient.isHiVelEnabled())
+		if(UltracraftClient.isHiVelEnabled() && isSprinting() != sprinting)
 		{
 			this.setFlag(3, sprinting); //sprinting flag
 			if(sprinting && !lastSprinting)
 				slideDir = Vec3d.fromPolar(0f, getYaw()).normalize();
 			ticksSinceSprintingChanged = 0;
+			slideVelocity = Math.max(0.33f, (float)getVelocity().multiply(1f, 0f, 1f).length());
+			slideTicks = 0;
 			ci.cancel();
 		}
 	}
