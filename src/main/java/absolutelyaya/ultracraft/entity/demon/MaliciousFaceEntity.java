@@ -3,7 +3,6 @@ package absolutelyaya.ultracraft.entity.demon;
 import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.accessor.MeleeParriable;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
-import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
 import absolutelyaya.ultracraft.particle.goop.GoopStringParticleEffect;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import net.minecraft.block.BlockState;
@@ -44,7 +43,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 	protected static final TrackedData<Boolean> CRACKED = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> DEAD = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> LANDED = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-	protected static final TrackedData<Boolean> CHARGING = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Integer> CHARGE = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	
 	public MaliciousFaceEntity(EntityType<? extends GhastEntity> entityType, World world)
 	{
@@ -77,11 +76,11 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 	protected void initDataTracker()
 	{
 		super.initDataTracker();
-		dataTracker.startTracking(ATTACK_COOLDOWN, 200);
+		dataTracker.startTracking(ATTACK_COOLDOWN, 100);
 		dataTracker.startTracking(CRACKED, false);
 		dataTracker.startTracking(DEAD, false);
 		dataTracker.startTracking(LANDED, false);
-		dataTracker.startTracking(CHARGING, false);
+		dataTracker.startTracking(CHARGE, 0);
 	}
 	
 	@Override
@@ -143,7 +142,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 				q -= 0.08;
 			this.setVelocity(0f, q * 0.98f, 0f);
 		}
-		if(dataTracker.get(CHARGING) && age % 4 == 0)
+		if(dataTracker.get(CHARGE) > 0 && age % 4 == 0)
 		{
 			Vec3d particlePos = getPos().add(getRotationVector().multiply(1f));
 			Vec3d offset = new Vec3d(random.nextDouble() * 1.6, random.nextDouble() * 1.6, random.nextDouble() * 1.6);
@@ -269,6 +268,11 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 	public boolean isCracked()
 	{
 		return dataTracker.get(CRACKED);
+	}
+	
+	public float getChargePercent()
+	{
+		return MathHelper.clamp(dataTracker.get(CHARGE) / 80f, 0f, 1f);
 	}
 	
 	private float getHealthPercent()
@@ -421,7 +425,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 				shots--;
 				timer = 2;
 				face.shootBullet(target);
-				face.dataTracker.set(ATTACK_COOLDOWN, 100 + (int)(face.random.nextFloat() * 60));
+				face.dataTracker.set(ATTACK_COOLDOWN, 40 + (int)(face.random.nextFloat() * 60));
 			}
 		}
 		
@@ -457,8 +461,8 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		@Override
 		public void start()
 		{
-			timer = 200;
-			face.dataTracker.set(ATTACK_COOLDOWN, 200);
+			timer = 100;
+			face.dataTracker.set(ATTACK_COOLDOWN, 100);
 		}
 		
 		@Override
@@ -472,7 +476,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		{
 			if(--timer > 20)
 			{
-				face.dataTracker.set(CHARGING, true);
+				face.dataTracker.set(CHARGE, 100 - timer);
 				lastTargetPos = target.getPos();
 			}
 			if(timer == 20)
@@ -485,13 +489,13 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 			if(timer < 20)
 			{
 				face.lookControl.lookAt(targetPos);
-				face.dataTracker.set(CHARGING, false);
+				face.dataTracker.set(CHARGE, 100 - timer);
 			}
 			if(timer <= 0)
 			{
 				ServerHitscanHandler.performHitscan(face, (byte)5, 0, 2f);
-				face.dataTracker.set(ATTACK_COOLDOWN, 100 + (int)(face.random.nextFloat() * 60));
-				face.dataTracker.set(CHARGING, false);
+				face.dataTracker.set(ATTACK_COOLDOWN, 50 + (int)(face.random.nextFloat() * 60));
+				face.dataTracker.set(CHARGE, 0);
 			}
 		}
 		
@@ -500,7 +504,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		{
 			super.stop();
 			face.setAttacking(false);
-			face.dataTracker.set(CHARGING, false);
+			face.dataTracker.set(CHARGE, 0);
 		}
 		
 		@Override

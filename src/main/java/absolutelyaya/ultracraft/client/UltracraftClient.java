@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.client;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.client.rendering.block.entity.PedestalBlockEntityRenderer;
+import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceModel;
 import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.WingsModel;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
@@ -38,6 +39,7 @@ import software.bernie.geckolib.network.GeckoLibNetwork;
 public class UltracraftClient implements ClientModInitializer
 {
 	public static final EntityModelLayer WINGS_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "wings"), "main");
+	public static final EntityModelLayer MALICIOUS_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "malicious"), "main");
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	public static boolean REPLACE_MENU_MUSIC = true;
 	static boolean FreezeOption = true;
@@ -65,6 +67,7 @@ public class UltracraftClient implements ClientModInitializer
 		particleRegistry.register(ParticleRegistry.GOOP_STRING, GoopStringParticle.GoopStringParticleFactory::new);
 		//Entity model layers
 		EntityModelLayerRegistry.registerModelLayer(WINGS_LAYER, WingsModel::getTexturedModelData);
+		EntityModelLayerRegistry.registerModelLayer(MALICIOUS_LAYER, MaliciousFaceModel::getTexturedModelData);
 		
 		BlockEntityRendererFactories.register(BlockEntityRegistry.PEDESTAL, PedestalBlockEntityRenderer::new);
 		

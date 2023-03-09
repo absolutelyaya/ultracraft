@@ -11,25 +11,32 @@ import net.minecraft.client.util.math.MatrixStack;
 // Paste this class into your mod and generate all required imports
 public class MaliciousFaceModel extends EntityModel<MaliciousFaceEntity>
 {
-	private final ModelPart bb_main;
+	private final ModelPart Root;
+	private final ModelPart Charge;
+	float charge;
 	
-	public MaliciousFaceModel()
+	public MaliciousFaceModel(ModelPart root)
 	{
-		bb_main = getTexturedModelData().createModel();
+		Root = root.getChild("Root");
+		Charge = Root.getChild("Charge");
 	}
 	
 	public static TexturedModelData getTexturedModelData()
 	{
 		ModelData modelData = new ModelData();
 		ModelPartData modelPartData = modelData.getRoot();
-		modelPartData.addChild("bb_main", ModelPartBuilder.create().uv(0, 0).cuboid(-8.0F, -8.0F, -8.0F, 16.0F, 16.0F, 16.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+		ModelPartData Root = modelPartData.addChild("Root", ModelPartBuilder.create().uv(0, 0)
+			.cuboid(-8.0F, -8.0F, -8.0F, 16.0F, 16.0F, 16.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 0.0F, 0.0F));
+		Root.addChild("Charge", ModelPartBuilder.create().uv(0, 0).cuboid(-4.0F, -4.0F, 0.0F, 8.0F, 8.0F, 0F,
+				new Dilation(0.0F)), ModelTransform.pivot(0.0F, 7.0F, -9.0F));
 		return TexturedModelData.of(modelData, 64, 64);
 	}
 	
 	@Override
 	public void setAngles(MaliciousFaceEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
 	{
-		bb_main.setAngles((float)Math.toRadians(headPitch), (float)Math.toRadians(netHeadYaw), 0f);
+		Root.setAngles((float)Math.toRadians(headPitch), (float)Math.toRadians(netHeadYaw), 0f);
+		charge = entity.getChargePercent();
 	}
 	
 	@Override
@@ -37,6 +44,7 @@ public class MaliciousFaceModel extends EntityModel<MaliciousFaceEntity>
 	{
 		matrices.scale(1.5f, 1.5f, 1.5f);
 		matrices.translate(0, 0.5, 0);
-		bb_main.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
+		Charge.xScale = Charge.yScale = Charge.zScale = charge * -1.5f;
+		Root.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
 	}
 }
