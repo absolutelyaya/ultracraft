@@ -3,12 +3,13 @@
   "id": "ultracraft",
   "version": "${version}",
   "name": "Ultracraft",
-  "description": "Ultrakill moment",
+  "description": "modmenu.descriptionTranslation.ultracraft",
   "authors": [
     "Absolutelyaya"
   ],
   "contact": {
-    "repo": "https://github.com/absolutelyaya/ultracraft"
+    "issues": "https://github.com/absolutelyaya/ultracraft/issues",
+    "sources": "https://github.com/absolutelyaya/ultracraft"
   },
   "license": "MIT",
   "icon": "assets/ultracraft/icon.png",
@@ -31,5 +32,12 @@
     "fabricloader": ">=0.14.14",
     "fabric": "*",
     "minecraft": "1.19.3"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "ultrakill.game": "http://devilmayquake.com"
+      }
+    }
   }
 }

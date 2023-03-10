@@ -1,6 +1,6 @@
 package absolutelyaya.ultracraft.mixin;
 
-import absolutelyaya.ultracraft.accessor.ClientPlayerAccessor;
+import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.client.UltracraftClient;
@@ -52,7 +52,7 @@ public abstract class MinecraftClientMixin
 	@Redirect(method = "handleInputEvents()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"))
 	void OnHandSwap(ClientPlayNetworkHandler instance, Packet<?> packet)
 	{
-		if(player == null || !((ClientPlayerAccessor)player).Punch())
+		if(player == null || !((LivingEntityAccessor)player).Punch())
 			return;
 		
 		Entity entity = null;

@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.entity.demon;
 
 import absolutelyaya.ultracraft.ServerHitscanHandler;
+import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.MeleeParriable;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import absolutelyaya.ultracraft.particle.goop.GoopStringParticleEffect;
@@ -22,6 +23,7 @@ import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundEvent;
@@ -31,6 +33,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.Heightmap;
 import net.minecraft.world.World;
 
@@ -107,10 +110,27 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 			{
 				float x = (float)((random.nextDouble() * 16) - 8 + getX());
 				float z = (float)((random.nextDouble() * 16) - 8 + getZ());
-				world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, world.getBlockState(new BlockPos(x, getY() - 2, z))),
+				world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, world.getBlockState(new BlockPos(getX(), getY() - 2, getZ()))),
 						x, getY(), z, 0f, 0f, 0f);
 			}
 		}
+		else if (data.equals(DEAD) && dataTracker.get(DEAD))
+			((LivingEntityAccessor)this).SetCanBleedSupplier(() -> false); //disable bleeding
+	}
+	
+	@Override
+	public void writeCustomDataToNbt(NbtCompound nbt)
+	{
+		super.writeCustomDataToNbt(nbt);
+		nbt.putBoolean("cracked", dataTracker.get(CRACKED));
+	}
+	
+	@Override
+	public void readNbt(NbtCompound nbt)
+	{
+		super.readNbt(nbt);
+		if(nbt.contains("cracked"))
+			dataTracker.set(CRACKED, nbt.getBoolean("cracked"));
 	}
 	
 	@Override
@@ -138,7 +158,6 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 				StatusEffectInstance levitation = getStatusEffect(StatusEffects.LEVITATION);
 				if(levitation != null)
 					q += (0.05 * (double)(levitation.getAmplifier() + 1) - vel.y) * 0.2;
-				onLanding();
 			}
 			else if (!hasNoGravity())
 				q -= 0.08;
@@ -364,7 +383,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		@Override
 		public boolean canStart()
 		{
-			return face.getTarget() == null && face.getDistanceToGround() < DESIRED_HEIGHT;
+			return face.getDistanceToGround() < DESIRED_HEIGHT;
 		}
 		
 		public boolean shouldContinue() {
@@ -475,6 +494,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		LivingEntity target;
 		int timer;
 		Vec3d lastTargetPos, targetPos;
+		boolean repeat;
 		
 		MaliciousBeamGoal(MaliciousFaceEntity face)
 		{
@@ -496,6 +516,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		{
 			timer = 100;
 			face.dataTracker.set(ATTACK_COOLDOWN, 100);
+			repeat = face.isCracked() && face.world.getDifficulty().equals(Difficulty.HARD);
 		}
 		
 		@Override
@@ -527,6 +548,12 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 			if(timer <= 0)
 			{
 				ServerHitscanHandler.performHitscan(face, (byte)5, 0, 2f);
+				if(repeat)
+				{
+					timer = 21;
+					repeat = false;
+					return;
+				}
 				face.dataTracker.set(ATTACK_COOLDOWN, 50 + (int)(face.random.nextFloat() * 60));
 				face.dataTracker.set(CHARGE, 0);
 			}
@@ -543,7 +570,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		@Override
 		public boolean shouldContinue()
 		{
-			return timer > 0 && target != null && !face.dataTracker.get(DEAD);
+			return (timer > 0 && target != null && !face.dataTracker.get(DEAD)) || repeat;
 		}
 	}
 }

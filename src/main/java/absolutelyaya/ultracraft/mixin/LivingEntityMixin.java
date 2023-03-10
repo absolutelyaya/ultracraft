@@ -1,7 +1,7 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.accessor.ClientPlayerAccessor;
+import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -21,10 +21,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity implements ClientPlayerAccessor
+public abstract class LivingEntityMixin extends Entity implements LivingEntityAccessor
 {
+	Supplier<Boolean> canBleedSupplier = () -> true; //TODO: add Sandy Enemies
 	int punchTicks, punchDuration = 6;
 	boolean punching;
 	float punchProgress, prevPunchProgress;
@@ -44,10 +46,11 @@ public abstract class LivingEntityMixin extends Entity implements ClientPlayerAc
 			punchTick();
 	}
 	
+	@SuppressWarnings("EqualsBetweenInconvertibleTypes")
 	@Inject(method = "damage", at = @At("RETURN"))
 	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
 	{
-		if(!cir.getReturnValue() || world.isClient)
+		if(!cir.getReturnValue() || world.isClient || !IsCanBleed())
 			return;
 		List<PlayerEntity> nearby = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(32), e -> true);
 		List<PlayerEntity> heal = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(2), e -> !e.equals(this));
@@ -121,5 +124,17 @@ public abstract class LivingEntityMixin extends Entity implements ClientPlayerAc
 	public boolean IsPunching()
 	{
 		return punching;
+	}
+	
+	@Override
+	public boolean IsCanBleed()
+	{
+		return canBleedSupplier.get();
+	}
+	
+	@Override
+	public void SetCanBleedSupplier(Supplier<Boolean> supplier)
+	{
+		canBleedSupplier = supplier;
 	}
 }

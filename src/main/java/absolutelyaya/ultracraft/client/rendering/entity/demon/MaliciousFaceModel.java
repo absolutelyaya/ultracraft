@@ -9,11 +9,12 @@ import net.minecraft.client.util.math.MatrixStack;
 // Made with Blockbench 4.6.3
 // Exported for Minecraft version 1.17+ for Yarn
 // Paste this class into your mod and generate all required imports
-public class MaliciousFaceModel extends EntityModel<MaliciousFaceEntity>
+public class MaliciousFaceModel<T extends MaliciousFaceEntity> extends EntityModel<T>
 {
 	private final ModelPart Root;
 	private final ModelPart Charge;
 	float charge;
+	boolean cracked;
 	
 	public MaliciousFaceModel(ModelPart root)
 	{
@@ -33,18 +34,21 @@ public class MaliciousFaceModel extends EntityModel<MaliciousFaceEntity>
 	}
 	
 	@Override
-	public void setAngles(MaliciousFaceEntity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
+	public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch)
 	{
-		Root.setAngles((float)Math.toRadians(headPitch), (float)Math.toRadians(netHeadYaw), 0f);
+		Root.setAngles((float)Math.toRadians(headPitch), (float)Math.toRadians(headYaw), 0f);
 		charge = entity.getChargePercent();
+		cracked = entity.isCracked();
 	}
 	
 	@Override
 	public void render(MatrixStack matrices, VertexConsumer vertexConsumer, int light, int overlay, float red, float green, float blue, float alpha)
 	{
+		matrices.push();
 		matrices.scale(1.5f, 1.5f, 1.5f);
 		matrices.translate(0, 0.5, 0);
-		Charge.xScale = Charge.yScale = Charge.zScale = charge * -1.5f;
+		Charge.xScale = Charge.yScale = Charge.zScale = charge * 1.5f;
 		Root.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
+		matrices.pop();
 	}
 }

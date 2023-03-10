@@ -19,5 +19,8 @@
   "message.ultracraft.freeze-forced": "This Server is forcing the time-freeze effect to be %s",
 
   "narrator.button.background.vanilla": "Vanilla BG",
-  "narrator.button.background.ultracraft": "Ultracraft BG"
+  "narrator.button.background.ultracraft": "Ultracraft BG",
+
+  "modmenu.descriptionTranslation.ultracraft": "Ultrakill moment\n\nMade after a Game by §6Arsi \"Hakita\" Patala§r\nGo play the real thing, it's much better than this mod lol",
+  "ultrakill.game": "Ultrakill"
 }

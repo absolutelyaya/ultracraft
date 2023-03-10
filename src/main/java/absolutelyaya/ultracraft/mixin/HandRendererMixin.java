@@ -1,7 +1,7 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.accessor.ClientPlayerAccessor;
+import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
@@ -32,7 +32,7 @@ public abstract class HandRendererMixin
 	@Inject(method = "renderFirstPersonItem", at = @At(value = "HEAD"), cancellable = true)
 	void onGetHandRendererType(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci)
 	{
-		ClientPlayerAccessor playerAccessor = ((ClientPlayerAccessor)player);
+		LivingEntityAccessor playerAccessor = ((LivingEntityAccessor)player);
 		if(hand == Hand.OFF_HAND && (playerAccessor.IsPunching() || !item.isEmpty()))
 		{
 			swingProgress = playerAccessor.GetPunchProgress(Ultracraft.isTimeFrozen() ? 0f : tickDelta);
