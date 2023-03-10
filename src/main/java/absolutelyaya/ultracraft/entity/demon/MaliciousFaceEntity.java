@@ -44,6 +44,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 	protected static final TrackedData<Boolean> DEAD = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> LANDED = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Integer> CHARGE = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	static final float DESIRED_HEIGHT = 3;
 	
 	public MaliciousFaceEntity(EntityType<? extends GhastEntity> entityType, World world)
 	{
@@ -68,6 +69,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		goalSelector.add(0, new HoverIntoSightGoal(this));
 		goalSelector.add(1, new MaliciousBeamGoal(this));
 		goalSelector.add(2, new MaliciousSalvaeGoal(this));
+		goalSelector.add(3, new GainHeightGoal(this));
 		
 		targetSelector.add(0, new ActiveTargetGoal<>(this, PlayerEntity.class, 4, false, false, (a) -> true));
 	}
@@ -287,18 +289,23 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 			getServer().execute(() -> world.createExplosion(parrier, getX(), getY(), getZ(), 4f, World.ExplosionSourceType.NONE));
 	}
 	
+	public float getDistanceToGround()
+	{
+		return getBlockY() - world.getTopY(Heightmap.Type.MOTION_BLOCKING, getBlockX(), getBlockZ());
+	}
+	
 	static class MaliciousMoveControl extends MoveControl
 	{
-		private final GhastEntity face;
+		private final MaliciousFaceEntity face;
 		Random rand;
 		boolean strafeDir;
 		int tickSinceStrafeDirSwitch;
 		
-		public MaliciousMoveControl(GhastEntity ghast)
+		public MaliciousMoveControl(MaliciousFaceEntity face)
 		{
-			super(ghast);
-			this.face = ghast;
-			rand = face.getRandom();
+			super(face);
+			this.face = face;
+			rand = this.face.getRandom();
 			strafeDir = rand.nextBoolean();
 		}
 		
@@ -332,8 +339,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 				else
 					face.setVelocity(face.getVelocity().add(forward.multiply(0.1 * speed)));
 				
-				float upward = (face.getBlockY() - face.world.getTopY(Heightmap.Type.MOTION_BLOCKING, face.getBlockX(),
-						face.getBlockZ())) < 4 ? (float)speed * 0.1f : 0f;
+				float upward = face.getDistanceToGround() < DESIRED_HEIGHT ? (float)speed * 0.1f : 0f;
 				face.setVelocity(face.getVelocity().add(0f, upward, 0f));
 			}
 		}
@@ -345,24 +351,51 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		}
 	}
 	
+	static class GainHeightGoal extends Goal
+	{
+		private final MaliciousFaceEntity face;
+		
+		public GainHeightGoal(MaliciousFaceEntity face)
+		{
+			this.face = face;
+			this.setControls(EnumSet.of(Control.MOVE));
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			return face.getTarget() == null && face.getDistanceToGround() < DESIRED_HEIGHT;
+		}
+		
+		public boolean shouldContinue() {
+			return false;
+		}
+		
+		public void start()
+		{
+			double y = face.world.getTopY(Heightmap.Type.MOTION_BLOCKING, face.getBlockX(), face.getBlockZ()) + DESIRED_HEIGHT;
+			if(!face.getMoveControl().isMoving())
+				face.getMoveControl().moveTo(face.getX(), y, face.getZ(), 0.05);
+		}
+	}
+	
 	static class HoverIntoSightGoal extends Goal
 	{
 		private final MaliciousFaceEntity face;
 		LivingEntity target;
 		
-		public HoverIntoSightGoal(MaliciousFaceEntity ghast)
+		public HoverIntoSightGoal(MaliciousFaceEntity face)
 		{
-			this.face = ghast;
+			this.face = face;
 			this.setControls(EnumSet.of(Control.MOVE));
 		}
 		
 		public boolean canStart()
 		{
 			MoveControl control = face.moveControl;
-			int floorDistance = face.getBlockY() - face.world.getTopY(Heightmap.Type.MOTION_BLOCKING, face.getBlockX(), face.getBlockZ());
 			if((face.getTarget() == null || face.canSee(face.getTarget())))
 			{
-				if(floorDistance >= 4)
+				if(face.getDistanceToGround() >= DESIRED_HEIGHT)
 					((MaliciousMoveControl)control).stopMoving();
 				return false;
 			}
@@ -381,7 +414,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 			
 			double x = target.getX() + invDir.x;
 			double z = target.getZ() + invDir.z;
-			double y = face.world.getTopY(Heightmap.Type.MOTION_BLOCKING, target.getBlockX(), target.getBlockZ()) + 4;
+			double y = face.world.getTopY(Heightmap.Type.MOTION_BLOCKING, target.getBlockX(), target.getBlockZ()) + DESIRED_HEIGHT;
 			if(!face.getMoveControl().isMoving())
 				face.getMoveControl().moveTo(x, y, z, 0.05);
 		}

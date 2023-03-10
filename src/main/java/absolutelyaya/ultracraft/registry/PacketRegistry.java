@@ -54,7 +54,6 @@ public class PacketRegistry
 				target.damage(DamageSource.mob(player), 10);
 				if(flame)
 					target.setFireTicks(100);
-				boolean fatal = !target.isAlive();
 				if(target instanceof ProjectileEntity p)
 				{
 					Ultracraft.freeze((ServerWorld) player.world, 10);
@@ -66,12 +65,14 @@ public class PacketRegistry
 				{
 					Ultracraft.freeze((ServerWorld) player.world, 10);
 					target.damage(DamageSource.mob(player), 20); //total damage: 30
+					mp.onParried(player);
 					world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
 					player.heal(4);
 				}
 				else
 					world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.75f, 0.5f);
-				Vec3d vel = player.getRotationVecClient().normalize().multiply(fatal ? 2f : 1f).multiply(target instanceof ProjectileEntity ? 2.5f : 1f);
+				boolean fatal = !target.isAlive();
+				Vec3d vel = player.getRotationVecClient().normalize().multiply(fatal ? 1.5f : 0.75f).multiply(target instanceof ProjectileEntity ? 2.5f : 1f);
 				target.setVelocity(vel);
 			}
 		});

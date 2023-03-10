@@ -12,6 +12,7 @@ import net.minecraft.util.math.Vec3d;
 
 import java.util.Random;
 
+@SuppressWarnings("CodeBlock2Expr")
 @Environment(EnvType.CLIENT)
 public class ClientPacketRegistry
 {
@@ -62,11 +63,13 @@ public class ClientPacketRegistry
 				return;
 			float amount = buf.readFloat();
 			Vec3d pos = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
+			if(client.player.getPos().squaredDistanceTo(pos) < 0.1)
+				return;
 			double halfheight = buf.readDouble();
 			Random rand = new Random();
 			for (int i = 0; i < Math.min(3 * amount, 32); i++)
 				client.player.world.addParticle(new GoopDropParticleEffect(new Vec3d(0.56, 0.09, 0.01),
-								0.6f + rand.nextFloat() * 0.4f), pos.x, pos.y + halfheight, pos.z,
+								0.6f + rand.nextFloat() * 0.4f * (amount / 10f)), pos.x, pos.y + halfheight, pos.z,
 						rand.nextDouble() - 0.5, rand.nextDouble() - 0.5, rand.nextDouble() - 0.5);
 			//TODO: if within healing distance, add splatters to screen
 		})));
