@@ -13,4 +13,8 @@ public interface LivingEntityAccessor
 	boolean IsCanBleed();
 	
 	void SetCanBleedSupplier(Supplier<Boolean> supplier);
+	
+	boolean takePunchKnockback();
+	
+	void SetTakePunchKnockbackSupplier(Supplier<Boolean> supplier);
 }

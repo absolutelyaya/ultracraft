@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.MeleeParriable;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
@@ -73,7 +74,8 @@ public class PacketRegistry
 					world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.75f, 0.5f);
 				boolean fatal = !target.isAlive();
 				Vec3d vel = player.getRotationVecClient().normalize().multiply(fatal ? 1.5f : 0.75f).multiply(target instanceof ProjectileEntity ? 2.5f : 1f);
-				target.setVelocity(vel);
+				if(target instanceof ProjectileEntity || (target instanceof LivingEntityAccessor && ((LivingEntityAccessor)target).takePunchKnockback()))
+					target.setVelocity(vel);
 			}
 		});
 		ServerPlayNetworking.registerGlobalReceiver(PUNCH_BLOCK_PACKET_ID, (server, player, handler, buf, sender) -> {

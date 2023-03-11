@@ -28,13 +28,13 @@ import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.TypeFilter;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.Heightmap;
+import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
 import java.util.EnumSet;
@@ -48,6 +48,8 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 	protected static final TrackedData<Boolean> LANDED = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Integer> CHARGE = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	static final float DESIRED_HEIGHT = 3;
+	Vec2f deathRotation;
+	int deathTicks;
 	
 	public MaliciousFaceEntity(EntityType<? extends GhastEntity> entityType, World world)
 	{
@@ -69,10 +71,11 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 	@Override
 	protected void initGoals()
 	{
-		goalSelector.add(0, new HoverIntoSightGoal(this));
-		goalSelector.add(1, new MaliciousBeamGoal(this));
-		goalSelector.add(2, new MaliciousSalvaeGoal(this));
-		goalSelector.add(3, new GainHeightGoal(this));
+		goalSelector.add(0, new MaliciousBeamGoal(this));
+		goalSelector.add(1, new MaliciousSalvaeGoal(this));
+		goalSelector.add(2, new SpreadOutGoal(this));
+		goalSelector.add(3, new HoverIntoSightGoal(this));
+		goalSelector.add(4, new GainHeightGoal(this));
 		
 		targetSelector.add(0, new ActiveTargetGoal<>(this, PlayerEntity.class, 4, false, false, (a) -> true));
 	}
@@ -115,7 +118,24 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 			}
 		}
 		else if (data.equals(DEAD) && dataTracker.get(DEAD))
+		{
+			deathRotation = new Vec2f(getPitch(), getYaw());
 			((LivingEntityAccessor)this).SetCanBleedSupplier(() -> false); //disable bleeding
+			((LivingEntityAccessor)this).SetTakePunchKnockbackSupplier(() -> false); //disable knockback
+		}
+	}
+	
+	@Override
+	public boolean isCollidable()
+	{
+		return true;
+	}
+	
+	@Override
+	protected void pushOutOfBlocks(double x, double y, double z)
+	{
+		if(!dataTracker.get(DEAD))
+			super.pushOutOfBlocks(x, y, z);
 	}
 	
 	@Override
@@ -123,6 +143,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 	{
 		super.writeCustomDataToNbt(nbt);
 		nbt.putBoolean("cracked", dataTracker.get(CRACKED));
+		nbt.putBoolean("dead", dataTracker.get(DEAD));
 	}
 	
 	@Override
@@ -131,6 +152,8 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		super.readNbt(nbt);
 		if(nbt.contains("cracked"))
 			dataTracker.set(CRACKED, nbt.getBoolean("cracked"));
+		if(nbt.contains("dead"))
+			dataTracker.set(DEAD, nbt.getBoolean("dead"));
 	}
 	
 	@Override
@@ -139,17 +162,25 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		super.tickMovement();
 		if(getTarget() != null && !isAttacking())
 		{
-			lookAtEntity(getTarget(), 180, 180);
-			setBodyYaw(headYaw);
-			double e = getTarget().getX() - getX();
-			double f = getTarget().getZ() - getZ();
-			setYaw(-((float)MathHelper.atan2(e, f)) * 57.295776f);
+			if(dataTracker.get(DEAD))
+			{
+				setPitch(deathRotation.x);
+				setYaw(deathRotation.y);
+			}
+			else
+			{
+				lookAtEntity(getTarget(), 180, 180);
+				setBodyYaw(headYaw);
+				double e = getTarget().getX() - getX();
+				double f = getTarget().getZ() - getZ();
+				setYaw(-((float)MathHelper.atan2(e, f)) * 57.295776f);
+			}
 			bodyYaw = getYaw();
 			headYaw = getYaw();
 		}
 		if(dataTracker.get(ATTACK_COOLDOWN) > 0)
 			dataTracker.set(ATTACK_COOLDOWN, dataTracker.get(ATTACK_COOLDOWN) - 1);
-		if(dataTracker.get(DEAD))
+		if(dataTracker.get(DEAD) && !dataTracker.get(LANDED))
 		{
 			Vec3d vel = getVelocity();
 			double q = vel.y;
@@ -187,14 +218,37 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 	}
 	
 	@Override
+	public void move(MovementType movementType, Vec3d movement)
+	{
+		super.move(movementType, movement);
+		if(movement.lengthSquared() > 0.02)
+		{
+			List<Entity> list = world.getOtherEntities(this, getBoundingBox().expand(0f, 0.1, 0f), e -> !(e instanceof MaliciousFaceEntity));
+			list.forEach(e -> e.move(MovementType.SHULKER, movement));
+		}
+	}
+	
+	@Override
 	public void tick()
 	{
 		super.tick();
+		if(dataTracker.get(DEAD))
+		{
+			deathTicks++;
+			if(deathTicks > 200)
+				kill();
+		}
 	}
 	
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
+		if(dataTracker.get(DEAD)) //starve because there's no way this damage would occur accidentally
+		{
+			if(source.equals(DamageSource.STARVE))
+				setHealth(0);
+			return false;
+		}
 		if(source.equals(DamageSource.FALL))
 			return false;
 		if(getHealth() - amount <= 0f && !dataTracker.get(DEAD))
@@ -216,23 +270,31 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 	{
 		if(dataTracker.get(DEAD) && onGround)
 		{
-			List<Entity> entities = world.getOtherEntities(this, getBoundingBox().expand(5f), Entity::isLiving);
+			List<Entity> entities = world.getOtherEntities(this, getBoundingBox().expand(5f),
+					e -> isLiving() && !(e instanceof MaliciousFaceEntity));
 			for (Entity e : entities)
-				e.addVelocity(0f, e.isOnGround() ? 1f : 0f, 0f);
+				e.addVelocity(0f, e.verticalCollision ? 1.5f : 0f, 0f);
+			//TODO: does't throw players???
 			entities = world.getOtherEntities(this, getBoundingBox(), Entity::isLiving);
 			for (Entity e : entities)
-				e.kill();
+				e.kill(); //TODO: add mauriced damage type
 			dataTracker.set(LANDED, true);
-			kill();
+			setPosition(getPos().subtract(0f, 0.5f, 0f));
 		}
+	}
+	
+	@Override
+	public void kill()
+	{
+		damage(DamageSource.STARVE, Float.MAX_VALUE);
 	}
 	
 	@Override
 	protected void updatePostDeath()
 	{
-		if(!world.isClient)
+		if(!world.isClient && !isRemoved())
 		{
-			world.sendEntityStatus(this, (byte)60);
+			world.sendEntityStatus(this, EntityStatuses.ADD_DEATH_PARTICLES);
 			remove(RemovalReason.KILLED);
 		}
 	}
@@ -253,6 +315,11 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 	public boolean isPushable()
 	{
 		return false;
+	}
+	
+	private boolean isEnraged()
+	{
+		return isCracked() && world.getDifficulty().equals(Difficulty.HARD);
 	}
 	
 	public void shootBullet(LivingEntity target)
@@ -310,7 +377,9 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 	
 	public float getDistanceToGround()
 	{
-		return getBlockY() - world.getTopY(Heightmap.Type.MOTION_BLOCKING, getBlockX(), getBlockZ());
+		BlockHitResult hit = world.raycast(new RaycastContext(getPos(), getPos().add(0, -25, 0),
+				RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
+		return getBlockY() - (float)hit.getPos().y;
 	}
 	
 	static class MaliciousMoveControl extends MoveControl
@@ -341,14 +410,14 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 				return;
 			if (state == State.MOVE_TO)
 			{
-				if(face.squaredDistanceTo(targetX, targetY, targetZ) < 0.5f)
+				if(face.squaredDistanceTo(targetX, targetY, targetZ) < 0.75f)
 					stopMoving();
 				Vec3d forward = new Vec3d(targetX - face.getX(), targetY - face.getY(), targetZ - face.getZ());
 				forward = forward.normalize();
 				if (willCollide(forward))
 				{
 					Vec3d right = forward.crossProduct(new Vec3d(0, 1, 0));
-					face.setVelocity(face.getVelocity().add(right.multiply(0.1 * speed * (strafeDir ? 1 : -1))));
+					face.setVelocity(face.getVelocity().add(right.multiply(0.15 * speed * (strafeDir ? 1 : -1))));
 					if((tickSinceStrafeDirSwitch++ > 120 && rand.nextInt(32) == 0) || willCollide(right.multiply(strafeDir ? 1 : -1)))
 					{
 						strafeDir = rand.nextBoolean();
@@ -359,6 +428,8 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 					face.setVelocity(face.getVelocity().add(forward.multiply(0.1 * speed)));
 				
 				float upward = face.getDistanceToGround() < DESIRED_HEIGHT ? (float)speed * 0.1f : 0f;
+				if(face.getDistanceToGround() > DESIRED_HEIGHT + 0.25)
+					upward = (float)speed * -0.1f;
 				face.setVelocity(face.getVelocity().add(0f, upward, 0f));
 			}
 		}
@@ -392,7 +463,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		
 		public void start()
 		{
-			double y = face.world.getTopY(Heightmap.Type.MOTION_BLOCKING, face.getBlockX(), face.getBlockZ()) + DESIRED_HEIGHT;
+			double y = face.world.getTopY(Heightmap.Type.MOTION_BLOCKING, face.getBlockX(), face.getBlockZ()) + DESIRED_HEIGHT + 1.5;
 			if(!face.getMoveControl().isMoving())
 				face.getMoveControl().moveTo(face.getX(), y, face.getZ(), 0.05);
 		}
@@ -411,19 +482,14 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		
 		public boolean canStart()
 		{
-			MoveControl control = face.moveControl;
-			if((face.getTarget() == null || face.canSee(face.getTarget())))
-			{
-				if(face.getDistanceToGround() >= DESIRED_HEIGHT)
-					((MaliciousMoveControl)control).stopMoving();
+			if(face.getTarget() == null || face.canSee(face.getTarget()))
 				return false;
-			}
 			target = face.getTarget();
 			return true;
 		}
 		
 		public boolean shouldContinue() {
-			return false;
+			return face.getTarget() != null && !face.canSee(face.getTarget());
 		}
 		
 		public void start()
@@ -436,6 +502,65 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 			double y = face.world.getTopY(Heightmap.Type.MOTION_BLOCKING, target.getBlockX(), target.getBlockZ()) + DESIRED_HEIGHT;
 			if(!face.getMoveControl().isMoving())
 				face.getMoveControl().moveTo(x, y, z, 0.05);
+		}
+		
+		@Override
+		public void stop()
+		{
+			((MaliciousMoveControl)face.moveControl).stopMoving();
+		}
+	}
+	
+	static class SpreadOutGoal extends Goal
+	{
+		private final MaliciousFaceEntity face;
+		MaliciousFaceEntity closestOther;
+		
+		public SpreadOutGoal(MaliciousFaceEntity face)
+		{
+			this.face = face;
+			this.setControls(EnumSet.of(Control.MOVE));
+		}
+		
+		public boolean canStart()
+		{
+			if(face.moveControl.isMoving() || face.random.nextDouble() < 0.9)
+				return false;
+			List<MaliciousFaceEntity> nearby = face.world.getEntitiesByType(TypeFilter.instanceOf(MaliciousFaceEntity.class),
+					face.getBoundingBox().expand(5f), LivingEntity::isAlive);
+			float closestDistance = Float.MAX_VALUE;
+			for (MaliciousFaceEntity e : nearby)
+			{
+				float dist = (float)e.getPos().squaredDistanceTo(face.getPos());
+				if (dist < closestDistance)
+				{
+					closestDistance = dist;
+					closestOther = e;
+				}
+			}
+			return closestOther != null;
+		}
+		
+		public boolean shouldContinue() {
+			return closestOther != null && (float)closestOther.getPos().squaredDistanceTo(face.getPos()) < 5 * 5;
+		}
+		
+		public void start()
+		{
+			Vec3d invDir = face.getPos().subtract(closestOther.getPos()).rotateY((float) (face.random.nextDouble() * Math.toRadians(360)))
+								   .multiply(1f, 0f, 1f).normalize().multiply(6f);
+			
+			double x = closestOther.getX() + invDir.x;
+			double z = closestOther.getZ() + invDir.z;
+			double y = face.world.getTopY(Heightmap.Type.MOTION_BLOCKING, closestOther.getBlockX(), closestOther.getBlockZ()) + DESIRED_HEIGHT;
+			if(!face.getMoveControl().isMoving())
+				face.getMoveControl().moveTo(x, y, z, 0.05);
+		}
+		
+		@Override
+		public void stop()
+		{
+			((MaliciousMoveControl)face.moveControl).stopMoving();
 		}
 	}
 	
@@ -454,7 +579,8 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		public boolean canStart()
 		{
 			target = face.getTarget();
-			return target != null && face.canSee(target) && face.dataTracker.get(ATTACK_COOLDOWN) <= 0;
+			return target != null && face.canSee(target) && face.dataTracker.get(ATTACK_COOLDOWN) <= 0 && !face.dataTracker.get(DEAD)
+						   && face.dataTracker.get(CHARGE) <= 0;
 		}
 		
 		@Override
@@ -506,7 +632,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		public boolean canStart()
 		{
 			target = face.getTarget();
-			if(target == null || !face.canSee(target) || face.dataTracker.get(ATTACK_COOLDOWN) > 0)
+			if(target == null || !face.canSee(target) || face.dataTracker.get(ATTACK_COOLDOWN) > 0 || face.dataTracker.get(DEAD))
 				return false;
 			return face.random.nextFloat() > face.getHealthPercent() - 0.2f;
 		}
@@ -516,7 +642,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		{
 			timer = 100;
 			face.dataTracker.set(ATTACK_COOLDOWN, 100);
-			repeat = face.isCracked() && face.world.getDifficulty().equals(Difficulty.HARD);
+			repeat = face.isEnraged();
 		}
 		
 		@Override
@@ -528,6 +654,8 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		@Override
 		public void tick()
 		{
+			if(face.isEnraged() && !repeat)
+			 	timer--; //double as quick when enraged and first shot was fired
 			if(--timer > 20)
 			{
 				face.dataTracker.set(CHARGE, 100 - timer);
@@ -536,7 +664,9 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 			if(timer == 20)
 			{
 				Vec3d dir = target.getPos().subtract(lastTargetPos);
-				targetPos = target.getPos().add(dir.normalize().multiply(4)).add(0, 1, 0);
+				if(dir.lengthSquared() < 0.01)
+					dir = Vec3d.ZERO;
+				targetPos = target.getPos().add(dir.normalize().multiply(3)).add(0, target.getHeight() / 4, 0);
 				face.setAttacking(true);
 				face.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 2f, 1.75f);
 			}
@@ -550,7 +680,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 				ServerHitscanHandler.performHitscan(face, (byte)5, 0, 2f);
 				if(repeat)
 				{
-					timer = 21;
+					timer = 22;
 					repeat = false;
 					return;
 				}
@@ -570,7 +700,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		@Override
 		public boolean shouldContinue()
 		{
-			return (timer > 0 && target != null && !face.dataTracker.get(DEAD)) || repeat;
+			return ((timer > 0 && target != null) || repeat) && !face.dataTracker.get(DEAD);
 		}
 	}
 }

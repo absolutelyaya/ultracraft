@@ -15,6 +15,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -26,7 +27,9 @@ import java.util.function.Supplier;
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements LivingEntityAccessor
 {
-	Supplier<Boolean> canBleedSupplier = () -> true; //TODO: add Sandy Enemies
+	@Shadow public abstract boolean isPushable();
+	
+	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies
 	int punchTicks, punchDuration = 6;
 	boolean punching;
 	float punchProgress, prevPunchProgress;
@@ -136,5 +139,17 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	public void SetCanBleedSupplier(Supplier<Boolean> supplier)
 	{
 		canBleedSupplier = supplier;
+	}
+	
+	@Override
+	public boolean takePunchKnockback()
+	{
+		return takePunchKnockpackSupplier.get();
+	}
+	
+	@Override
+	public void SetTakePunchKnockbackSupplier(Supplier<Boolean> supplier)
+	{
+		takePunchKnockpackSupplier = supplier;
 	}
 }
