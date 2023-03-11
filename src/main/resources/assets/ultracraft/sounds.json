@@ -8,5 +8,10 @@
     "sounds": [
       "ultracraft:misc/elevator_fall"
     ]
+  },
+  "misc.wind_loop": {
+    "sounds": [
+      "ultracraft:misc/wind_seemless"
+    ]
   }
 }

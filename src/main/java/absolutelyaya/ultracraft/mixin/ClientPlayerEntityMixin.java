@@ -115,17 +115,17 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			if(client.options.sprintKey.isPressed() && !lastSprintPressed && !groundPounding)
 			{
 				//start ground pound
-				if(world.getBlockState(new BlockPos(getPos().subtract(0f, 0.99f, 0f))).isAir() && !getAbilities().flying)
+				if(world.getBlockState(new BlockPos(getPos().subtract(0f, 0.99f, 0f))).isAir() && !verticalCollision && !getAbilities().flying)
 				{
 					groundPoundTicks = 0;
 					groundPounding = true;
 					setSprinting(false);
 				}
 				//start slide
-				else if(!horizontalCollision && !jumping)
+				else if(!horizontalCollision && !jumping && !isDashing() && !wasDashing(2))
 				{
 					BlockPos pos = new BlockPos(getPos().add(Vec3d.fromPolar(0f, getYaw()).normalize()));
-					setSprinting(!world.getBlockState(new BlockPos(getPos().subtract(0f, 0.79f, 0f))).isAir() &&
+					setSprinting((!world.getBlockState(new BlockPos(getPos().subtract(0f, 0.79f, 0f))).isAir() || verticalCollision) &&
 										 !world.getBlockState(pos).isSolidBlock(world, pos));
 				}
 				//cancel slide because it shouldn't be possible rn anyways
@@ -136,6 +136,11 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			//stop sliding once conditions aren't met anymore
 			else if(isSprinting())
 			{
+				if(jumping)
+				{
+					setVelocity(slideDir.multiply(slideVelocity));
+					addVelocity(0f, getJumpVelocity(), 0f);
+				}
 				setSprinting(client.options.sprintKey.isPressed() && !groundPounding && !horizontalCollision && !jumping);
 				slideTicks++;
 				if(world.getBlockState(new BlockPos(getPos().subtract(0f, 0.25f, 0f))).isAir())
@@ -221,7 +226,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			}
 			if(isSprinting() && slideVelocity > 0.33f && slideTicks > 50)
 				slideVelocity = Math.max(0.33f, slideVelocity * 0.995f);
-			lastSprintPressed = client.options.sprintKey.isPressed();
+			lastSprintPressed = client.options.sprintKey.isPressed() && !isDashing() && !wasDashing(2);
 		}
 	}
 	

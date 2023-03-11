@@ -7,6 +7,8 @@ import com.chocohead.mm.api.ClassTinkerers;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
@@ -106,12 +108,14 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public void onDash()
 	{
 		dashingTicks = 3;
+		world.playSound(null, getBlockPos(), SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.75f, 1.6f);
 	}
 	
 	@Override
 	public void onDashJump()
 	{
 		dashingTicks = -2;
+		world.playSound(null, getBlockPos(), SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.75f, 1.8f);
 	}
 	
 	public boolean isDashing()
@@ -123,6 +127,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public boolean wasDashing()
 	{
 		return dashingTicks + 1 == 0;
+	}
+	
+	@Override
+	public boolean wasDashing(int i)
+	{
+		return dashingTicks + i >= 0;
 	}
 	
 	@Override
@@ -198,6 +208,14 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public void completeGroundPound(boolean strong)
 	{
 		groundPounding = false;
+		world.playSound(null, getBlockPos(), SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.PLAYERS,
+				strong ? 1f : 0.75f, strong ? 0.75f : 1.25f);
+	}
+	
+	@Override
+	public boolean isGroundPounding()
+	{
+		return groundPounding;
 	}
 	
 	@Inject(method = "tick", at = @At("TAIL"))
@@ -210,9 +228,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Inject(method = "tickMovement", at = @At("TAIL"))
 	void onTickMovement(CallbackInfo ci)
 	{
-		if(dashingTicks >= -1)
+		if(dashingTicks-- >= -1)
 		{
-			dashingTicks--;
 			Vec3d dir = getVelocity();
 			Vec3d particleVel = new Vec3d(-dir.x, 0, -dir.z).multiply(random.nextDouble() * 0.33 + 0.1);
 			Vec3d pos = getPos().add((random.nextDouble() - 0.5) * getWidth(),
@@ -234,6 +251,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 				Vec3d pos = getPos().add((random.nextDouble() - 0.5) * 10.0, 5.0 * ((random.nextDouble() - 0.9) * 2), (random.nextDouble() - 0.5) * 10.0);
 				world.addParticle(ParticleRegistry.GROUND_POUND, true, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
 			}
+			fallDistance = 0f;
 		}
 		if(stamina < 90)
 			stamina++;
@@ -246,5 +264,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	{
 		if(isWingsVisible())
 			cir.setReturnValue(movement);
+	}
+	
+	@Redirect(method = "increaseTravelMotionStats", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;addExhaustion(F)V", ordinal = 3))
+	void addExhaustion(PlayerEntity instance, float exhaustion)
+	{
+		if(!((WingedPlayerEntity)instance).isWingsVisible())
+			instance.addExhaustion(exhaustion);
 	}
 }

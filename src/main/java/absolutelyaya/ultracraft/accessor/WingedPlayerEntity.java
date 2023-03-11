@@ -27,6 +27,8 @@ public interface WingedPlayerEntity
 	
 	boolean wasDashing();
 	
+	boolean wasDashing(int i);
+	
 	int getStamina();
 	
 	boolean consumeStamina();
@@ -39,4 +41,6 @@ public interface WingedPlayerEntity
 	void startGroundPound();
 	
 	void completeGroundPound(boolean strong);
+	
+	boolean isGroundPounding();
 }

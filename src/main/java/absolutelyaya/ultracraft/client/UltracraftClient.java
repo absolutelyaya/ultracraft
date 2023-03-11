@@ -8,6 +8,8 @@ import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceRende
 import absolutelyaya.ultracraft.client.rendering.entity.feature.WingsModel;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.HellBulletRenderer;
+import absolutelyaya.ultracraft.client.sound.MovingSlideSoundInstance;
+import absolutelyaya.ultracraft.client.sound.MovingWindSoundInstance;
 import absolutelyaya.ultracraft.particle.DashParticle;
 import absolutelyaya.ultracraft.particle.GroundPoundParticle;
 import absolutelyaya.ultracraft.particle.MaliciousChargeParticle;
@@ -20,6 +22,7 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -30,6 +33,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -85,6 +89,13 @@ public class UltracraftClient implements ClientModInitializer
 			buf.writeUuid(client.player.getUuid());
 			buf.writeBoolean(HiVelMode);
 			ClientPlayNetworking.send(PacketRegistry.SET_HIGH_VELOCITY_C2S_PACKET_ID, buf);
+			
+			client.getSoundManager().play(new MovingWindSoundInstance(client.player));
+		});
+		
+		ClientEntityEvents.ENTITY_LOAD.register((entity, clientWorld) -> {
+			if (entity instanceof PlayerEntity)
+				MinecraftClient.getInstance().getSoundManager().play(new MovingSlideSoundInstance((PlayerEntity)entity));
 		});
 		
 		ClientPacketRegistry.registerS2C();
