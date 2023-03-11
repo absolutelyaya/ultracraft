@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.ProjectileDamageSource;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -67,7 +68,8 @@ public class ServerHitscanHandler
 		boolean searchForEntities = true;
 		while (searchForEntities)
 		{
-			EntityHitResult eHit = ProjectileUtil.raycast(user, from, to, box, (entity) -> !entities.contains(entity), 64f * 64f);
+			EntityHitResult eHit = ProjectileUtil.raycast(user, from, to, box,
+					(entity) -> (!entities.contains(entity) && !(entity instanceof ProjectileEntity)), 64f * 64f);
 			if(eHit == null)
 				break;
 			searchForEntities = eHit.getType() != HitResult.Type.MISS && maxHits > 0;
