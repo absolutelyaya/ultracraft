@@ -58,17 +58,17 @@ public class ServerHitscanHandler
 		World world = user.getWorld();
 		Vec3d origin = user.getPos().add(new Vec3d(0f, user.getStandingEyeHeight(), 0f));
 		Vec3d from = origin;
-		Vec3d to = user.getPos().add(0f, user.getStandingEyeHeight(), 0f).add(user.getRotationVec(0.5f).multiply(64.0));
-		Vec3d visualTo;
-		BlockHitResult bHit = world.raycast(new RaycastContext(from, to, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, user));
-		to = bHit.getPos();
-		visualTo = to;
+		Vec3d origunalTo = user.getPos().add(0f, user.getStandingEyeHeight(), 0f).add(user.getRotationVec(0.5f).multiply(64.0));
+		Vec3d modifiedTo;
+		BlockHitResult bHit = world.raycast(new RaycastContext(from, origunalTo, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, user));
+		origunalTo = bHit.getPos();
+		modifiedTo = origunalTo;
 		List<Entity> entities = new ArrayList<>();
 		Box box = user.getBoundingBox().stretch(user.getRotationVec(0.5f).multiply(64.0)).expand(1.0, 1.0, 1.0);
 		boolean searchForEntities = true;
 		while (searchForEntities)
 		{
-			EntityHitResult eHit = ProjectileUtil.raycast(user, from, to, box,
+			EntityHitResult eHit = ProjectileUtil.raycast(user, from, origunalTo, box,
 					(entity) -> (!entities.contains(entity) && !(entity instanceof ProjectileEntity)), 64f * 64f);
 			if(eHit == null)
 				break;
@@ -78,13 +78,13 @@ public class ServerHitscanHandler
 				maxHits--;
 				from = eHit.getPos();
 				if(entities.size() == 0 || maxHits == 0)
-					visualTo = eHit.getPos();
+					modifiedTo = eHit.getPos();
 				entities.add(eHit.getEntity());
 			}
 		}
 		entities.forEach((e) -> e.damage(ProjectileDamageSource.mob(user), damage));
 		if(explosionPower > 0f)
-			world.createExplosion(null, to.x, to.y, to.z, explosionPower, World.ExplosionSourceType.NONE);
-		sendPacket((ServerWorld)user.world, origin.add(new Vec3d(-0.5f, -0.3f, 0f).rotateY(-(float)Math.toRadians(user.getYaw()))), visualTo, type);
+			world.createExplosion(null, modifiedTo.x, modifiedTo.y, modifiedTo.z, explosionPower, World.ExplosionSourceType.NONE);
+		sendPacket((ServerWorld)user.world, origin.add(new Vec3d(-0.5f, -0.3f, 0f).rotateY(-(float)Math.toRadians(user.getYaw()))), modifiedTo, type);
 	}
 }
