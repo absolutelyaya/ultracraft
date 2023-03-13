@@ -19,6 +19,8 @@ import absolutelyaya.ultracraft.particle.goop.GoopParticle;
 import absolutelyaya.ultracraft.particle.goop.GoopStringParticle;
 import absolutelyaya.ultracraft.registry.*;
 import io.netty.buffer.Unpooled;
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -102,6 +104,8 @@ public class UltracraftClient implements ClientModInitializer
 		GeckoLibNetwork.registerClientReceiverPackets();
 		
 		ClientTickEvents.END_WORLD_TICK.register(minecraft -> Ultracraft.tickFreeze());
+		
+		AutoConfig.register(Ultraconfig.class, GsonConfigSerializer::new);
 	}
 	
 	//if no Server override, return client setting

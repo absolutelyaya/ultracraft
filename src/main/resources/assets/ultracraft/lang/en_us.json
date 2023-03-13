@@ -22,5 +22,14 @@
   "narrator.button.background.ultracraft": "Ultracraft BG",
 
   "modmenu.descriptionTranslation.ultracraft": "Ultrakill moment\n\nMade after a Game by §6Arsi \"Hakita\" Patala§r\nGo play the real thing, it's much better than this mod lol",
-  "ultrakill.game": "Ultrakill"
+  "ultrakill.game": "Ultrakill",
+
+  "text.autoconfig.ultracraft.category.default": "Ultracraft",
+  "text.autoconfig.ultracraft.category.goop": "Goop / Blood",
+
+  "text.autoconfig.ultracraft.option.fancyGoop": "Fancy Goop",
+  "text.autoconfig.ultracraft.option.fancyGoop.@Tooltip": "Disable for better performance, enable for better goop!",
+
+  "text.autoconfig.ultracraft.option.wrapToEdges": "Wrap to Edges",
+  "text.autoconfig.ultracraft.option.wrapToEdges.@Tooltip": "Whether Goop should wrap to block edges"
 }

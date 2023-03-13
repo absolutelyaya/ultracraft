@@ -23,7 +23,10 @@
     ],
     "mm:early_risers": [
       "absolutelyaya.ultracraft.EarlyRiser"
-    ]
+      ],
+      "modmenu": [
+        "absolutelyaya.ultracraft.client.ModMenu"
+      ]
   },
   "mixins": [
     "ultracraft.mixins.json"

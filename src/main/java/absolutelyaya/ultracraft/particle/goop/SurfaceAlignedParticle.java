@@ -1,5 +1,7 @@
 package absolutelyaya.ultracraft.particle.goop;
 
+import absolutelyaya.ultracraft.client.Ultraconfig;
+import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.particle.SpriteBillboardParticle;
 import net.minecraft.client.particle.SpriteProvider;
 import net.minecraft.client.render.Camera;
@@ -19,6 +21,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class SurfaceAlignedParticle extends SpriteBillboardParticle
 {
+	static Ultraconfig config;
+	
 	private final List<Boolean> faceShouldRender = new ArrayList<>();
 	private final List<Vec3d> verts = new ArrayList<>();
 	private final List<Vec2f> uvs = new ArrayList<>();
@@ -42,7 +46,7 @@ public abstract class SurfaceAlignedParticle extends SpriteBillboardParticle
 		angle = random.nextFloat() * 360;
 		setColor((float)color.getX(), (float)color.getY(), (float)color.getZ());
 		
-		isFancy = true; //TODO: rendermode
+		isFancy = config.fancyGoop;
 		
 		this.dir = new Vec3d((float)Math.round(dir.x), (float)Math.round(dir.y), (float)Math.round(dir.z));
 		boolean b = dir.x != 0;
@@ -217,10 +221,13 @@ public abstract class SurfaceAlignedParticle extends SpriteBillboardParticle
 	
 	private Vec3d moveToBlockEdge(Vec3d vert)
 	{
-		//TODO
-		//if(!SettingsStorage.getBoolean(Settings.SURFACEALIGNED_EDGEWRAP.id))
-		//	return;
+		if(!config.wrapToEdges)
+			return vert;
 		Vec3d dir = vert.subtract(x, y, z).normalize().multiply(0.33);
 		return new Vec3d(Math.round(vert.getX() - dir.x), vert.getY(), Math.round(vert.getZ() - dir.z));
+	}
+	
+	static {
+		config = AutoConfig.getConfigHolder(Ultraconfig.class).getConfig();
 	}
 }
