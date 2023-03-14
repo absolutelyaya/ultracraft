@@ -3,6 +3,8 @@ package absolutelyaya.ultracraft.registry;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.entity.husk.FilthEntity;
+import absolutelyaya.ultracraft.entity.husk.SchismEntity;
+import absolutelyaya.ultracraft.entity.husk.StrayEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.EntityType;
@@ -11,13 +13,17 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
-import java.util.function.Supplier;
-
 public class EntityRegistry
 {
 	public static final EntityType<FilthEntity> FILTH = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "filth"),
 			EntityType.Builder.create(FilthEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 1.95F).maxTrackingRange(8).build("filth"));
+	public static final EntityType<StrayEntity> STRAY = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "stray"),
+			EntityType.Builder.create(StrayEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 1.95F).maxTrackingRange(8).build("stray"));
+	public static final EntityType<SchismEntity> SCHISM = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "schism"),
+			EntityType.Builder.create(SchismEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 1.95F).maxTrackingRange(8).build("schism"));
 	public static final EntityType<MaliciousFaceEntity> MALICIOUS_FACE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "malicious_face"),
 			EntityType.Builder.create(MaliciousFaceEntity::new, SpawnGroup.MONSTER).setDimensions(1.5F, 1.5F).maxTrackingRange(8).build("malicious_face"));
@@ -30,6 +36,8 @@ public class EntityRegistry
 	public static void register()
 	{
 		FabricDefaultAttributeRegistry.register(FILTH, FilthEntity.getDefaultAttributes());
+		FabricDefaultAttributeRegistry.register(STRAY, StrayEntity.getDefaultAttributes());
+		FabricDefaultAttributeRegistry.register(SCHISM, SchismEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(MALICIOUS_FACE, MaliciousFaceEntity.getDefaultAttributes());
 	}
 }

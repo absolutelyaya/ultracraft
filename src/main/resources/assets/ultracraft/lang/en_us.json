@@ -5,12 +5,16 @@
   "item.ultracraft.hell_bullet.hiddenlore": "§4Look upon my stack-size ye mighty and despair!",
   "item.ultracraft.pierce_revolver": "Pierce Revolver",
   "item.ultracraft.filth_spawn_egg": "Filth Spawn Egg",
+  "item.ultracraft.stray_spawn_egg": "Stray Spawn Egg",
+  "item.ultracraft.schism_spawn_egg": "Schism Spawn Egg",
   "item.ultracraft.malicious_spawn_egg": "Malicious Face Spawn Egg",
 
   "block.ultracraft.elevator": "Elevator Casing",
   "block.ultracraft.pedestal": "Pedestal",
 
   "entity.ultracraft.filth": "Filth",
+  "entity.ultracraft.stray": "Stray",
+  "entity.ultracraft.schism": "Schism",
   "entity.ultracraft.malicious_face": "Malicious Face",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",

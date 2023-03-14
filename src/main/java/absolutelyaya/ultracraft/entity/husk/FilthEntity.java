@@ -10,9 +10,6 @@ import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
@@ -28,14 +25,13 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.EnumSet;
 
-public class FilthEntity extends HostileEntity implements GeoEntity, MeleeParriable
+public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeParriable
 {
 	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
 	private static final RawAnimation RUN_ANIM = RawAnimation.begin().thenLoop("run");
 	private static final RawAnimation ATTACK_ANIM = RawAnimation.begin().thenLoop("attack");
 	private static final RawAnimation THROWBACK_ANIM = RawAnimation.begin().thenLoop("throwback");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-	protected static final TrackedData<Byte> ANIMATION = DataTracker.registerData(FilthEntity.class, TrackedDataHandlerRegistry.BYTE);
 	private static final byte ANIMATION_IDLE = 0;
 	private static final byte ANIMATION_ATTACK = 1;
 	private static final byte ANIMATION_THROWBACK = 2;
@@ -67,13 +63,6 @@ public class FilthEntity extends HostileEntity implements GeoEntity, MeleeParria
 					   .add(EntityAttributes.GENERIC_ARMOR, 2.0d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.4d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 6.0d);
-	}
-	
-	@Override
-	protected void initDataTracker()
-	{
-		super.initDataTracker();
-		this.dataTracker.startTracking(ANIMATION, ANIMATION_IDLE);
 	}
 	
 	private <E extends GeoEntity> PlayState predicate(AnimationState<E> event)
@@ -128,11 +117,6 @@ public class FilthEntity extends HostileEntity implements GeoEntity, MeleeParria
 	public void throwback()
 	{
 		throwbackTicks += 50;
-	}
-	
-	public byte getAnimation()
-	{
-		return dataTracker.get(ANIMATION);
 	}
 	
 	@Override

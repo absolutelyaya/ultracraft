@@ -7,6 +7,8 @@ import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceModel
 import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.WingsModel;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
+import absolutelyaya.ultracraft.client.rendering.entity.husk.SchismRenderer;
+import absolutelyaya.ultracraft.client.rendering.entity.husk.StrayRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.HellBulletRenderer;
 import absolutelyaya.ultracraft.client.sound.MovingSlideSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingWindSoundInstance;
@@ -60,6 +62,8 @@ public class UltracraftClient implements ClientModInitializer
 		
 		//EntityRenderers
 		EntityRendererRegistry.register(EntityRegistry.FILTH, FilthRenderer::new);
+		EntityRendererRegistry.register(EntityRegistry.STRAY, StrayRenderer::new);
+		EntityRendererRegistry.register(EntityRegistry.SCHISM, SchismRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.MALICIOUS_FACE, MaliciousFaceRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.HELL_BULLET, HellBulletRenderer::new);
 		//Particles

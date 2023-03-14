@@ -26,6 +26,12 @@ public class ItemRegistry
 	public static final SpawnEggItem FILTH_SPAWN_EGG = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "filth_spawn_egg"),
 			new SpawnEggItem(EntityRegistry.FILTH, 0x717038, 0xacaa7a, new FabricItemSettings()));
+	public static final SpawnEggItem STRAY_SPAWN_EGG = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "stray_spawn_egg"),
+			new SpawnEggItem(EntityRegistry.STRAY, 0xaa6f5e, 0x922923, new FabricItemSettings()));
+	public static final SpawnEggItem SCHISM_SPAWN_EGG = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "schism_spawn_egg"),
+			new SpawnEggItem(EntityRegistry.SCHISM, 0x572f21, 0xa0938e, new FabricItemSettings()));
 	public static final SpawnEggItem MALICIOUS_SPAWN_EGG = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "malicious_spawn_egg"),
 			new SpawnEggItem(EntityRegistry.MALICIOUS_FACE, 0xa0938e, 0x5a5353, new FabricItemSettings()));
@@ -43,6 +49,8 @@ public class ItemRegistry
 			content.add(BlockRegistry.PEDESTAL.asItem());
 			content.add(PIERCE_REVOLVER);
 			content.add(FILTH_SPAWN_EGG);
+			content.add(STRAY_SPAWN_EGG);
+			content.add(SCHISM_SPAWN_EGG);
 			content.add(MALICIOUS_SPAWN_EGG);
 		});
 	}
