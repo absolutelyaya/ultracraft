@@ -34,16 +34,16 @@ public class StrayModel extends GeoModel<StrayEntity>
 	public void setCustomAnimations(StrayEntity animatable, long instanceId, AnimationState<StrayEntity> animationState)
 	{
 		super.setCustomAnimations(animatable, instanceId, animationState);
-		CoreGeoBone head = this.getAnimationProcessor().getBone("Head");
+		CoreGeoBone head = this.getAnimationProcessor().getBone("head");
 		
 		float f = ((float) Math.PI / 180F);
 		if(MinecraftClient.getInstance().isPaused())
 			return;
 		
 		EntityModelData extraData = (EntityModelData)animationState.getExtraData().get(DataTickets.ENTITY_MODEL_DATA);
-		if(head != null && animatable.getAnimation() != 1)
+		if(head != null)
 		{
-			head.setRotX(head.getRotX() + extraData.headPitch() * f);
+			head.setRotX(extraData.headPitch() * f);
 			head.setRotY(extraData.netHeadYaw() * f);
 		}
 	}

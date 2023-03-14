@@ -1,6 +1,6 @@
 package absolutelyaya.ultracraft.entity.husk;
 
-import absolutelyaya.ultracraft.accessor.MeleeParriable;
+import absolutelyaya.ultracraft.accessor.Interruptable;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -16,7 +16,7 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class SchismEntity extends AbstractHuskEntity implements GeoEntity, MeleeParriable
+public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Interruptable
 {
 	private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("walk");
 	private static final RawAnimation ATTACK_VERTICAL_ANIM = RawAnimation.begin().thenLoop("attackVert");
@@ -82,7 +82,7 @@ public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Melee
 	}
 	
 	@Override
-	public void onParried(PlayerEntity parrier)
+	public void onInterrupted(PlayerEntity interruptor)
 	{
 	
 	}

@@ -1,11 +1,21 @@
 package absolutelyaya.ultracraft.entity.husk;
 
-import absolutelyaya.ultracraft.accessor.MeleeParriable;
+import absolutelyaya.ultracraft.accessor.Interruptable;
+import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.TargetPredicate;
+import net.minecraft.entity.ai.goal.ActiveTargetGoal;
+import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -16,8 +26,11 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class StrayEntity extends AbstractHuskEntity implements GeoEntity, MeleeParriable
+import java.util.EnumSet;
+
+public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interruptable
 {
+	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(StrayEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("walk");
 	private static final RawAnimation ATTACK_ANIM = RawAnimation.begin().thenLoop("attack");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -29,17 +42,32 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, MeleeP
 		super(entityType, world);
 	}
 	
-	//TODO: flee from player
 	//TODO: interruptable attack charge time
-	//TODO: Attack
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
 		return HostileEntity.createMobAttributes()
 					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 15.0d)
 					   .add(EntityAttributes.GENERIC_ARMOR, 2.0d)
-					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.4d)
+					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 6.0d);
+	}
+	
+	@Override
+	protected void initGoals()
+	{
+		goalSelector.add(0, new GetOutOfMyPersonalSpaceGoal(this));
+		goalSelector.add(1, new ThrowAttackGoal(this));
+		goalSelector.add(2, new GetIntoSightGoal(this));
+		
+		targetSelector.add(1, new ActiveTargetGoal<>(this, PlayerEntity.class, true));
+	}
+	
+	@Override
+	protected void initDataTracker()
+	{
+		super.initDataTracker();
+		dataTracker.startTracking(ATTACK_COOLDOWN, 10);
 	}
 	
 	private <E extends GeoEntity> PlayState predicate(AnimationState<E> event)
@@ -77,9 +105,193 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, MeleeP
 		return cache;
 	}
 	
+	private void ThrowBullet(LivingEntity target)
+	{
+		HellBulletEntity bullet = HellBulletEntity.spawn(this, this.world);
+		double d = target.getEyeY() - 0f;
+		double e = target.getX() - getX();
+		double f = d - bullet.getY();
+		double g = target.getZ() - getZ();
+		bullet.setVelocity(e, f, g, 1f, 0.0f);
+		bullet.setNoGravity(true);
+		bullet.setIgnored(this.getClass());
+		this.playSound(SoundEvents.ENTITY_SNOW_GOLEM_SHOOT, 1.0f, 0.4f / (this.getRandom().nextFloat() * 0.4f + 0.8f));
+		this.world.spawnEntity(bullet);
+	}
+	
 	@Override
-	public void onParried(PlayerEntity parrier)
+	public void tick()
+	{
+		super.tick();
+		if(dataTracker.get(ATTACK_COOLDOWN) > 0)
+			dataTracker.set(ATTACK_COOLDOWN, dataTracker.get(ATTACK_COOLDOWN) - 1);
+	}
+	
+	@Override
+	public void tickMovement()
+	{
+		super.tickMovement();
+		LivingEntity target = getTarget();
+		if(target != null && !isNavigating())
+			getLookControl().lookAt(target.getX(), target.getEyeY(), target.getZ());
+	}
+	
+	@Override
+	public void onInterrupted(PlayerEntity interruptor)
 	{
 	
+	}
+	
+	static class GetOutOfMyPersonalSpaceGoal extends Goal
+	{
+		StrayEntity stray;
+		PlayerEntity tooClose;
+		int checkTimer = 10;
+		
+		public GetOutOfMyPersonalSpaceGoal(StrayEntity stray)
+		{
+			this.stray = stray;
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			if(checkTimer-- >= 0)
+				return false;
+			else
+				checkTimer = 10;
+			tooClose = stray.world.getClosestEntity(PlayerEntity.class, TargetPredicate.DEFAULT, stray,
+					stray.getX(), stray.getY(), stray.getZ(), stray.getBoundingBox().expand(5));
+			return tooClose != null && stray.getAnimation() != ANIMATION_ATTACK;
+		}
+		
+		@Override
+		public boolean shouldContinue()
+		{
+			return tooClose != null && tooClose.isAlive() && stray.squaredDistanceTo(tooClose) < 5 * 5;
+		}
+		
+		@Override
+		public boolean canStop()
+		{
+			return !shouldContinue();
+		}
+		
+		@Override
+		public void tick()
+		{
+			Vec3d dir = stray.getPos().subtract(tooClose.getPos()).normalize().multiply(7);
+			stray.navigation.startMovingTo(stray.getX() + dir.x, stray.getY() + dir.y, stray.getZ() + dir.z, 1);
+		}
+		
+		@Override
+		public void stop()
+		{
+			tooClose = null;
+		}
+	}
+	
+	static class ThrowAttackGoal extends Goal
+	{
+		StrayEntity stray;
+		LivingEntity target;
+		int time;
+		
+		public ThrowAttackGoal(StrayEntity stray)
+		{
+			this.stray = stray;
+			setControls(EnumSet.of(Control.LOOK));
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			target = stray.getTarget();
+			if (target == null || stray.dataTracker.get(ATTACK_COOLDOWN) > 0 || stray.navigation.isFollowingPath())
+				return false;
+			return stray.isOnGround() && stray.getAnimation() != ANIMATION_ATTACK && stray.canSee(target);
+		}
+		
+		@Override
+		public void start()
+		{
+			time = 0;
+		}
+		
+		@Override
+		public boolean shouldRunEveryTick()
+		{
+			return true;
+		}
+		
+		@Override
+		public void tick()
+		{
+			stray.getNavigation().stop();
+			stray.getLookControl().lookAt(target.getX(), target.getEyeY(), target.getZ());
+			
+			if(time == 0)
+				stray.dataTracker.set(ANIMATION, ANIMATION_ATTACK);
+			if (time == 38)
+				stray.ThrowBullet(target);
+			
+			time++;
+		}
+		
+		@Override
+		public boolean shouldContinue()
+		{
+			return time < 40;
+		}
+		
+		@Override
+		public boolean canStop()
+		{
+			return !shouldContinue();
+		}
+		
+		@Override
+		public void stop()
+		{
+			if(stray.getAnimation() == ANIMATION_ATTACK)
+				stray.dataTracker.set(ANIMATION, ANIMATION_IDLE);
+			stray.dataTracker.set(ATTACK_COOLDOWN, (int)(40 + stray.getRandom().nextFloat() * 40));
+		}
+	}
+	
+	static class GetIntoSightGoal extends Goal
+	{
+		StrayEntity stray;
+		LivingEntity target;
+		
+		public GetIntoSightGoal(StrayEntity stray)
+		{
+			this.stray = stray;
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			target = stray.getTarget();
+			return target != null && !stray.canSee(target);
+		}
+		
+		@Override
+		public void tick()
+		{
+			stray.navigation.startMovingTo(target, 1f);
+		}
+		
+		@Override
+		public boolean shouldContinue()
+		{
+			return target != null && target.isAlive() && !stray.canSee(target);
+		}
+		
+		@Override
+		public void stop()
+		{
+			stray.navigation.stop();
+		}
 	}
 }
