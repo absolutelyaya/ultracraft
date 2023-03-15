@@ -105,7 +105,7 @@
 				}
 			}
 		},
-		"AttackHor": {
+		"attackHor": {
 			"animation_length": 2.5,
 			"bones": {
 				"right_arm": {

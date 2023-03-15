@@ -107,16 +107,16 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 	
 	private void ThrowBullet(LivingEntity target)
 	{
-		HellBulletEntity bullet = HellBulletEntity.spawn(this, this.world);
+		HellBulletEntity bullet = HellBulletEntity.spawn(this, world);
 		double d = target.getEyeY() - 0f;
 		double e = target.getX() - getX();
 		double f = d - bullet.getY();
 		double g = target.getZ() - getZ();
 		bullet.setVelocity(e, f, g, 1f, 0.0f);
 		bullet.setNoGravity(true);
-		bullet.setIgnored(this.getClass());
-		this.playSound(SoundEvents.ENTITY_SNOW_GOLEM_SHOOT, 1.0f, 0.4f / (this.getRandom().nextFloat() * 0.4f + 0.8f));
-		this.world.spawnEntity(bullet);
+		bullet.setIgnored(getClass());
+		playSound(SoundEvents.ENTITY_SNOW_GOLEM_SHOOT, 1.0f, 0.4f / (getRandom().nextFloat() * 0.4f + 0.8f));
+		world.spawnEntity(bullet);
 	}
 	
 	@Override
@@ -256,42 +256,6 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 			if(stray.getAnimation() == ANIMATION_ATTACK)
 				stray.dataTracker.set(ANIMATION, ANIMATION_IDLE);
 			stray.dataTracker.set(ATTACK_COOLDOWN, (int)(40 + stray.getRandom().nextFloat() * 40));
-		}
-	}
-	
-	static class GetIntoSightGoal extends Goal
-	{
-		StrayEntity stray;
-		LivingEntity target;
-		
-		public GetIntoSightGoal(StrayEntity stray)
-		{
-			this.stray = stray;
-		}
-		
-		@Override
-		public boolean canStart()
-		{
-			target = stray.getTarget();
-			return target != null && !stray.canSee(target);
-		}
-		
-		@Override
-		public void tick()
-		{
-			stray.navigation.startMovingTo(target, 1f);
-		}
-		
-		@Override
-		public boolean shouldContinue()
-		{
-			return target != null && target.isAlive() && !stray.canSee(target);
-		}
-		
-		@Override
-		public void stop()
-		{
-			stray.navigation.stop();
 		}
 	}
 }
