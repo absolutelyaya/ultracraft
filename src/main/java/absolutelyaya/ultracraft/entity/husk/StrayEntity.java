@@ -31,6 +31,7 @@ import java.util.EnumSet;
 public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interruptable
 {
 	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(StrayEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
 	private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("walk");
 	private static final RawAnimation ATTACK_ANIM = RawAnimation.begin().thenLoop("attack");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -81,10 +82,7 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 			case ANIMATION_IDLE ->
 			{
 				controller.setAnimationSpeed(getVelocity().horizontalLengthSquared() > 0.03 ? 2f : 1f);
-				if(event.isMoving())
-					controller.setAnimation(WALK_ANIM);
-				else
-					return PlayState.STOP;
+				controller.setAnimation(event.isMoving() ? WALK_ANIM : IDLE_ANIM);
 			}
 			case ANIMATION_ATTACK -> controller.setAnimation(ATTACK_ANIM);
 		}
@@ -241,7 +239,7 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 		@Override
 		public boolean shouldContinue()
 		{
-			return time < 40;
+			return time < 54;
 		}
 		
 		@Override
