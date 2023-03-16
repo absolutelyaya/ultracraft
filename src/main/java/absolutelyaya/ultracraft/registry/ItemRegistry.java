@@ -35,6 +35,9 @@ public class ItemRegistry
 	public static final SpawnEggItem MALICIOUS_SPAWN_EGG = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "malicious_spawn_egg"),
 			new SpawnEggItem(EntityRegistry.MALICIOUS_FACE, 0xa0938e, 0x5a5353, new FabricItemSettings()));
+	public static final SpawnEggItem CERBERUS_SPAWN_EGG = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "cerberus_spawn_egg"),
+			new SpawnEggItem(EntityRegistry.CERBERUS, 0xa0938e, 0x5a5353, new FabricItemSettings()));
 	
 	public static final ItemGroup ULTRACRAFT_TAB =
 			FabricItemGroup.builder(new Identifier(Ultracraft.MOD_ID, "item")).icon(() -> new ItemStack(BLUE_SKULL)).build();
@@ -52,6 +55,7 @@ public class ItemRegistry
 			content.add(STRAY_SPAWN_EGG);
 			content.add(SCHISM_SPAWN_EGG);
 			content.add(MALICIOUS_SPAWN_EGG);
+			content.add(CERBERUS_SPAWN_EGG);
 		});
 	}
 }

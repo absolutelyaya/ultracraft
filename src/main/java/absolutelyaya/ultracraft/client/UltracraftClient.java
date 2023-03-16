@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.client;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.client.rendering.block.entity.PedestalBlockEntityRenderer;
+import absolutelyaya.ultracraft.client.rendering.entity.demon.CerberusRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceModel;
 import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.WingsModel;
@@ -65,6 +66,7 @@ public class UltracraftClient implements ClientModInitializer
 		EntityRendererRegistry.register(EntityRegistry.STRAY, StrayRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.SCHISM, SchismRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.MALICIOUS_FACE, MaliciousFaceRenderer::new);
+		EntityRendererRegistry.register(EntityRegistry.CERBERUS, CerberusRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.HELL_BULLET, HellBulletRenderer::new);
 		//Particles
 		ParticleFactoryRegistry particleRegistry = ParticleFactoryRegistry.getInstance();

@@ -8,6 +8,7 @@
   "item.ultracraft.stray_spawn_egg": "Stray Spawn Egg",
   "item.ultracraft.schism_spawn_egg": "Schism Spawn Egg",
   "item.ultracraft.malicious_spawn_egg": "Malicious Face Spawn Egg",
+  "item.ultracraft.cerberus_spawn_egg": "Cerberus Spawn Egg",
 
   "block.ultracraft.elevator": "Elevator Casing",
   "block.ultracraft.pedestal": "Pedestal",
@@ -16,6 +17,7 @@
   "entity.ultracraft.stray": "Stray",
   "entity.ultracraft.schism": "Schism",
   "entity.ultracraft.malicious_face": "Malicious Face",
+  "entity.ultracraft.cerberus": "Cerberus",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 
