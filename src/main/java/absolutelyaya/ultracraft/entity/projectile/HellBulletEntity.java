@@ -35,6 +35,11 @@ public class HellBulletEntity extends ThrownItemEntity
 		super(EntityRegistry.HELL_BULLET, owner, world);
 	}
 	
+	protected HellBulletEntity(EntityType<? extends HellBulletEntity> type, LivingEntity owner, World world)
+	{
+		super(type, owner, world);
+	}
+	
 	public static HellBulletEntity spawn(LivingEntity owner, World world)
 	{
 		return new HellBulletEntity(owner, world);

@@ -62,7 +62,8 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeP
 					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 15.0d)
 					   .add(EntityAttributes.GENERIC_ARMOR, 2.0d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.4d)
-					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 6.0d);
+					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 6.0d)
+					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d);
 	}
 	
 	private <E extends GeoEntity> PlayState predicate(AnimationState<E> event)

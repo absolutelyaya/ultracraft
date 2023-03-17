@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.entity.husk.FilthEntity;
 import absolutelyaya.ultracraft.entity.husk.SchismEntity;
 import absolutelyaya.ultracraft.entity.husk.StrayEntity;
+import absolutelyaya.ultracraft.entity.projectile.CerberusBallEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.EntityType;
@@ -31,10 +32,15 @@ public class EntityRegistry
 	public static final EntityType<CerberusEntity> CERBERUS = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "cerberus"),
 			EntityType.Builder.create(CerberusEntity::new, SpawnGroup.MONSTER).setDimensions(1.75F, 4F).maxTrackingRange(8).build("cerberus"));
+	
 	public static final EntityType<HellBulletEntity> HELL_BULLET = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "hell_bullet"),
 			EntityType.Builder.create(HellBulletEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
 					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().build("hell_bullet"));
+	public static final EntityType<CerberusBallEntity> CERBERUS_BALL = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "cerberus_ball"),
+			EntityType.Builder.create(CerberusBallEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
+					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().build("cerberus_ball"));
 	
 	@SuppressWarnings("ConstantConditions")
 	public static void register()

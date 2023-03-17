@@ -7,4 +7,6 @@ public interface ProjectileEntityAccessor
 	void setParried(boolean val, PlayerEntity parrier);
 	
 	boolean isParried();
+	
+	boolean isParriable();
 }

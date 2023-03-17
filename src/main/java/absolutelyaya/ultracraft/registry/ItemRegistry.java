@@ -19,6 +19,8 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "red_skull"), new Item(new FabricItemSettings()));
 	public static final Item HELL_BULLET = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "hell_bullet"), new HellBulletItem(new FabricItemSettings().fireproof().maxCount(25)));
+	public static final Item CERBERUS_BALL = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "cerberus_ball"), new HellBulletItem(new FabricItemSettings().fireproof().maxCount(21)));
 	
 	public static final PierceRevolverItem PIERCE_REVOLVER = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "pierce_revolver"), new PierceRevolverItem(new FabricItemSettings().maxCount(1)));
@@ -48,6 +50,7 @@ public class ItemRegistry
 			content.add(BLUE_SKULL);
 			content.add(RED_SKULL);
 			content.add(HELL_BULLET);
+			content.add(CERBERUS_BALL);
 			content.add(BlockRegistry.ELEVATOR.asItem());
 			content.add(BlockRegistry.PEDESTAL.asItem());
 			content.add(PIERCE_REVOLVER);

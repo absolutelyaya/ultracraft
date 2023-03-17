@@ -2,10 +2,11 @@ package absolutelyaya.ultracraft.entity.demon;
 
 import absolutelyaya.ultracraft.accessor.IAnimatedEnemy;
 import absolutelyaya.ultracraft.entity.goal.TimedAttackGoal;
-import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
+import absolutelyaya.ultracraft.entity.projectile.CerberusBallEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
+import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -51,13 +52,10 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		stepHeight = 1f;
 	}
 	
-	//TODO: Throw Attack
 	//TODO: Stomp Attack
 	//TODO: Cracked and Enraged Textures
-	//TODO: Ball Projectile
 	//TODO: Add Ball to Model
 	//TODO: Sitting Cerberus Block & Transition Animation to Entity
-	//TODO: approach target Goal;
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
@@ -65,7 +63,8 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 50.0d)
 					   .add(EntityAttributes.GENERIC_ARMOR, 6.0d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3d)
-					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 6.0d);
+					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 6.0d)
+					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d);
 	}
 	
 	@Override
@@ -74,6 +73,7 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		targetSelector.add(0, new ThrowAttackGoal(this));
 		targetSelector.add(1, new RamAttackGoal(this));
 		targetSelector.add(2, new StepOnMeUwUGoal(this));
+		targetSelector.add(3, new ApproachTargetGoal(this));
 		
 		targetSelector.add(1, new ActiveTargetGoal<>(this, PlayerEntity.class, true));
 	}
@@ -95,11 +95,7 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		controller.setAnimationSpeed(getAnimSpeedMult());
 		switch (anim)
 		{
-			case ANIMATION_IDLE ->
-			{
-				controller.setAnimationSpeed(getVelocity().horizontalLengthSquared() > 0.03 ? 2f : 1f);
-				controller.setAnimation(event.isMoving() ? WALK_ANIM : IDLE_ANIM);
-			}
+			case ANIMATION_IDLE -> controller.setAnimation(event.isMoving() ? WALK_ANIM : IDLE_ANIM);
 			case ANIMATION_THROW -> controller.setAnimation(THROW_ANIM);
 			case ANIMATION_RAM -> controller.setAnimation(RAM_ANIM);
 			case ANIMATION_STOMP -> controller.setAnimation(STOMP_ANIM);
@@ -174,14 +170,25 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		return isHeadFixed() ? 0 : 75;
 	}
 	
-	private void ThrowBullet(LivingEntity target)
+	int getTargetDistance()
 	{
-		HellBulletEntity bullet = HellBulletEntity.spawn(this, world);
-		double d = target.getEyeY() - 0f;
+		double sqrDist = squaredDistanceTo(getTarget());
+		if(sqrDist > 24 * 24)
+			return 3;
+		else if(sqrDist > 14 * 14)
+			return 2;
+		else
+			return 1;
+	}
+	
+	private void throwBullet(LivingEntity target)
+	{
+		CerberusBallEntity bullet = CerberusBallEntity.spawn(this, world);
+		double d = target.getEyeY() - target.getHeight() / 2.0;
 		double e = target.getX() - getX();
 		double f = d - bullet.getY();
 		double g = target.getZ() - getZ();
-		bullet.setVelocity(e, f, g, 1f, 0.0f);
+		bullet.setVelocity(e, f, g, 2.5f, 0.0f);
 		bullet.setNoGravity(true);
 		playSound(SoundEvents.ENTITY_SNOW_GOLEM_SHOOT, 1.0f, 0.2f / (getRandom().nextFloat() * 0.2f + 0.4f));
 		world.spawnEntity(bullet);
@@ -211,6 +218,36 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 						e -> !e.isEnraged() && e != this).forEach(CerberusEntity::enrage);
 	}
 	
+	static class ApproachTargetGoal extends Goal
+	{
+		CerberusEntity cerb;
+		
+		public ApproachTargetGoal(CerberusEntity cerb)
+		{
+			this.cerb = cerb;
+			
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			LivingEntity target = cerb.getTarget();
+			return cerb.getAnimation() == ANIMATION_IDLE && target != null && cerb.squaredDistanceTo(target) > 5 * 5;
+		}
+		
+		@Override
+		public void start()
+		{
+			cerb.getNavigation().startMovingTo(cerb.getTarget(), 1f);
+		}
+		
+		@Override
+		public boolean shouldContinue()
+		{
+			return false;
+		}
+	}
+	
 	static class ThrowAttackGoal extends TimedAttackGoal<CerberusEntity>
 	{
 		public ThrowAttackGoal(CerberusEntity cerb)
@@ -221,13 +258,33 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		@Override
 		public boolean canStart()
 		{
-			return super.canStart() && mob.getRandom().nextInt(10) == 0;
+			return super.canStart() && mob.getRandom().nextInt(likelyhoodPerDistance()) == 0;
+		}
+		
+		int likelyhoodPerDistance()
+		{
+			return switch (mob.getTargetDistance())
+			{
+				case 1 -> 6;
+				case 2 -> 4;
+				case 3 -> 2;
+				default -> 10;
+			};
+		}
+		
+		@Override
+		public void start()
+		{
+			super.start();
+			mob.getNavigation().stop();
 		}
 		
 		@Override
 		public void tick()
 		{
 			super.tick();
+			if(timer == 19)
+				mob.throwBullet(target);
 			mob.getLookControl().lookAt(target.getX(), target.getEyeY(), target.getZ());
 		}
 	}
@@ -245,7 +302,25 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		@Override
 		public boolean canStart()
 		{
-			return super.canStart() && mob.getRandom().nextInt(1) == 0;
+			return super.canStart() && mob.getRandom().nextInt(likelyhoodPerDistance()) == 0;
+		}
+		
+		int likelyhoodPerDistance()
+		{
+			return switch (mob.getTargetDistance())
+			{
+				case 1 -> 2;
+				case 2 -> 3;
+				case 3 -> 4;
+				default -> 10;
+			};
+		}
+		
+		@Override
+		public void start()
+		{
+			super.start();
+			mob.getNavigation().stop();
 		}
 		
 		@Override
@@ -266,7 +341,7 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 							p.damage(DamageSource.mob(mob), 8f);
 							p.setVelocity(ramDir.multiply(3).add(0.0, 0.5, 0.0));
 						});
-				Vec3d lookPos = mob.getPos().add(ramDir);
+				Vec3d lookPos = mob.getPos().add(ramDir.multiply(10));
 				mob.getLookControl().lookAt(lookPos.x, mob.getEyeY(), lookPos.z, 90, 90);
 			}
 		}
@@ -282,7 +357,25 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		@Override
 		public boolean canStart()
 		{
-			return super.canStart() && mob.getRandom().nextInt(10) == 0;
+			return super.canStart() && mob.getRandom().nextInt(likelyhoodPerDistance()) == 0;
+		}
+		
+		int likelyhoodPerDistance()
+		{
+			return switch (mob.getTargetDistance())
+			{
+				case 1 -> 1;
+				case 2 -> 3;
+				case 3 -> 6;
+				default -> 10;
+			};
+		}
+		
+		@Override
+		public void start()
+		{
+			super.start();
+			mob.getNavigation().stop();
 		}
 		
 		@Override
@@ -290,6 +383,7 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		{
 			super.tick();
 			mob.getLookControl().lookAt(target.getX(), target.getEyeY(), target.getZ());
+			//TODO: add Shockwave Entity + Renderer
 		}
 	}
 }

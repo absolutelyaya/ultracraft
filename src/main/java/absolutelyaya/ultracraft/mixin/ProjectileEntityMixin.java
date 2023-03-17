@@ -103,4 +103,10 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	{
 		return parried;
 	}
+	
+	@Override
+	public boolean isParriable()
+	{
+		return true;
+	}
 }

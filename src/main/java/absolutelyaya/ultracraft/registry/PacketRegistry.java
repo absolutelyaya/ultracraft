@@ -52,10 +52,10 @@ public class PacketRegistry
 			
 			if(target != null)
 			{
-				target.damage(DamageSource.mob(player), 10);
+				target.damage(DamageSource.mob(player), 4);
 				if(flame)
 					target.setFireTicks(100);
-				if(target instanceof ProjectileEntity p)
+				if(target instanceof ProjectileEntity p && ((ProjectileEntityAccessor)p).isParriable())
 				{
 					Ultracraft.freeze((ServerWorld) player.world, 10);
 					world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
