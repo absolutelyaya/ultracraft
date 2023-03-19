@@ -40,6 +40,12 @@ public abstract class TimedAttackGoal<T extends HostileEntity & IAnimatedEnemy> 
 	@Override
 	public void tick()
 	{
+		for (int i = 0; i < mob.getAnimSpeedMult(); i++)
+			process();
+	}
+	
+	protected void process()
+	{
 		timer++;
 		mob.bodyYaw = mob.headYaw;
 	}

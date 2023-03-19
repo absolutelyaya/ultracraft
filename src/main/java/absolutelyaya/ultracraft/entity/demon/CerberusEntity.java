@@ -154,9 +154,9 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 	}
 	
 	@Override
-	public float getAnimSpeedMult()
+	public int getAnimSpeedMult()
 	{
-		return isEnraged() ? 2f : 1f;
+		return isEnraged() ? 2 : 1;
 	}
 	
 	@Override
@@ -293,9 +293,9 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		}
 		
 		@Override
-		public void tick()
+		protected void process()
 		{
-			super.tick();
+			super.process();
 			if(timer == 19)
 				mob.throwBullet(target);
 			mob.getLookControl().lookAt(target.getX(), target.getEyeY(), target.getZ());
@@ -337,9 +337,9 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		}
 		
 		@Override
-		public void tick()
+		protected void process()
 		{
-			super.tick();
+			super.process();
 			if(timer > 15 && timer < 22)
 				mob.setVelocity(ramDir);
 			else if (timer == 14)
@@ -392,9 +392,9 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		}
 		
 		@Override
-		public void tick()
+		protected void process()
 		{
-			super.tick();
+			super.process();
 			mob.getLookControl().lookAt(target.getX(), target.getEyeY(), target.getZ());
 			//TODO: add Shockwave Entity + Renderer
 		}

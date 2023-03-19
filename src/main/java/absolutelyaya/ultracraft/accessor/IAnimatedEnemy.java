@@ -6,7 +6,7 @@ public interface IAnimatedEnemy
 	
 	byte getAnimation();
 	
-	float getAnimSpeedMult();
+	int getAnimSpeedMult();
 	
 	void setCooldown(int cooldown);
 	
