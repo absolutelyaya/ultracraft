@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.entity.demon;
 
+import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.IAnimatedEnemy;
 import absolutelyaya.ultracraft.entity.goal.TimedAttackGoal;
 import absolutelyaya.ultracraft.entity.projectile.CerberusBallEntity;
@@ -30,7 +31,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.EnumSet;
 
-public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimatedEnemy
+public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimatedEnemy, Enrageable
 {
 	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(CerberusEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
@@ -138,6 +139,18 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 	public boolean isEnraged()
 	{
 		return dataTracker.get(ENRAGED);
+	}
+	
+	@Override
+	public Vec3d getEnrageFeatureSize()
+	{
+		return new Vec3d(1.1f, -1.1f, -1.1f);
+	}
+	
+	@Override
+	public Vec3d getEnragedFeatureOffset()
+	{
+		return new Vec3d(0f, -1.8f, 0f);
 	}
 	
 	@Override

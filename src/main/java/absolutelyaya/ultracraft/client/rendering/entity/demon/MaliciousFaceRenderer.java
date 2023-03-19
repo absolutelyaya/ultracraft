@@ -60,8 +60,8 @@ public class MaliciousFaceRenderer extends MobEntityRenderer<MaliciousFaceEntity
 		public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch)
 		{
 			VertexConsumer vertexConsumer = vertexConsumers.getBuffer(getContextModel().cracked && entity.world.getDifficulty() == Difficulty.HARD ? ENRAGED : NORMAL);
-			matrices.scale(1.001f, 1.001f, 1.001f);
-			((Model)this.getContextModel()).render(matrices, vertexConsumer, 15728880, OverlayTexture.DEFAULT_UV, 1.0f, 1.0f, 1.0f, 1.0f);
+			matrices.scale(1.001f, 1.004f, 1.001f);
+			((Model)this.getContextModel()).render(matrices, vertexConsumer, 15728880, OverlayTexture.DEFAULT_UV, 0.0f, 1.0f, 1.0f, 1.0f);
 		}
 	}
 }

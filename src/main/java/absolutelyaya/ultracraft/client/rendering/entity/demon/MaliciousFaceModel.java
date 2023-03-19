@@ -14,7 +14,7 @@ public class MaliciousFaceModel<T extends MaliciousFaceEntity> extends EntityMod
 	private final ModelPart Root;
 	private final ModelPart Charge;
 	float charge;
-	boolean cracked;
+	boolean cracked, enraged;
 	
 	public MaliciousFaceModel(ModelPart root)
 	{
@@ -39,6 +39,7 @@ public class MaliciousFaceModel<T extends MaliciousFaceEntity> extends EntityMod
 		Root.setAngles((float)Math.toRadians(headPitch), (float)Math.toRadians(headYaw), 0f);
 		charge = entity.getChargePercent();
 		cracked = entity.isCracked();
+		enraged = entity.isEnraged();
 	}
 	
 	@Override
@@ -48,7 +49,9 @@ public class MaliciousFaceModel<T extends MaliciousFaceEntity> extends EntityMod
 		matrices.scale(1.5f, 1.5f, 1.5f);
 		matrices.translate(0, 0.5, 0);
 		Charge.xScale = Charge.yScale = Charge.zScale = charge * 1.5f;
-		Root.render(matrices, vertexConsumer, light, overlay, red, green, blue, alpha);
+		float c = enraged ? 0.25f : 1f;
+		c = red == 0f ? 1f : c;
+		Root.render(matrices, vertexConsumer, light, overlay, 1f, c, c, alpha);
 		matrices.pop();
 	}
 }

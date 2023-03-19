@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.entity.demon;
 
 import absolutelyaya.ultracraft.ServerHitscanHandler;
+import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.MeleeParriable;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
@@ -40,7 +41,7 @@ import net.minecraft.world.World;
 import java.util.EnumSet;
 import java.util.List;
 
-public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
+public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, Enrageable
 {
 	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Boolean> CRACKED = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -319,9 +320,21 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		return false;
 	}
 	
-	private boolean isEnraged()
+	public boolean isEnraged()
 	{
 		return isCracked() && world.getDifficulty().equals(Difficulty.HARD);
+	}
+	
+	@Override
+	public Vec3d getEnrageFeatureSize()
+	{
+		return new Vec3d(2.75f, 2.75f, 2.75f);
+	}
+	
+	@Override
+	public Vec3d getEnragedFeatureOffset()
+	{
+		return new Vec3d(0f, -0.5f, 0f);
 	}
 	
 	public void shootBullet(LivingEntity target)
@@ -382,6 +395,12 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable
 		BlockHitResult hit = world.raycast(new RaycastContext(getPos(), getPos().add(0, -25, 0),
 				RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
 		return getBlockY() - (float)hit.getPos().y;
+	}
+	
+	@Override
+	public boolean isAlive()
+	{
+		return !dataTracker.get(DEAD);
 	}
 	
 	static class MaliciousMoveControl extends MoveControl

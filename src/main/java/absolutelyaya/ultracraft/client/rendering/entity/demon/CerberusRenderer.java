@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.client.rendering.entity.demon;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.client.rendering.entity.feature.gecko.EnragedCerebusLayer;
 import absolutelyaya.ultracraft.entity.demon.CerberusEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -14,6 +15,7 @@ public class CerberusRenderer extends GeoEntityRenderer<CerberusEntity>
 	public CerberusRenderer(EntityRendererFactory.Context ctx)
 	{
 		super(ctx, new CerberusModel());
+		addRenderLayer(new EnragedCerebusLayer(this));
 	}
 	
 	@Override

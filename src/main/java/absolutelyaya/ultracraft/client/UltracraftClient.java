@@ -6,6 +6,8 @@ import absolutelyaya.ultracraft.client.rendering.block.entity.PedestalBlockEntit
 import absolutelyaya.ultracraft.client.rendering.entity.demon.CerberusRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceModel;
 import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceRenderer;
+import absolutelyaya.ultracraft.client.rendering.entity.feature.EnragedFeature;
+import absolutelyaya.ultracraft.client.rendering.entity.feature.EnragedModel;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.WingsModel;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.SchismRenderer;
@@ -35,6 +37,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
@@ -50,6 +53,7 @@ public class UltracraftClient implements ClientModInitializer
 {
 	public static final EntityModelLayer WINGS_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "wings"), "main");
 	public static final EntityModelLayer MALICIOUS_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "malicious"), "main");
+	public static final EntityModelLayer ENRAGE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "enraged"), "main");
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	public static boolean REPLACE_MENU_MUSIC = true;
 	static boolean FreezeOption = true;
@@ -82,6 +86,7 @@ public class UltracraftClient implements ClientModInitializer
 		//Entity model layers
 		EntityModelLayerRegistry.registerModelLayer(WINGS_LAYER, WingsModel::getTexturedModelData);
 		EntityModelLayerRegistry.registerModelLayer(MALICIOUS_LAYER, MaliciousFaceModel::getTexturedModelData);
+		EntityModelLayerRegistry.registerModelLayer(ENRAGE_LAYER, EnragedModel::getTexturedModelData);
 		
 		BlockEntityRendererFactories.register(BlockEntityRegistry.PEDESTAL, PedestalBlockEntityRenderer::new);
 		
@@ -107,6 +112,12 @@ public class UltracraftClient implements ClientModInitializer
 			if (entity instanceof PlayerEntity)
 				MinecraftClient.getInstance().getSoundManager().play(new MovingSlideSoundInstance((PlayerEntity)entity));
 		});
+		
+		LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
+				(type, renderer, helper, context) -> {
+					if(type.equals(EntityRegistry.MALICIOUS_FACE))
+						helper.register(new EnragedFeature<>(context.getModelLoader()));
+				});
 		
 		ClientPacketRegistry.registerS2C();
 		GeckoLibNetwork.registerClientReceiverPackets();
