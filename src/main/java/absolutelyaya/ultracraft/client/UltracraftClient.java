@@ -12,6 +12,8 @@ import absolutelyaya.ultracraft.client.rendering.entity.feature.WingsModel;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.SchismRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.StrayRenderer;
+import absolutelyaya.ultracraft.client.rendering.entity.other.ShockwaveModel;
+import absolutelyaya.ultracraft.client.rendering.entity.other.ShockwaveRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.CerberusBallRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.HellBulletRenderer;
 import absolutelyaya.ultracraft.client.sound.MovingSlideSoundInstance;
@@ -54,6 +56,7 @@ public class UltracraftClient implements ClientModInitializer
 	public static final EntityModelLayer WINGS_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "wings"), "main");
 	public static final EntityModelLayer MALICIOUS_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "malicious"), "main");
 	public static final EntityModelLayer ENRAGE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "enraged"), "main");
+	public static final EntityModelLayer SHOCKWAVE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "shockwave"), "main");
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	public static boolean REPLACE_MENU_MUSIC = true;
 	static boolean FreezeOption = true;
@@ -74,6 +77,7 @@ public class UltracraftClient implements ClientModInitializer
 		EntityRendererRegistry.register(EntityRegistry.CERBERUS, CerberusRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.HELL_BULLET, HellBulletRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.CERBERUS_BALL, CerberusBallRenderer::new);
+		EntityRendererRegistry.register(EntityRegistry.SHOCKWAVE, ShockwaveRenderer::new);
 		//Particles
 		ParticleFactoryRegistry particleRegistry = ParticleFactoryRegistry.getInstance();
 		particleRegistry.register(ParticleRegistry.MALICIOUS_CHARGE, MaliciousChargeParticle.MaliciousChargeParticleFactory::new);
@@ -87,6 +91,7 @@ public class UltracraftClient implements ClientModInitializer
 		EntityModelLayerRegistry.registerModelLayer(WINGS_LAYER, WingsModel::getTexturedModelData);
 		EntityModelLayerRegistry.registerModelLayer(MALICIOUS_LAYER, MaliciousFaceModel::getTexturedModelData);
 		EntityModelLayerRegistry.registerModelLayer(ENRAGE_LAYER, EnragedModel::getTexturedModelData);
+		EntityModelLayerRegistry.registerModelLayer(SHOCKWAVE_LAYER, ShockwaveModel::getTexturedModelData);
 		
 		BlockEntityRendererFactories.register(BlockEntityRegistry.PEDESTAL, PedestalBlockEntityRenderer::new);
 		

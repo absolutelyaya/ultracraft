@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.demon.CerberusEntity;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.entity.husk.FilthEntity;
@@ -41,6 +42,10 @@ public class EntityRegistry
 			new Identifier(Ultracraft.MOD_ID, "cerberus_ball"),
 			EntityType.Builder.create(CerberusBallEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
 					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().build("cerberus_ball"));
+	
+	public static final EntityType<ShockwaveEntity> SHOCKWAVE = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "shockwave"),
+			EntityType.Builder.create(ShockwaveEntity::new, SpawnGroup.MISC).maxTrackingRange(5).build("shockwave"));
 	
 	@SuppressWarnings("ConstantConditions")
 	public static void register()

@@ -4,8 +4,10 @@ import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.MeleeParriable;
+import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import absolutelyaya.ultracraft.particle.goop.GoopStringParticleEffect;
+import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -27,6 +29,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.TypeFilter;
@@ -273,12 +276,17 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 	{
 		if(dataTracker.get(DEAD) && onGround)
 		{
-			List<Entity> entities = world.getOtherEntities(this, getBoundingBox().expand(5f),
-					e -> isLiving() && !(e instanceof MaliciousFaceEntity));
-			for (Entity e : entities)
-				e.addVelocity(0f, e.verticalCollision ? 1.5f : 0f, 0f);
+			if(!world.isClient)
+			{
+				ShockwaveEntity shockwave = EntityRegistry.SHOCKWAVE.spawn((ServerWorld)world, getBlockPos(), SpawnReason.EVENT);
+				if(shockwave != null)
+				{
+					shockwave.setIgnored(getClass());
+					shockwave.setDamage(0f);
+				}
+			}
 			//TODO: does't throw players???
-			entities = world.getOtherEntities(this, getBoundingBox(), Entity::isLiving);
+			List<Entity> entities = world.getOtherEntities(this, getBoundingBox(), Entity::isLiving);
 			for (Entity e : entities)
 				e.kill(); //TODO: add mauriced damage type
 			dataTracker.set(LANDED, true);

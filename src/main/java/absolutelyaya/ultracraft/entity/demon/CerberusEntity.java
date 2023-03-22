@@ -3,9 +3,12 @@ package absolutelyaya.ultracraft.entity.demon;
 import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.IAnimatedEnemy;
 import absolutelyaya.ultracraft.entity.goal.TimedAttackGoal;
+import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.projectile.CerberusBallEntity;
+import absolutelyaya.ultracraft.registry.EntityRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -16,6 +19,8 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.Vec3d;
@@ -53,7 +58,6 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		stepHeight = 1f;
 	}
 	
-	//TODO: Stomp Attack
 	//TODO: Cracked and Enraged Textures
 	//TODO: Add Ball to Model
 	//TODO: Sitting Cerberus Block & Transition Animation to Entity
@@ -221,6 +225,21 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		super.tickMovement();
 		if(isHeadFixed())
 			bodyYaw = headYaw;
+	}
+	
+	@Override
+	public void writeCustomDataToNbt(NbtCompound nbt)
+	{
+		super.writeCustomDataToNbt(nbt);
+		nbt.putBoolean("enraged", isEnraged());
+	}
+	
+	@Override
+	public void readCustomDataFromNbt(NbtCompound nbt)
+	{
+		super.readCustomDataFromNbt(nbt);
+		if(nbt.contains("enraged"))
+			dataTracker.set(ENRAGED, nbt.getBoolean("enraged"));
 	}
 	
 	@Override
@@ -396,7 +415,16 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		{
 			super.process();
 			mob.getLookControl().lookAt(target.getX(), target.getEyeY(), target.getZ());
-			//TODO: add Shockwave Entity + Renderer
+			
+			if(!mob.world.isClient && timer == 15)
+			{
+				ShockwaveEntity shockwave = EntityRegistry.SHOCKWAVE.spawn((ServerWorld)mob.world, mob.getBlockPos(), SpawnReason.EVENT);
+				if(shockwave != null)
+				{
+					shockwave.setAffectOnly(PlayerEntity.class);
+					shockwave.setDamage(5f);
+				}
+			}
 		}
 	}
 }
