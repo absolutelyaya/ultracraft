@@ -139,7 +139,7 @@ public class UltraHudRenderer extends DrawableHelper
 		}
 		else
 			client.getItemRenderer().renderItem(stack, ModelTransformation.Mode.GUI,
-					15728880, 0, matrices, immediate, 1);
+					15728880, OverlayTexture.DEFAULT_UV, matrices, immediate, 1);
 	}
 	
 	void drawText(MatrixStack matrices, String text, float x, float y, float alpha)
