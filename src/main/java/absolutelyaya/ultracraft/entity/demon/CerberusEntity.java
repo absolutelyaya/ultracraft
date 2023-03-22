@@ -58,7 +58,6 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		stepHeight = 1f;
 	}
 	
-	//TODO: Cracked and Enraged Textures
 	//TODO: Add Ball to Model
 	//TODO: Sitting Cerberus Block & Transition Animation to Entity
 	
@@ -242,6 +241,11 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 			dataTracker.set(ENRAGED, nbt.getBoolean("enraged"));
 	}
 	
+	public boolean isCracked()
+	{
+		return getHealth() < 25f; //under half health
+	}
+	
 	@Override
 	public void onDeath(DamageSource damageSource)
 	{
@@ -423,6 +427,7 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 				{
 					shockwave.setAffectOnly(PlayerEntity.class);
 					shockwave.setDamage(5f);
+					shockwave.setOwner(mob);
 				}
 			}
 		}

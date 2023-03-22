@@ -21,7 +21,7 @@ public class CerberusRenderer extends GeoEntityRenderer<CerberusEntity>
 	@Override
 	public Identifier getTexture(CerberusEntity object)
 	{
-		return new Identifier(Ultracraft.MOD_ID, "textures/entity/cerberus.png");
+		return new Identifier(Ultracraft.MOD_ID, object.isCracked() ? "textures/entity/cerberus_cracked.png" : "textures/entity/cerberus.png");
 	}
 	
 	@Override

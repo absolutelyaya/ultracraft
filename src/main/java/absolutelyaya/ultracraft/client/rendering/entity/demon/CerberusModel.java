@@ -21,7 +21,7 @@ public class CerberusModel extends GeoModel<CerberusEntity>
 	@Override
 	public Identifier getTextureResource(CerberusEntity object)
 	{
-		return new Identifier(Ultracraft.MOD_ID, "textures/entity/cerberus.png");
+		return new Identifier(Ultracraft.MOD_ID, object.isCracked() ? "textures/entity/cerberus_cracked.png" : "textures/entity/cerberus.png");
 	}
 	
 	@Override

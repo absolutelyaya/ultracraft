@@ -7,6 +7,7 @@ import absolutelyaya.ultracraft.accessor.MeleeParriable;
 import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import absolutelyaya.ultracraft.particle.goop.GoopStringParticleEffect;
+import absolutelyaya.ultracraft.registry.DamageSources;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import net.minecraft.block.BlockState;
@@ -285,10 +286,9 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 					shockwave.setDamage(0f);
 				}
 			}
-			//TODO: does't throw players???
 			List<Entity> entities = world.getOtherEntities(this, getBoundingBox(), Entity::isLiving);
 			for (Entity e : entities)
-				e.kill(); //TODO: add mauriced damage type
+				e.damage(DamageSources.MAURICE, 999f);
 			dataTracker.set(LANDED, true);
 			setPosition(getPos().subtract(0f, 0.5f, 0f));
 		}

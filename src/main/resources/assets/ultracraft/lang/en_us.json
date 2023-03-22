@@ -20,6 +20,11 @@
   "entity.ultracraft.malicious_face": "Malicious Face",
   "entity.ultracraft.cerberus": "Cerberus",
 
+  "death.attack.shockwave": "%1$s got crushed by a shockwave",
+  "death.attack.shockwave.player": "%1$s got crushed by a shockwave from %2$s",
+  "death.attack.maurice": "%1$s was mauriced",
+  "death.attack.maurice.player": "%1$s was mauriced by %2$s",
+
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 
   "message.ultracraft.hi-vel-forced": "This Server is forcing §bHigh Velocity Mode§r to be %s",

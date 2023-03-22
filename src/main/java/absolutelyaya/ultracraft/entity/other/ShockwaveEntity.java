@@ -1,7 +1,7 @@
 package absolutelyaya.ultracraft.entity.other;
 
+import absolutelyaya.ultracraft.registry.DamageSources;
 import net.minecraft.entity.*;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -17,6 +17,7 @@ public class ShockwaveEntity extends Entity
 	float damage = 2f, velocity = 1f;
 	Class<?> ignored;
 	Class<?> affectOnly;
+	Entity owner;
 	
 	public ShockwaveEntity(EntityType<?> entityType, World world)
 	{
@@ -55,19 +56,18 @@ public class ShockwaveEntity extends Entity
 		if (age > duration)
 			remove(RemovalReason.DISCARDED);
 		setRadius(getRadius() + 0.25f);
-		//setRadius(3f);
 		
 		if(affectOnly != null)
 		{
 			world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox(), this::shouldDamage).forEach(e -> {
-				e.damage(DamageSource.GENERIC, damage);
+				e.damage(DamageSources.getShockwave(owner), damage);
 				e.setVelocity(0f, velocity, 0f);
 			});
 		}
 		else
 		{
 			world.getOtherEntities(this, getBoundingBox(), this::shouldDamage).forEach(e -> {
-				e.damage(DamageSource.GENERIC, damage);
+				e.damage(DamageSources.getShockwave(owner), damage);
 				e.setVelocity(0f, velocity, 0f);
 			});
 		}
@@ -113,6 +113,11 @@ public class ShockwaveEntity extends Entity
 	public void setThrowVelocity(float velocity)
 	{
 		this.velocity = velocity;
+	}
+	
+	public void setOwner(Entity entity)
+	{
+		owner = entity;
 	}
 	
 	@Override
