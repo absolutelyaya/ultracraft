@@ -58,9 +58,6 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		stepHeight = 1f;
 	}
 	
-	//TODO: Add Ball to Model
-	//TODO: Sitting Cerberus Block & Transition Animation to Entity
-	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
 		return HostileEntity.createMobAttributes()
@@ -210,6 +207,12 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		world.spawnEntity(bullet);
 	}
 	
+	public void setRotation(float rot)
+	{
+		setBodyYaw(rot);
+		setHeadYaw(rot);
+	}
+	
 	@Override
 	public void tick()
 	{
@@ -252,6 +255,24 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		super.onDeath(damageSource);
 		world.getEntitiesByType(TypeFilter.instanceOf(CerberusEntity.class), getBoundingBox().expand(64),
 						e -> !e.isEnraged() && e != this).forEach(CerberusEntity::enrage);
+	}
+	
+	@Override
+	public void setVelocity(Vec3d velocity)
+	{
+	
+	}
+	
+	@Override
+	public void setVelocity(double x, double y, double z)
+	{
+	
+	}
+	
+	@Override
+	public void setVelocityClient(double x, double y, double z)
+	{
+	
 	}
 	
 	static class ApproachTargetGoal extends Goal
@@ -388,6 +409,7 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		public StepOnMeUwUGoal(CerberusEntity cerb)
 		{
 			super(cerb, ANIMATION_IDLE, ANIMATION_STOMP, 26);
+			baseCooldown = 50;
 		}
 		
 		@Override

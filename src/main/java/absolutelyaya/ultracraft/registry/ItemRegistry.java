@@ -53,6 +53,7 @@ public class ItemRegistry
 			content.add(CERBERUS_BALL);
 			content.add(BlockRegistry.ELEVATOR.asItem());
 			content.add(BlockRegistry.PEDESTAL.asItem());
+			content.add(BlockRegistry.CERBERUS.asItem());
 			content.add(PIERCE_REVOLVER);
 			content.add(FILTH_SPAWN_EGG);
 			content.add(STRAY_SPAWN_EGG);

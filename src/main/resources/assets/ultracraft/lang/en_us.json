@@ -13,6 +13,8 @@
 
   "block.ultracraft.elevator": "Elevator Casing",
   "block.ultracraft.pedestal": "Pedestal",
+  "block.ultracraft.cerberus_block": "Cerberus",
+  "block.ultracraft.cerberus_block.lore": "Power using Redstone to wake up the Cerberus",
 
   "entity.ultracraft.filth": "Filth",
   "entity.ultracraft.stray": "Stray",
