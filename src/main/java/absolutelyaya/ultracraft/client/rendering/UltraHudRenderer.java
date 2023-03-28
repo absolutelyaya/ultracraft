@@ -88,7 +88,6 @@ public class UltraHudRenderer extends DrawableHelper
 					new Vec2f(80f, 64f), new Vector4f(49f, 34f, 15f, 14f), 0.75f);
 		}
 		
-		//TODO: figure out why some items render red ???
 		//UltraHotbar
 		matrices.push();
 		matrices.scale(30, 30, -30);
@@ -102,16 +101,18 @@ public class UltraHudRenderer extends DrawableHelper
 		matrices.multiply(new Quaternionf(new AxisAngle4f(-0.18f, 0f, 1f, 0f)));
 		matrices.translate(1.25, -0.25, 0);
 		
+		ItemStack mainHand = player.getMainHandStack();
 		ItemStack stack = player.getInventory().getStack((player.getInventory().selectedSlot + 1) % 9);
-		drawItem(matrices, textureMatrix, client, immediate, stack, false);
+		if(!(mainHand.getItem() instanceof AbstractWeaponItem))
+			drawItem(matrices, textureMatrix, client, immediate, stack, false);
 		int lastSlot = (player.getInventory().selectedSlot - 1) % 9;
 		stack = player.getInventory().getStack(lastSlot == -1 ? 8 : lastSlot);
 		matrices.translate(-2.5, 0, 0);
 		matrices.multiply(new Quaternionf(new AxisAngle4f(0.18f, 0f, 1f, 0f)));
-		drawItem(matrices, textureMatrix, client, immediate, stack, false);
+		if(!(mainHand.getItem() instanceof AbstractWeaponItem))
+			drawItem(matrices, textureMatrix, client, immediate, stack, false);
 		matrices.pop();
-		stack = player.getMainHandStack();
-		drawItem(matrices, textureMatrix, client, immediate, stack, true);
+		drawItem(matrices, textureMatrix, client, immediate, mainHand, true);
 		matrices.pop();
 		matrices.pop();
 		
@@ -119,7 +120,7 @@ public class UltraHudRenderer extends DrawableHelper
 		if(hdt > 0)
 		{
 			matrices.translate(5, 0, 150);
-			drawText(matrices, ((WingedPlayerEntity)player).isWingsVisible() ? "High Velocity Wings activated!" : "High Velocity Wings deactivated!",
+			drawText(matrices, ((WingedPlayerEntity)player).isWingsVisible() ? "message.ultracraft.hi-vel.enable" : "message.ultracraft.hi-vel.disable",
 					-80, -10, Math.min(hdt / 20f, 1f));
 		}
 		matrices.pop();
@@ -147,10 +148,10 @@ public class UltraHudRenderer extends DrawableHelper
 		MinecraftClient client = MinecraftClient.getInstance();
 		VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
 		Matrix4f matrix = matrices.peek().getPositionMatrix();
-		client.textRenderer.draw(Text.of(text), x, y, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
+		client.textRenderer.draw(Text.translatable(text), x, y, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
 				matrix, immediate, false, Color.ofRGBA(0f, 0f, 0f, 0.5f * alpha).getColor(), 15728880);
 		matrix.translate(0f, 0f, -0.1f);
-		client.textRenderer.draw(Text.of(text), x, y, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
+		client.textRenderer.draw(Text.translatable(text), x, y, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
 				matrix, immediate, false, 0, 15728880);
 	}
 	

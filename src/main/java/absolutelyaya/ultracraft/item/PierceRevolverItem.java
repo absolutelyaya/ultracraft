@@ -9,13 +9,11 @@ import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.joml.Vector2i;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -35,9 +33,12 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 	protected int approxUseTime = -1;
-	RawAnimation AnimationCharge = RawAnimation.begin().thenLoop("charged");
-	RawAnimation AnimationDischarge = RawAnimation.begin().then("discharge", Animation.LoopType.DEFAULT);
-	RawAnimation AnimationShot = RawAnimation.begin().then("shot", Animation.LoopType.DEFAULT);
+	RawAnimation AnimationStop = RawAnimation.begin().then("nothing", Animation.LoopType.LOOP);
+	RawAnimation AnimationCharge = RawAnimation.begin().thenPlay("charging").thenLoop("charged");
+	RawAnimation AnimationDischarge = RawAnimation.begin().thenPlay("discharge");
+	RawAnimation AnimationShot = RawAnimation.begin().thenPlay("shot");
+	RawAnimation AnimationShot2 = RawAnimation.begin().thenPlay("shot2");
+	boolean b;
 	
 	public PierceRevolverItem(Settings settings)
 	{
@@ -87,9 +88,10 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
 		if(!world.isClient && cdm.isUsable(this, 0))
 		{
-			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), controllerName, "shot");
+			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), controllerName, b ? "shot" : "shot2");
 			ServerHitscanHandler.performHitscan(user, (byte)0, 4);
 			cdm.setCooldown(this, 10, GunCooldownManager.PRIMARY);
+			b = !b;
 		}
 	}
 	
@@ -130,14 +132,12 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 				player.getItemCooldownManager().set(this, 50);
 			}
 			if(!world.isClient)
-			{
 				ServerHitscanHandler.performHitscan(user, (byte)1, 10, 3);
-			}
 		}
 		else if(!world.isClient && user instanceof PlayerEntity)
 		{
 			approxUseTime = -1;
-			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "charge");
+			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "stop");
 		}
 		approxUseTime = -1;
 	}
@@ -154,38 +154,15 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 		return 15;
 	}
 	
-	public int getApproxUseTime()
-	{
-		return approxUseTime;
-	}
-	
-	private <P extends Item & GeoItem> PlayState predicate(AnimationState<P> event)
-	{
-		AnimationController<P> controller = event.getController();
-		AnimationProcessor.QueuedAnimation anim = controller.getCurrentAnimation();
-		if (anim != null && anim.animation().name().equals("charged"))
-		{
-			float rotSpeed = 1f - (getMaxUseTime(null) - getApproxUseTime()) / (float)(getMaxUseTime(null));
-			event.getController().setAnimationSpeed(MathHelper.clamp(rotSpeed, 0f, 1f));
-		}
-		else
-			controller.setAnimationSpeed(1f);
-		
-		if(controller.isPlayingTriggeredAnimation())
-		{
-			System.out.println("ayaya");
-			controller.stop();
-		}
-		return PlayState.CONTINUE;
-	}
-	
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
 	{
-		controllerRegistrar.add(new AnimationController<>(this, controllerName, 1, this::predicate)
+		controllerRegistrar.add(new AnimationController<>(this, controllerName, 1, state -> PlayState.STOP)
 										.triggerableAnim("charging", AnimationCharge)
 										.triggerableAnim("discharge", AnimationDischarge)
-										.triggerableAnim("shot", AnimationShot));
+										.triggerableAnim("shot", AnimationShot)
+										.triggerableAnim("shot2", AnimationShot2) //this animation purely exists to cancel shot animations.
+										.triggerableAnim("stop", AnimationStop));
 	}
 	
 	@Override
@@ -215,7 +192,4 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 	{
 		return renderProvider;
 	}
-	
-	///TODO: fix animations
-	///TODO: fix lighting
 }
