@@ -18,8 +18,6 @@ public class Ultracraft implements ModInitializer
     public static final String MOD_ID = "ultracraft";
     public static final Logger LOGGER = LogUtils.getLogger();
     static int freezeTicks;
-    public static Option FreezeOption = Option.FREE;
-    public static Option HiVelOption = Option.FREE;
     
     @Override
     public void onInitialize()
@@ -32,6 +30,7 @@ public class Ultracraft implements ModInitializer
         PacketRegistry.registerC2S();
         BlockTagRegistry.register();
         SoundRegistry.register();
+        GameruleRegistry.register();
     
         ServerTickEvents.END_SERVER_TICK.register(minecraft -> {
             tickFreeze();
@@ -57,14 +56,13 @@ public class Ultracraft implements ModInitializer
     
     public static void freeze(ServerWorld world, int ticks)
     {
-        if(world != null)
+        if(world.getGameRules().get(GameruleRegistry.TIME_STOP).get().equals(GameruleRegistry.Option.FORCE_OFF))
+            return;
+        for (ServerPlayerEntity player : world.getPlayers())
         {
-            for (ServerPlayerEntity player : world.getPlayers())
-            {
-                PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-                buf.writeInt(ticks);
-                ServerPlayNetworking.send(player, PacketRegistry.FREEZE_PACKET_ID, buf);
-            }
+            PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+            buf.writeInt(ticks);
+            ServerPlayNetworking.send(player, PacketRegistry.FREEZE_PACKET_ID, buf);
         }
         freezeTicks += ticks;
         LOGGER.info("Stopping time for " + ticks + " ticks. (Intentional Visual Effect! Do not report!)");
@@ -74,12 +72,5 @@ public class Ultracraft implements ModInitializer
     {
         if(freezeTicks > 0)
             freezeTicks--;
-    }
-    
-    public enum Option
-    {
-        FORCE_ON,
-        FORCE_OFF,
-        FREE
     }
 }

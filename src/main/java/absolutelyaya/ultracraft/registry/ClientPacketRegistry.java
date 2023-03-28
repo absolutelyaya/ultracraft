@@ -19,18 +19,14 @@ public class ClientPacketRegistry
 	public static void registerS2C()
 	{
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.FREEZE_PACKET_ID, ((client, handler, buf, sender) -> {
-			Ultracraft.freeze(null, buf.readInt());
+			if(UltracraftClient.isFreezeEnabled())
+				Ultracraft.freeze(null, buf.readInt());
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.HITSCAN_PACKET_ID, ((client, handler, buf, sender) -> {
 			UltracraftClient.HITSCAN_HANDLER.addEntry(
 					new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble()),
 					new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble()),
 					buf.readByte());
-		}));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SERVER_OPTIONS_PACKET_ID, ((client, handler, buf, sender) -> {
-			Ultracraft.FreezeOption = buf.readEnumConstant(Ultracraft.Option.class);
-			Ultracraft.HiVelOption = buf.readEnumConstant(Ultracraft.Option.class);
-			Ultracraft.LOGGER.info("Synced Server Options!");
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.DASH_S2C_PACKET_ID, (client, handler, buf, sender) -> {
 			if(client.player == null)

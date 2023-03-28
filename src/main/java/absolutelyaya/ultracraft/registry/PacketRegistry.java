@@ -14,6 +14,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -35,7 +36,6 @@ public class PacketRegistry
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
-	public static final Identifier SERVER_OPTIONS_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "join_server");
 	public static final Identifier DASH_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_s2c");
 	public static final Identifier RESPAWN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "respawn");
 	public static final Identifier BLEED_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "bleed");
@@ -57,10 +57,25 @@ public class PacketRegistry
 					target.setFireTicks(100);
 				if(target instanceof ProjectileEntity p && ((ProjectileEntityAccessor)p).isParriable())
 				{
-					Ultracraft.freeze((ServerWorld) player.world, 10);
-					world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
-					ProjectileEntityAccessor pa = (ProjectileEntityAccessor)p;
-					pa.setParried(true, player);
+					if(player.equals(p.getOwner()) && p instanceof ThrownItemEntity)
+					{
+						if(player.world.getGameRules().getBoolean(GameruleRegistry.ALLOW_PROJ_BOOST_THROWABLE))
+						{
+							Ultracraft.freeze((ServerWorld) player.world, 5);
+							world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
+							ProjectileEntityAccessor pa = (ProjectileEntityAccessor)p;
+							pa.setParried(true, player);
+						}
+						else
+							return;
+					}
+					else
+					{
+						Ultracraft.freeze((ServerWorld) player.world, 10);
+						world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
+						ProjectileEntityAccessor pa = (ProjectileEntityAccessor)p;
+						pa.setParried(true, player);
+					}
 				}
 				else if (target instanceof MeleeParriable mp && (!(mp instanceof MobEntity) || ((MobEntity)mp).isAttacking()))
 				{

@@ -46,6 +46,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.World;
 import software.bernie.geckolib.network.GeckoLibNetwork;
 
 @Environment(EnvType.CLIENT)
@@ -57,7 +58,6 @@ public class UltracraftClient implements ClientModInitializer
 	public static final EntityModelLayer SHOCKWAVE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "shockwave"), "main");
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	public static boolean REPLACE_MENU_MUSIC = true;
-	static boolean FreezeOption = true;
 	static boolean HiVelMode = false;
 	
 	static UltraHudRenderer hudRenderer;
@@ -109,6 +109,18 @@ public class UltracraftClient implements ClientModInitializer
 			buf.writeBoolean(HiVelMode);
 			ClientPlayNetworking.send(PacketRegistry.SET_HIGH_VELOCITY_C2S_PACKET_ID, buf);
 			
+			if(client.world != null && !client.world.getServer().isRemote() && AutoConfig.getConfigHolder(Ultraconfig.class).get().serverJoinInfo)
+			{
+				GameruleRegistry.Option hivel = client.world.getGameRules().get(GameruleRegistry.HI_VEL_MODE).get();
+				GameruleRegistry.Option freeze = client.world.getGameRules().get(GameruleRegistry.TIME_STOP).get();
+				if(!hivel.equals(GameruleRegistry.Option.FREE))
+					client.player.sendMessage(Text.translatable("message.ultracraft.hi-vel-forced",
+							hivel.equals(GameruleRegistry.Option.FORCE_ON) ? Text.translatable("options.on") : Text.translatable("options.off")));
+				client.player.sendMessage(Text.translatable("message.ultracraft.freeze-forced",
+						freeze.equals(GameruleRegistry.Option.FORCE_ON) ? Text.translatable("options.on") : Text.translatable("options.off")));
+				client.player.sendMessage(Text.translatable("message.ultracraft.join-info"));
+			}
+			
 			client.getSoundManager().play(new MovingWindSoundInstance(client.player));
 		});
 		
@@ -134,28 +146,41 @@ public class UltracraftClient implements ClientModInitializer
 	//if no Server override, return client setting
 	public static boolean isFreezeEnabled()
 	{
-		if(Ultracraft.FreezeOption.equals(Ultracraft.Option.FREE))
-			return FreezeOption;
+		World world = MinecraftClient.getInstance().world;
+		if(world == null || !world.getServer().isRemote())
+			return true;
+		GameruleRegistry.Option option = world.getGameRules().get(GameruleRegistry.TIME_STOP).get();
+		if(option.equals(GameruleRegistry.Option.FREE))
+			return AutoConfig.getConfigHolder(Ultraconfig.class).get().freezeVFX;
 		else
-			return Ultracraft.FreezeOption.equals(Ultracraft.Option.FORCE_ON);
+			return option.equals(GameruleRegistry.Option.FORCE_ON);
 	}
 	
 	public static boolean isHiVelEnabled()
 	{
-		if(Ultracraft.HiVelOption.equals(Ultracraft.Option.FREE))
+		World world = MinecraftClient.getInstance().world;
+		if(world == null)
+			return true;
+		GameruleRegistry.Option option = world.getGameRules().get(GameruleRegistry.HI_VEL_MODE).get();
+		if(option.equals(GameruleRegistry.Option.FREE))
 			return HiVelMode;
 		else
-			return Ultracraft.HiVelOption.equals(Ultracraft.Option.FORCE_ON);
+			return option.equals(GameruleRegistry.Option.FORCE_ON);
 	}
 	
 	public static void toggleHiVelEnabled()
 	{
-		if(Ultracraft.HiVelOption.equals(Ultracraft.Option.FREE))
+		PlayerEntity player = MinecraftClient.getInstance().player;
+		if(player == null)
+			return;
+		//TODO: The client always thinks the gamerule is set to FREE. fix that lol
+		GameruleRegistry.Option option = player.world.getGameRules().get(GameruleRegistry.HI_VEL_MODE).get();
+		if(option.equals(GameruleRegistry.Option.FREE))
 			HiVelMode = !HiVelMode;
-		else if(MinecraftClient.getInstance().player != null)
-			MinecraftClient.getInstance().player.sendMessage(
+		else
+			player.sendMessage(
 					Text.translatable("message.ultracraft.hi-vel-forced",
-							Ultracraft.HiVelOption.equals(Ultracraft.Option.FORCE_ON) ? "Enabled" : "Disabled"), true);
+									option.equals(GameruleRegistry.Option.FORCE_ON) ? "options.on" : "options.off"), true);
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeUuid(MinecraftClient.getInstance().player.getUuid());
 		buf.writeBoolean(HiVelMode);

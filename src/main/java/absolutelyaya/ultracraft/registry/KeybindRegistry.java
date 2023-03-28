@@ -25,7 +25,6 @@ public class KeybindRegistry
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while(HIGH_VELOCITY_TOGGLE.wasPressed())
 			{
-				//TODO: Visual Indicator for HiVelMode
 				UltracraftClient.toggleHiVelEnabled();
 				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 				buf.writeBoolean(UltracraftClient.isHiVelEnabled());

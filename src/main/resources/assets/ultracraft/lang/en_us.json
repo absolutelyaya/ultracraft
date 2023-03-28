@@ -29,10 +29,12 @@
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 
-  "message.ultracraft.hi-vel-forced": "This Server is forcing §bHigh Velocity Mode§r to be %s",
-  "message.ultracraft.freeze-forced": "This Server is forcing the time-freeze effect to be %s",
+  "message.ultracraft.hi-vel-forced": "[§4Ultracraft§r] This Server is forcing §bHigh Velocity Mode§r to be §6%s$r",
+  "message.ultracraft.freeze-forced": "[§4Ultracraft§r] This Server is forcing the time-freeze effect to be §6%s$r",
+  "message.ultracraft.join-info": "[§4Ultracraft§r] You can disable this message in the mod config.",
   "message.ultracraft.hi-vel.enable": "High Velocity Wings activated!",
   "message.ultracraft.hi-vel.disable": "High Velocity Wings deactivated!",
+  "message.ultracraft.server.freeze-enable-warning": "[§4Ultracraft§r] h-hey, you just enabled the freeze effect! Please be aware that this effect is §4SERVER-WIDE§r, so any time-freeze affects EVERYONE. If you have many players, please consider leaving this turned off.",
 
   "narrator.button.background.vanilla": "Vanilla BG",
   "narrator.button.background.ultracraft": "Ultracraft BG",
@@ -47,5 +49,12 @@
   "text.autoconfig.ultracraft.option.fancyGoop.@Tooltip": "Disable for better performance, enable for better goop!",
 
   "text.autoconfig.ultracraft.option.wrapToEdges": "Wrap to Edges",
-  "text.autoconfig.ultracraft.option.wrapToEdges.@Tooltip": "Whether Goop should wrap to block edges"
+  "text.autoconfig.ultracraft.option.wrapToEdges.@Tooltip": "Whether Goop should wrap to block edges",
+
+  "text.autoconfig.ultracraft.option.serverJoinInfo": "Server Join Info",
+  "text.autoconfig.ultracraft.option.serverJoinInfo.@Tooltip": "Tells you mod-relevant Server settings upon joining a multiplayer game.",
+
+  "text.autoconfig.ultracraft.option.freezeVFX": "Freeze VFX",
+  "text.autoconfig.ultracraft.option.freezeVFX.@Tooltip[0]": "Whether Time should freeze momentarily from certain actions (parrying/projectile-boosting)",
+  "text.autoconfig.ultracraft.option.freezeVFX.@Tooltip[1]": "This Setting is overridden by Servers!"
 }
