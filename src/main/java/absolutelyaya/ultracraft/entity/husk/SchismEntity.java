@@ -29,6 +29,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Interruptable
 {
 	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(SchismEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
 	private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("walk");
 	private static final RawAnimation ATTACK_VERTICAL_ANIM = RawAnimation.begin().thenLoop("attackVert");
 	private static final RawAnimation ATTACK_HORIZONTAL_ANIM = RawAnimation.begin().thenLoop("attackHor");
@@ -76,17 +77,9 @@ public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Inter
 		byte anim = dataTracker.get(ANIMATION);
 		AnimationController<?> controller = event.getController();
 		
-		controller.setAnimationSpeed(1f);
 		switch (anim)
 		{
-			case ANIMATION_IDLE ->
-			{
-				controller.setAnimationSpeed(getVelocity().horizontalLengthSquared() > 0.03 ? 2f : 1f);
-				if(event.isMoving())
-					controller.setAnimation(WALK_ANIM);
-				else
-					return PlayState.STOP;
-			}
+			case ANIMATION_IDLE -> controller.setAnimation(event.isMoving() ? WALK_ANIM : IDLE_ANIM);
 			case ANIMATION_ATTACK_VERTICAL -> controller.setAnimation(ATTACK_VERTICAL_ANIM);
 			case ANIMATION_ATTACK_HORIZONTAL -> controller.setAnimation(ATTACK_HORIZONTAL_ANIM);
 		}
