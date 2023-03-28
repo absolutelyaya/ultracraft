@@ -13,6 +13,7 @@ import absolutelyaya.ultracraft.client.rendering.entity.feature.WingsModel;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.SchismRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.StrayRenderer;
+import absolutelyaya.ultracraft.client.rendering.entity.machine.SwordmachineRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.other.ShockwaveModel;
 import absolutelyaya.ultracraft.client.rendering.entity.other.ShockwaveRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.CerberusBallRenderer;
@@ -73,6 +74,7 @@ public class UltracraftClient implements ClientModInitializer
 		EntityRendererRegistry.register(EntityRegistry.SCHISM, SchismRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.MALICIOUS_FACE, MaliciousFaceRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.CERBERUS, CerberusRenderer::new);
+		EntityRendererRegistry.register(EntityRegistry.SWORDMACHINE, SwordmachineRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.HELL_BULLET, HellBulletRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.CERBERUS_BALL, CerberusBallRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.SHOCKWAVE, ShockwaveRenderer::new);
@@ -109,7 +111,7 @@ public class UltracraftClient implements ClientModInitializer
 			buf.writeBoolean(HiVelMode);
 			ClientPlayNetworking.send(PacketRegistry.SET_HIGH_VELOCITY_C2S_PACKET_ID, buf);
 			
-			if(client.world != null && !client.world.getServer().isRemote() && AutoConfig.getConfigHolder(Ultraconfig.class).get().serverJoinInfo)
+			if(client.world != null && client.world.getServer() != null && AutoConfig.getConfigHolder(Ultraconfig.class).get().serverJoinInfo)
 			{
 				GameruleRegistry.Option hivel = client.world.getGameRules().get(GameruleRegistry.HI_VEL_MODE).get();
 				GameruleRegistry.Option freeze = client.world.getGameRules().get(GameruleRegistry.TIME_STOP).get();
@@ -147,7 +149,7 @@ public class UltracraftClient implements ClientModInitializer
 	public static boolean isFreezeEnabled()
 	{
 		World world = MinecraftClient.getInstance().world;
-		if(world == null || !world.getServer().isRemote())
+		if(world == null || world.getServer() != null)
 			return true;
 		GameruleRegistry.Option option = world.getGameRules().get(GameruleRegistry.TIME_STOP).get();
 		if(option.equals(GameruleRegistry.Option.FREE))
