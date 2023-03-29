@@ -10,8 +10,12 @@ import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -32,6 +36,7 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeP
 	private static final RawAnimation ATTACK_ANIM = RawAnimation.begin().thenLoop("attack");
 	private static final RawAnimation THROWBACK_ANIM = RawAnimation.begin().thenLoop("throwback");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+	protected static final TrackedData<Boolean> RARE = DataTracker.registerData(FilthEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	private static final byte ANIMATION_IDLE = 0;
 	private static final byte ANIMATION_ATTACK = 1;
 	private static final byte ANIMATION_THROWBACK = 2;
@@ -42,6 +47,13 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeP
 	{
 		super(entityType, world);
 		this.setPathfindingPenalty(PathNodeType.DANGER_FIRE, -1.0f);
+	}
+	
+	@Override
+	protected void initDataTracker()
+	{
+		super.initDataTracker();
+		dataTracker.startTracking(RARE, random.nextInt(5000) == 0);
 	}
 	
 	@Override
@@ -151,6 +163,27 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeP
 	public AnimatableInstanceCache getAnimatableInstanceCache()
 	{
 		return cache;
+	}
+	
+	public boolean isRare()
+	{
+		return dataTracker.get(RARE);
+	}
+	
+	@Override
+	public void writeCustomDataToNbt(NbtCompound nbt)
+	{
+		super.writeCustomDataToNbt(nbt);
+		if(isRare())
+			nbt.putBoolean("oddValue", true);
+	}
+	
+	@Override
+	public void readCustomDataFromNbt(NbtCompound nbt)
+	{
+		super.readCustomDataFromNbt(nbt);
+		if(nbt.contains("oddValue"))
+			dataTracker.set(RARE, nbt.getBoolean("oddValue"));
 	}
 	
 	static class FilthLungeAttackGoal extends Goal

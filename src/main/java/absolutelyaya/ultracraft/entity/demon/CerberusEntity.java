@@ -67,7 +67,8 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 					   .add(EntityAttributes.GENERIC_ARMOR, 6.0d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 6.0d)
-					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d);
+					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d)
+					   .add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 1.0d);
 	}
 	
 	@Override

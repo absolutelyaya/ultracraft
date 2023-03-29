@@ -29,7 +29,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 {
 	@Shadow public abstract boolean isPushable();
 	
-	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies
+	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
 	int punchTicks, punchDuration = 6;
 	boolean punching;
 	float punchProgress, prevPunchProgress;
@@ -72,6 +72,8 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			player.heal(amount / 1.5f);
 			player.getHungerManager().add((int)(amount / 1.5f), 5f);
 		}
+		if(source.getName().equals("gun"))
+			timeUntilRegen = 9;
 	}
 	
 	void punchTick()

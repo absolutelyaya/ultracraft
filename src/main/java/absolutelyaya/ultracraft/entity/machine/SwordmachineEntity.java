@@ -38,6 +38,9 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 		((LivingEntityAccessor)this).SetTakePunchKnockbackSupplier(() -> false); //disable knockback
 	}
 	
+	//TODO: attack filth when named something specific
+	//TODO: add attacks lol
+	
 	@Override
 	protected void initDataTracker()
 	{
@@ -54,7 +57,8 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 					   .add(EntityAttributes.GENERIC_ARMOR, 6.0d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 6.0d)
-					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d);
+					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d)
+					   .add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 1.0d);
 	}
 	
 	@Override

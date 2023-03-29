@@ -8,8 +8,20 @@ public class DamageSources
 {
 	public static final DamageSource MAURICE = new DamageSource("maurice").setUnblockable().setBypassesArmor();
 	
+	public static DamageSource getGun(Entity source)
+	{
+		return new EntityDamageSource("gun", source);
+	}
+	public static DamageSource getShotgun(Entity source)
+	{
+		return new EntityDamageSource("shotgun", source);
+	}
 	public static DamageSource getShockwave(Entity source)
 	{
 		return new EntityDamageSource("shockwave", source);
+	}
+	public static DamageSource getSwordmachine(Entity source)
+	{
+		return new EntityDamageSource("swordmachine", source);
 	}
 }

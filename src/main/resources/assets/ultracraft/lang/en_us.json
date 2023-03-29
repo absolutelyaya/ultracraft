@@ -26,6 +26,12 @@
   "death.attack.shockwave.player": "%1$s got crushed by a shockwave from %2$s",
   "death.attack.maurice": "%1$s was mauriced",
   "death.attack.maurice.player": "%1$s was mauriced by %2$s",
+  "death.attack.gun": "%1$s was shot",
+  "death.attack.gun.player": "%1$s was shot by %2$s",
+  "death.attack.shotgun": "%1$s was pumped full of lead",
+  "death.attack.shotgun.player": "%1$s was pumped full of lead by %2$s",
+  "death.attack.swordmachine": "%1$s was cut in half",
+  "death.attack.swordmachine.player": "%1$s was cut down by %2$s",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 

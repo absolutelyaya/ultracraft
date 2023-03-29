@@ -21,7 +21,7 @@ public class FilthModel extends GeoModel<FilthEntity>
 	@Override
 	public Identifier getTextureResource(FilthEntity object)
 	{
-		return new Identifier(Ultracraft.MOD_ID, "textures/entity/filth.png");
+		return new Identifier(Ultracraft.MOD_ID, object.isRare() ? "textures/entity/blue_filth.png" : "textures/entity/filth.png");
 	}
 	
 	@Override

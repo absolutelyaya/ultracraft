@@ -1,11 +1,11 @@
 package absolutelyaya.ultracraft;
 
+import absolutelyaya.ultracraft.registry.DamageSources;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.ProjectileDamageSource;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.network.PacketByteBuf;
@@ -82,7 +82,7 @@ public class ServerHitscanHandler
 				entities.add(eHit.getEntity());
 			}
 		}
-		entities.forEach((e) -> e.damage(ProjectileDamageSource.mob(user), damage));
+		entities.forEach((e) -> e.damage(DamageSources.getGun(user), damage));
 		if(explosionPower > 0f)
 			world.createExplosion(null, modifiedTo.x, modifiedTo.y, modifiedTo.z, explosionPower, World.ExplosionSourceType.NONE);
 		sendPacket((ServerWorld)user.world, origin.add(new Vec3d(-0.5f, -0.3f, 0f).rotateY(-(float)Math.toRadians(user.getYaw()))), modifiedTo, type);
