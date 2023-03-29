@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.entity.demon;
 
 import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.IAnimatedEnemy;
+import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.entity.goal.TimedAttackGoal;
 import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.projectile.CerberusBallEntity;
@@ -56,6 +57,7 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 	{
 		super(entityType, world);
 		stepHeight = 1f;
+		((LivingEntityAccessor)this).SetTakePunchKnockbackSupplier(() -> false); //disable knockback
 	}
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
@@ -255,24 +257,6 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 		super.onDeath(damageSource);
 		world.getEntitiesByType(TypeFilter.instanceOf(CerberusEntity.class), getBoundingBox().expand(64),
 						e -> !e.isEnraged() && e != this).forEach(CerberusEntity::enrage);
-	}
-	
-	@Override
-	public void setVelocity(Vec3d velocity)
-	{
-	
-	}
-	
-	@Override
-	public void setVelocity(double x, double y, double z)
-	{
-	
-	}
-	
-	@Override
-	public void setVelocityClient(double x, double y, double z)
-	{
-	
 	}
 	
 	static class ApproachTargetGoal extends Goal

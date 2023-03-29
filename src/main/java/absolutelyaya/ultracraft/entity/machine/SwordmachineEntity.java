@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.entity.machine;
 
 import absolutelyaya.ultracraft.accessor.Enrageable;
+import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.MeleeParriable;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -34,6 +35,7 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 	public SwordmachineEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
 		super(entityType, world);
+		((LivingEntityAccessor)this).SetTakePunchKnockbackSupplier(() -> false); //disable knockback
 	}
 	
 	@Override

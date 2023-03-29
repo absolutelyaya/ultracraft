@@ -60,6 +60,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 	{
 		super(entityType, world);
 		this.moveControl = new MaliciousMoveControl(this);
+		((LivingEntityAccessor)this).SetTakePunchKnockbackSupplier(() -> false); //disable knockback
 	}
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
@@ -128,7 +129,6 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 		{
 			deathRotation = new Vec2f(getPitch(), getYaw());
 			((LivingEntityAccessor)this).SetCanBleedSupplier(() -> false); //disable bleeding
-			((LivingEntityAccessor)this).SetTakePunchKnockbackSupplier(() -> false); //disable knockback
 		}
 	}
 	
