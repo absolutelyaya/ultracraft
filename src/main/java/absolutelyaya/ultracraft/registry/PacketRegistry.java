@@ -42,6 +42,7 @@ public class PacketRegistry
 	public static final Identifier SET_HIGH_VELOCITY_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "sethivel_s2c");
 	public static final Identifier UPDATE_GUNCD_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "update_gcd");
 	public static final Identifier SET_GUNCD_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_gcd");
+	public static final Identifier CATCH_FISH_ID = new Identifier(Ultracraft.MOD_ID, "fish");
 	
 	public static void registerC2S()
 	{

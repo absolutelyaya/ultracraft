@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.registry;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -83,6 +84,9 @@ public class ClientPacketRegistry
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SET_GUNCD_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player != null)
 				((WingedPlayerEntity)client.player).getGunCooldownManager().setCooldown(buf.readItemStack().getItem(), buf.readInt(), buf.readInt());
+		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.CATCH_FISH_ID, ((client, handler, buf, sender) -> {
+			UltraHudRenderer.onCatchFish(buf.readItemStack());
 		}));
 	}
 }

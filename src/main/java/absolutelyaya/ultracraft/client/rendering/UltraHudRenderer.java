@@ -2,13 +2,18 @@ package absolutelyaya.ultracraft.client.rendering;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.client.Ultraconfig;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import com.mojang.blaze3d.systems.RenderSystem;
+import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
@@ -19,6 +24,7 @@ import org.joml.*;
 import software.bernie.geckolib3.core.util.Color;
 
 import java.lang.Math;
+import java.util.Random;
 
 @SuppressWarnings("SameParameterValue")
 public class UltraHudRenderer extends DrawableHelper
@@ -26,12 +32,18 @@ public class UltraHudRenderer extends DrawableHelper
 	final Identifier GUI_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/ultrahud.png");
 	final Identifier WEAPONS_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/weapon_icons.png");
 	float healthPercent, staminaPercent;
+	static float fishTimer;
+	static ItemStack lastCatch;
+	static int fishCaught;
+	String[] fishMania = new String[] {"message.ultracraft.fish.mania1", "message.ultracraft.fish.mania2", "message.ultracraft.fish.mania3", "message.ultracraft.fish.mania4"};
+	Random rand = new Random();
 	
 	public void render(float tickDelta, Camera cam)
 	{
-		if(!MinecraftClient.isHudEnabled())
+		Ultraconfig config = AutoConfig.getConfigHolder(Ultraconfig.class).get();
+		if(!MinecraftClient.isHudEnabled() ||cam.isThirdPerson() || config.ultraHudVisibility.equals(UltraHudVisibility.NEVER))
 			return;
-		if(cam.isThirdPerson())
+		if(config.ultraHudVisibility.equals(UltraHudVisibility.LIMITED) && !UltracraftClient.isHiVelEnabled())
 			return;
 		MinecraftClient client = MinecraftClient.getInstance();
 		ClientPlayerEntity player = client.player;
@@ -40,12 +52,50 @@ public class UltraHudRenderer extends DrawableHelper
 		RenderSystem.disableDepthTest();
 		RenderSystem.disableCull();
 		
+		float aspect = (float)client.getWindow().getFramebufferWidth() / (float)client.getWindow().getFramebufferHeight();
+		
 		MatrixStack matrices = new MatrixStack();
 		matrices.peek().getPositionMatrix().perspective(90 * 0.0174f,
-						(float)client.getWindow().getFramebufferWidth() / (float)client.getWindow().getFramebufferHeight(),
-						0.05F, client.gameRenderer.getViewDistance() * 4.0F);
+						aspect, 0.05F, client.gameRenderer.getViewDistance() * 4.0F);
 		RenderSystem.backupProjectionMatrix();
 		RenderSystem.setProjectionMatrix(matrices.peek().getPositionMatrix());
+		
+		//TODO: holding nothing inverts the fish... for whatever reason.
+		//Fishing Joke
+		if(fishTimer > 0f && lastCatch != null && AutoConfig.getConfigHolder(Ultraconfig.class).get().fishingJoke)
+		{
+			matrices.push();
+			Window s = client.getWindow();
+			if(s != null)
+			{
+				matrices.scale(aspect, 1f, 1f);
+				matrices.push();
+				matrices.scale(0.001f, -0.001f, 0.001f);
+				TextRenderer render = client.textRenderer;
+				Text t;
+				drawText(matrices, t = Text.translatable("message.ultracraft.fish.caught", lastCatch.getName()),
+						-render.getWidth(t) / 2f, -32f, 1f);
+				drawText(matrices, t = Text.translatable("message.ultracraft.fish.size", fishCaught == 69 ? "1.5" : "1"),
+						-render.getWidth(t) / 2f, 16f, 1f);
+				float fishManiaLevel = Math.max(0, fishCaught - 10) / 32f;
+				drawText(matrices, t = fishCaught == 69 ? Text.translatable("message.ultracraft.fish.mania5") :
+											   Text.translatable(fishMania[fishCaught % fishMania.length]),
+						-render.getWidth(t) / 2f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f, 32f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f,
+						MathHelper.clamp(0.5f * fishManiaLevel, 0.05f, 1f));
+				matrices.scale(0.5f, 0.5f, 0.5f);
+				drawText(matrices, t = Text.translatable("message.ultracraft.fish.disable"),
+						-render.getWidth(t) / 2f, 128f, 0.5f);
+				matrices.pop();
+				matrices.push();
+				matrices.translate(0f, 0f, 3f);
+				matrices.multiply(new Quaternionf(new AxisAngle4f(-fishTimer / 0.75f, 0f, 1f, 0f)));
+				matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(-45.0), 0f, 0f, 1f)));
+				drawItem(matrices, new Matrix4f(matrices.peek().getPositionMatrix()), client, client.getBufferBuilders().getEntityVertexConsumers(), lastCatch, false);
+				matrices.pop();
+				fishTimer -= tickDelta / 20;
+			}
+			matrices.pop();
+		}
 		
 		matrices.push();
 		matrices.scale(0.8f, -0.5f, 0.5f);
@@ -120,7 +170,9 @@ public class UltraHudRenderer extends DrawableHelper
 		if(hdt > 0)
 		{
 			matrices.translate(5, 0, 150);
-			drawText(matrices, ((WingedPlayerEntity)player).isWingsVisible() ? "message.ultracraft.hi-vel.enable" : "message.ultracraft.hi-vel.disable",
+			drawText(matrices, Text.translatable(
+					((WingedPlayerEntity)player).isWingsVisible() ?
+							"message.ultracraft.hi-vel.enable" : "message.ultracraft.hi-vel.disable"),
 					-80, -10, Math.min(hdt / 20f, 1f));
 		}
 		matrices.pop();
@@ -143,15 +195,15 @@ public class UltraHudRenderer extends DrawableHelper
 					15728880, OverlayTexture.DEFAULT_UV, matrices, immediate, 1);
 	}
 	
-	void drawText(MatrixStack matrices, String text, float x, float y, float alpha)
+	void drawText(MatrixStack matrices, Text text, float x, float y, float alpha)
 	{
 		MinecraftClient client = MinecraftClient.getInstance();
 		VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
 		Matrix4f matrix = matrices.peek().getPositionMatrix();
-		client.textRenderer.draw(Text.translatable(text), x, y, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
+		client.textRenderer.draw(text, x, y, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
 				matrix, immediate, false, Color.ofRGBA(0f, 0f, 0f, 0.5f * alpha).getColor(), 15728880);
 		matrix.translate(0f, 0f, -0.1f);
-		client.textRenderer.draw(Text.translatable(text), x, y, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
+		client.textRenderer.draw(text, x, y, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
 				matrix, immediate, false, 0, 15728880);
 	}
 	
@@ -173,5 +225,23 @@ public class UltraHudRenderer extends DrawableHelper
 				.texture(uv.x(), uv.y() + uv.w()).next();
 		BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
 		BufferRenderer.resetCurrentVertexBuffer();
+	}
+	
+	public static void onCatchFish(ItemStack stack)
+	{
+		if(AutoConfig.getConfigHolder(Ultraconfig.class).get().fishingJoke)
+		{
+			lastCatch = stack;
+			fishTimer = 10f;
+			fishCaught++;
+		}
+	}
+	
+	@SuppressWarnings("unused")
+	public enum UltraHudVisibility
+	{
+		ALWAYS,
+		LIMITED,
+		NEVER
 	}
 }

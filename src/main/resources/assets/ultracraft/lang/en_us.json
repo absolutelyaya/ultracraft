@@ -41,6 +41,14 @@
   "message.ultracraft.hi-vel.enable": "High Velocity Wings activated!",
   "message.ultracraft.hi-vel.disable": "High Velocity Wings deactivated!",
   "message.ultracraft.server.freeze-enable-warning": "[§4Ultracraft§r] h-hey, you just enabled the freeze effect! Please be aware that this effect is §4SERVER-WIDE§r, so any time-freeze affects EVERYONE. If you have many players, please consider leaving this turned off.",
+  "message.ultracraft.fish.caught": "Caught %s!",
+  "message.ultracraft.fish.size": "Size: %s",
+  "message.ultracraft.fish.disable": "You can disable this joke in the mod config",
+  "message.ultracraft.fish.mania1": "I HAVE TO SEE",
+  "message.ultracraft.fish.mania2": "I HAVE TO KNOW",
+  "message.ultracraft.fish.mania3": "IT HAS TO BE OUT THERE... SOMEWHERE",
+  "message.ultracraft.fish.mania4": "THE SIZE 2 IS REAL!!",
+  "message.ultracraft.fish.mania5": "...that's... \nthat's bigger than usual! \nI have to be getting close!!",
 
   "narrator.button.background.vanilla": "Vanilla BG",
   "narrator.button.background.ultracraft": "Ultracraft BG",
@@ -62,5 +70,13 @@
 
   "text.autoconfig.ultracraft.option.freezeVFX": "Freeze VFX",
   "text.autoconfig.ultracraft.option.freezeVFX.@Tooltip[0]": "Whether Time should freeze momentarily from certain actions (parrying/projectile-boosting)",
-  "text.autoconfig.ultracraft.option.freezeVFX.@Tooltip[1]": "This Setting is overridden by Servers!"
+  "text.autoconfig.ultracraft.option.freezeVFX.@Tooltip[1]": "This Setting is overridden by Servers!",
+
+  "text.autoconfig.ultracraft.option.fishingJoke": "Fishing Popup",
+  "text.autoconfig.ultracraft.option.fishingJoke.@Tooltip": "Adds a popup to your hud like in 5-S when fishing.",
+
+  "text.autoconfig.ultracraft.option.ultraHudVisibility": "Show UltraHUD",
+  "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[0]": "Whether the UltraHUD should be rendered.",
+  "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[1]": "If set to NEVER, you won't know your stamina in Hi-Velocity Mode.",
+  "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[2]": "LIMITED = only show when in Hi-Velocity Mode"
 }
