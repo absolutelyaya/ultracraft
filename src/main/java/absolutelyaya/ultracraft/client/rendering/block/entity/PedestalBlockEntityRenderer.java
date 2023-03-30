@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.client.rendering.block.entity;
 
 import absolutelyaya.ultracraft.block.PedestalBlockEntity;
+import absolutelyaya.ultracraft.item.PlushieItem;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
@@ -25,7 +26,9 @@ public class PedestalBlockEntityRenderer implements BlockEntityRenderer<Pedestal
 		if(!stack.isEmpty())
 		{
 			matrices.push();
-			matrices.translate(0.5, 1.25, 0.5);
+			matrices.translate(0.5f, 1.25f, 0.5f);
+			if(stack.getItem() instanceof PlushieItem)
+				matrices.translate(0f, 0.25f, 0f);
 			renderer.renderItem(stack, ModelTransformation.Mode.FIXED, light, overlay, matrices, vertexConsumers, 0);
 			matrices.pop();
 		}

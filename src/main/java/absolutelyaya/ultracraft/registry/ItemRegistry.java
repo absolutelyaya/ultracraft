@@ -3,6 +3,8 @@ package absolutelyaya.ultracraft.registry;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.item.HellBulletItem;
 import absolutelyaya.ultracraft.item.PierceRevolverItem;
+import absolutelyaya.ultracraft.item.PitrItem;
+import absolutelyaya.ultracraft.item.PlushieItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -21,6 +23,10 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "hell_bullet"), new HellBulletItem(new FabricItemSettings().fireproof().maxCount(25)));
 	public static final Item CERBERUS_BALL = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "cerberus_ball"), new HellBulletItem(new FabricItemSettings().fireproof().maxCount(21)));
+	public static final PlushieItem PLUSHIE = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "plushie"), new PlushieItem(new FabricItemSettings()));
+	public static final PlushieItem PITR = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "pitr"), new PitrItem(new FabricItemSettings()));
 	
 	public static final PierceRevolverItem PIERCE_REVOLVER = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "pierce_revolver"), new PierceRevolverItem(new FabricItemSettings().maxCount(1)));
@@ -60,6 +66,10 @@ public class ItemRegistry
 			content.add(SCHISM_SPAWN_EGG);
 			content.add(MALICIOUS_SPAWN_EGG);
 			content.add(CERBERUS_SPAWN_EGG);
+			content.add(PLUSHIE.getDefaultStack("yaya"));
+			content.add(PLUSHIE.getDefaultStack("hakita"));
+			content.add(PITR.getDefaultStack("pitr"));
+			content.add(PLUSHIE.getDefaultStack("v1"));
 		});
 	}
 }

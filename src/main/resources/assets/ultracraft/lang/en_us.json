@@ -10,6 +10,13 @@
   "item.ultracraft.schism_spawn_egg": "Schism Spawn Egg",
   "item.ultracraft.malicious_spawn_egg": "Malicious Face Spawn Egg",
   "item.ultracraft.cerberus_spawn_egg": "Cerberus Spawn Egg",
+  "item.ultracraft.plushie": "Plushie",
+  "item.ultracraft.plushie.lore": "Type: %s",
+  "item.ultracraft.plushie.hakita-lore": "Hakita - Creator of Ultrakill",
+  "item.ultracraft.plushie.pitr-lore": "PITR - Ultrakill programmer",
+  "item.ultracraft.plushie.pitr-hiddenlore": "Look at him go!!",
+  "item.ultracraft.plushie.v1-lore": "V1 - The Machine",
+  "item.ultracraft.plushie.yaya-lore": "yaya - creator of this mod",
 
   "block.ultracraft.elevator": "Elevator Casing",
   "block.ultracraft.pedestal": "Pedestal",
