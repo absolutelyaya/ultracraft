@@ -3,7 +3,6 @@ package absolutelyaya.ultracraft.mixin;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
-import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.registry.DamageSources;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import com.chocohead.mm.api.ClassTinkerers;

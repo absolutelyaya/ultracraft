@@ -44,8 +44,8 @@
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 
-  "message.ultracraft.hi-vel-forced": "[§4Ultracraft§r] This Server is forcing §bHigh Velocity Mode§r to be §6%s$r",
-  "message.ultracraft.freeze-forced": "[§4Ultracraft§r] This Server is forcing the time-freeze effect to be §6%s$r",
+  "message.ultracraft.hi-vel-forced": "[§4Ultracraft§r] This Server is forcing §bHigh Velocity Mode§r to be §6%s§r",
+  "message.ultracraft.freeze-forced": "[§4Ultracraft§r] This Server is forcing the time-freeze effect to be §6%s§r",
   "message.ultracraft.join-info": "[§4Ultracraft§r] You can disable this message in the mod config.",
   "message.ultracraft.hi-vel.enable": "High Velocity Wings activated!",
   "message.ultracraft.hi-vel.disable": "High Velocity Wings deactivated!",
@@ -58,6 +58,10 @@
   "message.ultracraft.fish.mania3": "IT HAS TO BE OUT THERE... SOMEWHERE",
   "message.ultracraft.fish.mania4": "THE SIZE 2 IS REAL!!",
   "message.ultracraft.fish.mania5": "...that's... \nthat's bigger than usual! \nI have to be getting close!!",
+  "message.ultrakill.handswap-disabled": "[§4Ultracraft§r] This Server has disabled hand quick-swapping.",
+
+  "key.ultracraft.hivel_toggle": "Toggle High Velocity Mode",
+  "key.ultracraft.punch": "Punch",
 
   "narrator.button.background.vanilla": "Vanilla BG",
   "narrator.button.background.ultracraft": "Ultracraft BG",
@@ -87,5 +91,8 @@
   "text.autoconfig.ultracraft.option.ultraHudVisibility": "Show UltraHUD",
   "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[0]": "Whether the UltraHUD should be rendered.",
   "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[1]": "If set to NEVER, you won't know your stamina in Hi-Velocity Mode.",
-  "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[2]": "LIMITED = only show when in Hi-Velocity Mode"
+  "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[2]": "LIMITED = only show when in Hi-Velocity Mode",
+
+  "text.autoconfig.ultracraft.option.moveUltrahud": "Move Ultrahud",
+  "text.autoconfig.ultracraft.option.moveUltrahud.@Tooltip": "Moves the Ultrahud up when holding an item in your offhand."
 }

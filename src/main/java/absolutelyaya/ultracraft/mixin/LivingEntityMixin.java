@@ -12,6 +12,7 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Hand;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -28,6 +29,8 @@ import java.util.function.Supplier;
 public abstract class LivingEntityMixin extends Entity implements LivingEntityAccessor
 {
 	@Shadow public abstract boolean isPushable();
+	
+	@Shadow public abstract void swingHand(Hand hand);
 	
 	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
 	int punchTicks, punchDuration = 6;
@@ -106,6 +109,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		{
 			punchTicks = 0;
 			punching = true;
+			swingHand(Hand.OFF_HAND);
 			return true;
 		}
 		return false;

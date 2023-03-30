@@ -105,7 +105,9 @@ public class UltraHudRenderer extends DrawableHelper
 		matrices.multiply(new Quaternionf().rotateY((float)Math.toRadians((player.getYaw(tickDelta) - i) * -0.05f)));
 		matrices.multiply(new Quaternionf(new AxisAngle4f(-0.6f, 0f, 1f, 0f)));
 		matrices.translate(-15, 0, 150);
-		
+		if(!player.getOffHandStack().isEmpty() && config.moveUltrahud)
+			matrices.translate(0f, -64, 0f);
+			
 		RenderSystem.enableBlend();
 		matrices.push();
 		RenderSystem.enableTexture();

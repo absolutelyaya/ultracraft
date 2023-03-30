@@ -1,11 +1,13 @@
 package absolutelyaya.ultracraft.mixin;
 
+import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import com.chocohead.mm.api.ClassTinkerers;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.AnimalModel;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.Arm;
 import net.minecraft.util.math.MathHelper;
 import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Final;
@@ -69,6 +71,25 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AnimalMode
 			leftArm.resetTransform();
 			rightArm.resetTransform();
 			justSlid = false;
+		}
+	}
+	
+	@Inject(method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At("TAIL"))
+	void onSetArmAngle(T livingEntity, float f, float g, float h, float i, float j, CallbackInfo ci)
+	{
+		if(livingEntity.getMainHandStack().getItem() instanceof AbstractWeaponItem)
+		{
+			if(livingEntity.getMainArm().equals(Arm.LEFT))
+				leftArm.rotate(new Vector3f(-60f, 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE));
+			else
+				rightArm.rotate(new Vector3f(-60f, 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE));
+		}
+		if(livingEntity.getOffHandStack().getItem() instanceof AbstractWeaponItem)
+		{
+			if(livingEntity.getMainArm().getOpposite().equals(Arm.LEFT))
+				leftArm.rotate(new Vector3f(-60f, 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE));
+			else
+				rightArm.rotate(new Vector3f(-60f, 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE));
 		}
 	}
 }

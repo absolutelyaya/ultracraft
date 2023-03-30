@@ -18,6 +18,8 @@ public class Ultraconfig implements ConfigData
 	public boolean fishingJoke = true;
 	@ConfigEntry.Gui.Tooltip(count = 3)
 	public UltraHudRenderer.UltraHudVisibility ultraHudVisibility = UltraHudRenderer.UltraHudVisibility.ALWAYS;
+	@ConfigEntry.Gui.Tooltip
+	public boolean moveUltrahud = true;
 	@ConfigEntry.Category("goop")
 	@ConfigEntry.Gui.Tooltip
 	public boolean fancyGoop = true;

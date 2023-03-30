@@ -48,7 +48,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
 import software.bernie.geckolib.network.GeckoLibNetwork;
 
 @Environment(EnvType.CLIENT)
@@ -61,6 +60,9 @@ public class UltracraftClient implements ClientModInitializer
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	public static boolean REPLACE_MENU_MUSIC = true;
 	static boolean HiVelMode = false;
+	static GameruleRegistry.Option HiVelOption = GameruleRegistry.Option.FREE;
+	static GameruleRegistry.Option TimeFreezeOption = GameruleRegistry.Option.FORCE_ON;
+	static boolean disableHandswap = false;
 	
 	static UltraHudRenderer hudRenderer;
 	static ConfigHolder<Ultraconfig> config;
@@ -150,10 +152,7 @@ public class UltracraftClient implements ClientModInitializer
 	//if no Server override, return client setting
 	public static boolean isFreezeEnabled()
 	{
-		World world = MinecraftClient.getInstance().world;
-		if(world == null || world.getServer() != null)
-			return true;
-		GameruleRegistry.Option option = world.getGameRules().get(GameruleRegistry.TIME_STOP).get();
+		GameruleRegistry.Option option = TimeFreezeOption;
 		if(option.equals(GameruleRegistry.Option.FREE))
 			return UltracraftClient.getConfigHolder().get().freezeVFX;
 		else
@@ -162,14 +161,16 @@ public class UltracraftClient implements ClientModInitializer
 	
 	public static boolean isHiVelEnabled()
 	{
-		World world = MinecraftClient.getInstance().world;
-		if(world == null)
-			return true;
-		GameruleRegistry.Option option = world.getGameRules().get(GameruleRegistry.HI_VEL_MODE).get();
+		GameruleRegistry.Option option = HiVelOption;
 		if(option.equals(GameruleRegistry.Option.FREE))
 			return HiVelMode;
 		else
 			return option.equals(GameruleRegistry.Option.FORCE_ON);
+	}
+	
+	public static boolean isHandSwapEnabled()
+	{
+		return disableHandswap;
 	}
 	
 	public static void toggleHiVelEnabled()
@@ -177,14 +178,13 @@ public class UltracraftClient implements ClientModInitializer
 		PlayerEntity player = MinecraftClient.getInstance().player;
 		if(player == null)
 			return;
-		//TODO: The client always thinks the gamerule is set to FREE. fix that lol
-		GameruleRegistry.Option option = player.world.getGameRules().get(GameruleRegistry.HI_VEL_MODE).get();
+		GameruleRegistry.Option option = HiVelOption;
 		if(option.equals(GameruleRegistry.Option.FREE))
 			HiVelMode = !HiVelMode;
 		else
 			player.sendMessage(
 					Text.translatable("message.ultracraft.hi-vel-forced",
-									option.equals(GameruleRegistry.Option.FORCE_ON) ? "options.on" : "options.off"), true);
+									Text.translatable(option.equals(GameruleRegistry.Option.FORCE_ON) ? "options.on" : "options.off")), true);
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeUuid(MinecraftClient.getInstance().player.getUuid());
 		buf.writeBoolean(HiVelMode);
@@ -194,5 +194,18 @@ public class UltracraftClient implements ClientModInitializer
 	public static ConfigHolder<Ultraconfig> getConfigHolder()
 	{
 		return config;
+	}
+	
+	public static void syncGameRule(byte data)
+	{
+		int rule = data / 10;
+		int value = data - rule * 10;
+		switch (rule)
+		{
+			case 1 -> HiVelOption = GameruleRegistry.Option.values()[value];
+			case 2 -> TimeFreezeOption = GameruleRegistry.Option.values()[value];
+			case 3 -> disableHandswap = value == 1;
+			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_sync] -> " + data);
+		}
 	}
 }

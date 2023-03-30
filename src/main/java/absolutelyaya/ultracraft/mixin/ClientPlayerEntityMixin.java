@@ -138,8 +138,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			{
 				if(jumping)
 				{
-					setVelocity(slideDir.multiply(slideVelocity));
-					addVelocity(0f, getJumpVelocity(), 0f);
+					setVelocity(slideDir.multiply(slideVelocity * 1.5));
+					addVelocity(0, getJumpVelocity(), 0);
 				}
 				setSprinting(client.options.sprintKey.isPressed() && !groundPounding && !horizontalCollision && !jumping);
 				slideTicks++;
@@ -275,7 +275,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	void onCanSprint(CallbackInfoReturnable<Boolean> cir)
 	{
 		WingedPlayerEntity winged = this;
-		if((winged.isWingsVisible() && !isSprinting() && !onGround) || winged.isDashing())
+		if((UltracraftClient.isHiVelEnabled() && !isSprinting() && !onGround) || winged.isDashing())
 			cir.setReturnValue(false);
 	}
 }

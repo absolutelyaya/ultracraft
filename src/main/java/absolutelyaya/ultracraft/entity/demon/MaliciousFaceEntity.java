@@ -713,7 +713,8 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 			}
 			if(timer < 20)
 			{
-				face.lookControl.lookAt(targetPos);
+				if(targetPos != null)
+					face.lookControl.lookAt(targetPos);
 				face.dataTracker.set(CHARGE, 100 - timer);
 			}
 			if(timer <= 0)
