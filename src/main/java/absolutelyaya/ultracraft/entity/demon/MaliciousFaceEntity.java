@@ -254,6 +254,18 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 		{
 			if(source.equals(DamageSource.STARVE))
 				setHealth(0);
+			if(source.getName().equals("pound"))
+			{
+				setHealth(0);
+				for (int i = 0; i < 32; i++)
+				{
+					double x = random.nextDouble() - 0.5 + getX();
+					double y = random.nextDouble() - 0.5 + getY() + 1f;
+					double z = random.nextDouble() - 0.5 + getZ();
+					world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.CHISELED_STONE_BRICKS.getDefaultState()),
+							x, y, z, 0f, 0f, 0f);
+				}
+			}
 			return false;
 		}
 		if(source.equals(DamageSource.FALL))

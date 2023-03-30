@@ -24,4 +24,8 @@ public class DamageSources
 	{
 		return new EntityDamageSource("swordmachine", source);
 	}
+	public static DamageSource getPound(Entity source)
+	{
+		return new EntityDamageSource("pound", source);
+	}
 }

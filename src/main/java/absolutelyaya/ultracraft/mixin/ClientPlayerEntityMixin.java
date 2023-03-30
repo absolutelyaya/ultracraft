@@ -214,13 +214,15 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				lastJumping = jumping;
 				if(lastGroundPounding != groundPounding)
 				{
+					boolean strong = client.options.sprintKey.isPressed() && consumeStamina();
 					PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 					buf.writeBoolean(groundPounding);
+					buf.writeBoolean(strong);
 					ClientPlayNetworking.send(PacketRegistry.GROUND_POUND_PACKET_ID, buf);
 					if(groundPounding)
 						startGroundPound();
 					else
-						completeGroundPound(false);
+						completeGroundPound(strong);
 				}
 				lastGroundPounding = groundPounding;
 			}

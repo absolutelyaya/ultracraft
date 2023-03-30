@@ -39,6 +39,8 @@
   "death.attack.shotgun.player": "%1$s was pumped full of lead by %2$s",
   "death.attack.swordmachine": "%1$s was cut in half",
   "death.attack.swordmachine.player": "%1$s was cut down by %2$s",
+  "death.attack.pound": "%1$s was flattened",
+  "death.attack.pound.player": "%1$s was flattened by %2$ss groundpound",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 

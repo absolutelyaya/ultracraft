@@ -60,6 +60,7 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 			if(!puncher.world.isClient)
 				puncher.world.emitGameEvent(puncher, GameEvent.BLOCK_CHANGE, pos);
 			puncher.world.updateNeighbors(pos, this);
+			puncher.world.updateNeighbors(pos.down(), this);
 			return result;
 		}
 		return false;
@@ -84,6 +85,7 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 			}
 			super.onStateReplaced(state, world, pos, newState, moved);
 		}
+		world.updateNeighbors(pos.down(), this);
 	}
 	
 	public BlockRenderType getRenderType(BlockState state) {

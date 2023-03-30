@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.widget.TitleBGButton;
 import absolutelyaya.ultracraft.client.rendering.TitleBGRenderer;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
@@ -44,7 +45,7 @@ public abstract class TitleScreenMixin extends Screen
     private void init(CallbackInfo info)
     {
         defaultbg = new RotatingCubeMapRenderer(PANORAMA_CUBE_MAP);
-        backgroundRenderer = ultrabg = new TitleBGRenderer(PANORAMA_CUBE_MAP);
+        ultrabg = new TitleBGRenderer(PANORAMA_CUBE_MAP);
     }
     
     @Inject(method = "tick", at = @At("HEAD"))
@@ -65,18 +66,21 @@ public abstract class TitleScreenMixin extends Screen
     @Inject(method = "init", at = @At("TAIL"))
     void onInit(CallbackInfo ci)
     {
-        addDrawableChild(new TitleBGButton(-24, 2,
+        TitleBGButton ultracraft = addDrawableChild(new TitleBGButton(-24, 2,
                 32, 32, 32, 0, 32, BG_ICON_TEXTURE, 64, 64,
-                button -> setBG(ultrabg), Text.translatable("narrator.button.background.ultracraft"))).onPress();
-        addDrawableChild(new TitleBGButton(-24, 34,
+                button -> setBG("ultracraft"), Text.translatable("narrator.button.background.ultracraft")));
+        TitleBGButton vanilla = addDrawableChild(new TitleBGButton(-24, 34,
                 32, 32, 0, 0, 32, BG_ICON_TEXTURE, 64, 64,
-                button -> setBG(defaultbg), Text.translatable("narrator.button.background.vanilla")));
+                button -> setBG("vanilla"), Text.translatable("narrator.button.background.vanilla")));
+        (UltracraftClient.getConfigHolder().get().BGID.equals("ultracraft") ? ultracraft : vanilla).onPress();
     }
     
-    void setBG(RotatingCubeMapRenderer bg)
+    void setBG(String bg)
     {
         MinecraftClient.getInstance().getSoundManager().stop(wind);
         windTicks = 0;
-        backgroundRenderer = bg;
+        backgroundRenderer = bg.equals("ultracraft") ? ultrabg : defaultbg;
+        UltracraftClient.getConfigHolder().get().BGID = bg;
+        UltracraftClient.getConfigHolder().save();
     }
 }

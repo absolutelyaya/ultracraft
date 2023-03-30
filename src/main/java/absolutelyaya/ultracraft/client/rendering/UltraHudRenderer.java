@@ -6,7 +6,6 @@ import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.shedaniel.autoconfig.AutoConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
@@ -40,7 +39,7 @@ public class UltraHudRenderer extends DrawableHelper
 	
 	public void render(float tickDelta, Camera cam)
 	{
-		Ultraconfig config = AutoConfig.getConfigHolder(Ultraconfig.class).get();
+		Ultraconfig config = UltracraftClient.getConfigHolder().get();
 		if(!MinecraftClient.isHudEnabled() ||cam.isThirdPerson() || config.ultraHudVisibility.equals(UltraHudVisibility.NEVER))
 			return;
 		if(config.ultraHudVisibility.equals(UltraHudVisibility.LIMITED) && !UltracraftClient.isHiVelEnabled())
@@ -62,7 +61,7 @@ public class UltraHudRenderer extends DrawableHelper
 		
 		//TODO: holding nothing inverts the fish... for whatever reason.
 		//Fishing Joke
-		if(fishTimer > 0f && lastCatch != null && AutoConfig.getConfigHolder(Ultraconfig.class).get().fishingJoke)
+		if(fishTimer > 0f && lastCatch != null && UltracraftClient.getConfigHolder().get().fishingJoke)
 		{
 			matrices.push();
 			Window s = client.getWindow();
@@ -229,7 +228,7 @@ public class UltraHudRenderer extends DrawableHelper
 	
 	public static void onCatchFish(ItemStack stack)
 	{
-		if(AutoConfig.getConfigHolder(Ultraconfig.class).get().fishingJoke)
+		if(UltracraftClient.getConfigHolder().get().fishingJoke)
 		{
 			lastCatch = stack;
 			fishTimer = 10f;

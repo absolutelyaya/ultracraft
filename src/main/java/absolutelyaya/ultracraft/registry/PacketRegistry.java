@@ -141,12 +141,13 @@ public class PacketRegistry
 		});
 		ServerPlayNetworking.registerGlobalReceiver(GROUND_POUND_PACKET_ID, (server, player, handler, buf, sender) -> {
 			boolean start = buf.readBoolean();
+			boolean strong = buf.readBoolean();
 			server.execute(() -> {
 				WingedPlayerEntity winged = (WingedPlayerEntity)player;
 				if(start)
 					winged.startGroundPound();
 				else
-					winged.completeGroundPound(false);
+					winged.completeGroundPound(strong);
 			});
 		});
 	}

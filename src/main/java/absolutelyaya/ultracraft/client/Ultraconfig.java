@@ -24,4 +24,6 @@ public class Ultraconfig implements ConfigData
 	@ConfigEntry.Category("goop")
 	@ConfigEntry.Gui.Tooltip
 	public boolean wrapToEdges = false;
+	@ConfigEntry.Gui.Excluded
+	public String BGID = "ultracraft";
 }

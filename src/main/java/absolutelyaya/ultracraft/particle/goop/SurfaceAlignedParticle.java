@@ -1,7 +1,7 @@
 package absolutelyaya.ultracraft.particle.goop;
 
 import absolutelyaya.ultracraft.client.Ultraconfig;
-import me.shedaniel.autoconfig.AutoConfig;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import net.minecraft.client.particle.SpriteBillboardParticle;
 import net.minecraft.client.particle.SpriteProvider;
 import net.minecraft.client.render.Camera;
@@ -228,6 +228,6 @@ public abstract class SurfaceAlignedParticle extends SpriteBillboardParticle
 	}
 	
 	static {
-		config = AutoConfig.getConfigHolder(Ultraconfig.class).getConfig();
+		config = UltracraftClient.getConfigHolder().getConfig();
 	}
 }

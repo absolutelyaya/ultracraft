@@ -1,14 +1,20 @@
 package absolutelyaya.ultracraft.mixin;
 
+import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
+import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
+import absolutelyaya.ultracraft.registry.DamageSources;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import com.chocohead.mm.api.ClassTinkerers;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.particle.BlockStateParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
@@ -210,6 +216,19 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		groundPounding = false;
 		world.playSound(null, getBlockPos(), SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.PLAYERS,
 				strong ? 1f : 0.75f, strong ? 0.75f : 1.25f);
+		world.getOtherEntities(this, getBoundingBox().expand(3f, 0.5f, 3f)).forEach(e -> {
+			if((e instanceof LivingEntityAccessor l) && l.takePunchKnockback())
+				e.addVelocity(0f, 1f, 0f);
+			for (int i = 0; i < 32; i++)
+			{
+				float x = (float)((random.nextDouble() * 6) - 3 + getX());
+				float z = (float)((random.nextDouble() * 6) - 3 + getZ());
+				world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, world.getBlockState(new BlockPos(getX(), getY() - 0.1, getZ()))),
+						x, getY() + 0.1, z, 0f, 1f, 0f);
+			}
+		});
+		world.getOtherEntities(this, getBoundingBox().expand(0f, 1f, 0f).offset(0f, -0.5f, 0f)).forEach(e ->
+				e.damage(DamageSources.getPound(this), 6));
 	}
 	
 	@Override

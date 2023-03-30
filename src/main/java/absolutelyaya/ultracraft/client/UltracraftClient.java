@@ -30,6 +30,7 @@ import absolutelyaya.ultracraft.particle.goop.GoopStringParticle;
 import absolutelyaya.ultracraft.registry.*;
 import io.netty.buffer.Unpooled;
 import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.ConfigHolder;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
@@ -62,6 +63,7 @@ public class UltracraftClient implements ClientModInitializer
 	static boolean HiVelMode = false;
 	
 	static UltraHudRenderer hudRenderer;
+	static ConfigHolder<Ultraconfig> config;
 	
 	@Override
 	public void onInitializeClient()
@@ -111,7 +113,7 @@ public class UltracraftClient implements ClientModInitializer
 			buf.writeBoolean(HiVelMode);
 			ClientPlayNetworking.send(PacketRegistry.SET_HIGH_VELOCITY_C2S_PACKET_ID, buf);
 			
-			if(client.world != null && client.world.getServer() != null && AutoConfig.getConfigHolder(Ultraconfig.class).get().serverJoinInfo)
+			if(client.world != null && client.world.getServer() != null && UltracraftClient.getConfigHolder().get().serverJoinInfo)
 			{
 				GameruleRegistry.Option hivel = client.world.getGameRules().get(GameruleRegistry.HI_VEL_MODE).get();
 				GameruleRegistry.Option freeze = client.world.getGameRules().get(GameruleRegistry.TIME_STOP).get();
@@ -142,7 +144,7 @@ public class UltracraftClient implements ClientModInitializer
 		
 		ClientTickEvents.END_WORLD_TICK.register(minecraft -> Ultracraft.tickFreeze());
 		
-		AutoConfig.register(Ultraconfig.class, GsonConfigSerializer::new);
+		config = AutoConfig.register(Ultraconfig.class, GsonConfigSerializer::new);
 	}
 	
 	//if no Server override, return client setting
@@ -153,7 +155,7 @@ public class UltracraftClient implements ClientModInitializer
 			return true;
 		GameruleRegistry.Option option = world.getGameRules().get(GameruleRegistry.TIME_STOP).get();
 		if(option.equals(GameruleRegistry.Option.FREE))
-			return AutoConfig.getConfigHolder(Ultraconfig.class).get().freezeVFX;
+			return UltracraftClient.getConfigHolder().get().freezeVFX;
 		else
 			return option.equals(GameruleRegistry.Option.FORCE_ON);
 	}
@@ -187,5 +189,10 @@ public class UltracraftClient implements ClientModInitializer
 		buf.writeUuid(MinecraftClient.getInstance().player.getUuid());
 		buf.writeBoolean(HiVelMode);
 		ClientPlayNetworking.send(PacketRegistry.SET_HIGH_VELOCITY_C2S_PACKET_ID, buf);
+	}
+	
+	public static ConfigHolder<Ultraconfig> getConfigHolder()
+	{
+		return config;
 	}
 }
