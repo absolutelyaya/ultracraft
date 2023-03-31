@@ -48,13 +48,6 @@ public class ClientPacketRegistry
 				player.world.addParticle(ParticleRegistry.DASH, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
 			}
 		});
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.RESPAWN_PACKET_ID, ((client, handler, buf, sender) -> {
-			if(client.player == null)
-				return;
-			PlayerEntity player = client.player.world.getPlayerByUuid(buf.readUuid());
-			if(player != null)
-				((WingedPlayerEntity)player).setWingsVisible(buf.readBoolean());
-		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.BLEED_PACKET_ID, (((client, handler, buf, responseSender) -> {
 			if(client.player == null)
 				return;
@@ -76,6 +69,7 @@ public class ClientPacketRegistry
 			PlayerEntity player = client.player.world.getPlayerByUuid(buf.readUuid());
 			if(player != null)
 				((WingedPlayerEntity)player).setWingsVisible(buf.readBoolean());
+			System.out.println("a");
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.UPDATE_GUNCD_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player != null)

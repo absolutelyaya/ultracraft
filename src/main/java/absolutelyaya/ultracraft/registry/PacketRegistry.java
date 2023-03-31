@@ -37,7 +37,6 @@ public class PacketRegistry
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
 	public static final Identifier DASH_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_s2c");
-	public static final Identifier RESPAWN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "respawn");
 	public static final Identifier BLEED_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "bleed");
 	public static final Identifier SET_HIGH_VELOCITY_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "sethivel_s2c");
 	public static final Identifier UPDATE_GUNCD_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "update_gcd");
@@ -116,14 +115,17 @@ public class PacketRegistry
 		});
 		ServerPlayNetworking.registerGlobalReceiver(SET_HIGH_VELOCITY_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			WingedPlayerEntity winged = (WingedPlayerEntity)player;
+			if(winged == null)
+				return;
 			boolean b = buf.readBoolean();
-			if(winged != null)
-				winged.setWingsVisible(b);
-			buf = new PacketByteBuf(Unpooled.buffer());
-			buf.writeUuid(player.getUuid());
-			buf.writeBoolean(b);
+			server.execute(() -> winged.setWingsVisible(b));
 			for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
+			{
+				buf = new PacketByteBuf(Unpooled.buffer());
+				buf.writeUuid(player.getUuid());
+				buf.writeBoolean(b);
 				ServerPlayNetworking.send(p, SET_HIGH_VELOCITY_S2C_PACKET_ID, buf);
+			}
 		});
 		ServerPlayNetworking.registerGlobalReceiver(DASH_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			Vec3d dir = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());

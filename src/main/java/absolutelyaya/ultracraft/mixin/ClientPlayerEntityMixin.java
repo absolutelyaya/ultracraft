@@ -278,4 +278,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		if((UltracraftClient.isHiVelEnabled() && !isSprinting() && !onGround) || winged.isDashing())
 			cir.setReturnValue(false);
 	}
+	
+	@Override
+	public boolean isWingsVisible()
+	{
+		return UltracraftClient.isHiVelEnabled();
+	}
 }

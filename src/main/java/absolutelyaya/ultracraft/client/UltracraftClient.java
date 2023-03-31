@@ -180,15 +180,29 @@ public class UltracraftClient implements ClientModInitializer
 			return;
 		GameruleRegistry.Option option = HiVelOption;
 		if(option.equals(GameruleRegistry.Option.FREE))
+		{
 			HiVelMode = !HiVelMode;
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeUuid(player.getUuid());
+			buf.writeBoolean(HiVelMode);
+			ClientPlayNetworking.send(PacketRegistry.SET_HIGH_VELOCITY_C2S_PACKET_ID, buf);
+		}
 		else
 			player.sendMessage(
 					Text.translatable("message.ultracraft.hi-vel-forced",
 									Text.translatable(option.equals(GameruleRegistry.Option.FORCE_ON) ? "options.on" : "options.off")), true);
-		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-		buf.writeUuid(MinecraftClient.getInstance().player.getUuid());
-		buf.writeBoolean(HiVelMode);
-		ClientPlayNetworking.send(PacketRegistry.SET_HIGH_VELOCITY_C2S_PACKET_ID, buf);
+	}
+	
+	public static void setHighVel(boolean b, boolean fromServer)
+	{
+		PlayerEntity player = MinecraftClient.getInstance().player;
+		HiVelMode = b;
+		if(!fromServer && player != null)
+		{
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeBoolean(HiVelMode);
+			ClientPlayNetworking.send(PacketRegistry.SET_HIGH_VELOCITY_C2S_PACKET_ID, buf);
+		}
 	}
 	
 	public static ConfigHolder<Ultraconfig> getConfigHolder()
@@ -202,7 +216,12 @@ public class UltracraftClient implements ClientModInitializer
 		int value = data - rule * 10;
 		switch (rule)
 		{
-			case 1 -> HiVelOption = GameruleRegistry.Option.values()[value];
+			case 1 ->
+			{
+				HiVelOption = GameruleRegistry.Option.values()[value];
+				if(HiVelOption != GameruleRegistry.Option.FREE)
+					setHighVel(HiVelOption == GameruleRegistry.Option.FORCE_ON, false);
+			}
 			case 2 -> TimeFreezeOption = GameruleRegistry.Option.values()[value];
 			case 3 -> disableHandswap = value == 1;
 			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_sync] -> " + data);

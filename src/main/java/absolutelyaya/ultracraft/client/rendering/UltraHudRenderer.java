@@ -172,8 +172,7 @@ public class UltraHudRenderer extends DrawableHelper
 		{
 			matrices.translate(5, 0, 150);
 			drawText(matrices, Text.translatable(
-					((WingedPlayerEntity)player).isWingsVisible() ?
-							"message.ultracraft.hi-vel.enable" : "message.ultracraft.hi-vel.disable"),
+					UltracraftClient.isHiVelEnabled() ? "message.ultracraft.hi-vel.enable" : "message.ultracraft.hi-vel.disable"),
 					-80, -10, Math.min(hdt / 20f, 1f));
 		}
 		matrices.pop();
