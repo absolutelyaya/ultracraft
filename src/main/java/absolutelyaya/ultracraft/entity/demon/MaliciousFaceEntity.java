@@ -113,7 +113,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 						x, y, z, 0f, 0f, 0f);
 			}
 			if(world.getDifficulty().equals(Difficulty.HARD))
-				playSound(SoundEvents.ENTITY_LIGHTNING_BOLT_THUNDER, 0.5f, 1f);
+				playSound(SoundEvents.ENTITY_ZOMBIE_VILLAGER_CURE, 1.5f, 0.9f);
 		}
 		else if(data.equals(LANDED) && dataTracker.get(LANDED))
 		{

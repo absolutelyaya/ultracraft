@@ -11,6 +11,8 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
@@ -88,6 +90,8 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
 		if(!world.isClient && cdm.isUsable(this, 0))
 		{
+			world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_BLAST, SoundCategory.PLAYERS, 0.75f,
+					0.9f + (user.getRandom().nextFloat() - 0.5f) * 0.2f);
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), controllerName, b ? "shot" : "shot2");
 			ServerHitscanHandler.performHitscan(user, (byte)0, 4);
 			cdm.setCooldown(this, 10, GunCooldownManager.PRIMARY);
@@ -128,6 +132,8 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 					cdm.setCooldown(this, 50, GunCooldownManager.SECONDARY);
 					triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "discharge");
 					approxUseTime = -1;
+					world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, SoundCategory.PLAYERS, 1f,
+							0.85f + (user.getRandom().nextFloat() - 0.5f) * 0.2f);
 				}
 				player.getItemCooldownManager().set(this, 50);
 			}
@@ -169,6 +175,11 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 	public AnimatableInstanceCache getAnimatableInstanceCache()
 	{
 		return cache;
+	}
+	
+	public int getApproxUseTime()
+	{
+		return approxUseTime;
 	}
 	
 	@Override

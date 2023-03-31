@@ -69,7 +69,6 @@ public class ClientPacketRegistry
 			PlayerEntity player = client.player.world.getPlayerByUuid(buf.readUuid());
 			if(player != null)
 				((WingedPlayerEntity)player).setWingsVisible(buf.readBoolean());
-			System.out.println("a");
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.UPDATE_GUNCD_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player != null)

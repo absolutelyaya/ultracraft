@@ -136,7 +136,7 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 	public void enrage()
 	{
 		dataTracker.set(ENRAGED, true);
-		playSound(SoundEvents.ENTITY_LIGHTNING_BOLT_THUNDER, 0.5f, 1f);
+		playSound(SoundEvents.ENTITY_ZOMBIE_VILLAGER_CURE, 1.5f, 0.9f);
 	}
 	
 	public boolean isEnraged()

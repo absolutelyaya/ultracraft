@@ -30,7 +30,7 @@ public class UltraHudRenderer extends DrawableHelper
 {
 	final Identifier GUI_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/ultrahud.png");
 	final Identifier WEAPONS_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/weapon_icons.png");
-	float healthPercent, staminaPercent;
+	float healthPercent, staminaPercent, yOffset;
 	static float fishTimer;
 	static ItemStack lastCatch;
 	static int fishCaught;
@@ -105,8 +105,8 @@ public class UltraHudRenderer extends DrawableHelper
 		matrices.multiply(new Quaternionf().rotateY((float)Math.toRadians((player.getYaw(tickDelta) - i) * -0.05f)));
 		matrices.multiply(new Quaternionf(new AxisAngle4f(-0.6f, 0f, 1f, 0f)));
 		matrices.translate(-15, 0, 150);
-		if(!player.getOffHandStack().isEmpty() && config.moveUltrahud)
-			matrices.translate(0f, -64, 0f);
+		if(config.moveUltrahud)
+			matrices.translate(0f, yOffset = MathHelper.lerp(tickDelta, yOffset, player.getOffHandStack().isEmpty() ? 0f : -64f), 0f);
 			
 		RenderSystem.enableBlend();
 		matrices.push();
