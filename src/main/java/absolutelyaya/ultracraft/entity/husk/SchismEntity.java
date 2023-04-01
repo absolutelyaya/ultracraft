@@ -1,12 +1,13 @@
 package absolutelyaya.ultracraft.entity.husk;
 
+import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.Interruptable;
+import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.Goal;
-import net.minecraft.entity.ai.goal.WanderAroundGoal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.data.DataTracker;
@@ -14,8 +15,11 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -43,8 +47,6 @@ public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Inter
 		super(entityType, world);
 	}
 	
-	//TODO: Interuptable Attack Charge Time
-	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
 		return HostileEntity.createMobAttributes()
@@ -60,7 +62,6 @@ public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Inter
 	{
 		targetSelector.add(0, new GetIntoSightGoal(this));
 		targetSelector.add(1, new AttackGoal(this));
-		targetSelector.add(2, new WanderAroundGoal(this, 1f));
 		
 		targetSelector.add(1, new ActiveTargetGoal<>(this, PlayerEntity.class, true));
 	}
@@ -134,11 +135,26 @@ public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Inter
 	@Override
 	public void onInterrupted(PlayerEntity interruptor)
 	{
+		world.playSound(null, interruptor.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
+		Ultracraft.freeze((ServerWorld)world, 10);
+		world.createExplosion(interruptor, getX(), getY(), getZ(), 2, World.ExplosionSourceType.NONE);
+	}
 	
+	@Override
+	public Vec3d getChargeOffset()
+	{
+		return (dataTracker.get(ANIMATION).equals(ANIMATION_ATTACK_VERTICAL) ? new Vec3d(-0.4f, 2f, 0.5f) : new Vec3d(-1f, 1.25f, 0.5f))
+					   .rotateY((float)Math.toRadians(-bodyYaw));
+	}
+	
+	private InterruptableCharge addInterruptableCharge()
+	{
+		return InterruptableCharge.spawn(world, this, 11, 0.5f, 1f);
 	}
 	
 	static class AttackGoal extends Goal
 	{
+		InterruptableCharge charge;
 		SchismEntity schism;
 		LivingEntity target;
 		boolean vertical;
@@ -189,6 +205,8 @@ public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Inter
 					shot++;
 				}
 			}
+			else if(timer == 19)
+				charge = schism.addInterruptableCharge();
 			else if(timer < 30)
 				schism.getLookControl().lookAt(target.getX(), target.getEyeY(), target.getZ());
 		}
@@ -214,6 +232,10 @@ public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Inter
 			if(schism.getAnimation() == ANIMATION_ATTACK_HORIZONTAL || schism.getAnimation() == ANIMATION_ATTACK_VERTICAL)
 				schism.dataTracker.set(ANIMATION, ANIMATION_IDLE);
 			schism.dataTracker.set(ATTACK_COOLDOWN, (int)(40 + 50 * schism.getRandom().nextFloat()));
+			Random random = schism.getRandom();
+			schism.navigation.startMovingTo(schism.getX() + (random.nextDouble() - 0.5) * 6,
+					schism.getY(), schism.getZ() + (random.nextDouble() - 0.5) * 6, 1f);
+			charge.discard();
 		}
 	}
 }

@@ -57,13 +57,16 @@ public class Ultracraft implements ModInitializer
     
     public static void freeze(ServerWorld world, int ticks)
     {
-        if(world.getGameRules().get(GameruleRegistry.TIME_STOP).get().equals(GameruleRegistry.Option.FORCE_OFF))
-            return;
-        for (ServerPlayerEntity player : world.getPlayers())
+        if(world != null)
         {
-            PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-            buf.writeInt(ticks);
-            ServerPlayNetworking.send(player, PacketRegistry.FREEZE_PACKET_ID, buf);
+            if(world.getGameRules().get(GameruleRegistry.TIME_STOP).get().equals(GameruleRegistry.Option.FORCE_OFF))
+                return;
+            for (ServerPlayerEntity player : world.getPlayers())
+            {
+                PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+                buf.writeInt(ticks);
+                ServerPlayNetworking.send(player, PacketRegistry.FREEZE_PACKET_ID, buf);
+            }
         }
         freezeTicks += ticks;
         LOGGER.info("Stopping time for " + ticks + " ticks. (Intentional Visual Effect! Do not report!)");

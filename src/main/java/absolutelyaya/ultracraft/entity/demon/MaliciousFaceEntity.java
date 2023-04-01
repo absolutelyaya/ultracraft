@@ -66,7 +66,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
 		return HostileEntity.createMobAttributes()
-					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 40.0d)
+					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 60.0d)
 					   .add(EntityAttributes.GENERIC_ARMOR, 6.0d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.4d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 0.0d)
@@ -285,6 +285,12 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 	}
 	
 	@Override
+	public boolean isImmuneToExplosion()
+	{
+		return true;
+	}
+	
+	@Override
 	protected void fall(double heightDifference, boolean onGround, BlockState state, BlockPos landedPosition)
 	{
 		if(dataTracker.get(DEAD) && onGround)
@@ -408,6 +414,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 	{
 		if(!world.isClient && getServer() != null)
 			getServer().execute(() -> world.createExplosion(parrier, getX(), getY(), getZ(), 4f, World.ExplosionSourceType.NONE));
+		damage(DamageSource.mob(parrier), 10);
 	}
 	
 	public float getDistanceToGround()

@@ -64,35 +64,31 @@ public class UltraHudRenderer extends DrawableHelper
 		if(fishTimer > 0f && lastCatch != null && UltracraftClient.getConfigHolder().get().fishingJoke)
 		{
 			matrices.push();
-			Window s = client.getWindow();
-			if(s != null)
-			{
-				matrices.scale(aspect, 1f, 1f);
-				matrices.push();
-				matrices.scale(0.001f, -0.001f, 0.001f);
-				TextRenderer render = client.textRenderer;
-				Text t;
-				drawText(matrices, t = Text.translatable("message.ultracraft.fish.caught", lastCatch.getName()),
-						-render.getWidth(t) / 2f, -32f, 1f);
-				drawText(matrices, t = Text.translatable("message.ultracraft.fish.size", fishCaught == 69 ? "1.5" : "1"),
-						-render.getWidth(t) / 2f, 16f, 1f);
-				float fishManiaLevel = Math.max(0, fishCaught - 10) / 32f;
-				drawText(matrices, t = fishCaught == 69 ? Text.translatable("message.ultracraft.fish.mania5") :
-											   Text.translatable(fishMania[fishCaught % fishMania.length]),
-						-render.getWidth(t) / 2f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f, 32f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f,
-						MathHelper.clamp(0.5f * fishManiaLevel, 0.05f, 1f));
-				matrices.scale(0.5f, 0.5f, 0.5f);
-				drawText(matrices, t = Text.translatable("message.ultracraft.fish.disable"),
-						-render.getWidth(t) / 2f, 128f, 0.5f);
-				matrices.pop();
-				matrices.push();
-				matrices.translate(0f, 0f, 3f);
-				matrices.multiply(new Quaternionf(new AxisAngle4f(-fishTimer / 0.75f, 0f, 1f, 0f)));
-				matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(-45.0), 0f, 0f, 1f)));
-				drawItem(matrices, new Matrix4f(matrices.peek().getPositionMatrix()), client, client.getBufferBuilders().getEntityVertexConsumers(), lastCatch, false);
-				matrices.pop();
-				fishTimer -= tickDelta / 20;
-			}
+			matrices.scale(aspect, 1f, 1f);
+			matrices.push();
+			matrices.scale(0.001f, -0.001f, 0.001f);
+			TextRenderer render = client.textRenderer;
+			Text t;
+			drawText(matrices, t = Text.translatable("message.ultracraft.fish.caught", lastCatch.getName()),
+					-render.getWidth(t) / 2f, -32f, 1f);
+			drawText(matrices, t = Text.translatable("message.ultracraft.fish.size", fishCaught == 69 ? "1.5" : "1"),
+					-render.getWidth(t) / 2f, 16f, 1f);
+			float fishManiaLevel = Math.max(0, fishCaught - 10) / 32f;
+			drawText(matrices, t = fishCaught == 69 ? Text.translatable("message.ultracraft.fish.mania5") :
+										   Text.translatable(fishMania[fishCaught % fishMania.length]),
+					-render.getWidth(t) / 2f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f, 32f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f,
+					MathHelper.clamp(0.5f * fishManiaLevel, 0.05f, 1f));
+			matrices.scale(0.5f, 0.5f, 0.5f);
+			drawText(matrices, t = Text.translatable("message.ultracraft.fish.disable"),
+					-render.getWidth(t) / 2f, 128f, 0.5f);
+			matrices.pop();
+			matrices.push();
+			matrices.translate(0f, 0f, 3f);
+			matrices.multiply(new Quaternionf(new AxisAngle4f(-fishTimer / 0.75f, 0f, 1f, 0f)));
+			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(-45.0), 0f, 0f, 1f)));
+			drawItem(matrices, new Matrix4f(matrices.peek().getPositionMatrix()), client, client.getBufferBuilders().getEntityVertexConsumers(), lastCatch, false);
+			matrices.pop();
+			fishTimer -= tickDelta / 20;
 			matrices.pop();
 		}
 		

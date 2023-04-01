@@ -1,6 +1,8 @@
 package absolutelyaya.ultracraft.entity.husk;
 
+import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.Interruptable;
+import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -14,6 +16,8 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -42,8 +46,6 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 	{
 		super(entityType, world);
 	}
-	
-	//TODO: interruptable attack charge time
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
@@ -118,6 +120,11 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 		world.spawnEntity(bullet);
 	}
 	
+	private InterruptableCharge addInterruptableCharge()
+	{
+		return InterruptableCharge.spawn(world, this, 26, 0.5f, 1f);
+	}
+	
 	@Override
 	public void tick()
 	{
@@ -138,7 +145,15 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 	@Override
 	public void onInterrupted(PlayerEntity interruptor)
 	{
+		world.playSound(null, interruptor.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
+		Ultracraft.freeze((ServerWorld)world, 10);
+		world.createExplosion(interruptor, getX(), getY(), getZ(), 2, World.ExplosionSourceType.NONE);
+	}
 	
+	@Override
+	public Vec3d getChargeOffset()
+	{
+		return new Vec3d(-0.4, 2, 0.5).rotateY((float)Math.toRadians(-bodyYaw));
 	}
 	
 	static class GetOutOfMyPersonalSpaceGoal extends Goal
@@ -194,6 +209,7 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 	{
 		StrayEntity stray;
 		LivingEntity target;
+		InterruptableCharge charge;
 		int time;
 		
 		public ThrowAttackGoal(StrayEntity stray)
@@ -231,6 +247,10 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 			
 			if(time == 0)
 				stray.dataTracker.set(ANIMATION, ANIMATION_ATTACK);
+			if(time == 12)
+			{
+				charge = stray.addInterruptableCharge();
+			}
 			if (time == 38)
 				stray.ThrowBullet(target);
 			
@@ -255,6 +275,8 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 			if(stray.getAnimation() == ANIMATION_ATTACK)
 				stray.dataTracker.set(ANIMATION, ANIMATION_IDLE);
 			stray.dataTracker.set(ATTACK_COOLDOWN, (int)(40 + stray.getRandom().nextFloat() * 40));
+			if(charge != null)
+				charge.discard();
 		}
 	}
 }

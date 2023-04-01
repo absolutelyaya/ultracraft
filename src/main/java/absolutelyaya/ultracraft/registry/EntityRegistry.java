@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.entity.machine.SwordmachineEntity;
+import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
 import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.demon.CerberusEntity;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
@@ -50,6 +51,10 @@ public class EntityRegistry
 	public static final EntityType<ShockwaveEntity> SHOCKWAVE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "shockwave"),
 			EntityType.Builder.create(ShockwaveEntity::new, SpawnGroup.MISC).maxTrackingRange(5).build("shockwave"));
+	public static final EntityType<InterruptableCharge> INTERRUPTABLE_CHARGE = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "interruptable_charge"),
+			EntityType.Builder.create(InterruptableCharge::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
+					.disableSummon().maxTrackingRange(5).build("interruptable_charge"));
 	
 	@SuppressWarnings("ConstantConditions")
 	public static void register()
