@@ -153,7 +153,7 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 	@Override
 	public Vec3d getChargeOffset()
 	{
-		return new Vec3d(-0.4, 2, 0.5).rotateY((float)Math.toRadians(-bodyYaw));
+		return new Vec3d(-0.4, 2.25, 0.5).rotateY((float)Math.toRadians(-bodyYaw));
 	}
 	
 	static class GetOutOfMyPersonalSpaceGoal extends Goal
@@ -248,11 +248,13 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 			if(time == 0)
 				stray.dataTracker.set(ANIMATION, ANIMATION_ATTACK);
 			if(time == 12)
-			{
 				charge = stray.addInterruptableCharge();
-			}
-			if (time == 38)
+			if (time == 27)
+			{
 				stray.ThrowBullet(target);
+				if(charge != null && !charge.isRemoved())
+					charge.discard();
+			}
 			
 			time++;
 		}
@@ -260,7 +262,7 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 		@Override
 		public boolean shouldContinue()
 		{
-			return time < 54;
+			return time < 42;
 		}
 		
 		@Override
@@ -275,7 +277,7 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 			if(stray.getAnimation() == ANIMATION_ATTACK)
 				stray.dataTracker.set(ANIMATION, ANIMATION_IDLE);
 			stray.dataTracker.set(ATTACK_COOLDOWN, (int)(40 + stray.getRandom().nextFloat() * 40));
-			if(charge != null)
+			if(charge != null && !charge.isRemoved())
 				charge.discard();
 		}
 	}

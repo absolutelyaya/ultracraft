@@ -28,6 +28,8 @@
   "entity.ultracraft.schism": "Schism",
   "entity.ultracraft.malicious_face": "Malicious Face",
   "entity.ultracraft.cerberus": "Cerberus",
+  "entity.ultracraft.swordmachine": "Swordsmachine",
+  "entity.ultracraft.swordmachine-named": "Swordsmachine [%s]",
 
   "death.attack.shockwave": "%1$s got crushed by a shockwave",
   "death.attack.shockwave.player": "%1$s got crushed by a shockwave from %2$s",
