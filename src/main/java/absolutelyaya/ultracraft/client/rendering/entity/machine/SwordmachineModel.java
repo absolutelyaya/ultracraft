@@ -35,14 +35,16 @@ public class SwordmachineModel extends GeoModel<SwordmachineEntity>
 	{
 		super.setCustomAnimations(animatable, instanceId, animationState);
 		CoreGeoBone head = this.getAnimationProcessor().getBone("head");
+		CoreGeoBone shotgunArm = this.getAnimationProcessor().getBone("left_arm");
 		
 		float f = ((float) Math.PI / 180F);
 		if(MinecraftClient.getInstance().isPaused())
 			return;
 		
+		shotgunArm.setHidden(!animatable.hasShotgun());
 		
 		EntityModelData extraData = (EntityModelData)animationState.getExtraData().get(DataTickets.ENTITY_MODEL_DATA);
-		if(head != null /*&& animatable.getAnimation() != 1*/)
+		if(head != null && animatable.getAnimation() != 1)
 		{
 			head.setRotX(head.getRotX() + extraData.headPitch() * f);
 			head.setRotY(extraData.netHeadYaw() * f);

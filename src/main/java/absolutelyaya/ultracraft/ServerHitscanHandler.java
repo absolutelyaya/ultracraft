@@ -77,7 +77,7 @@ public class ServerHitscanHandler
 			{
 				maxHits--;
 				from = eHit.getPos();
-				if(entities.size() == 0 || maxHits == 0)
+				if(maxHits == 0)
 					modifiedTo = eHit.getPos();
 				entities.add(eHit.getEntity());
 			}

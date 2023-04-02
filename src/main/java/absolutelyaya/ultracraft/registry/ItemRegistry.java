@@ -1,16 +1,16 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.item.HellBulletItem;
-import absolutelyaya.ultracraft.item.PierceRevolverItem;
-import absolutelyaya.ultracraft.item.PitrItem;
-import absolutelyaya.ultracraft.item.PlushieItem;
+import absolutelyaya.ultracraft.item.*;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.*;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class ItemRegistry
@@ -46,6 +46,9 @@ public class ItemRegistry
 	public static final SpawnEggItem CERBERUS_SPAWN_EGG = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "cerberus_spawn_egg"),
 			new SpawnEggItem(EntityRegistry.CERBERUS, 0xa0938e, 0x5a5353, new FabricItemSettings()));
+	public static final SpecialSpawnEggItem SWORDMACHINE_SPAWN_EGG = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "swordmachine_spawn_egg"),
+			new SpecialSpawnEggItem(EntityRegistry.SWORDMACHINE, 0xf4b41b, 0x423d40, new FabricItemSettings()));
 	
 	public static final ItemGroup ULTRACRAFT_TAB =
 			FabricItemGroup.builder(new Identifier(Ultracraft.MOD_ID, "item")).icon(() -> new ItemStack(BLUE_SKULL)).build();
@@ -66,6 +69,8 @@ public class ItemRegistry
 			content.add(SCHISM_SPAWN_EGG);
 			content.add(MALICIOUS_SPAWN_EGG);
 			content.add(CERBERUS_SPAWN_EGG);
+			content.add(SWORDMACHINE_SPAWN_EGG);
+			content.add(SWORDMACHINE_SPAWN_EGG.getDefaultStack("item.ultracraft.swordmachine_spawn_egg.special", "Dan"));
 			content.add(PLUSHIE.getDefaultStack("yaya"));
 			content.add(PLUSHIE.getDefaultStack("hakita"));
 			content.add(PITR.getDefaultStack("pitr"));
