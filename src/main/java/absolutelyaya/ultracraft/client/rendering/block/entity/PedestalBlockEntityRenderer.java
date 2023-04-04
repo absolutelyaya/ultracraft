@@ -9,6 +9,8 @@ import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
 
 public class PedestalBlockEntityRenderer implements BlockEntityRenderer<PedestalBlockEntity>
 {
@@ -28,7 +30,12 @@ public class PedestalBlockEntityRenderer implements BlockEntityRenderer<Pedestal
 			matrices.push();
 			matrices.translate(0.5f, 1.25f, 0.5f);
 			if(stack.getItem() instanceof PlushieItem)
-				matrices.translate(0f, 0.25f, 0f);
+			{
+				float scaleInverse = 0.75f / 1.5f;
+				matrices.scale(scaleInverse, scaleInverse, scaleInverse);
+				matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(90), 1f, 0f, 0f)));
+				matrices.translate(0f, 0.2f, 0.4f);
+			}
 			renderer.renderItem(stack, ModelTransformation.Mode.FIXED, light, overlay, matrices, vertexConsumers, 0);
 			matrices.pop();
 		}

@@ -1,0 +1,15 @@
+{
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:tick"
+    }
+  },
+  "rewards": {
+    "recipes": [
+      "ultracraft:hakita_plushie",
+      "ultracraft:pitr_plushie",
+      "ultracraft:v1_plushie",
+      "ultracraft:yaya_plushie"
+    ]
+  }
+}

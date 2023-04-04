@@ -1,0 +1,17 @@
+{
+  "type": "ultracraft:plushie",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:green_wool"
+    },
+    {
+      "item": "ultracraft:hell_bullet"
+    }
+  ],
+  "result": {
+    "item": "ultracraft:plushie",
+    "type": "yaya",
+    "count": 1
+  }
+}

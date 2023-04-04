@@ -33,6 +33,7 @@ public class Ultracraft implements ModInitializer
         BlockTagRegistry.register();
         SoundRegistry.register();
         GameruleRegistry.register();
+        RecipeSerializers.register();
     
         ServerTickEvents.END_SERVER_TICK.register(minecraft -> tickFreeze());
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {

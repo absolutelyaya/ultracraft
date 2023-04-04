@@ -1,0 +1,17 @@
+{
+  "type": "ultracraft:plushie",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:white_wool"
+    },
+    {
+      "item": "ultracraft:hell_bullet"
+    }
+  ],
+  "result": {
+    "item": "ultracraft:plushie",
+    "type": "pitr",
+    "count": 1
+  }
+}
