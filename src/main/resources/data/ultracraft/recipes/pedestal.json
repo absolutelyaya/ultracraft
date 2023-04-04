@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "_",
+    "C",
+    "_"
+  ],
+  "key": {
+    "_": {
+      "item": "minecraft:cobblestone_slab"
+    },
+    "C": {
+      "item": "minecraft:cobblestone"
+    }
+  },
+  "result": {
+    "item": "ultracraft:pedestal",
+    "count": 1
+  }
+}

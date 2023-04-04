@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:entity",
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:iron_sword",
+          "functions": [
+            {
+              "function": "minecraft:set_name",
+              "name": {
+                "text": "When I grow up, I want to be a Sword just like Swordsmachine has!",
+                "italic": false
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

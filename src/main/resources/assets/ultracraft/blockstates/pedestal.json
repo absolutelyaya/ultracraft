@@ -1,12 +1,51 @@
 {
   "variants": {
-    "type=none": {
+    "facing=west,type=none": {
+      "y": 0,
       "model": "ultracraft:block/pedestal"
     },
-    "type=blue": {
+    "facing=east,type=none": {
+      "y": 90,
+      "model": "ultracraft:block/pedestal"
+    },
+    "facing=north,type=none": {
+      "y": 0,
+      "model": "ultracraft:block/pedestal"
+    },
+    "facing=south,type=none": {
+      "y": 180,
+      "model": "ultracraft:block/pedestal"
+    },
+    "facing=west,type=blue": {
+      "y": 0,
       "model": "ultracraft:block/blue_pedestal"
     },
-    "type=red": {
+    "facing=east,type=blue": {
+      "y": 90,
+      "model": "ultracraft:block/blue_pedestal"
+    },
+    "facing=north,type=blue": {
+      "y": 0,
+      "model": "ultracraft:block/blue_pedestal"
+    },
+    "facing=south,type=blue": {
+      "y": 180,
+      "model": "ultracraft:block/blue_pedestal"
+    },
+    "facing=west,type=red": {
+      "y": 0,
+      "model": "ultracraft:block/red_pedestal"
+    },
+    "facing=east,type=red": {
+      "y": 90,
+      "model": "ultracraft:block/red_pedestal"
+    },
+    "facing=north,type=red": {
+      "y": 0,
+      "model": "ultracraft:block/red_pedestal"
+    },
+    "facing=south,type=red": {
+      "y": 180,
       "model": "ultracraft:block/red_pedestal"
     }
   }

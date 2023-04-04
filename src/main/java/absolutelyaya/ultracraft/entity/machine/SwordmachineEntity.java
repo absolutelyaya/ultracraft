@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.entity.machine;
 
+import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.MeleeParriable;
@@ -19,11 +20,15 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.loot.LootTable;
+import net.minecraft.loot.context.LootContext;
+import net.minecraft.loot.context.LootContextTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -199,9 +204,22 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 	public boolean damage(DamageSource source, float amount)
 	{
 		boolean b = super.damage(source, amount);
-		if(getHealth() < getMaxHealth() / 2)
+		if(dataTracker.get(HAS_SHOTGUN) && getHealth() < getMaxHealth() / 2)
+		{
 			dataTracker.set(HAS_SHOTGUN, false);
+			if(world.getServer() == null)
+				return b;
+			LootTable lootTable = world.getServer().getLootManager().getTable(new Identifier(Ultracraft.MOD_ID, "entities/swordmachine_breakdown"));
+			LootContext.Builder builder = getLootContextBuilder(source.getAttacker() instanceof PlayerEntity, source);
+			lootTable.generateLoot(builder.build(LootContextTypes.ENTITY), this::dropStack);
+		}
 		return b;
+	}
+	
+	@Override
+	protected Identifier getLootTableId()
+	{
+		return new Identifier(Ultracraft.MOD_ID, "entities/swordmachine_death");
 	}
 	
 	private void enrage()

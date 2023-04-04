@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 @SuppressWarnings("deprecation")
-public class CerberusBlock extends FacingBlock implements BlockEntityProvider
+public class CerberusBlock extends HorizontalFacingBlock implements BlockEntityProvider
 {
 	public static final BooleanProperty EMPTY = BooleanProperty.of("empty");
 	public static final BooleanProperty SPAWNING = BooleanProperty.of("spawning");
@@ -52,7 +52,7 @@ public class CerberusBlock extends FacingBlock implements BlockEntityProvider
 	{
 		Direction dir = context.getPlayerLookDirection().getOpposite();
 		if(dir == Direction.DOWN || dir == Direction.UP)
-			dir = Direction.NORTH;
+			dir = Direction.fromRotation(context.getPlayerYaw()).getOpposite();
 		return getDefaultState().with(FACING, dir).with(EMPTY, false).with(SPAWNING, false);
 	}
 	

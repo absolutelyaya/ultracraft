@@ -11,6 +11,7 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
+import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -31,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, BlockEntityProvider
 {
 	public static final EnumProperty<Type> TYPE = EnumProperty.of("type", Type.class);
+	public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
 	
 	public PedestalBlock(Settings settings)
 	{
@@ -41,13 +43,13 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx)
 	{
-		return super.getDefaultState().with(TYPE, Type.NONE);
+		return super.getDefaultState().with(TYPE, Type.NONE).with(FACING, ctx.getPlayerFacing().getOpposite());
 	}
 	
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder)
 	{
-		builder.add(TYPE);
+		builder.add(TYPE, FACING);
 	}
 	
 	@Override

@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.client.rendering.block.entity;
 
+import absolutelyaya.ultracraft.block.PedestalBlock;
 import absolutelyaya.ultracraft.block.PedestalBlockEntity;
 import absolutelyaya.ultracraft.item.PlushieItem;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -36,6 +37,8 @@ public class PedestalBlockEntityRenderer implements BlockEntityRenderer<Pedestal
 				matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(90), 1f, 0f, 0f)));
 				matrices.translate(0f, 0.2f, 0.4f);
 			}
+			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(
+					entity.getCachedState().get(PedestalBlock.FACING).getOpposite().asRotation()), 0f, 0f, 1f)));
 			renderer.renderItem(stack, ModelTransformation.Mode.FIXED, light, overlay, matrices, vertexConsumers, 0);
 			matrices.pop();
 		}
