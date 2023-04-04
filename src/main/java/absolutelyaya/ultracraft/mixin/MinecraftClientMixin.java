@@ -50,7 +50,7 @@ public abstract class MinecraftClientMixin
 	@Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
 	void onDoAttack(CallbackInfoReturnable<Boolean> cir)
 	{
-		if(player != null && player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem)
+		if(player != null && player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldCancelHits())
 		{
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			ClientPlayNetworking.send(PacketRegistry.PRIMARY_SHOT_PACKET_ID, buf);
@@ -61,7 +61,7 @@ public abstract class MinecraftClientMixin
 	@Inject(method = "handleBlockBreaking", at = @At("HEAD"), cancellable = true)
 	void onHandleBlockBreaking(boolean bl, CallbackInfo ci)
 	{
-		if(player != null && player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem)
+		if(player != null && player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldCancelHits())
 			ci.cancel();
 	}
 }

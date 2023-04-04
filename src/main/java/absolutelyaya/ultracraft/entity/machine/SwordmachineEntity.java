@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.MeleeParriable;
 import absolutelyaya.ultracraft.entity.husk.AbstractHuskEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
+import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
@@ -68,6 +69,10 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 	
 	//TODO: attack husks when named something specific
 	//TODO: add attacks lol
+	//TODO: Slash attack
+	//TODO: Piruette attack
+	//TODO: Combo attack
+	//TODO: Throw attack
 	
 	@Override
 	protected void initDataTracker()
@@ -207,7 +212,8 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 		if(dataTracker.get(HAS_SHOTGUN) && getHealth() < getMaxHealth() / 2)
 		{
 			dataTracker.set(HAS_SHOTGUN, false);
-			if(world.getServer() == null)
+			//TODO: don't drop if killer carries a shotgun
+			if(world.getServer() == null /*|| source.getAttacker() instanceof PlayerEntity p && p.getInventory().contains()*/)
 				return b;
 			LootTable lootTable = world.getServer().getLootManager().getTable(new Identifier(Ultracraft.MOD_ID, "entities/swordmachine_breakdown"));
 			LootContext.Builder builder = getLootContextBuilder(source.getAttacker() instanceof PlayerEntity, source);

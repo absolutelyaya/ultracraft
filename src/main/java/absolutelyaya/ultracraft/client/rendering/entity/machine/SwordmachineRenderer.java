@@ -20,6 +20,8 @@ public class SwordmachineRenderer extends GeoEntityRenderer<SwordmachineEntity>
 		addRenderLayer(new SwordmachineEmissiveLayer(this));
 	}
 	
+	//TODO: render machinesword item in hand
+	
 	@Override
 	public Identifier getTexture(SwordmachineEntity object)
 	{

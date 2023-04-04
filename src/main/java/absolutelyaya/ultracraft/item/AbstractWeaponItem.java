@@ -23,4 +23,14 @@ public abstract class AbstractWeaponItem extends Item
 	}
 	
 	public abstract Vector2i getHUDTexture();
+	
+	public boolean shouldAim()
+	{
+		return true;
+	}
+	
+	public boolean shouldCancelHits()
+	{
+		return true;
+	}
 }
