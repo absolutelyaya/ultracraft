@@ -15,10 +15,10 @@ import net.minecraft.util.Identifier;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.renderer.DynamicGeoEntityRenderer;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
-public class SwordmachineRenderer extends DynamicGeoEntityRenderer<SwordmachineEntity>
+public class SwordmachineRenderer extends GeoEntityRenderer<SwordmachineEntity>
 {
 	private static final String SWORD = "machinesword";
 	
@@ -37,13 +37,13 @@ public class SwordmachineRenderer extends DynamicGeoEntityRenderer<SwordmachineE
 					return ItemRegistry.MACHINE_SWORD.getDefaultStack();
 				return super.getStackForBone(bone, animatable);
 			}
-			
+		
 			@Override
 			protected ModelTransformation.Mode getTransformTypeForStack(GeoBone bone, ItemStack stack, SwordmachineEntity animatable)
 			{
 				return super.getTransformTypeForStack(bone, stack, animatable);
 			}
-			
+		
 			@Override
 			protected void renderStackForBone(MatrixStack poseStack, GeoBone bone, ItemStack stack, SwordmachineEntity animatable, VertexConsumerProvider bufferSource, float partialTick, int packedLight, int packedOverlay)
 			{
