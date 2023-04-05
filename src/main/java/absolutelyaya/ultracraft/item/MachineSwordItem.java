@@ -1,10 +1,19 @@
 package absolutelyaya.ultracraft.item;
 
 import absolutelyaya.ultracraft.client.rendering.item.MachineSwordRenderer;
+import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.SwordItem;
+import net.minecraft.item.ToolMaterial;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.UseAction;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.joml.Vector2i;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.animatable.client.RenderProvider;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -16,40 +25,50 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class MachineSwordItem extends AbstractWeaponItem implements GeoItem
+public class MachineSwordItem extends SwordItem implements GeoItem
 {
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 	
-	public MachineSwordItem(Settings settings)
+	public MachineSwordItem(ToolMaterial toolMaterial, int attackDamage, float attackSpeed, Settings settings)
 	{
-		super(settings);
-	}
-	
-	//TODO: throw action
-	
-	@Override
-	public void onPrimaryFire(World world, PlayerEntity user)
-	{
-	
+		super(toolMaterial, attackDamage, attackSpeed, settings);
 	}
 	
 	@Override
-	public boolean shouldAim()
+	public int getMaxUseTime(ItemStack stack)
 	{
-		return false;
+		return 2530;
 	}
 	
 	@Override
-	public boolean shouldCancelHits()
+	public UseAction getUseAction(ItemStack stack)
 	{
-		return false;
+		return UseAction.BOW;
 	}
 	
 	@Override
-	public Vector2i getHUDTexture()
+	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
 	{
-		return new Vector2i(0, 2);
+		ItemStack itemStack = user.getStackInHand(hand);
+		user.setCurrentHand(hand);
+		return TypedActionResult.consume(itemStack);
+	}
+	
+	@Override
+	public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks)
+	{
+		if(remainingUseTicks - 2500 <= 30)
+		{
+			float distance = MathHelper.lerp(Math.max(remainingUseTicks - 2500, 0) / 30f, 40f, 10f);
+			ThrownMachineSwordEntity thrown = ThrownMachineSwordEntity.spawn(world, user, stack.copy(), distance);
+			Vec3d dir = new Vec3d(0f, 0f, 1f);
+			dir = dir.rotateX((float)Math.toRadians(-user.getPitch()));
+			dir = dir.rotateY((float)Math.toRadians(-user.getYaw()));
+			thrown.setVelocity(dir.x, dir.y, dir.z, 1f, 0.0f);
+			if(user instanceof PlayerEntity p && !p.isCreative())
+				stack.decrement(1);
+		}
 	}
 	
 	@Override

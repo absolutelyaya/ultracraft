@@ -28,7 +28,8 @@ public class ItemRegistry
 	public static final PierceRevolverItem PIERCE_REVOLVER = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "pierce_revolver"), new PierceRevolverItem(new FabricItemSettings().maxCount(1)));
 	public static final MachineSwordItem MACHINE_SWORD = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "machinesword"), new MachineSwordItem(new FabricItemSettings().maxCount(1)));
+			new Identifier(Ultracraft.MOD_ID, "machinesword"), new MachineSwordItem(ToolMaterials.IRON, 4, -1.8f,
+					new FabricItemSettings().maxCount(1)));
 	
 	public static final SpawnEggItem FILTH_SPAWN_EGG = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "filth_spawn_egg"),

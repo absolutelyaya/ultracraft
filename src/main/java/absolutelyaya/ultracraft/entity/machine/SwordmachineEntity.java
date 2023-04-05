@@ -6,7 +6,7 @@ import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.MeleeParriable;
 import absolutelyaya.ultracraft.entity.husk.AbstractHuskEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
-import absolutelyaya.ultracraft.registry.ItemRegistry;
+import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
@@ -21,16 +21,19 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootTable;
 import net.minecraft.loot.context.LootContext;
 import net.minecraft.loot.context.LootContextTypes;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -49,17 +52,21 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 	private static final RawAnimation RAND_IDLE_ANIM = RawAnimation.begin().thenLoop("look_around");
 	private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("move");
 	private static final RawAnimation BLAST_ANIM = RawAnimation.begin().thenLoop("shotgun");
+	private static final RawAnimation THROW_ANIM = RawAnimation.begin().thenLoop("throw");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	protected static final TrackedData<Byte> ANIMATION = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BYTE);
 	protected static final TrackedData<Boolean> HAS_SHOTGUN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Boolean> HAS_SWORD = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> BLASTING = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Integer> ENRAGED_TICKS = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> STAMINA = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> MAX_STAMINA = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> BLAST_COOLDOWN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Integer> THROW_COOLDOWN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	private static final byte ANIMATION_IDLE = 0;
 	private static final byte ANIMATION_LOOK = 1;
+	private static final byte ANIMATION_THROW = 2;
 	
 	public SwordmachineEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -72,7 +79,6 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 	//TODO: Slash attack
 	//TODO: Piruette attack
 	//TODO: Combo attack
-	//TODO: Throw attack
 	
 	@Override
 	protected void initDataTracker()
@@ -80,12 +86,22 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 		super.initDataTracker();
 		dataTracker.startTracking(ATTACK_COOLDOWN, 20);
 		dataTracker.startTracking(BLAST_COOLDOWN, 0);
+		dataTracker.startTracking(THROW_COOLDOWN, 120);
 		dataTracker.startTracking(ANIMATION, (byte)0);
 		dataTracker.startTracking(ENRAGED_TICKS, 0);
 		dataTracker.startTracking(HAS_SHOTGUN, true);
+		dataTracker.startTracking(HAS_SWORD, true);
 		dataTracker.startTracking(BLASTING, false);
 		dataTracker.startTracking(STAMINA, 30);
 		dataTracker.startTracking(MAX_STAMINA, 100);
+	}
+	
+	@Override
+	public void onTrackedDataSet(TrackedData<?> data)
+	{
+		super.onTrackedDataSet(data);
+		if(data.equals(HAS_SWORD) && dataTracker.get(HAS_SWORD))
+			dataTracker.set(THROW_COOLDOWN, 200);
 	}
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
@@ -103,6 +119,7 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 	protected void initGoals()
 	{
 		goalSelector.add(0, new ShotgunGoal(this));
+		goalSelector.add(1, new ThrowSwordGoal(this));
 		goalSelector.add(3, new ChaseGoal(this));
 		goalSelector.add(4, new LookAroundGoal(this));
 		
@@ -125,6 +142,7 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 		{
 			case ANIMATION_IDLE -> controller.setAnimation(event.isMoving() ? WALK_ANIM : IDLE_ANIM);
 			case ANIMATION_LOOK -> controller.setAnimation(RAND_IDLE_ANIM);
+			case ANIMATION_THROW -> controller.setAnimation(THROW_ANIM);
 		}
 		return PlayState.CONTINUE;
 	}
@@ -159,6 +177,7 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 	{
 		super.writeCustomDataToNbt(nbt);
 		nbt.putBoolean("shotgun", dataTracker.get(HAS_SHOTGUN));
+		nbt.putBoolean("sword", dataTracker.get(HAS_SWORD));
 	}
 	
 	@Override
@@ -167,8 +186,10 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 		super.readCustomDataFromNbt(nbt);
 		if (hasCustomName())
 			bossBar.setName(Text.translatable("entity.ultracraft.swordmachine-named", getDisplayName()));
-		if(nbt.contains("shotgun"))
+		if(nbt.contains("shotgun", NbtElement.BYTE_TYPE))
 			dataTracker.set(HAS_SHOTGUN, nbt.getBoolean("shotgun"));
+		if(nbt.contains("sword", NbtElement.BYTE_TYPE))
+			dataTracker.set(HAS_SWORD, nbt.getBoolean("sword"));
 	}
 	
 	@Override
@@ -203,6 +224,11 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 			dataTracker.set(ATTACK_COOLDOWN, dataTracker.get(ATTACK_COOLDOWN) - 1);
 		if(dataTracker.get(BLAST_COOLDOWN) > 0)
 			dataTracker.set(BLAST_COOLDOWN, dataTracker.get(BLAST_COOLDOWN) - 1);
+		if(dataTracker.get(THROW_COOLDOWN) > 0)
+			dataTracker.set(THROW_COOLDOWN, dataTracker.get(THROW_COOLDOWN) - 1);
+		//Hard: 1 Stamina/Tick | any other difficulty: 0.5 Stamina/Tick
+		if(dataTracker.get(STAMINA) < dataTracker.get(MAX_STAMINA) && world.getDifficulty().equals(Difficulty.HARD) || age % 2 == 0)
+			dataTracker.set(STAMINA, dataTracker.get(STAMINA) + 1);
 	}
 	
 	@Override
@@ -249,6 +275,14 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 			world.spawnEntity(bullet);
 		}
 		playSound(SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 1.0f, 0.2f / (getRandom().nextFloat() * 0.2f + 0.6f));
+	}
+	
+	private void throwSword(LivingEntity target)
+	{
+		Vec3d dir = target.getPos().subtract(getPos()).normalize();
+		ThrownMachineSwordEntity sword = ThrownMachineSwordEntity.spawn(world, this, ItemStack.EMPTY, 30);
+		sword.setVelocity(dir);
+		dataTracker.set(HAS_SWORD, false);
 	}
 	
 	@Override
@@ -300,6 +334,16 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 			return true;
 		}
 		return false;
+	}
+	
+	public void setHasSword(boolean b)
+	{
+		dataTracker.set(HAS_SWORD, b);
+	}
+	
+	public boolean isHasSword()
+	{
+		return dataTracker.get(HAS_SWORD);
 	}
 	
 	static class TargetHuskGoal extends ActiveTargetGoal<LivingEntity>
@@ -458,6 +502,68 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 		{
 			sm.dataTracker.set(BLAST_COOLDOWN, 20);
 			sm.dataTracker.set(BLASTING, false);
+		}
+	}
+	
+	static class ThrowSwordGoal extends Goal
+	{
+		SwordmachineEntity sm;
+		LivingEntity target;
+		int timer;
+		
+		public ThrowSwordGoal(SwordmachineEntity sm)
+		{
+			this.sm = sm;
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			target = sm.getTarget();
+			if (target != null && sm.isIdle() && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(THROW_COOLDOWN) == 0)
+				return sm.tryConsumeStamina(10);
+			return false;
+		}
+		
+		@Override
+		public void start()
+		{
+			timer = 0;
+			sm.dataTracker.set(ANIMATION, ANIMATION_THROW);
+		}
+		
+		@Override
+		public void tick()
+		{
+			sm.lookAtEntity(target, 30, 30);
+			if(timer++ == 12)
+				sm.throwSword(target);
+		}
+		
+		@Override
+		public boolean shouldRunEveryTick()
+		{
+			return true;
+		}
+		
+		@Override
+		public boolean shouldContinue()
+		{
+			return target != null && target.isAlive() && timer < 22;
+		}
+		
+		@Override
+		public boolean canStop()
+		{
+			return !shouldContinue();
+		}
+		
+		@Override
+		public void stop()
+		{
+			sm.dataTracker.set(THROW_COOLDOWN, 200);
+			if(sm.getAnimation() == ANIMATION_THROW)
+				sm.dataTracker.set(ANIMATION, ANIMATION_IDLE);
 		}
 	}
 }

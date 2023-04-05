@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
+import absolutelyaya.ultracraft.item.MachineSwordItem;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -12,8 +13,8 @@ import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.model.json.ModelTransformation;
-import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -150,13 +151,13 @@ public class UltraHudRenderer extends DrawableHelper
 		
 		ItemStack mainHand = player.getMainHandStack();
 		ItemStack stack = player.getInventory().getStack((player.getInventory().selectedSlot + 1) % 9);
-		if(!(mainHand.getItem() instanceof AbstractWeaponItem))
+		if(!shouldRenderSpriteInstead(mainHand.getItem()))
 			drawItem(matrices, textureMatrix, client, immediate, stack, false);
 		int lastSlot = (player.getInventory().selectedSlot - 1) % 9;
 		stack = player.getInventory().getStack(lastSlot == -1 ? 8 : lastSlot);
 		matrices.translate(-2.5, 0, 0);
 		matrices.multiply(new Quaternionf(new AxisAngle4f(0.18f, 0f, 1f, 0f)));
-		if(!(mainHand.getItem() instanceof AbstractWeaponItem))
+		if(!shouldRenderSpriteInstead(mainHand.getItem()))
 			drawItem(matrices, textureMatrix, client, immediate, stack, false);
 		matrices.pop();
 		drawItem(matrices, textureMatrix, client, immediate, mainHand, true);
@@ -175,13 +176,19 @@ public class UltraHudRenderer extends DrawableHelper
 		RenderSystem.restoreProjectionMatrix();
 	}
 	
+	boolean shouldRenderSpriteInstead(Item item)
+	{
+		return item instanceof AbstractWeaponItem || item instanceof MachineSwordItem;
+	}
+	
 	void drawItem(MatrixStack matrices, Matrix4f textureMatrix, MinecraftClient client, VertexConsumerProvider immediate, ItemStack stack, boolean hand)
 	{
-		if(stack.getItem() instanceof AbstractWeaponItem weapon)
+		Item item = stack.getItem();
+		if(shouldRenderSpriteInstead(item))
 		{
 			if(!hand)
 				return;
-			Vector2i uv = weapon.getHUDTexture();
+			Vector2i uv = item instanceof AbstractWeaponItem weapon ? weapon.getHUDTexture() : new Vector2i(0, 2);
 			RenderSystem.setShaderTexture(0, WEAPONS_TEXTURE);
 			drawTexture(textureMatrix, new Vector4f(-60f, -35f + 22.5f, 67.5f, 45f), 0f,
 					new Vec2f(96f, 96f), new Vector4f(uv.x * 48f, uv.y * 32f, 48f, 32f), 0.75f);
