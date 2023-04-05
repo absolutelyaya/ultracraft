@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.entity.demon;
 import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.IAnimatedEnemy;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
+import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.goal.TimedAttackGoal;
 import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.projectile.CerberusBallEntity;
@@ -18,7 +19,6 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
@@ -37,7 +37,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.EnumSet;
 
-public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimatedEnemy, Enrageable
+public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEntity, IAnimatedEnemy, Enrageable
 {
 	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(CerberusEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
@@ -46,14 +46,13 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 	private static final RawAnimation RAM_ANIM = RawAnimation.begin().thenLoop("ram");
 	private static final RawAnimation STOMP_ANIM = RawAnimation.begin().thenLoop("stomp");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-	protected static final TrackedData<Byte> ANIMATION = DataTracker.registerData(CerberusEntity.class, TrackedDataHandlerRegistry.BYTE);
 	protected static final TrackedData<Boolean> ENRAGED = DataTracker.registerData(CerberusEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	private static final byte ANIMATION_IDLE = 0;
 	private static final byte ANIMATION_THROW = 1;
 	private static final byte ANIMATION_RAM = 2;
 	private static final byte ANIMATION_STOMP = 3;
 	
-	public CerberusEntity(EntityType<? extends HostileEntity> entityType, World world)
+	public CerberusEntity(EntityType<? extends AbstractUltraHostileEntity> entityType, World world)
 	{
 		super(entityType, world);
 		stepHeight = 1f;
@@ -62,7 +61,7 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
-		return HostileEntity.createMobAttributes()
+		return AbstractUltraHostileEntity.createMobAttributes()
 					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 50.0d)
 					   .add(EntityAttributes.GENERIC_ARMOR, 6.0d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3d)
@@ -86,7 +85,6 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 	protected void initDataTracker()
 	{
 		super.initDataTracker();
-		dataTracker.startTracking(ANIMATION, (byte)0);
 		dataTracker.startTracking(ATTACK_COOLDOWN, 10);
 		dataTracker.startTracking(ENRAGED, false);
 	}
@@ -119,12 +117,6 @@ public class CerberusEntity extends HostileEntity implements GeoEntity, IAnimate
 	public AnimatableInstanceCache getAnimatableInstanceCache()
 	{
 		return cache;
-	}
-	
-	@Override
-	public byte getAnimation()
-	{
-		return dataTracker.get(ANIMATION);
 	}
 	
 	@Override

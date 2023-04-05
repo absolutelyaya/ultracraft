@@ -281,6 +281,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 		}
 		if(getHealth() - amount < getMaxHealth() / 2 && !dataTracker.get(CRACKED))
 			dataTracker.set(CRACKED, true);
+		timeUntilRegen = 9;
 		return super.damage(source, amount);
 	}
 	

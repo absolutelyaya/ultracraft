@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.MeleeParriable;
+import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.husk.AbstractHuskEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
@@ -46,7 +47,7 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class SwordmachineEntity extends HostileEntity implements GeoEntity, MeleeParriable, Enrageable
+public class SwordmachineEntity extends AbstractUltraHostileEntity implements GeoEntity, MeleeParriable, Enrageable
 {
 	private final ServerBossBar bossBar = new ServerBossBar(this.getDisplayName(), BossBar.Color.RED, BossBar.Style.PROGRESS);
 	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
@@ -55,7 +56,6 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 	private static final RawAnimation BLAST_ANIM = RawAnimation.begin().thenLoop("shotgun");
 	private static final RawAnimation THROW_ANIM = RawAnimation.begin().thenLoop("throw");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-	protected static final TrackedData<Byte> ANIMATION = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BYTE);
 	protected static final TrackedData<Boolean> HAS_SHOTGUN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> HAS_SWORD = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> BLASTING = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -87,7 +87,6 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 		dataTracker.startTracking(ATTACK_COOLDOWN, 20);
 		dataTracker.startTracking(BLAST_COOLDOWN, 0);
 		dataTracker.startTracking(THROW_COOLDOWN, 120);
-		dataTracker.startTracking(ANIMATION, (byte)0);
 		dataTracker.startTracking(ENRAGED_TICKS, 0);
 		dataTracker.startTracking(HAS_SHOTGUN, true);
 		dataTracker.startTracking(HAS_SWORD, true);
@@ -316,11 +315,6 @@ public class SwordmachineEntity extends HostileEntity implements GeoEntity, Mele
 	public boolean hasShotgun()
 	{
 		return dataTracker.get(HAS_SHOTGUN);
-	}
-	
-	public int getAnimation()
-	{
-		return dataTracker.get(ANIMATION);
 	}
 	
 	private boolean shouldHuntHusks()
