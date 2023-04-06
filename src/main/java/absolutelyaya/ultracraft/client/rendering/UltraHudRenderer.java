@@ -136,6 +136,8 @@ public class UltraHudRenderer extends DrawableHelper
 					new Vec2f(80f, 64f), new Vector4f(49f, 34f, 15f, 14f), 0.75f);
 		}
 		
+		if(config.moveUltrahud)
+			matrices.translate(0f, yOffset / 7f, 0f);
 		//UltraHotbar
 		matrices.push();
 		matrices.scale(30, 30, -30);
@@ -167,6 +169,8 @@ public class UltraHudRenderer extends DrawableHelper
 		int hdt = ((WingedPlayerEntity)player).getWingHintDisplayTicks();
 		if(hdt > 0)
 		{
+			if(config.moveUltrahud)
+				matrices.translate(0f, yOffset * 0.7f, 0f);
 			matrices.translate(5, 0, 150);
 			drawText(matrices, Text.translatable(
 					UltracraftClient.isHiVelEnabled() ? "message.ultracraft.hi-vel.enable" : "message.ultracraft.hi-vel.disable"),

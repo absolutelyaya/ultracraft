@@ -2,14 +2,18 @@ package absolutelyaya.ultracraft.client.rendering.block.entity;
 
 import absolutelyaya.ultracraft.block.PedestalBlock;
 import absolutelyaya.ultracraft.block.PedestalBlockEntity;
+import absolutelyaya.ultracraft.item.AbstractWeaponItem;
+import absolutelyaya.ultracraft.item.PierceRevolverItem;
 import absolutelyaya.ultracraft.item.PlushieItem;
+import absolutelyaya.ultracraft.registry.ItemRegistry;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 
@@ -30,17 +34,55 @@ public class PedestalBlockEntityRenderer implements BlockEntityRenderer<Pedestal
 		{
 			matrices.push();
 			matrices.translate(0.5f, 1.25f, 0.5f);
-			if(stack.getItem() instanceof PlushieItem)
-			{
-				float scaleInverse = 0.75f / 1.5f;
-				matrices.scale(scaleInverse, scaleInverse, scaleInverse);
-				matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(90), 1f, 0f, 0f)));
-				matrices.translate(0f, 0.2f, 0.4f);
-			}
 			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(
-					entity.getCachedState().get(PedestalBlock.FACING).getOpposite().asRotation()), 0f, 0f, 1f)));
+					entity.getCachedState().get(PedestalBlock.FACING).getOpposite().asRotation()), 0f, 1f, 0f)));
+			if(entity.isFancy())
+				applyFloatTransformation(matrices);
+			applyCustomTransformations(stack.getItem(), matrices);
 			renderer.renderItem(stack, ModelTransformation.Mode.FIXED, light, overlay, matrices, vertexConsumers, 0);
 			matrices.pop();
 		}
+	}
+	
+	void applyCustomTransformations(Item item, MatrixStack matrices)
+	{
+		if(item instanceof PlushieItem)
+		{
+			float scaleInverse = 0.75f / 1.5f;
+			matrices.scale(scaleInverse, scaleInverse, scaleInverse);
+			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(90), 1f, 0f, 0f)));
+			matrices.translate(0f, 0.2f, 0.4f);
+		}
+		else if (item instanceof AbstractWeaponItem)
+		{
+			if(item instanceof PierceRevolverItem) //TODO: replace with generic Revolver calss
+			{
+				matrices.translate(0f, -0.125f, 0f);
+				matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(10), 0f, 0f, 1f)));
+			}
+			//TODO: Shotgun transformation
+		}
+		else if (item.equals(ItemRegistry.MACHINE_SWORD))
+		{
+			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(180), 0f, 0f, 1f)));
+			matrices.scale(1.75f, 1.75f, 1.75f);
+			matrices.translate(0f, -0.1f, 0f);
+		}
+		else if (!(item instanceof BlockItem) && !(item.equals(ItemRegistry.BLUE_SKULL) || item.equals(ItemRegistry.RED_SKULL)))
+		{
+			matrices.scale(0.75f, 0.75f, 0.75f);
+			if(item instanceof SwordItem)
+				matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(135), 0f, 0f, 1f)));
+			else
+				matrices.translate(0f, 0.1f, 0f);
+		}
+	}
+	
+	void applyFloatTransformation(MatrixStack matrices)
+	{
+		long time = MinecraftClient.getInstance().world.getTime();
+		matrices.scale(0.75f, 0.75f, 0.75f);
+		matrices.translate(0f, Math.sin(time / 20f) * 0.2 + 0.1f, 0f);
+		matrices.multiply(new Quaternionf(new AxisAngle4f(time / 30f, 0f, 1f, 0f)));
 	}
 }

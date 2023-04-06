@@ -84,4 +84,9 @@ public class PedestalBlockEntity extends BlockEntity
 	{
 		return stack;
 	}
+	
+	public boolean isFancy()
+	{
+		return getCachedState().get(PedestalBlock.FANCY);
+	}
 }

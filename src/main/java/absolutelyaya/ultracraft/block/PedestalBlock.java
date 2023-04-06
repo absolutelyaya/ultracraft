@@ -11,8 +11,10 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.EnumProperty;
+import net.minecraft.state.property.Property;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
@@ -21,6 +23,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -33,6 +36,7 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 {
 	public static final EnumProperty<Type> TYPE = EnumProperty.of("type", Type.class);
 	public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
+	public static final Property<Boolean> FANCY = BooleanProperty.of("fancy");
 	
 	public PedestalBlock(Settings settings)
 	{
@@ -43,13 +47,13 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx)
 	{
-		return super.getDefaultState().with(TYPE, Type.NONE).with(FACING, ctx.getPlayerFacing().getOpposite());
+		return super.getDefaultState().with(TYPE, Type.NONE).with(FACING, ctx.getPlayerFacing().getOpposite()).with(FANCY, false);
 	}
 	
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder)
 	{
-		builder.add(TYPE, FACING);
+		builder.add(TYPE, FACING, FANCY);
 	}
 	
 	@Override
@@ -134,9 +138,9 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 			useDye(world, pos, state, player, stack, Type.RED);
 			return ActionResult.CONSUME;
 		}
-		else if(stack.isOf(Items.WATER_BUCKET) && !state.get(TYPE).equals(Type.NONE))
+		else if(stack.isOf(Items.WATER_BUCKET) && !state.get(TYPE).equals(Type.NONE) || state.get(FANCY))
 		{
-			world.setBlockState( pos, state.with(TYPE, Type.NONE));
+			world.setBlockState(pos, state.with(TYPE, Type.NONE).with(FANCY, false));
 			if(!player.isCreative())
 				player.setStackInHand(hand, new ItemStack(Items.BUCKET));
 			world.playSound(null, pos, SoundEvents.ITEM_BUCKET_EMPTY, SoundCategory.PLAYERS, 1f, 1f);
@@ -145,6 +149,20 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 				Vec3d ppos = new Vec3d(world.random.nextDouble(), world.random.nextDouble(), world.random.nextDouble());
 				world.addParticle(ParticleTypes.SPLASH, pos.getX() + ppos.x, pos.getY() + ppos.y, pos.getZ() + ppos.z,
 						0f, 0f, 0f);
+			}
+			return ActionResult.CONSUME;
+		}
+		else if (!state.get(FANCY) && stack.isOf(Items.GLOWSTONE_DUST))
+		{
+			if(!player.isCreative())
+				stack.decrement(1);
+			world.setBlockState(pos, state.with(FANCY, true));
+			Random rand = world.getRandom();
+			world.playSound(null, pos, SoundEvents.BLOCK_AMETHYST_BLOCK_HIT, SoundCategory.PLAYERS, 1f, 1.25f + rand.nextFloat() * 0.25f);
+			for (int i = 0; i < 16; i++)
+			{
+				Vec3d p = new Vec3d(pos.getX() + rand.nextDouble(), pos.getY() + rand.nextDouble(), pos.getZ() + rand.nextDouble());
+				world.addParticle(ParticleTypes.WAX_ON, p.x, p.y, p.z, 0f, 0f, 0f);
 			}
 			return ActionResult.CONSUME;
 		}

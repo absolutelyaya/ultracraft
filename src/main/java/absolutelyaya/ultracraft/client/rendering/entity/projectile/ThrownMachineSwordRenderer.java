@@ -34,7 +34,8 @@ public class ThrownMachineSwordRenderer extends EntityRenderer<ThrownMachineSwor
 		matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(yaw), 0f, 1f, 0f)));
 		matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(entity.lastRot = MathHelper.lerp(tickDelta, entity.lastRot, rot)), 1f, 0f, 0f)));
 		matrices.translate(0f, -0.5f, 0f);
-		itemRenderer.renderItem(ItemRegistry.MACHINE_SWORD.getDefaultStack(), ModelTransformation.Mode.NONE, light, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, entity.getId());
+		itemRenderer.renderItem(entity.getStack().isEmpty() ? ItemRegistry.MACHINE_SWORD.getDefaultStack() : entity.getStack(),
+				ModelTransformation.Mode.NONE, light, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, entity.getId());
 		matrices.pop();
 	}
 	

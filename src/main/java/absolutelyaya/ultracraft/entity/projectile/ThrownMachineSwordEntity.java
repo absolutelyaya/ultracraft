@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.entity.projectile;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.entity.machine.SwordmachineEntity;
 import absolutelyaya.ultracraft.registry.DamageSources;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
@@ -29,7 +30,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-public class ThrownMachineSwordEntity extends PersistentProjectileEntity
+public class ThrownMachineSwordEntity extends PersistentProjectileEntity implements ProjectileEntityAccessor
 {
 	private ItemStack swordStack = new ItemStack(ItemRegistry.MACHINE_SWORD);
 	protected static final TrackedData<Float> DISTANCE = DataTracker.registerData(ThrownMachineSwordEntity.class, TrackedDataHandlerRegistry.FLOAT);
@@ -201,5 +202,28 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity
 	protected SoundEvent getHitSound()
 	{
 		return SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP;
+	}
+	
+	public ItemStack getStack()
+	{
+		return swordStack;
+	}
+	
+	@Override
+	public void setParried(boolean val, PlayerEntity parrier)
+	{
+	
+	}
+	
+	@Override
+	public boolean isParried()
+	{
+		return false;
+	}
+	
+	@Override
+	public boolean isParriable()
+	{
+		return false;
 	}
 }

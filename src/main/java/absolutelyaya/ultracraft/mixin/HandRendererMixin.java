@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
+import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
@@ -44,7 +45,10 @@ public abstract class HandRendererMixin
 			float y = 0.2f * MathHelper.sin((float)(MathHelper.sqrt(swingProgress) * Math.PI * 2));
 			float z = -0.2f * MathHelper.sin((float)(swingProgress * Math.PI));
 			int o = right ? 1 : -1;
-			matrices.translate(((float)o * x) - 0.1, y + 0.4f, z - 0.4f);
+			if(item.isOf(ItemRegistry.BLUE_SKULL) || item.isOf(ItemRegistry.RED_SKULL))
+				matrices.translate(((float)o * x) - 0.1, y + 0.4f, z - 0.4f);
+			else
+				matrices.translate(((float)o * x) - 0.1, y + 0.1f, z - 0.2f);
 			applyEquipOffset(matrices, player.getMainArm().getOpposite(), equipProgress);
 			applySwingOffset(matrices, player.getMainArm().getOpposite(), swingProgress);
 			renderItem(player, item, right ? ModelTransformation.Mode.FIRST_PERSON_RIGHT_HAND : ModelTransformation.Mode.FIRST_PERSON_LEFT_HAND,
