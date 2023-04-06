@@ -2,14 +2,14 @@
 	"format_version": "1.8.0",
 	"animations": {
 		"nothing": {
-			"animation_length": 0.0001,
+			"animation_length": 0.05,
 			"bones": {
 				"bulletChamber": {
 					"rotation": {
 						"0.0": {
 							"vector": [0, 0, 0]
 						},
-						"0.001": {
+						"0.05": {
 							"vector": [0, 0, 0]
 						}
 					}
@@ -87,10 +87,10 @@
 				"bulletChamber": {
 					"rotation": {
 						"0.0": {
-							"vector": [0, 0, -135]
+							"vector": [0, 0, 255]
 						},
 						"1.0": {
-							"vector": [0, 0, -360],
+							"vector": [0, 0, 0],
 							"easing": "easeOutQuad"
 						}
 					}

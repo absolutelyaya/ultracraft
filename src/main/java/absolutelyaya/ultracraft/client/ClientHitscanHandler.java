@@ -21,6 +21,8 @@ public class ClientHitscanHandler
 	
 	public void tick()
 	{
+		if(hitscans.size() == 0)
+			return;
 		for (Object o : hitscans.toArray())
 		{
 			Hitscan hitscan = (Hitscan)o;

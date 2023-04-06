@@ -10,6 +10,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -54,7 +55,9 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 		ItemStack itemStack = user.getStackInHand(hand);
 		user.setCurrentHand(hand);
 		if(!world.isClient)
-			approxUseTime = 0;
+		{
+			itemStack.getOrCreateNbt().putBoolean("charging", true);
+		}
 		return TypedActionResult.consume(itemStack);
 	}
 	
@@ -64,7 +67,7 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 		super.inventoryTick(stack, world, entity, slot, selected);
 		if(world.isClient)
 			return;
-		if(approxUseTime >= 0)
+		if(stack.hasNbt() && stack.getNbt().contains("charging"))
 		{
 			approxUseTime++;
 			if(entity instanceof PlayerEntity player)
@@ -123,6 +126,7 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 	public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks)
 	{
 		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
+		NbtCompound nbt = stack.getNbt();
 		if(remainingUseTicks <= 0)
 		{
 			if(user instanceof PlayerEntity player)
@@ -131,7 +135,6 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 				{
 					cdm.setCooldown(this, 50, GunCooldownManager.SECONDARY);
 					triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "discharge");
-					approxUseTime = -1;
 					world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, SoundCategory.PLAYERS, 1f,
 							0.85f + (user.getRandom().nextFloat() - 0.5f) * 0.2f);
 				}
@@ -142,9 +145,10 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 		}
 		else if(!world.isClient && user instanceof PlayerEntity)
 		{
-			approxUseTime = -1;
 			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "stop");
 		}
+		if(nbt != null)
+			nbt.remove("charging");
 		approxUseTime = -1;
 	}
 	
