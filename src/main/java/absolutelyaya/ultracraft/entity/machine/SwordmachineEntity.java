@@ -51,15 +51,17 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 {
 	private final ServerBossBar bossBar = new ServerBossBar(this.getDisplayName(), BossBar.Color.RED, BossBar.Style.PROGRESS);
 	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
-	private static final RawAnimation RAND_IDLE_ANIM = RawAnimation.begin().thenLoop("look_around");
+	private static final RawAnimation RAND_IDLE_ANIM = RawAnimation.begin().thenPlay("look_around").thenLoop("idle");
 	private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("move");
-	private static final RawAnimation BLAST_ANIM = RawAnimation.begin().thenLoop("shotgun");
-	private static final RawAnimation THROW_ANIM = RawAnimation.begin().thenLoop("throw");
+	private static final RawAnimation BLAST_ANIM = RawAnimation.begin().thenPlay("shotgun").thenLoop("idle");
+	private static final RawAnimation BREAKDOWN_ANIM = RawAnimation.begin().thenPlay("breakdown").thenLoop("idle");
+	private static final RawAnimation THROW_ANIM = RawAnimation.begin().thenPlay("throw").thenLoop("idle");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	protected static final TrackedData<Boolean> HAS_SHOTGUN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> HAS_SWORD = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> BLASTING = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Integer> ENRAGED_TICKS = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Integer> BREAKDOWN_TICKS = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> STAMINA = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> MAX_STAMINA = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
@@ -67,7 +69,8 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	protected static final TrackedData<Integer> THROW_COOLDOWN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	private static final byte ANIMATION_IDLE = 0;
 	private static final byte ANIMATION_LOOK = 1;
-	private static final byte ANIMATION_THROW = 2;
+	private static final byte ANIMATION_BREAKDOWN = 2;
+	private static final byte ANIMATION_THROW = 3;
 	
 	public SwordmachineEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -88,6 +91,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		dataTracker.startTracking(BLAST_COOLDOWN, 0);
 		dataTracker.startTracking(THROW_COOLDOWN, 120);
 		dataTracker.startTracking(ENRAGED_TICKS, 0);
+		dataTracker.startTracking(BREAKDOWN_TICKS, 0);
 		dataTracker.startTracking(HAS_SHOTGUN, true);
 		dataTracker.startTracking(HAS_SWORD, true);
 		dataTracker.startTracking(BLASTING, false);
@@ -101,6 +105,14 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		super.onTrackedDataSet(data);
 		if(data.equals(HAS_SWORD) && dataTracker.get(HAS_SWORD))
 			dataTracker.set(THROW_COOLDOWN, 200);
+		if(data.equals(BREAKDOWN_TICKS))
+		{
+			int bt = dataTracker.get(BREAKDOWN_TICKS);
+			if(bt == 58)
+				dataTracker.set(HAS_SHOTGUN, false); //second frame of breakdown anim / lose shotgun
+			else if(bt == 0 && getAnimation() == ANIMATION_BREAKDOWN)
+				dataTracker.set(ANIMATION, ANIMATION_IDLE);
+		}
 	}
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
@@ -141,6 +153,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		{
 			case ANIMATION_IDLE -> controller.setAnimation(event.isMoving() ? WALK_ANIM : IDLE_ANIM);
 			case ANIMATION_LOOK -> controller.setAnimation(RAND_IDLE_ANIM);
+			case ANIMATION_BREAKDOWN -> controller.setAnimation(BREAKDOWN_ANIM);
 			case ANIMATION_THROW -> controller.setAnimation(THROW_ANIM);
 		}
 		return PlayState.CONTINUE;
@@ -219,6 +232,8 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		bossBar.setPercent(getHealth() / getMaxHealth());
 		if(isEnraged())
 			dataTracker.set(ENRAGED_TICKS, dataTracker.get(ENRAGED_TICKS) - 1);
+		if(dataTracker.get(BREAKDOWN_TICKS) > 0)
+			dataTracker.set(BREAKDOWN_TICKS, dataTracker.get(BREAKDOWN_TICKS) - 1);
 		if(dataTracker.get(ATTACK_COOLDOWN) > 0)
 			dataTracker.set(ATTACK_COOLDOWN, dataTracker.get(ATTACK_COOLDOWN) - 1);
 		if(dataTracker.get(BLAST_COOLDOWN) > 0)
@@ -234,9 +249,11 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	public boolean damage(DamageSource source, float amount)
 	{
 		boolean b = super.damage(source, amount);
+		bossBar.setPercent(getHealth() / getMaxHealth());
 		if(dataTracker.get(HAS_SHOTGUN) && getHealth() < getMaxHealth() / 2)
 		{
-			dataTracker.set(HAS_SHOTGUN, false);
+			dataTracker.set(BREAKDOWN_TICKS, 60);
+			dataTracker.set(ANIMATION, ANIMATION_BREAKDOWN);
 			if(world.getServer() == null || !(source.getAttacker() instanceof PlayerEntity))
 				return b;
 			Advancement advancement = world.getServer().getAdvancementLoader().get(new Identifier(Ultracraft.MOD_ID, "shotgun_get"));
@@ -309,7 +326,9 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	
 	private boolean isIdle()
 	{
-		return dataTracker.get(ANIMATION) == ANIMATION_IDLE ||dataTracker.get(ANIMATION) == ANIMATION_LOOK;
+		if(dataTracker.get(BREAKDOWN_TICKS) > 0)
+			return false;
+		return dataTracker.get(ANIMATION) == ANIMATION_IDLE || dataTracker.get(ANIMATION) == ANIMATION_LOOK;
 	}
 	
 	public boolean hasShotgun()
@@ -343,6 +362,12 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	public boolean isHasSword()
 	{
 		return dataTracker.get(HAS_SWORD);
+	}
+	
+	@Override
+	public boolean isPushable()
+	{
+		return dataTracker.get(BREAKDOWN_TICKS) == 0;
 	}
 	
 	static class TargetHuskGoal extends ActiveTargetGoal<LivingEntity>
@@ -493,7 +518,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		@Override
 		public boolean shouldContinue()
 		{
-			return target != null && target.isAlive() && timer < 40;
+			return target != null && target.isAlive() && sm.getAnimation() != ANIMATION_BREAKDOWN && timer < 40;
 		}
 		
 		@Override
@@ -548,7 +573,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		@Override
 		public boolean shouldContinue()
 		{
-			return target != null && target.isAlive() && timer < 22;
+			return target != null && target.isAlive() && sm.getAnimation() == ANIMATION_THROW && timer < 22;
 		}
 		
 		@Override
