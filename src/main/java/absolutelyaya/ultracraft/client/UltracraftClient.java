@@ -118,20 +118,23 @@ public class UltracraftClient implements ClientModInitializer
 		
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-			buf.writeUuid(client.player.getUuid());
-			buf.writeBoolean(HiVelMode);
+			buf.writeBoolean(isHiVelEnabled());
 			ClientPlayNetworking.send(PacketRegistry.SET_HIGH_VELOCITY_C2S_PACKET_ID, buf);
 			
-			if(client.world != null && client.world.getServer() != null && UltracraftClient.getConfigHolder().get().serverJoinInfo)
+			if(UltracraftClient.getConfigHolder().get().serverJoinInfo)
 			{
 				GameruleRegistry.Option hivel = client.world.getGameRules().get(GameruleRegistry.HI_VEL_MODE).get();
 				GameruleRegistry.Option freeze = client.world.getGameRules().get(GameruleRegistry.TIME_STOP).get();
+				client.player.sendMessage(Text.translatable("message.ultracraft.join-info-header"));
 				if(!hivel.equals(GameruleRegistry.Option.FREE))
 					client.player.sendMessage(Text.translatable("message.ultracraft.hi-vel-forced",
 							hivel.equals(GameruleRegistry.Option.FORCE_ON) ? Text.translatable("options.on") : Text.translatable("options.off")));
+				else
+					client.player.sendMessage(Text.translatable("message.ultracraft.hi-vel-free"));
 				client.player.sendMessage(Text.translatable("message.ultracraft.freeze-forced",
 						freeze.equals(GameruleRegistry.Option.FORCE_ON) ? Text.translatable("options.on") : Text.translatable("options.off")));
 				client.player.sendMessage(Text.translatable("message.ultracraft.join-info"));
+				client.player.sendMessage(Text.translatable("========================================="));
 			}
 			
 			client.getSoundManager().play(new MovingWindSoundInstance(client.player));

@@ -51,9 +51,11 @@
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 
-  "message.ultracraft.hi-vel-forced": "[§4Ultracraft§r] This Server is forcing §bHigh Velocity Mode§r to be §6%s§r",
-  "message.ultracraft.freeze-forced": "[§4Ultracraft§r] This Server is forcing the time-freeze effect to be §6%s§r",
-  "message.ultracraft.join-info": "[§4Ultracraft§r] You can disable this message in the mod config.",
+  "message.ultracraft.join-info-header": "===============[§4Ultracraft§r]===============",
+  "message.ultracraft.hi-vel-forced": "This Server is forcing §bHigh Velocity Mode§r to be %s",
+  "message.ultracraft.hi-vel-free": "This Server allows toggling §bHigh Velocity Mode§r freely.",
+  "message.ultracraft.freeze-forced": "This Server is forcing the §bTime-Freeze effect§r to be %s",
+  "message.ultracraft.join-info": "§7You can disable this message in the mod config.",
   "message.ultracraft.hi-vel.enable": "High Velocity Wings activated!",
   "message.ultracraft.hi-vel.disable": "High Velocity Wings deactivated!",
   "message.ultracraft.server.freeze-enable-warning": "[§4Ultracraft§r] h-hey, you just enabled the freeze effect! Please be aware that this effect is §4SERVER-WIDE§r, so any time-freeze affects EVERYONE. If you have many players, please consider leaving this turned off.",
