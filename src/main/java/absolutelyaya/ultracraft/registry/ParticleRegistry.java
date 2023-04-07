@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
 import absolutelyaya.ultracraft.particle.goop.GoopParticleEffect;
 import absolutelyaya.ultracraft.particle.goop.GoopStringParticleEffect;
@@ -13,6 +14,7 @@ import net.minecraft.util.Identifier;
 
 public class ParticleRegistry
 {
+	//simple
 	public static final DefaultParticleType MALICIOUS_CHARGE = Registry.register(Registries.PARTICLE_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "malicious_charge"), FabricParticleTypes.simple());
 	public static final DefaultParticleType DASH = Registry.register(Registries.PARTICLE_TYPE,
@@ -21,7 +23,10 @@ public class ParticleRegistry
 			new Identifier(Ultracraft.MOD_ID, "slide"), FabricParticleTypes.simple());
 	public static final DefaultParticleType GROUND_POUND = Registry.register(Registries.PARTICLE_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "groundpound"), FabricParticleTypes.simple());
-	
+	//complex
+	public static final ParticleType<ParryIndicatorParticleEffect> PARRY_INDICATOR = Registry.register(Registries.PARTICLE_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "parry_indicator"), FabricParticleTypes.complex(new ParryIndicatorParticleEffect.Factory()));
+	//goop
 	public static final ParticleType<GoopDropParticleEffect> GOOP_DROP =
 			Registry.register(Registries.PARTICLE_TYPE, new Identifier(Ultracraft.MOD_ID, "goop_drop"),
 					FabricParticleTypes.complex(new GoopDropParticleEffect.Factory()));

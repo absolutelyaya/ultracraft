@@ -23,10 +23,7 @@ import absolutelyaya.ultracraft.client.rendering.entity.projectile.HellBulletRen
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.ThrownMachineSwordRenderer;
 import absolutelyaya.ultracraft.client.sound.MovingSlideSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingWindSoundInstance;
-import absolutelyaya.ultracraft.particle.DashParticle;
-import absolutelyaya.ultracraft.particle.GroundPoundParticle;
-import absolutelyaya.ultracraft.particle.MaliciousChargeParticle;
-import absolutelyaya.ultracraft.particle.SlideParticle;
+import absolutelyaya.ultracraft.particle.*;
 import absolutelyaya.ultracraft.particle.goop.GoopDropParticle;
 import absolutelyaya.ultracraft.particle.goop.GoopParticle;
 import absolutelyaya.ultracraft.particle.goop.GoopStringParticle;
@@ -94,6 +91,7 @@ public class UltracraftClient implements ClientModInitializer
 		particleRegistry.register(ParticleRegistry.DASH, DashParticle.DashParticleFactory::new);
 		particleRegistry.register(ParticleRegistry.SLIDE, SlideParticle.SlideParticleFactory::new);
 		particleRegistry.register(ParticleRegistry.GROUND_POUND, GroundPoundParticle.GroundPoundParticleFactory::new);
+		particleRegistry.register(ParticleRegistry.PARRY_INDICATOR, ParryIndicatorParticle.ParryIndicatorParticleFactory::new);
 		particleRegistry.register(ParticleRegistry.GOOP_DROP, GoopDropParticle.GoopDropParticleFactory::new);
 		particleRegistry.register(ParticleRegistry.GOOP, GoopParticle.GoopParticleFactory::new);
 		particleRegistry.register(ParticleRegistry.GOOP_STRING, GoopStringParticle.GoopStringParticleFactory::new);

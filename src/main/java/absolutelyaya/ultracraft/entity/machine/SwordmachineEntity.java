@@ -51,11 +51,11 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 {
 	private final ServerBossBar bossBar = new ServerBossBar(this.getDisplayName(), BossBar.Color.RED, BossBar.Style.PROGRESS);
 	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
-	private static final RawAnimation RAND_IDLE_ANIM = RawAnimation.begin().thenPlay("look_around").thenLoop("idle");
+	private static final RawAnimation RAND_IDLE_ANIM = RawAnimation.begin().thenPlay("look_around");
 	private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("move");
-	private static final RawAnimation BLAST_ANIM = RawAnimation.begin().thenPlay("shotgun").thenLoop("idle");
-	private static final RawAnimation BREAKDOWN_ANIM = RawAnimation.begin().thenPlay("breakdown").thenLoop("idle");
-	private static final RawAnimation THROW_ANIM = RawAnimation.begin().thenPlay("throw").thenLoop("idle");
+	private static final RawAnimation BLAST_ANIM = RawAnimation.begin().thenLoop("shotgun");
+	private static final RawAnimation BREAKDOWN_ANIM = RawAnimation.begin().thenPlay("breakdown");
+	private static final RawAnimation THROW_ANIM = RawAnimation.begin().thenPlay("throw");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	protected static final TrackedData<Boolean> HAS_SHOTGUN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> HAS_SWORD = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -303,6 +303,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		Vec3d dir = target.getPos().subtract(getPos()).normalize();
 		ThrownMachineSwordEntity sword = ThrownMachineSwordEntity.spawn(world, this, ItemStack.EMPTY, 30);
 		sword.setVelocity(dir);
+		sword.setYaw(-(float)Math.toDegrees(Math.atan2(dir.z, dir.x)) - 90);
 		dataTracker.set(HAS_SWORD, false);
 	}
 	
@@ -505,8 +506,16 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		public void tick()
 		{
 			sm.lookAtEntity(target, 30, 30);
-			if(timer++ == 20)
+			if(timer++ == 10)
+			{
+				sm.setAttacking(true);
+				sm.addParryIndicatorParticle(new Vec3d(0f, sm.getStandingEyeHeight(), -1f), true, false);
+			}
+			if(timer == 20)
+			{
+				sm.setAttacking(false);
 				sm.fireShotgun();
+			}
 		}
 		
 		@Override
@@ -518,7 +527,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		@Override
 		public boolean shouldContinue()
 		{
-			return target != null && target.isAlive() && sm.getAnimation() != ANIMATION_BREAKDOWN && timer < 40;
+			return ((target != null && target.isAlive()) || timer > 20) && sm.getAnimation() != ANIMATION_BREAKDOWN && timer < 40;
 		}
 		
 		@Override
@@ -526,6 +535,8 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		{
 			sm.dataTracker.set(BLAST_COOLDOWN, 20);
 			sm.dataTracker.set(BLASTING, false);
+			if(sm.isAttacking())
+				sm.setAttacking(false);
 		}
 	}
 	
