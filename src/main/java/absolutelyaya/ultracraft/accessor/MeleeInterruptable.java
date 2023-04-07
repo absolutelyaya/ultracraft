@@ -2,7 +2,7 @@ package absolutelyaya.ultracraft.accessor;
 
 import net.minecraft.entity.player.PlayerEntity;
 
-public interface MeleeParriable
+public interface MeleeInterruptable
 {
-	void onParried(PlayerEntity parrier);
+	void onInterrupt(PlayerEntity interrupter);
 }

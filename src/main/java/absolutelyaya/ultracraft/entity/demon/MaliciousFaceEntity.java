@@ -3,7 +3,8 @@ package absolutelyaya.ultracraft.entity.demon;
 import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
-import absolutelyaya.ultracraft.accessor.MeleeParriable;
+import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
+import absolutelyaya.ultracraft.entity.AbstractUltraFlyingEntity;
 import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import absolutelyaya.ultracraft.particle.goop.GoopStringParticleEffect;
@@ -24,7 +25,6 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.GhastEntity;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -45,18 +45,19 @@ import net.minecraft.world.World;
 import java.util.EnumSet;
 import java.util.List;
 
-public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, Enrageable
+public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements MeleeInterruptable, Enrageable
 {
 	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Boolean> CRACKED = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> DEAD = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> LANDED = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Boolean> WAS_INTERRUPTED = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Integer> CHARGE = DataTracker.registerData(MaliciousFaceEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	static final float DESIRED_HEIGHT = 3;
 	Vec2f deathRotation;
 	int deathTicks;
 	
-	public MaliciousFaceEntity(EntityType<? extends GhastEntity> entityType, World world)
+	public MaliciousFaceEntity(EntityType<? extends AbstractUltraFlyingEntity> entityType, World world)
 	{
 		super(entityType, world);
 		this.moveControl = new MaliciousMoveControl(this);
@@ -94,6 +95,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 		dataTracker.startTracking(CRACKED, false);
 		dataTracker.startTracking(DEAD, false);
 		dataTracker.startTracking(LANDED, false);
+		dataTracker.startTracking(WAS_INTERRUPTED, false);
 		dataTracker.startTracking(CHARGE, 0);
 	}
 	
@@ -250,9 +252,9 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
-		if(dataTracker.get(DEAD)) //starve because there's no way this damage would occur accidentally
+		if(dataTracker.get(DEAD))
 		{
-			if(source.equals(DamageSource.STARVE))
+			if(source.equals(DamageSource.STARVE)) //starve because there's no way this damage would occur accidentally
 				setHealth(0);
 			if(source.getName().equals("pound"))
 			{
@@ -281,7 +283,6 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 		}
 		if(getHealth() - amount < getMaxHealth() / 2 && !dataTracker.get(CRACKED))
 			dataTracker.set(CRACKED, true);
-		timeUntilRegen = 9;
 		return super.damage(source, amount);
 	}
 	
@@ -411,11 +412,12 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 	}
 	
 	@Override
-	public void onParried(PlayerEntity parrier)
+	public void onInterrupt(PlayerEntity parrier)
 	{
 		if(!world.isClient && getServer() != null)
 			getServer().execute(() -> world.createExplosion(parrier, getX(), getY(), getZ(), 4f, World.ExplosionSourceType.NONE));
 		damage(DamageSource.mob(parrier), 10);
+		dataTracker.set(WAS_INTERRUPTED, true);
 	}
 	
 	public float getDistanceToGround()
@@ -691,6 +693,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 		{
 			timer = 100;
 			face.dataTracker.set(ATTACK_COOLDOWN, 100);
+			face.dataTracker.set(WAS_INTERRUPTED, false);
 			repeat = face.isEnraged();
 		}
 		
@@ -717,6 +720,7 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 					dir = Vec3d.ZERO;
 				targetPos = target.getPos().add(dir.normalize().multiply(3)).add(0, target.getHeight() / 4, 0);
 				face.setAttacking(true);
+				face.addParryIndicatorParticle(face.getRotationVector().multiply(1.5f), false, false);
 				face.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 2f, 1.75f);
 			}
 			if(timer < 20)
@@ -745,12 +749,17 @@ public class MaliciousFaceEntity extends GhastEntity implements MeleeParriable, 
 			super.stop();
 			face.setAttacking(false);
 			face.dataTracker.set(CHARGE, 0);
+			if(face.dataTracker.get(WAS_INTERRUPTED))
+			{
+				face.dataTracker.set(WAS_INTERRUPTED, false);
+				face.dataTracker.set(ATTACK_COOLDOWN, 50 + (int)(face.random.nextFloat() * 60));
+			}
 		}
 		
 		@Override
 		public boolean shouldContinue()
 		{
-			return ((timer > 0 && target != null) || repeat) && !face.dataTracker.get(DEAD);
+			return ((timer > 0 && target != null) || repeat) && !face.dataTracker.get(DEAD) && !face.dataTracker.get(WAS_INTERRUPTED);
 		}
 	}
 }

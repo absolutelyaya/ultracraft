@@ -3,7 +3,7 @@ package absolutelyaya.ultracraft.entity.machine;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
-import absolutelyaya.ultracraft.accessor.MeleeParriable;
+import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.husk.AbstractHuskEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
@@ -47,7 +47,7 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-public class SwordmachineEntity extends AbstractUltraHostileEntity implements GeoEntity, MeleeParriable, Enrageable
+public class SwordmachineEntity extends AbstractUltraHostileEntity implements GeoEntity, MeleeInterruptable, Enrageable
 {
 	private final ServerBossBar bossBar = new ServerBossBar(this.getDisplayName(), BossBar.Color.RED, BossBar.Style.PROGRESS);
 	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
@@ -139,7 +139,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	}
 	
 	@Override
-	public void onParried(PlayerEntity parrier)
+	public void onInterrupt(PlayerEntity parrier)
 	{
 		enrage();
 	}
@@ -555,7 +555,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		public boolean canStart()
 		{
 			target = sm.getTarget();
-			if (target != null && sm.isIdle() && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(THROW_COOLDOWN) == 0)
+			if (target != null && sm.isIdle() && !sm.dataTracker.get(HAS_SHOTGUN) && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(THROW_COOLDOWN) == 0)
 				return sm.tryConsumeStamina(10);
 			return false;
 		}

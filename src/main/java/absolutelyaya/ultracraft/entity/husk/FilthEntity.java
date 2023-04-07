@@ -1,7 +1,7 @@
 package absolutelyaya.ultracraft.entity.husk;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.accessor.MeleeParriable;
+import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -29,7 +29,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.EnumSet;
 
-public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeParriable
+public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeInterruptable
 {
 	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
 	private static final RawAnimation RUN_ANIM = RawAnimation.begin().thenLoop("run");
@@ -147,7 +147,7 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeP
 	}
 	
 	@Override
-	public void onParried(PlayerEntity parrier) {
+	public void onInterrupt(PlayerEntity parrier) {
 	
 	}
 	
