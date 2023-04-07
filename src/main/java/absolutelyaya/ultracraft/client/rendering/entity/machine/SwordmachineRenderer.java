@@ -49,7 +49,7 @@ public class SwordmachineRenderer extends GeoEntityRenderer<SwordmachineEntity>
 			{
 				if(bone.getName().equals(SWORD))
 				{
-					poseStack.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(35), 1f, 0f, 0f)));
+					poseStack.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(135), 1f, 0f, 0f)));
 					poseStack.translate(0f, -0.325f, 0f);
 				}
 				super.renderStackForBone(poseStack, bone, stack, animatable, bufferSource, partialTick, packedLight, packedOverlay);

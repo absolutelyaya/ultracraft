@@ -8,7 +8,9 @@ import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.husk.AbstractHuskEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
+import absolutelyaya.ultracraft.registry.DamageSources;
 import net.minecraft.advancement.Advancement;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
@@ -22,6 +24,7 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.entity.mob.HuskEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootTable;
@@ -47,15 +50,20 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SwordmachineEntity extends AbstractUltraHostileEntity implements GeoEntity, MeleeInterruptable, Enrageable
 {
 	private final ServerBossBar bossBar = new ServerBossBar(this.getDisplayName(), BossBar.Color.RED, BossBar.Style.PROGRESS);
 	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
+	private static final RawAnimation HAND_CLOSED_ANIM = RawAnimation.begin().thenLoop("hand_closed");
 	private static final RawAnimation RAND_IDLE_ANIM = RawAnimation.begin().thenPlay("look_around");
 	private static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("move");
 	private static final RawAnimation BLAST_ANIM = RawAnimation.begin().thenLoop("shotgun");
 	private static final RawAnimation BREAKDOWN_ANIM = RawAnimation.begin().thenPlay("breakdown");
 	private static final RawAnimation THROW_ANIM = RawAnimation.begin().thenPlay("throw");
+	private static final RawAnimation SLASH_ANIM = RawAnimation.begin().thenPlay("slash");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	protected static final TrackedData<Boolean> HAS_SHOTGUN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> HAS_SWORD = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -71,6 +79,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	private static final byte ANIMATION_LOOK = 1;
 	private static final byte ANIMATION_BREAKDOWN = 2;
 	private static final byte ANIMATION_THROW = 3;
+	private static final byte ANIMATION_SLASH = 4;
 	
 	public SwordmachineEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -79,7 +88,6 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	}
 	
 	//TODO: add attacks lol
-	//TODO: Slash attack
 	//TODO: Piruette attack
 	//TODO: Combo attack
 	
@@ -131,6 +139,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	{
 		goalSelector.add(0, new ShotgunGoal(this));
 		goalSelector.add(1, new ThrowSwordGoal(this));
+		goalSelector.add(2, new SlashGoal(this));
 		goalSelector.add(3, new ChaseGoal(this));
 		goalSelector.add(4, new LookAroundGoal(this));
 		
@@ -155,6 +164,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			case ANIMATION_LOOK -> controller.setAnimation(RAND_IDLE_ANIM);
 			case ANIMATION_BREAKDOWN -> controller.setAnimation(BREAKDOWN_ANIM);
 			case ANIMATION_THROW -> controller.setAnimation(THROW_ANIM);
+			case ANIMATION_SLASH -> controller.setAnimation(SLASH_ANIM);
 		}
 		return PlayState.CONTINUE;
 	}
@@ -169,12 +179,24 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		return PlayState.CONTINUE;
 	}
 	
+	private <E extends GeoEntity> PlayState handPredicate(AnimationState<E> event)
+	{
+		//it's small details like this- that no one will notice lmao
+		AnimationController<?> controller = event.getController();
+		if(dataTracker.get(HAS_SWORD))
+			controller.setAnimation(HAND_CLOSED_ANIM);
+		else
+			return PlayState.STOP;
+		return PlayState.CONTINUE;
+	}
+	
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
 	{
 		controllerRegistrar.add(
 			new AnimationController<>(this, "main", 2, this::predicate),
-			new AnimationController<>(this, "shotgun", 2, this::shotgunPredicate)
+			new AnimationController<>(this, "shotgun", 10, this::shotgunPredicate),
+			new AnimationController<>(this, "hand", 15, this::handPredicate)
 		);
 	}
 	
@@ -527,7 +549,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		@Override
 		public boolean shouldContinue()
 		{
-			return ((target != null && target.isAlive()) || timer > 20) && sm.getAnimation() != ANIMATION_BREAKDOWN && timer < 40;
+			return ((target != null && target.isAlive()) || timer > 20) && sm.isIdle() && timer < 40;
 		}
 		
 		@Override
@@ -599,6 +621,83 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			sm.dataTracker.set(THROW_COOLDOWN, 200);
 			if(sm.getAnimation() == ANIMATION_THROW)
 				sm.dataTracker.set(ANIMATION, ANIMATION_IDLE);
+		}
+	}
+	
+	static class SlashGoal extends Goal
+	{
+		List<Entity> damaged = new ArrayList<>();
+		SwordmachineEntity sm;
+		LivingEntity target;
+		int timer;
+		Vec3d direction;
+		
+		public SlashGoal(SwordmachineEntity sm)
+		{
+			this.sm = sm;
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			target = sm.getTarget();
+			if (target != null && sm.isIdle() && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(ATTACK_COOLDOWN) == 0)
+				return sm.tryConsumeStamina(30);
+			return false;
+		}
+		
+		@Override
+		public void start()
+		{
+			timer = 0;
+			sm.dataTracker.set(ANIMATION, ANIMATION_SLASH);
+			direction = target.getPos().subtract(sm.getPos()).multiply(1f, 0f, 1f).normalize();
+			sm.lookAtEntity(target, 360, 360);
+			sm.setBodyYaw(sm.headYaw);
+			damaged.clear();
+		}
+		
+		@Override
+		public void tick()
+		{
+			sm.setBodyYaw(sm.headYaw);
+			if(timer++ > 10 && timer < 25)
+			{
+				sm.setVelocity(direction.multiply(0.75f));
+				List<Entity> hit = sm.world.getOtherEntities(sm, sm.getBoundingBox().expand(1f, 0f, 1f),
+						e -> (e instanceof PlayerEntity || (sm.shouldHuntHusks() && e instanceof HuskEntity)) && !damaged.contains(e));
+				hit.forEach(e -> {
+					if(e.damage(DamageSources.getSwordmachine(sm), 8))
+						damaged.add(e);
+				});
+			}
+		}
+		
+		@Override
+		public boolean shouldRunEveryTick()
+		{
+			return true;
+		}
+		
+		@Override
+		public boolean shouldContinue()
+		{
+			return sm.getAnimation() == ANIMATION_SLASH && timer < 35;
+		}
+		
+		@Override
+		public boolean canStop()
+		{
+			return !shouldContinue();
+		}
+		
+		@Override
+		public void stop()
+		{
+			sm.dataTracker.set(ATTACK_COOLDOWN, 40);
+			if(sm.getAnimation() == ANIMATION_SLASH)
+				sm.dataTracker.set(ANIMATION, ANIMATION_IDLE);
+			damaged.clear();
 		}
 	}
 }

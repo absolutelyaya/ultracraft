@@ -76,15 +76,71 @@
 					"parent": "right_arm_lower",
 					"pivot": [6, 12, 0],
 					"cubes": [
-						{"origin": [5.5, 10.5, -2], "size": [1, 2, 4], "uv": [15, 55]},
-						{"origin": [5.5, 8.5, -2], "size": [1, 2, 1], "uv": [16, 61]},
-						{"origin": [5.5, 8.5, -1], "size": [1, 2, 1], "uv": [16, 61]},
-						{"origin": [5.5, 8.5, 0], "size": [1, 2, 1], "uv": [16, 61]},
-						{"origin": [5.5, 6.5, -2], "size": [1, 2, 1], "uv": [20, 61]},
-						{"origin": [4, 10, -2], "size": [1, 2, 1], "uv": [16, 61]},
-						{"origin": [4, 8, -2], "size": [1, 2, 1], "uv": [20, 61]},
-						{"origin": [5.5, 6.5, -1], "size": [1, 2, 1], "uv": [20, 61]},
-						{"origin": [5.5, 6.5, 0], "size": [1, 2, 1], "uv": [20, 61]}
+						{"origin": [5.5, 10.5, -2], "size": [1, 2, 4], "uv": [15, 55]}
+					]
+				},
+				{
+					"name": "index",
+					"parent": "Hand",
+					"pivot": [6.5, 10.5, -1.5],
+					"cubes": [
+						{"origin": [5.5, 8.5, -2], "size": [1, 2, 1], "uv": [16, 61]}
+					]
+				},
+				{
+					"name": "index_tip",
+					"parent": "index",
+					"pivot": [6.5, 8.5, -1.5],
+					"cubes": [
+						{"origin": [5.5, 6.5, -2], "size": [1, 2, 1], "inflate": 0.001, "uv": [20, 61]}
+					]
+				},
+				{
+					"name": "middle",
+					"parent": "Hand",
+					"pivot": [6.5, 10.5, -0.5],
+					"cubes": [
+						{"origin": [5.5, 8.5, -1], "size": [1, 2, 1], "uv": [16, 61]}
+					]
+				},
+				{
+					"name": "middle_tip",
+					"parent": "middle",
+					"pivot": [6.5, 8.5, -0.5],
+					"cubes": [
+						{"origin": [5.5, 6.5, -1], "size": [1, 2, 1], "inflate": 0.001, "uv": [20, 61]}
+					]
+				},
+				{
+					"name": "ring",
+					"parent": "Hand",
+					"pivot": [6.5, 10.5, 0.5],
+					"cubes": [
+						{"origin": [5.5, 8.5, 0], "size": [1, 2, 1], "uv": [16, 61]}
+					]
+				},
+				{
+					"name": "ring_tip",
+					"parent": "ring",
+					"pivot": [6.5, 8.5, 0.5],
+					"cubes": [
+						{"origin": [5.5, 6.5, 0], "size": [1, 2, 1], "inflate": 0.001, "uv": [20, 61]}
+					]
+				},
+				{
+					"name": "thumb",
+					"parent": "Hand",
+					"pivot": [4, 12.5, -2],
+					"cubes": [
+						{"origin": [4, 10.5, -2], "size": [1, 2, 1], "uv": [16, 61]}
+					]
+				},
+				{
+					"name": "thumb_tip",
+					"parent": "thumb",
+					"pivot": [4, 10.5, -2],
+					"cubes": [
+						{"origin": [4, 8.5, -2], "size": [1, 2, 1], "inflate": 0.001, "uv": [20, 61]}
 					]
 				},
 				{
