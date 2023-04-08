@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.husk.AbstractHuskEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
@@ -25,7 +26,6 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.mob.HuskEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootTable;
@@ -43,6 +43,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -54,6 +55,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class SwordmachineEntity extends AbstractUltraHostileEntity implements GeoEntity, MeleeInterruptable, Enrageable
 {
@@ -642,6 +644,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		LivingEntity target;
 		int timer;
 		Vec3d direction;
+		UUID trailID;
 		
 		public SlashGoal(SwordmachineEntity sm)
 		{
@@ -652,7 +655,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		public boolean canStart()
 		{
 			target = sm.getTarget();
-			if (target != null && sm.isIdle() && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(ATTACK_COOLDOWN) == 0)
+			if (target != null && sm.isIdle() && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(ATTACK_COOLDOWN) == 0 && sm.distanceTo(target) < 8)
 				return sm.tryConsumeStamina(30);
 			return false;
 		}
@@ -666,22 +669,28 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			sm.lookAtEntity(target, 360, 360);
 			sm.setBodyYaw(sm.headYaw);
 			damaged.clear();
+			trailID = UUID.randomUUID();
 		}
 		
 		@Override
 		public void tick()
 		{
 			sm.setBodyYaw(sm.headYaw);
-			if(timer++ > 10 && timer < 25)
+			if(timer++ == 9)
+				UltracraftClient.TRAIL_RENDERER.createTrail(trailID,
+						() -> sm.getPos().toVector3f().add(new Vector3f(0f, 1f, 1.5f).rotateY((float)Math.toRadians(sm.getYaw() + timer * 30))));
+			if(timer > 10 && timer < 25)
 			{
 				sm.setVelocity(direction.multiply(0.75f));
-				List<Entity> hit = sm.world.getOtherEntities(sm, sm.getBoundingBox().expand(1f, 0f, 1f),
-						e -> (e instanceof PlayerEntity || (sm.shouldHuntHusks() && e instanceof HuskEntity)) && !damaged.contains(e));
+				List<Entity> hit = sm.world.getOtherEntities(sm, sm.getBoundingBox().expand(2f, 0f, 2f),
+						e -> (e instanceof PlayerEntity || (sm.shouldHuntHusks() && e instanceof AbstractHuskEntity)) && !damaged.contains(e));
 				hit.forEach(e -> {
 					if(e.damage(DamageSources.getSwordmachine(sm), 8))
 						damaged.add(e);
 				});
 			}
+			if(timer == 26)
+				UltracraftClient.TRAIL_RENDERER.removeTrail(trailID);
 		}
 		
 		@Override
@@ -709,6 +718,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			if(sm.getAnimation() == ANIMATION_SLASH)
 				sm.dataTracker.set(ANIMATION, ANIMATION_IDLE);
 			damaged.clear();
+			UltracraftClient.TRAIL_RENDERER.removeTrail(trailID);
 		}
 	}
 }

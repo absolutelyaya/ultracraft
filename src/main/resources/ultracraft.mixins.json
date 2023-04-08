@@ -22,8 +22,7 @@
     "LivingEntityRendererMixin",
     "MinecraftClientMixin",
     "PlayerRendererMixin",
-    "TitleScreenMixin",
-    "WorldRendererMixin"
+    "TitleScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

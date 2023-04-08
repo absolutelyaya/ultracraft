@@ -2,11 +2,13 @@ package absolutelyaya.ultracraft.entity.projectile;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.entity.machine.SwordmachineEntity;
 import absolutelyaya.ultracraft.registry.DamageSources;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -29,6 +31,9 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class ThrownMachineSwordEntity extends PersistentProjectileEntity implements ProjectileEntityAccessor
 {
@@ -84,6 +89,14 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 	{
 		if(world.isClient && Ultracraft.isTimeFrozen())
 			return;
+		if(world.isClient && age == 1)
+				UltracraftClient.TRAIL_RENDERER.createTrail(uuid,
+				() -> {
+					float deg = (float)Math.toRadians(getYaw() + 90);
+					return getPos().toVector3f().add(new Vector3f(0f, 1.5f, 0f).rotate(
+							new Quaternionf(new AxisAngle4f((float)Math.toRadians(age * 0.936f * 60),
+									(float)Math.sin(deg), 0f, (float)Math.cos(deg)))));
+				});
 		move(MovementType.SELF, getVelocity());
 		
 		HitResult hitResult = ProjectileUtil.getCollision(this, this::canHit);
@@ -231,5 +244,12 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 	public boolean isParriable()
 	{
 		return false;
+	}
+	
+	@Override
+	public void remove(RemovalReason reason)
+	{
+		UltracraftClient.TRAIL_RENDERER.removeTrail(uuid);
+		super.remove(reason);
 	}
 }

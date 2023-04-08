@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.client;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.client.rendering.TrailRenderer;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.client.rendering.block.entity.CerberusBlockRenderer;
 import absolutelyaya.ultracraft.client.rendering.block.entity.PedestalBlockEntityRenderer;
@@ -59,6 +60,7 @@ public class UltracraftClient implements ClientModInitializer
 	public static final EntityModelLayer SHOCKWAVE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "shockwave"), "main");
 	public static final EntityModelLayer INTERRUPTABLE_CHARGE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "interruptable_charge"), "main");
 	public static ClientHitscanHandler HITSCAN_HANDLER;
+	public static TrailRenderer TRAIL_RENDERER;
 	public static boolean REPLACE_MENU_MUSIC = true;
 	static boolean HiVelMode = false;
 	static GameruleRegistry.Option HiVelOption = GameruleRegistry.Option.FREE;
@@ -108,6 +110,7 @@ public class UltracraftClient implements ClientModInitializer
 		ModelPredicateRegistry.registerModels();
 		
 		HITSCAN_HANDLER = new ClientHitscanHandler();
+		TRAIL_RENDERER = new TrailRenderer();
 		
 		ClientTickEvents.END_WORLD_TICK.register((client) -> HITSCAN_HANDLER.tick());
 		
@@ -149,10 +152,18 @@ public class UltracraftClient implements ClientModInitializer
 						helper.register(new EnragedFeature<>(context.getModelLoader()));
 				});
 		
+		WorldRenderEvents.AFTER_ENTITIES.register((ctx) -> {
+			UltracraftClient.HITSCAN_HANDLER.render(ctx.matrixStack(), ctx.camera());
+			UltracraftClient.TRAIL_RENDERER.render(ctx.matrixStack(), ctx.camera());
+		});
+		
 		ClientPacketRegistry.registerS2C();
 		GeckoLibNetwork.registerClientReceiverPackets();
 		
-		ClientTickEvents.END_WORLD_TICK.register(minecraft -> Ultracraft.tickFreeze());
+		ClientTickEvents.END_WORLD_TICK.register(minecraft -> {
+			Ultracraft.tickFreeze();
+			UltracraftClient.TRAIL_RENDERER.tick();
+		});
 		
 		config = AutoConfig.register(Ultraconfig.class, GsonConfigSerializer::new);
 	}
