@@ -32,7 +32,7 @@ import net.minecraft.world.World;
 
 public class ThrownMachineSwordEntity extends PersistentProjectileEntity implements ProjectileEntityAccessor
 {
-	private ItemStack swordStack = new ItemStack(ItemRegistry.MACHINE_SWORD);
+	protected static final TrackedData<ItemStack> SWORD = DataTracker.registerData(ThrownMachineSwordEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	protected static final TrackedData<Float> DISTANCE = DataTracker.registerData(ThrownMachineSwordEntity.class, TrackedDataHandlerRegistry.FLOAT);
 	protected static final TrackedData<Boolean> REACHED_DEST = DataTracker.registerData(ThrownMachineSwordEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> RETURNING = DataTracker.registerData(ThrownMachineSwordEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -55,6 +55,7 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 	protected void initDataTracker()
 	{
 		super.initDataTracker();
+		dataTracker.startTracking(SWORD, ItemRegistry.MACHINE_SWORD.getDefaultStack());
 		dataTracker.startTracking(DISTANCE, 0f);
 		dataTracker.startTracking(REACHED_DEST, false);
 		dataTracker.startTracking(RETURNING, false);
@@ -64,13 +65,18 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 	public static ThrownMachineSwordEntity spawn(World world, LivingEntity owner, ItemStack swordStack, float distance)
 	{
 		ThrownMachineSwordEntity sword = new ThrownMachineSwordEntity(world, owner);
-		sword.swordStack = swordStack;
+		sword.setSword(swordStack);
 		sword.setNoGravity(true);
 		sword.dataTracker.set(DISTANCE, distance);
 		sword.spawnPos = owner.getPos();
 		sword.setRotation(owner.getYaw(), 0f);
 		world.spawnEntity(sword);
 		return sword;
+	}
+	
+	void setSword(ItemStack stack)
+	{
+		dataTracker.set(SWORD, stack);
 	}
 	
 	@Override
@@ -129,7 +135,7 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 				if(getOwner() instanceof SwordmachineEntity sm)
 					sm.setHasSword(true);
 				if(getOwner() instanceof PlayerEntity p && tryPickup(p))
-					p.giveItemStack(swordStack);
+					p.giveItemStack(dataTracker.get(SWORD));
 				discard();
 			}
 			else
@@ -178,7 +184,7 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 	@Override
 	protected ItemStack asItemStack()
 	{
-		return swordStack.copy();
+		return dataTracker.get(SWORD).copy();
 	}
 	
 	@Override
@@ -206,7 +212,7 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 	
 	public ItemStack getStack()
 	{
-		return swordStack;
+		return dataTracker.get(SWORD);
 	}
 	
 	@Override

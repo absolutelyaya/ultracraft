@@ -8,6 +8,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SwordItem;
 import net.minecraft.item.ToolMaterial;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
@@ -15,6 +16,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.animatable.SingletonGeoAnimatable;
 import software.bernie.geckolib.animatable.client.RenderProvider;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -33,6 +35,20 @@ public class MachineSwordItem extends SwordItem implements GeoItem
 	public MachineSwordItem(ToolMaterial toolMaterial, int attackDamage, float attackSpeed, Settings settings)
 	{
 		super(toolMaterial, attackDamage, attackSpeed, settings);
+		SingletonGeoAnimatable.registerSyncedAnimatable(this);
+	}
+	
+	@Override
+	public ItemStack getDefaultStack()
+	{
+		return super.getDefaultStack();
+	}
+	
+	public ItemStack getSwordInstance(ServerWorld world)
+	{
+		ItemStack stack = getDefaultStack();
+		GeoItem.getOrAssignId(stack, world);
+		return stack;
 	}
 	
 	@Override
@@ -61,6 +77,8 @@ public class MachineSwordItem extends SwordItem implements GeoItem
 		if(remainingUseTicks - 2500 <= 30)
 		{
 			float distance = MathHelper.lerp(Math.max(remainingUseTicks - 2500, 0) / 30f, 40f, 10f);
+			if(!world.isClient())
+				GeoItem.getOrAssignId(stack, (ServerWorld)world);
 			ThrownMachineSwordEntity thrown = ThrownMachineSwordEntity.spawn(world, user, stack.copy(), distance);
 			Vec3d dir = new Vec3d(0f, 0f, 1f);
 			dir = dir.rotateX((float)Math.toRadians(-user.getPitch()));

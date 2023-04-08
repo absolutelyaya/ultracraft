@@ -11,6 +11,7 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
@@ -34,7 +35,7 @@ public class SwordmachineRenderer extends GeoEntityRenderer<SwordmachineEntity>
 			protected ItemStack getStackForBone(GeoBone bone, SwordmachineEntity animatable)
 			{
 				if(bone.getName().equals(SWORD) && animatable.isHasSword())
-					return ItemRegistry.MACHINE_SWORD.getDefaultStack();
+					return animatable.getSwordStack();
 				return super.getStackForBone(bone, animatable);
 			}
 		
@@ -47,12 +48,14 @@ public class SwordmachineRenderer extends GeoEntityRenderer<SwordmachineEntity>
 			@Override
 			protected void renderStackForBone(MatrixStack poseStack, GeoBone bone, ItemStack stack, SwordmachineEntity animatable, VertexConsumerProvider bufferSource, float partialTick, int packedLight, int packedOverlay)
 			{
+				poseStack.push();
 				if(bone.getName().equals(SWORD))
 				{
 					poseStack.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(135), 1f, 0f, 0f)));
 					poseStack.translate(0f, -0.325f, 0f);
 				}
 				super.renderStackForBone(poseStack, bone, stack, animatable, bufferSource, partialTick, packedLight, packedOverlay);
+				poseStack.pop();
 			}
 		});
 	}

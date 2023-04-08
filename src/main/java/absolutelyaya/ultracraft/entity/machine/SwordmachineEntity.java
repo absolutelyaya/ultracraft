@@ -9,6 +9,7 @@ import absolutelyaya.ultracraft.entity.husk.AbstractHuskEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import absolutelyaya.ultracraft.registry.DamageSources;
+import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.advancement.Advancement;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -34,6 +35,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -65,6 +67,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	private static final RawAnimation THROW_ANIM = RawAnimation.begin().thenPlay("throw");
 	private static final RawAnimation SLASH_ANIM = RawAnimation.begin().thenPlay("slash");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+	protected static final TrackedData<ItemStack> SWORD_STACK = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	protected static final TrackedData<Boolean> HAS_SHOTGUN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> HAS_SWORD = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> BLASTING = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -85,6 +88,8 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	{
 		super(entityType, world);
 		((LivingEntityAccessor)this).SetTakePunchKnockbackSupplier(() -> false); //disable knockback
+		if(!world.isClient())
+			dataTracker.set(SWORD_STACK, ItemRegistry.MACHINE_SWORD.getSwordInstance((ServerWorld)world));
 	}
 	
 	//TODO: add attacks lol
@@ -95,6 +100,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	protected void initDataTracker()
 	{
 		super.initDataTracker();
+		dataTracker.startTracking(SWORD_STACK, ItemRegistry.MACHINE_SWORD.getDefaultStack());
 		dataTracker.startTracking(ATTACK_COOLDOWN, 20);
 		dataTracker.startTracking(BLAST_COOLDOWN, 0);
 		dataTracker.startTracking(THROW_COOLDOWN, 120);
@@ -391,6 +397,11 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	public boolean isPushable()
 	{
 		return dataTracker.get(BREAKDOWN_TICKS) == 0;
+	}
+	
+	public ItemStack getSwordStack()
+	{
+		return dataTracker.get(SWORD_STACK);
 	}
 	
 	static class TargetHuskGoal extends ActiveTargetGoal<LivingEntity>
