@@ -39,6 +39,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
@@ -678,7 +679,11 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			sm.setBodyYaw(sm.headYaw);
 			if(timer++ == 9)
 				UltracraftClient.TRAIL_RENDERER.createTrail(trailID,
-						() -> sm.getPos().toVector3f().add(new Vector3f(0f, 1f, 1.5f).rotateY((float)Math.toRadians(sm.getYaw() + timer * 30))));
+				() -> {
+					Vector3f left = sm.getPos().toVector3f().add(new Vector3f(0f, 1f, 1.5f).rotateY((float)Math.toRadians(sm.getYaw() + timer * 30)));
+					Vector3f right = sm.getPos().toVector3f().add(new Vector3f(0f, 1f, 0.5f).rotateY((float)Math.toRadians(sm.getYaw() + timer * 30)));
+					return new Pair<>(left, right);
+				});
 			if(timer > 10 && timer < 25)
 			{
 				sm.setVelocity(direction.multiply(0.75f));

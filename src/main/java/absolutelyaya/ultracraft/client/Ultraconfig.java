@@ -22,10 +22,13 @@ public class Ultraconfig implements ConfigData
 	public boolean moveUltrahud = true;
 	@ConfigEntry.Category("goop")
 	@ConfigEntry.Gui.Tooltip
-	public boolean fancyGoop = true;
+	public boolean fancyGoop = false;
 	@ConfigEntry.Category("goop")
 	@ConfigEntry.Gui.Tooltip
 	public boolean wrapToEdges = false;
 	@ConfigEntry.Gui.Excluded
 	public String BGID = "ultracraft";
+	@ConfigEntry.Category("debug")
+	@ConfigEntry.Gui.Tooltip
+	public boolean trailLines = false;
 }

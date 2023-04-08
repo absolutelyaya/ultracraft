@@ -4,14 +4,12 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.gecko.SwordmachineEmissiveLayer;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.gecko.SwordmachineRageLayer;
 import absolutelyaya.ultracraft.entity.machine.SwordmachineEntity;
-import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
@@ -51,7 +49,7 @@ public class SwordmachineRenderer extends GeoEntityRenderer<SwordmachineEntity>
 				poseStack.push();
 				if(bone.getName().equals(SWORD))
 				{
-					poseStack.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(135), 1f, 0f, 0f)));
+					poseStack.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(45), 1f, 0f, 0f)));
 					poseStack.translate(0f, -0.325f, 0f);
 				}
 				super.renderStackForBone(poseStack, bone, stack, animatable, bufferSource, partialTick, packedLight, packedOverlay);

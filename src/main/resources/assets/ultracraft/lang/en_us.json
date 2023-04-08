@@ -80,6 +80,7 @@
 
   "text.autoconfig.ultracraft.category.default": "Ultracraft",
   "text.autoconfig.ultracraft.category.goop": "Goop / Blood",
+  "text.autoconfig.ultracraft.category.debug": "Debug",
 
   "text.autoconfig.ultracraft.option.fancyGoop": "Fancy Goop",
   "text.autoconfig.ultracraft.option.fancyGoop.@Tooltip": "Disable for better performance, enable for better goop!",
@@ -103,5 +104,8 @@
   "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[2]": "LIMITED = only show when in Hi-Velocity Mode",
 
   "text.autoconfig.ultracraft.option.moveUltrahud": "Move Ultrahud",
-  "text.autoconfig.ultracraft.option.moveUltrahud.@Tooltip": "Moves the Ultrahud up when holding an item in your offhand."
+  "text.autoconfig.ultracraft.option.moveUltrahud.@Tooltip": "Moves the Ultrahud up when holding an item in your offhand.",
+
+  "text.autoconfig.ultracraft.option.trailLines": "Trail lines",
+  "text.autoconfig.ultracraft.option.trailLines.@Tooltip": "Renders Trails as simple lines to get a better feel for where vertices are."
 }

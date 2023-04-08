@@ -8,7 +8,6 @@ import absolutelyaya.ultracraft.registry.DamageSources;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -25,6 +24,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Pair;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -93,9 +93,9 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 				UltracraftClient.TRAIL_RENDERER.createTrail(uuid,
 				() -> {
 					float deg = (float)Math.toRadians(getYaw() + 90);
-					return getPos().toVector3f().add(new Vector3f(0f, 1.5f, 0f).rotate(
-							new Quaternionf(new AxisAngle4f((float)Math.toRadians(age * 0.936f * 60),
-									(float)Math.sin(deg), 0f, (float)Math.cos(deg)))));
+					Vector3f left =	getTrailPos(deg, 1.5f);
+					Vector3f right = getTrailPos(deg, 1f);
+					return new Pair<>(left, right);
 				});
 		move(MovementType.SELF, getVelocity());
 		
@@ -103,6 +103,14 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 		if (hitResult.getType() != HitResult.Type.MISS)
 			onCollision(hitResult);
 		checkBlockCollision();
+	}
+	
+	Vector3f getTrailPos(float deg, float distance)
+	{
+		//return getPos().add(0f, (distance - 1f) * 2f, 0f).toVector3f();
+		return getPos().toVector3f().add(new Vector3f(0f, distance, 0f).rotate(
+				new Quaternionf(new AxisAngle4f((float)Math.toRadians(age * 0.936f * 60),
+						(float)Math.sin(deg), 0f, (float)Math.cos(deg)))));
 	}
 	
 	@Override

@@ -23,8 +23,9 @@ public class RenderLayers extends RenderLayer
 	
 	private static final Function<Identifier, RenderLayer> SHOCKWAVE = Util.memoize((texture) -> {
 		RenderLayer.MultiPhaseParameters multiPhaseParameters =
-				RenderLayer.MultiPhaseParameters.builder().program(BEACON_BEAM_PROGRAM).texture(new RenderPhase.Texture(texture, false, false))
-						.transparency(LIGHTNING_TRANSPARENCY).writeMaskState(COLOR_MASK).cull(RenderPhase.DISABLE_CULLING).build(false);
+				RenderLayer.MultiPhaseParameters.builder().program(BEACON_BEAM_PROGRAM).writeMaskState(RenderPhase.COLOR_MASK)
+						.texture(new Texture(texture, false, false)).transparency(LIGHTNING_TRANSPARENCY)
+						.writeMaskState(ALL_MASK).cull(DISABLE_CULLING).build(false);
 		return RenderLayer.of("shockwave", VertexFormats.POSITION_COLOR_TEXTURE, VertexFormat.DrawMode.QUADS, 256, false, true, multiPhaseParameters);
 	});
 }
