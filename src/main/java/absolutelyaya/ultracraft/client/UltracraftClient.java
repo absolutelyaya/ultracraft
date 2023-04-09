@@ -154,7 +154,7 @@ public class UltracraftClient implements ClientModInitializer
 		
 		WorldRenderEvents.AFTER_ENTITIES.register((ctx) -> {
 			UltracraftClient.HITSCAN_HANDLER.render(ctx.matrixStack(), ctx.camera());
-			UltracraftClient.TRAIL_RENDERER.render(ctx.matrixStack(), ctx.camera());
+			UltracraftClient.TRAIL_RENDERER.render(ctx.matrixStack(), ctx.camera(), ctx.tickDelta());
 		});
 		
 		ClientPacketRegistry.registerS2C();

@@ -25,8 +25,9 @@ public class TrailRenderer
 	static Map<UUID, Supplier<Pair<Vector3f, Vector3f>>> getNextPoint = new HashMap<>();
 	static List<UUID> deletionQueue = new ArrayList<>();
 	static MinecraftClient client;
+	static int maxAge = 40;
 	
-	public void render(MatrixStack matrixStack, Camera cam)
+	public void render(MatrixStack matrixStack, Camera cam, float tickDelta)
 	{
 		if(client.world == null)
 			return;
@@ -48,7 +49,7 @@ public class TrailRenderer
 			if(UltracraftClient.getConfigHolder().getConfig().trailLines)
 				renderAsLines(id, trailCopy, matrix, immediate);
 			else
-				renderAsQuads(id, trailCopy, matrix, immediate);
+				renderAsQuads(trailCopy, matrix, immediate, tickDelta);
 			lastRendered.put(id, time);
 		}
 		for (int i = 0; i < newTrails.size(); i++)
@@ -103,12 +104,13 @@ public class TrailRenderer
 		consumer.unfixColor();
 	}
 	
-	public void renderAsQuads(UUID id, List<Pair<Long, Pair<Vector3f, Vector3f>>> trail, Matrix4f matrix, VertexConsumerProvider.Immediate immediate)
+	public void renderAsQuads(List<Pair<Long, Pair<Vector3f, Vector3f>>> trail, Matrix4f matrix, VertexConsumerProvider.Immediate immediate, float tickDelta)
 	{
 		//POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL
-		VertexConsumer consumer = immediate.getBuffer(RenderLayers.getShockWave(new Identifier(Ultracraft.MOD_ID, "textures/particle/generic_stripe.png")));
+		VertexConsumer consumer = immediate.getBuffer(RenderLayers.getLightTrail());
 		RenderSystem.enableBlend();
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		RenderSystem.disableTexture();
 		Pair<Vector3f, Vector3f> last = null;
 		Vector3f normal = client.getCameraEntity().getRotationVector().multiply(-1f).toVector3f();
 		Vector4f col = new Vector4f(1f, 0.5f, 0f, 0.6f);
@@ -116,16 +118,18 @@ public class TrailRenderer
 		{
 			Vector3f vec = trail.get(i).getRight().getLeft();
 			Vector3f vec2 = trail.get(i).getRight().getRight();
-			consumer.vertex(matrix, vec2.x, vec2.y, vec2.z).color(col.x, col.y, col.z, col.w).texture(0f, 0f).overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normal.x, normal.y, normal.z).next();
+			long age = client.world.getTime() - trail.get(i).getLeft();
+			float fade = Math.max((1f - (float)age / maxAge), 0f);
+			consumer.vertex(matrix, vec2.x, vec2.y, vec2.z).color(col.x, col.y, col.z, col.w * fade).texture(0f, 0f).overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normal.x, normal.y, normal.z).next();
 			if(last != null)
-				consumer.vertex(matrix, last.getRight().x, last.getRight().y, last.getRight().z).color(col.x, col.y, col.z, col.w).texture(0f, 1f).overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normal.x, normal.y, normal.z).next();
+				consumer.vertex(matrix, last.getRight().x, last.getRight().y, last.getRight().z).color(col.x, col.y, col.z, col.w * fade).texture(0f, 1f).overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normal.x, normal.y, normal.z).next();
 			if(last != null)
-				consumer.vertex(matrix, last.getLeft().x, last.getLeft().y, last.getLeft().z).color(col.x, col.y, col.z, col.w).texture(1f, 0f).overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normal.x, normal.y, normal.z).next();
-			consumer.vertex(matrix, vec.x, vec.y, vec.z).color(col.x, col.y, col.z, col.w).texture(1f, 1f).overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normal.x, normal.y, normal.z).next();
+				consumer.vertex(matrix, last.getLeft().x, last.getLeft().y, last.getLeft().z).color(col.x, col.y, col.z, col.w * fade).texture(1f, 0f).overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normal.x, normal.y, normal.z).next();
+			consumer.vertex(matrix, vec.x, vec.y, vec.z).color(col.x, col.y, col.z, col.w * fade).texture(1f, 1f).overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normal.x, normal.y, normal.z).next();
 			last = new Pair<>(new Vector3f(vec), new Vector3f(vec2));
 		}
-		consumer.vertex(matrix, last.getRight().x, last.getRight().y, last.getRight().z).color(col.x, col.y, col.z, col.w).texture(0f, 1f).overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normal.x, normal.y, normal.z).next();
-		consumer.vertex(matrix, last.getLeft().x, last.getLeft().y, last.getLeft().z).color(col.x, col.y, col.z, col.w).texture(1f, 0f).overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normal.x, normal.y, normal.z).next();
+		consumer.vertex(matrix, last.getRight().x, last.getRight().y, last.getRight().z).color(col.x, col.y, col.z, 0f).texture(0f, 1f).overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normal.x, normal.y, normal.z).next();
+		consumer.vertex(matrix, last.getLeft().x, last.getLeft().y, last.getLeft().z).color(col.x, col.y, col.z, 0f).texture(1f, 0f).overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normal.x, normal.y, normal.z).next();
 	}
 	
 	public void createTrail(UUID id, Supplier<Pair<Vector3f, Vector3f>> nextPointFunc)
@@ -168,8 +172,14 @@ public class TrailRenderer
 				invalid = true;
 				break;
 			}
-			else if(age > 10)
+			else if(age > maxAge)
 				removal++;
+			//else
+			//{
+			//	Vector3f center = new Vector3f(pair.getRight().getLeft()).add(pair.getRight().getRight()).div(2f);
+			//	pair.getRight().setLeft(pair.getRight().getLeft().lerp(center, (float)age / maxAge / 4f));
+			//	pair.getRight().setRight(pair.getRight().getRight().lerp(center, (float)age / maxAge / 4f));
+			//}
 		}
 		if(invalid)
 		{

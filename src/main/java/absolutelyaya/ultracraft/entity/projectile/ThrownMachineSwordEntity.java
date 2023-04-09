@@ -108,7 +108,8 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 	Vector3f getTrailPos(float deg, float distance)
 	{
 		//return getPos().add(0f, (distance - 1f) * 2f, 0f).toVector3f();
-		return getPos().toVector3f().add(new Vector3f(0f, distance, 0f).rotate(
+		float randOffset = (random.nextFloat() - 0.5f) * 0.001f;
+		return getPos().toVector3f().add(new Vector3f(randOffset, distance + randOffset, randOffset).rotate(
 				new Quaternionf(new AxisAngle4f((float)Math.toRadians(age * 0.936f * 60),
 						(float)Math.sin(deg), 0f, (float)Math.cos(deg)))));
 	}
