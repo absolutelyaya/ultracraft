@@ -55,7 +55,7 @@ public class PedestalBlockEntityRenderer implements BlockEntityRenderer<Pedestal
 		}
 		else if (item instanceof AbstractWeaponItem)
 		{
-			if(item instanceof PierceRevolverItem) //TODO: replace with generic Revolver calss
+			if(item instanceof PierceRevolverItem) //TODO: replace with generic Revolver class
 			{
 				matrices.translate(0f, -0.125f, 0f);
 				matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(10), 0f, 0f, 1f)));

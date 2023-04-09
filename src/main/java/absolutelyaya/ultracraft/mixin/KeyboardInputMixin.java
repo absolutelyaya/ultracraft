@@ -20,4 +20,5 @@ public abstract class KeyboardInputMixin extends Input
 		if(player != null && ((WingedPlayerEntity)player).isWingsVisible() && player.isSprinting())
 			movementForward = 0f;
 	}
+	//TODO: align strafing movement with slide direction
 }

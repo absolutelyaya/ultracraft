@@ -1,13 +1,11 @@
 package absolutelyaya.ultracraft.client.rendering;
 
-import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.client.RenderLayers;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
@@ -19,15 +17,13 @@ import java.util.function.Supplier;
 
 public class TrailRenderer
 {
-	static Map<UUID, Queue<Pair<Long, Pair<Vector3f, Vector3f>>>> trails = new HashMap<>();
-	static Map<UUID, Queue<Pair<Long, Pair<Vector3f, Vector3f>>>> newTrails = new HashMap<>();
-	static Map<UUID, Long> lastRendered = new HashMap<>();
-	static Map<UUID, Supplier<Pair<Vector3f, Vector3f>>> getNextPoint = new HashMap<>();
+	static Map<UUID, Trail> trails = new HashMap<>();
+	static Map<UUID, Trail> newTrails = new HashMap<>();
 	static List<UUID> deletionQueue = new ArrayList<>();
 	static MinecraftClient client;
 	static int maxAge = 40;
 	
-	public void render(MatrixStack matrixStack, Camera cam, float tickDelta)
+	public void render(MatrixStack matrixStack, Camera cam)
 	{
 		if(client.world == null)
 			return;
@@ -42,21 +38,20 @@ public class TrailRenderer
 			if(trails.get(id).size() == 0)
 				continue;
 			//still updating transformation and other preparations
-			Queue<Pair<Long, Pair<Vector3f, Vector3f>>> trail = trails.get(id);
+			Trail trail = trails.get(id);
 			VertexConsumerProvider.Immediate immediate = MinecraftClient.getInstance().getBufferBuilders().getEffectVertexConsumers();
 			//actually render now
-			List<Pair<Long, Pair<Vector3f, Vector3f>>> trailCopy = trail.stream().toList();
+			List<Pair<Long, Pair<Vector3f, Vector3f>>> trailCopy = trail.points.stream().toList();
 			if(UltracraftClient.getConfigHolder().getConfig().trailLines)
 				renderAsLines(id, trailCopy, matrix, immediate);
 			else
-				renderAsQuads(trailCopy, matrix, immediate, tickDelta);
-			lastRendered.put(id, time);
+				renderAsQuads(trailCopy, matrix, immediate);
+			trail.lastRendered = time;
 		}
 		for (int i = 0; i < newTrails.size(); i++)
 		{
 			UUID id = (UUID)newTrails.keySet().toArray()[i];
 			trails.put(id, newTrails.get(id));
-			lastRendered.put(id, time);
 		}
 		newTrails.clear();
 		matrixStack.pop();
@@ -68,7 +63,7 @@ public class TrailRenderer
 		consumer.fixedColor(255, 225, 125, 255);
 		Vector3f last = null;
 		Vec3d normal = client.getCameraEntity().getRotationVector().multiply(-1f);
-		Vector3f pos = getNextPoint.get(id).get().getLeft();
+		Vector3f pos = trails.get(id).pointSupplier.get().getLeft();
 		if(deletionQueue.contains(id))
 		{
 			pos = trail.get(trail.size() - 1).getRight().getLeft();
@@ -104,7 +99,7 @@ public class TrailRenderer
 		consumer.unfixColor();
 	}
 	
-	public void renderAsQuads(List<Pair<Long, Pair<Vector3f, Vector3f>>> trail, Matrix4f matrix, VertexConsumerProvider.Immediate immediate, float tickDelta)
+	public void renderAsQuads(List<Pair<Long, Pair<Vector3f, Vector3f>>> trail, Matrix4f matrix, VertexConsumerProvider.Immediate immediate)
 	{
 		//POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL
 		VertexConsumer consumer = immediate.getBuffer(RenderLayers.getLightTrail());
@@ -134,10 +129,9 @@ public class TrailRenderer
 	
 	public void createTrail(UUID id, Supplier<Pair<Vector3f, Vector3f>> nextPointFunc)
 	{
-		Queue<Pair<Long, Pair<Vector3f, Vector3f>>> trail = new ArrayDeque<>();
+		Trail trail = new Trail(nextPointFunc);
 		newTrails.put(id, trail);
-		getNextPoint.put(id, nextPointFunc);
-		trail.add(new Pair<>(client.world.getTime(), nextPointFunc.get()));
+		trail.add(nextPointFunc.get());
 	}
 	
 	public void tick()
@@ -147,7 +141,6 @@ public class TrailRenderer
 			if(trails.size() > 0)
 			{
 				trails.clear();
-				lastRendered.clear();
 				deletionQueue.clear();
 			}
 			return;
@@ -161,10 +154,10 @@ public class TrailRenderer
 	
 	void updateTrail(UUID id, long time)
 	{
-		Queue<Pair<Long, Pair<Vector3f, Vector3f>>> trail = trails.get(id);
+		Trail trail = trails.get(id);
 		int removal = 0;
 		boolean invalid = false;
-		for (Pair<Long, Pair<Vector3f, Vector3f>> pair : trail)
+		for (Pair<Long, Pair<Vector3f, Vector3f>> pair : trail.points)
 		{
 			long age = time - pair.getLeft();
 			if(age < 0)
@@ -174,38 +167,31 @@ public class TrailRenderer
 			}
 			else if(age > maxAge)
 				removal++;
-			//else
-			//{
-			//	Vector3f center = new Vector3f(pair.getRight().getLeft()).add(pair.getRight().getRight()).div(2f);
-			//	pair.getRight().setLeft(pair.getRight().getLeft().lerp(center, (float)age / maxAge / 4f));
-			//	pair.getRight().setRight(pair.getRight().getRight().lerp(center, (float)age / maxAge / 4f));
-			//}
 		}
 		if(invalid)
 		{
-			trails.get(id).clear();
+			trails.get(id).points.clear();
 			return;
 		}
 		else if(removal > 0)
 			for (int i = 0; i < removal; i++)
 				trail.remove();
 		if(!deletionQueue.contains(id))
-			trail.add(new Pair<>(time, getNextPoint.get(id).get()));
+			trail.add(trail.pointSupplier.get());
 	}
 	
 	void discardOldTrails(long time)
 	{
 		List<UUID> discard = new ArrayList<>();
-		for (UUID id : lastRendered.keySet())
+		for (UUID id : trails.keySet())
 		{
-			long age = time - lastRendered.get(id);
+			long age = time - trails.get(id).lastRendered;
 			if(age < 0 || age > 1)
 				discard.add(id);
 		}
 		for (UUID id : discard)
 		{
 			trails.remove(id);
-			lastRendered.remove(id);
 			deletionQueue.remove(id);
 		}
 	}
@@ -219,5 +205,34 @@ public class TrailRenderer
 	static
 	{
 		client = MinecraftClient.getInstance();
+	}
+	
+	public static class Trail
+	{
+		Queue<Pair<Long, Pair<Vector3f, Vector3f>>> points;
+		Long lastRendered;
+		Supplier<Pair<Vector3f, Vector3f>> pointSupplier;
+		
+		public Trail(Supplier<Pair<Vector3f, Vector3f>> pointSupplier)
+		{
+			this.points = new ArrayDeque<>();
+			this.lastRendered = client.world.getTime();
+			this.pointSupplier = pointSupplier;
+		}
+		
+		public int size()
+		{
+			return points.size();
+		}
+		
+		public void add(Pair<Vector3f, Vector3f> point)
+		{
+			points.add(new Pair<>(client.world.getTime(), point));
+		}
+		
+		public void remove()
+		{
+			points.remove();
+		}
 	}
 }
