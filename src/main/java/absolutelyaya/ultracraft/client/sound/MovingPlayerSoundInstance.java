@@ -2,15 +2,16 @@ package absolutelyaya.ultracraft.client.sound;
 
 import net.minecraft.client.sound.MovingSoundInstance;
 import net.minecraft.client.sound.SoundInstance;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 
 public abstract class MovingPlayerSoundInstance extends MovingSoundInstance
 {
-	protected PlayerEntity owner;
+	protected Entity owner;
 	
-	public MovingPlayerSoundInstance(SoundEvent event, PlayerEntity owner)
+	public MovingPlayerSoundInstance(SoundEvent event, Entity owner)
 	{
 		super(event, SoundCategory.PLAYERS, SoundInstance.createRandom());
 		this.owner = owner;

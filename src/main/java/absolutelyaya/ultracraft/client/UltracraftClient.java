@@ -22,8 +22,10 @@ import absolutelyaya.ultracraft.client.rendering.entity.other.ShockwaveRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.CerberusBallRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.HellBulletRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.ThrownMachineSwordRenderer;
+import absolutelyaya.ultracraft.client.sound.MovingMachineSwordSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingSlideSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingWindSoundInstance;
+import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import absolutelyaya.ultracraft.particle.*;
 import absolutelyaya.ultracraft.particle.goop.GoopDropParticle;
 import absolutelyaya.ultracraft.particle.goop.GoopParticle;
@@ -142,15 +144,16 @@ public class UltracraftClient implements ClientModInitializer
 		});
 		
 		ClientEntityEvents.ENTITY_LOAD.register((entity, clientWorld) -> {
-			if (entity instanceof PlayerEntity)
-				MinecraftClient.getInstance().getSoundManager().play(new MovingSlideSoundInstance((PlayerEntity)entity));
+			if (entity instanceof PlayerEntity player)
+				MinecraftClient.getInstance().getSoundManager().play(new MovingSlideSoundInstance(player));
+			if (entity instanceof ThrownMachineSwordEntity sword)
+				MinecraftClient.getInstance().getSoundManager().play(new MovingMachineSwordSoundInstance(sword));
 		});
 		
-		LivingEntityFeatureRendererRegistrationCallback.EVENT.register(
-				(type, renderer, helper, context) -> {
-					if(type.equals(EntityRegistry.MALICIOUS_FACE))
-						helper.register(new EnragedFeature<>(context.getModelLoader()));
-				});
+		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {
+			if(type.equals(EntityRegistry.MALICIOUS_FACE))
+				helper.register(new EnragedFeature<>(context.getModelLoader()));
+		});
 		
 		WorldRenderEvents.AFTER_ENTITIES.register((ctx) -> {
 			UltracraftClient.HITSCAN_HANDLER.render(ctx.matrixStack(), ctx.camera());

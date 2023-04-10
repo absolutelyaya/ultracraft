@@ -13,5 +13,10 @@
     "sounds": [
       "ultracraft:misc/wind_seemless"
     ]
+  },
+  "entity.machinesword_loop": {
+    "sounds": [
+        "ultracraft:misc/lawn_mower_seemless"
+    ]
   }
 }
