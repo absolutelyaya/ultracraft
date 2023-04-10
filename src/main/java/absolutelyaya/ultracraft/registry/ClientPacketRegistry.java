@@ -61,7 +61,8 @@ public class ClientPacketRegistry
 				client.player.world.addParticle(new GoopDropParticleEffect(new Vec3d(0.56, 0.09, 0.01),
 								0.6f + rand.nextFloat() * 0.4f * (amount / 10f)), pos.x, pos.y + halfheight, pos.z,
 						rand.nextDouble() - 0.5, rand.nextDouble() - 0.5, rand.nextDouble() - 0.5);
-			//TODO: if within healing distance, add splatters to screen
+			if(client.player.squaredDistanceTo(pos) < 10)
+				UltracraftClient.addBlood(amount / 30f);
 		})));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SET_HIGH_VELOCITY_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)

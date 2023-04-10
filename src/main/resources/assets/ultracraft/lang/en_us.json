@@ -107,5 +107,8 @@
   "text.autoconfig.ultracraft.option.moveUltrahud.@Tooltip": "Moves the Ultrahud up when holding an item in your offhand.",
 
   "text.autoconfig.ultracraft.option.trailLines": "Trail lines",
-  "text.autoconfig.ultracraft.option.trailLines.@Tooltip": "Renders Trails as simple lines to get a better feel for where vertices are."
+  "text.autoconfig.ultracraft.option.trailLines.@Tooltip": "Renders Trails as simple lines to get a better feel for where vertices are.",
+
+  "text.autoconfig.ultracraft.option.bloodOverlay": "Blood Overlay",
+  "text.autoconfig.ultracraft.option.bloodOverlay.@Tooltip": "If you get splashed with a LOT of blood, it might cover your screen a bit."
 }

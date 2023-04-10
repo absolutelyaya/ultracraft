@@ -20,6 +20,8 @@ public class Ultraconfig implements ConfigData
 	public UltraHudRenderer.UltraHudVisibility ultraHudVisibility = UltraHudRenderer.UltraHudVisibility.ALWAYS;
 	@ConfigEntry.Gui.Tooltip
 	public boolean moveUltrahud = true;
+	@ConfigEntry.Gui.Tooltip
+	public boolean bloodOverlay = true;
 	@ConfigEntry.Category("goop")
 	@ConfigEntry.Gui.Tooltip
 	public boolean fancyGoop = false;

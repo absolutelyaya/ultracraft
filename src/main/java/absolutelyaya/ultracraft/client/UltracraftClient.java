@@ -31,6 +31,7 @@ import absolutelyaya.ultracraft.particle.goop.GoopDropParticle;
 import absolutelyaya.ultracraft.particle.goop.GoopParticle;
 import absolutelyaya.ultracraft.particle.goop.GoopStringParticle;
 import absolutelyaya.ultracraft.registry.*;
+import com.mojang.blaze3d.systems.RenderSystem;
 import io.netty.buffer.Unpooled;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
@@ -68,6 +69,7 @@ public class UltracraftClient implements ClientModInitializer
 	static GameruleRegistry.Option HiVelOption = GameruleRegistry.Option.FREE;
 	static GameruleRegistry.Option TimeFreezeOption = GameruleRegistry.Option.FORCE_ON;
 	static boolean disableHandswap = false;
+	static float screenblood;
 	
 	static UltraHudRenderer hudRenderer;
 	static ConfigHolder<Ultraconfig> config;
@@ -160,6 +162,15 @@ public class UltracraftClient implements ClientModInitializer
 			UltracraftClient.TRAIL_RENDERER.render(ctx.matrixStack(), ctx.camera());
 		});
 		
+		HudRenderCallback.EVENT.register((matrices, delta) -> {
+			if(config.getConfig().bloodOverlay)
+			{
+				RenderSystem.enableBlend();
+				MinecraftClient.getInstance().inGameHud.renderOverlay(new Identifier(Ultracraft.MOD_ID, "textures/gui/blood_overlay.png"), screenblood);
+				screenblood = Math.max(0f, screenblood - delta / 60);
+			}
+		});
+		
 		ClientPacketRegistry.registerS2C();
 		GeckoLibNetwork.registerClientReceiverPackets();
 		
@@ -169,6 +180,12 @@ public class UltracraftClient implements ClientModInitializer
 		});
 		
 		config = AutoConfig.register(Ultraconfig.class, GsonConfigSerializer::new);
+	}
+	
+	public static void addBlood(float f)
+	{
+		if(f > 0.25)
+			screenblood = Math.min(2.5f, screenblood + f);
 	}
 	
 	//if no Server override, return client setting

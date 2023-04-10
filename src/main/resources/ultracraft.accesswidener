@@ -1,1 +1,2 @@
 accessWidener   v2  named
+accessible method net/minecraft/client/gui/hud/InGameHud renderOverlay (Lnet/minecraft/util/Identifier;F)V
