@@ -80,9 +80,9 @@ public class PedestalBlockEntityRenderer implements BlockEntityRenderer<Pedestal
 	
 	void applyFloatTransformation(MatrixStack matrices)
 	{
-		long time = MinecraftClient.getInstance().world.getTime();
+		long time = MinecraftClient.getInstance().world.getTime() % 189;
 		matrices.scale(0.75f, 0.75f, 0.75f);
-		matrices.translate(0f, Math.sin(time / 20f) * 0.2 + 0.1f, 0f);
+		matrices.translate(0f, Math.sin(time / 30f) * 0.2 + 0.1f, 0f);
 		matrices.multiply(new Quaternionf(new AxisAngle4f(time / 30f, 0f, 1f, 0f)));
 	}
 }

@@ -41,7 +41,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -77,7 +76,6 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	protected static final TrackedData<Boolean> BLASTING = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Integer> ENRAGED_TICKS = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> BREAKDOWN_TICKS = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
-	protected static final TrackedData<Integer> STAMINA = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> MAX_STAMINA = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> BLAST_COOLDOWN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
@@ -113,7 +111,6 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		dataTracker.startTracking(HAS_SHOTGUN, true);
 		dataTracker.startTracking(HAS_SWORD, true);
 		dataTracker.startTracking(BLASTING, false);
-		dataTracker.startTracking(STAMINA, 30);
 		dataTracker.startTracking(MAX_STAMINA, 100);
 	}
 	
@@ -274,9 +271,6 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			dataTracker.set(BLAST_COOLDOWN, dataTracker.get(BLAST_COOLDOWN) - 1);
 		if(dataTracker.get(THROW_COOLDOWN) > 0)
 			dataTracker.set(THROW_COOLDOWN, dataTracker.get(THROW_COOLDOWN) - 1);
-		//Hard: 1 Stamina/Tick | any other difficulty: 0.5 Stamina/Tick
-		if(dataTracker.get(STAMINA) < dataTracker.get(MAX_STAMINA) && world.getDifficulty().equals(Difficulty.HARD) || age % 2 == 0)
-			dataTracker.set(STAMINA, dataTracker.get(STAMINA) + 1);
 	}
 	
 	@Override
@@ -376,17 +370,6 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		if(!hasCustomName() || getCustomName() == null)
 			return false;
 		return getCustomName().getString().equalsIgnoreCase("dan");
-	}
-	
-	private boolean tryConsumeStamina(int consume)
-	{
-		int val;
-		if((val = dataTracker.get(STAMINA)) > consume)
-		{
-			dataTracker.set(STAMINA, val - consume);
-			return true;
-		}
-		return false;
 	}
 	
 	public void setHasSword(boolean b)
@@ -593,10 +576,10 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		@Override
 		public boolean canStart()
 		{
+			if(sm.random.nextBetween(0, 5) != 0)
+				return false;
 			target = sm.getTarget();
-			if (target != null && sm.isIdle() && !sm.dataTracker.get(HAS_SHOTGUN) && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(THROW_COOLDOWN) == 0)
-				return sm.tryConsumeStamina(10);
-			return false;
+			return target != null && sm.isIdle() && !sm.dataTracker.get(HAS_SHOTGUN) && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(THROW_COOLDOWN) == 0;
 		}
 		
 		@Override
@@ -658,10 +641,10 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		@Override
 		public boolean canStart()
 		{
+			if(sm.random.nextBetween(0, 3) != 0)
+				return false;
 			target = sm.getTarget();
-			if (target != null && sm.isIdle() && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(ATTACK_COOLDOWN) == 0 && sm.distanceTo(target) < 8)
-				return sm.tryConsumeStamina(30);
-			return false;
+			return target != null && sm.isIdle() && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(ATTACK_COOLDOWN) == 0 && sm.distanceTo(target) < 8;
 		}
 		
 		@Override
@@ -747,10 +730,10 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		@Override
 		public boolean canStart()
 		{
+			if(sm.random.nextBetween(0, 4) != 0)
+				return false;
 			target = sm.getTarget();
-			if (target != null && sm.isIdle() && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(ATTACK_COOLDOWN) == 0 && sm.distanceTo(target) < 8)
-				return sm.tryConsumeStamina(45);
-			return false;
+			return target != null && sm.isIdle() && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(ATTACK_COOLDOWN) == 0 && sm.distanceTo(target) < 8;
 		}
 		
 		@Override
