@@ -32,7 +32,7 @@ public class TrailRenderer
 		matrixStack.push();
 		Vec3d camPos = cam.getPos();
 		matrixStack.translate(-camPos.x, -camPos.y, -camPos.z);
-		Matrix4f matrix = matrixStack.peek().getPositionMatrix();
+		Matrix4f matrix = new Matrix4f(matrixStack.peek().getPositionMatrix());
 		for (UUID id : trails.keySet())
 		{
 			if(trails.get(id).size() == 0)
