@@ -69,6 +69,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	private static final RawAnimation BREAKDOWN_ANIM = RawAnimation.begin().thenPlay("breakdown");
 	private static final RawAnimation THROW_ANIM = RawAnimation.begin().thenPlay("throw");
 	private static final RawAnimation SLASH_ANIM = RawAnimation.begin().thenPlay("slash");
+	private static final RawAnimation COMBO_ANIM = RawAnimation.begin().thenPlay("combo");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	protected static final TrackedData<ItemStack> SWORD_STACK = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	protected static final TrackedData<Boolean> HAS_SHOTGUN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
@@ -86,6 +87,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	private static final byte ANIMATION_BREAKDOWN = 2;
 	private static final byte ANIMATION_THROW = 3;
 	private static final byte ANIMATION_SLASH = 4;
+	private static final byte ANIMATION_COMBO = 5;
 	
 	public SwordmachineEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -97,7 +99,6 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	
 	//TODO: add attacks lol
 	//TODO: Piruette attack
-	//TODO: Combo attack
 	
 	@Override
 	protected void initDataTracker()
@@ -148,7 +149,8 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	{
 		goalSelector.add(0, new ShotgunGoal(this));
 		goalSelector.add(1, new ThrowSwordGoal(this));
-		goalSelector.add(2, new SlashGoal(this));
+		goalSelector.add(1, new SlashGoal(this));
+		goalSelector.add(1, new ComboGoal(this));
 		goalSelector.add(3, new ChaseGoal(this));
 		goalSelector.add(4, new LookAroundGoal(this));
 		
@@ -174,6 +176,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			case ANIMATION_BREAKDOWN -> controller.setAnimation(BREAKDOWN_ANIM);
 			case ANIMATION_THROW -> controller.setAnimation(THROW_ANIM);
 			case ANIMATION_SLASH -> controller.setAnimation(SLASH_ANIM);
+			case ANIMATION_COMBO -> controller.setAnimation(COMBO_ANIM);
 		}
 		return PlayState.CONTINUE;
 	}
@@ -724,6 +727,143 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 				sm.dataTracker.set(ANIMATION, ANIMATION_IDLE);
 			damaged.clear();
 			UltracraftClient.TRAIL_RENDERER.removeTrail(trailID);
+		}
+	}
+	
+	static class ComboGoal extends Goal
+	{
+		List<Entity> damaged = new ArrayList<>();
+		SwordmachineEntity sm;
+		LivingEntity target;
+		int timer;
+		Vec3d direction;
+		UUID trailID;
+		
+		public ComboGoal(SwordmachineEntity sm)
+		{
+			this.sm = sm;
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			target = sm.getTarget();
+			if (target != null && sm.isIdle() && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(ATTACK_COOLDOWN) == 0 && sm.distanceTo(target) < 8)
+				return sm.tryConsumeStamina(45);
+			return false;
+		}
+		
+		@Override
+		public void start()
+		{
+			timer = 0;
+			sm.dataTracker.set(ANIMATION, ANIMATION_COMBO);
+			direction = target.getPos().subtract(sm.getPos()).multiply(1f, 0f, 1f).normalize();
+			sm.lookAtEntity(target, 360, 360);
+			sm.setBodyYaw(sm.headYaw);
+			damaged.clear();
+		}
+		
+		@Override
+		public void tick()
+		{
+			sm.setBodyYaw(sm.getYaw());
+			if(timer++ == 18 || timer == 38 || timer == 56)
+			{
+				damaged.clear();
+				sm.lookAtEntity(target, 360, 360);
+				sm.setAttacking(true);
+				sm.addParryIndicatorParticle(new Vec3d(0f, sm.getStandingEyeHeight(), -1f), true, false);
+			}
+			else if(timer == 27 || timer == 42 || timer == 62)
+			{
+				UltracraftClient.TRAIL_RENDERER.removeTrail(trailID);
+				sm.setAttacking(false);
+				trailID = UUID.randomUUID();
+				switch (timer)
+				{
+					case 27 -> UltracraftClient.TRAIL_RENDERER.createTrail(trailID, this::getPointFirst); //6 ticks
+					case 42 -> UltracraftClient.TRAIL_RENDERER.createTrail(trailID, this::getPointSecond); //6 ticks
+					case 62 -> UltracraftClient.TRAIL_RENDERER.createTrail(trailID, this::getPointDownSlash); //4 ticks
+					default -> {}
+				}
+				direction = target.getPos().subtract(sm.getPos()).multiply(1f, 0f, 1f).normalize();
+			}
+			if (timer == 33 || timer == 48 || timer == 66)
+				UltracraftClient.TRAIL_RENDERER.removeTrail(trailID);
+			
+			if((timer >= 27 && timer <= 29) || (timer >= 42 && timer <= 44) || (timer == 62))
+			{
+				sm.setVelocity(direction.multiply(timer == 62 ? 0.25f : 0.5f));
+				List<Entity> hit = sm.world.getOtherEntities(sm, sm.getBoundingBox().expand(3f, 0f, 3f),
+						e -> (e instanceof PlayerEntity || (sm.shouldHuntHusks() && e instanceof AbstractHuskEntity)) && !damaged.contains(e));
+				hit.forEach(e -> {
+					if(e.damage(DamageSources.getSwordmachine(sm), 8))
+						damaged.add(e);
+				});
+			}
+		}
+		
+		Pair<Vector3f, Vector3f> getPointFirst()
+		{
+			float time = (timer - 27) / 6f;
+			Vector3f left = sm.getPos().toVector3f().add(
+					new Vector3f(0f, 1f, 2f).rotateY(-(float)Math.toRadians(sm.getYaw() - 135 + time * 225)));
+			Vector3f right = sm.getPos().toVector3f().add(
+					new Vector3f(0f, 1f, 2.5f).rotateY(-(float)Math.toRadians(sm.getYaw() - 135 + time * 225)));
+			return new Pair<>(left, right);
+		}
+		
+		Pair<Vector3f, Vector3f> getPointSecond()
+		{
+			float time = (timer - 42) / 6f;
+			Vector3f left = sm.getPos().toVector3f().add(
+					new Vector3f(0f, 1.2f - (0.2f * time), 2f).rotateY(-(float)Math.toRadians(sm.getYaw() + 45 - time * 225)));
+			Vector3f right = sm.getPos().toVector3f().add(
+					new Vector3f(0f, 1.2f - (0.2f * time), 2.5f).rotateY(-(float)Math.toRadians(sm.getYaw() + 45 - time * 225)));
+			return new Pair<>(left, right);
+		}
+		
+		Pair<Vector3f, Vector3f> getPointDownSlash()
+		{
+			float time = (timer - 62) / 4f;
+			float yaw = sm.getYaw();
+			float angle = time * 135;
+			Vector3f rot = new Vector3f((float)Math.toRadians(angle), -(float)Math.toRadians(yaw), 0f);
+			Vector3f left =
+					sm.getPos().toVector3f().add(new Vector3f(0f, 3f, 0f).rotateX(rot.x).rotateY(rot.y));
+			Vector3f right =
+					sm.getPos().toVector3f().add(new Vector3f(0f, 3.5f, 0f).rotateX(rot.x).rotateY(rot.y));
+			return new Pair<>(left, right);
+		}
+		
+		@Override
+		public boolean shouldRunEveryTick()
+		{
+			return true;
+		}
+		
+		@Override
+		public boolean shouldContinue()
+		{
+			return sm.getAnimation() == ANIMATION_COMBO && timer < 80;
+		}
+		
+		@Override
+		public boolean canStop()
+		{
+			return !shouldContinue();
+		}
+		
+		@Override
+		public void stop()
+		{
+			sm.dataTracker.set(ATTACK_COOLDOWN, 40);
+			if(sm.getAnimation() == ANIMATION_COMBO)
+				sm.dataTracker.set(ANIMATION, ANIMATION_IDLE);
+			damaged.clear();
+			UltracraftClient.TRAIL_RENDERER.removeTrail(trailID);
+			sm.setAttacking(false);
 		}
 	}
 }
