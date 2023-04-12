@@ -62,4 +62,10 @@ public class CerberusBallEntity extends HellBulletEntity implements ProjectileEn
 	{
 		return false;
 	}
+	
+	@Override
+	public void onParriedCollision(HitResult hitResult)
+	{
+	
+	}
 }

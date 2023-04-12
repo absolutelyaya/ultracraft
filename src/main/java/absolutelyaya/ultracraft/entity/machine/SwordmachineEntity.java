@@ -97,6 +97,8 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	
 	//TODO: add attacks lol
 	//TODO: Piruette attack
+	//TODO: Speed + Damage up when enraged
+	//TODO: enrage breakdown animation
 	
 	@Override
 	protected void initDataTracker()
@@ -344,13 +346,13 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	@Override
 	public Vec3d getEnrageFeatureSize()
 	{
-		return new Vec3d(1f, 1f, 1f);
+		return new Vec3d(1f, -1f, -1f);
 	}
 	
 	@Override
 	public Vec3d getEnragedFeatureOffset()
 	{
-		return new Vec3d(0f, 2.5f, 0f);
+		return new Vec3d(0f, -2.5f, 0f);
 	}
 	
 	private boolean isIdle()
@@ -576,7 +578,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		@Override
 		public boolean canStart()
 		{
-			if(sm.random.nextBetween(0, 5) != 0)
+			if(sm.random.nextBetween(0, 4) != 0)
 				return false;
 			target = sm.getTarget();
 			return target != null && sm.isIdle() && !sm.dataTracker.get(HAS_SHOTGUN) && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(THROW_COOLDOWN) == 0;
@@ -663,7 +665,15 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		public void tick()
 		{
 			sm.setBodyYaw(sm.headYaw);
-			if(timer++ == 9)
+			
+			if(timer++ == 4)
+			{
+				sm.addParryIndicatorParticle(new Vec3d(0f, sm.getStandingEyeHeight(), -1f), true, false);
+				sm.setAttacking(true);
+			}
+			if(timer == 6)
+				sm.setAttacking(false);
+			if(timer == 9)
 				UltracraftClient.TRAIL_RENDERER.createTrail(trailID,
 				() -> {
 					Vector3f left = sm.getPos().toVector3f().add(new Vector3f(0f, 1f, 1.5f).rotateY((float)Math.toRadians(sm.getYaw() + timer * 30)));
@@ -733,7 +743,8 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			if(sm.random.nextBetween(0, 4) != 0)
 				return false;
 			target = sm.getTarget();
-			return target != null && sm.isIdle() && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(ATTACK_COOLDOWN) == 0 && sm.distanceTo(target) < 8;
+			return target != null && sm.isIdle() && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(HAS_SHOTGUN) &&
+						   sm.dataTracker.get(ATTACK_COOLDOWN) == 0 && sm.distanceTo(target) < 8;
 		}
 		
 		@Override
@@ -758,10 +769,11 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 				sm.setAttacking(true);
 				sm.addParryIndicatorParticle(new Vec3d(0f, sm.getStandingEyeHeight(), -1f), true, false);
 			}
+			else if(timer == 22 || timer == 41 || timer == 60)
+				sm.setAttacking(false);
 			else if(timer == 27 || timer == 42 || timer == 62)
 			{
 				UltracraftClient.TRAIL_RENDERER.removeTrail(trailID);
-				sm.setAttacking(false);
 				trailID = UUID.randomUUID();
 				switch (timer)
 				{

@@ -53,7 +53,6 @@ public class PacketRegistry
 			
 			if(target != null)
 			{
-				target.damage(DamageSource.mob(player), 4);
 				if(flame)
 					target.setFireTicks(100);
 				if(target instanceof ProjectileEntity p && ((ProjectileEntityAccessor)p).isParriable())
@@ -81,13 +80,16 @@ public class PacketRegistry
 				else if (target instanceof MeleeInterruptable mp && (!(mp instanceof MobEntity) || ((MobEntity)mp).isAttacking()))
 				{
 					Ultracraft.freeze((ServerWorld) player.world, 10);
-					target.damage(DamageSource.mob(player), 20); //total damage: 30
+					target.damage(DamageSources.getInterrupted(player), 15);
 					mp.onInterrupt(player);
 					world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
 					player.heal(4);
 				}
 				else
+				{
 					world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.75f, 0.5f);
+					target.damage(DamageSource.mob(player), 4);
+				}
 				boolean fatal = !target.isAlive();
 				Vec3d vel = player.getRotationVecClient().normalize().multiply(fatal ? 1.5f : 0.75f).multiply(target instanceof ProjectileEntity ? 2.5f : 1f);
 				if(target instanceof ProjectileEntity || (target instanceof LivingEntityAccessor && ((LivingEntityAccessor)target).takePunchKnockback()))

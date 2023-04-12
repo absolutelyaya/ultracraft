@@ -2,8 +2,10 @@ package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
+import absolutelyaya.ultracraft.registry.DamageSources;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.util.hit.BlockHitResult;
@@ -11,6 +13,7 @@ import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.explosion.ExplosionBehavior;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -85,10 +88,21 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	{
 		if(parried)
 		{
-			Vec3d pos = hitResult.getPos();
-			world.createExplosion((ProjectileEntity)(Object)this, pos.x, pos.y, pos.z, 2, World.ExplosionSourceType.NONE);
+			onParriedCollision(hitResult);
 			parried = false;
 		}
+	}
+	
+	@Override
+	public void onParriedCollision(HitResult hitResult)
+	{
+		Vec3d pos = hitResult.getPos();
+		Entity hit = null;
+		if(hitResult.getType().equals(HitResult.Type.ENTITY))
+			hit = ((EntityHitResult)hitResult).getEntity();
+		owner.damage(DamageSources.getParriedProjectile(parrier, ((ProjectileEntity)(Object)this)), 15);
+		world.createExplosion(owner.equals(hit) ? hit : null,
+				DamageSources.getParryCollateral(parrier), null, pos, 2, false, World.ExplosionSourceType.NONE);
 	}
 	
 	@Override

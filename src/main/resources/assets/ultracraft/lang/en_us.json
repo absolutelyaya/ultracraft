@@ -48,6 +48,12 @@
   "death.attack.swordmachine.player": "%1$s was cut down by %2$s",
   "death.attack.pound": "%1$s was flattened",
   "death.attack.pound.player": "%1$s was flattened by %2$ss groundpound",
+  "death.attack.projectile_parried": "%1$s was styled on too hard by getting their shit flung back at them",
+  "death.attack.projectile_parried.player": "%1$s was styled on too hard by %2$s flinging their shit back at them",
+  "death.attack.interrupt": "%1$s was interrupted to death",
+  "death.attack.interrupt.player": "%1$s was interrupted to death by %2$s",
+  "death.attack.parry_collateral": "%1$s became collateral damage of a parry explosion",
+  "death.attack.parry_colletaral.player": "%1$s became collateral damage of %2$ss parry",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 

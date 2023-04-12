@@ -45,6 +45,7 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 	Vec3d spawnPos = getPos();
 	public float lastRot;
 	float hitNoisePitch = 0.5f;
+	PlayerEntity parrier;
 	
 	public ThrownMachineSwordEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world)
 	{
@@ -130,7 +131,7 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 	@Override
 	public void move(MovementType movementType, Vec3d movement)
 	{
-		if(getDistance() > 0f)
+		if(getDistance() > 0f && !isParried())
 		{
 			setPosition(getPos().add(movement));
 			dataTracker.set(DISTANCE, getDistance() - (float)movement.length());
@@ -138,7 +139,7 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 		else if(!dataTracker.get(REACHED_DEST))
 			 dataTracker.set(REACHED_DEST, true);
 		dataTracker.set(STASIS_TICKS, dataTracker.get(STASIS_TICKS) + 1);
-		if(dataTracker.get(REACHED_DEST) && dataTracker.get(STASIS_TICKS) >= 100)
+		if(dataTracker.get(REACHED_DEST) && dataTracker.get(STASIS_TICKS) >= 100 || isParried())
 		{
 			if(!dataTracker.get(RETURNING))
 				dataTracker.set(RETURNING, true);
@@ -155,9 +156,20 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 			if(isOwnerAlive())
 			{
 				if(getOwner() instanceof SwordmachineEntity sm)
+				{
 					sm.setHasSword(true);
+					if(isParried())
+					{
+						sm.onInterrupt(parrier);
+						sm.damage(DamageSources.getParriedProjectile(parrier, this), 12);
+					}
+				}
 				if(getOwner() instanceof PlayerEntity p && tryPickup(p))
+				{
 					p.giveItemStack(dataTracker.get(SWORD));
+					if(isParried())
+						p.damage(DamageSources.getParriedProjectile(parrier, this), 12);
+				}
 				discard();
 			}
 			else
@@ -240,19 +252,27 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 	@Override
 	public void setParried(boolean val, PlayerEntity parrier)
 	{
-	
+		dataTracker.set(RETURNING, true);
+		if(parrier != getOwner())
+			this.parrier = parrier;
 	}
 	
 	@Override
 	public boolean isParried()
 	{
-		return false;
+		return parrier != null;
 	}
 	
 	@Override
 	public boolean isParriable()
 	{
-		return false;
+		return !dataTracker.get(REACHED_DEST);
+	}
+	
+	@Override
+	public void onParriedCollision(HitResult hitResult)
+	{
+		//since this entity is decarded upon reaching it's owner, the actual parry collision behavior is up in the move method
 	}
 	
 	@Override

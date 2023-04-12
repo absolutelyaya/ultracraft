@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.gecko.SwordmachineEmissiveLayer;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.gecko.SwordmachineRageLayer;
 import absolutelyaya.ultracraft.entity.machine.SwordmachineEntity;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -24,7 +25,6 @@ public class SwordmachineRenderer extends GeoEntityRenderer<SwordmachineEntity>
 	public SwordmachineRenderer(EntityRendererFactory.Context ctx)
 	{
 		super(ctx, new SwordmachineModel());
-		addRenderLayer(new SwordmachineRageLayer(this));
 		addRenderLayer(new SwordmachineEmissiveLayer(this));
 		
 		addRenderLayer(new BlockAndItemGeoLayer<>(this)
@@ -56,6 +56,7 @@ public class SwordmachineRenderer extends GeoEntityRenderer<SwordmachineEntity>
 				poseStack.pop();
 			}
 		});
+		addRenderLayer(new SwordmachineRageLayer(this));
 	}
 	
 	@Override

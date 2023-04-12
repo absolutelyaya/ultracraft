@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.accessor;
 
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.hit.HitResult;
 
 public interface ProjectileEntityAccessor
 {
@@ -9,4 +10,6 @@ public interface ProjectileEntityAccessor
 	boolean isParried();
 	
 	boolean isParriable();
+	
+	void onParriedCollision(HitResult hitResult);
 }
