@@ -22,6 +22,7 @@ public class TrailRenderer
 	static List<UUID> deletionQueue = new ArrayList<>();
 	static MinecraftClient client;
 	static int maxAge = 40;
+	static Random rand;
 	
 	public void render(MatrixStack matrixStack, Camera cam)
 	{
@@ -205,6 +206,7 @@ public class TrailRenderer
 	static
 	{
 		client = MinecraftClient.getInstance();
+		rand = new Random();
 	}
 	
 	public static class Trail
@@ -227,6 +229,8 @@ public class TrailRenderer
 		
 		public void add(Pair<Vector3f, Vector3f> point)
 		{
+			Vector3f randomOffset = new Vector3f(rand.nextFloat() * 0.01f, rand.nextFloat() * 0.01f, rand.nextFloat() * 0.01f);
+			point = new Pair<>(point.getLeft().add(randomOffset), point.getRight().add(randomOffset));
 			points.add(new Pair<>(client.world.getTime(), point));
 		}
 		
