@@ -21,6 +21,7 @@ import absolutelyaya.ultracraft.client.rendering.entity.other.ShockwaveModel;
 import absolutelyaya.ultracraft.client.rendering.entity.other.ShockwaveRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.CerberusBallRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.HellBulletRenderer;
+import absolutelyaya.ultracraft.client.rendering.entity.projectile.ShotgunPelletRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.ThrownMachineSwordRenderer;
 import absolutelyaya.ultracraft.client.sound.MovingMachineSwordSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingSlideSoundInstance;
@@ -88,6 +89,7 @@ public class UltracraftClient implements ClientModInitializer
 		EntityRendererRegistry.register(EntityRegistry.SWORDMACHINE, SwordmachineRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.HELL_BULLET, HellBulletRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.CERBERUS_BALL, CerberusBallRenderer::new);
+		EntityRendererRegistry.register(EntityRegistry.SHOTGUN_PELLET, ShotgunPelletRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.THROWN_MACHINE_SWORD, ThrownMachineSwordRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.SHOCKWAVE, ShockwaveRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.INTERRUPTABLE_CHARGE, InterruptableChargeRenderer::new);

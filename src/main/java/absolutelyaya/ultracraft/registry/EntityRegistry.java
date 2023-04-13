@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import absolutelyaya.ultracraft.entity.machine.SwordmachineEntity;
 import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
@@ -48,6 +49,10 @@ public class EntityRegistry
 			new Identifier(Ultracraft.MOD_ID, "cerberus_ball"),
 			EntityType.Builder.create(CerberusBallEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
 					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().build("cerberus_ball"));
+	public static final EntityType<ShotgunPelletEntity> SHOTGUN_PELLET = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "shotgun_pellet"),
+			EntityType.Builder.create(ShotgunPelletEntity::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
+					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().build("shotgun_pellet"));
 	public static final EntityType<ThrownMachineSwordEntity> THROWN_MACHINE_SWORD = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "thrown_machinesword"),
 			EntityType.Builder.create(ThrownMachineSwordEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)

@@ -34,6 +34,7 @@ import net.minecraft.world.World;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 public class ThrownMachineSwordEntity extends PersistentProjectileEntity implements ProjectileEntityAccessor
 {
@@ -97,7 +98,7 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 					Vector3f left =	getTrailPos(deg, 1.5f);
 					Vector3f right = getTrailPos(deg, 1f);
 					return new Pair<>(left, right);
-				});
+				}, new Vector4f(1f, 0.5f, 0f, 0.6f), 30);
 		move(MovementType.SELF, getVelocity());
 		
 		HitResult hitResult = ProjectileUtil.getCollision(this, this::canHit);

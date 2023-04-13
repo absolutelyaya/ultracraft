@@ -22,6 +22,9 @@ public class Ultraconfig implements ConfigData
 	public boolean moveUltrahud = true;
 	@ConfigEntry.Gui.Tooltip
 	public boolean bloodOverlay = true;
+	@ConfigEntry.Gui.Tooltip
+	@ConfigEntry.BoundedDiscrete(min = 16, max = 128)
+	public int maxTrails = 64;
 	@ConfigEntry.Category("goop")
 	@ConfigEntry.Gui.Tooltip
 	public boolean fancyGoop = false;

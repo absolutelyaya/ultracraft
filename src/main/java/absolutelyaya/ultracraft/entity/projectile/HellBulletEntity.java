@@ -72,10 +72,8 @@ public class HellBulletEntity extends ThrownItemEntity
 		if(hitResult instanceof EntityHitResult ehr && ehr.getEntity().getClass().equals(ignore) && !((ProjectileEntityAccessor)this).isParried())
 			return;
 		if (!this.world.isClient)
-		{
 			this.world.sendEntityStatus(this, (byte)3);
-			this.kill();
-		}
+		this.kill();
 	}
 	
 	public void setIgnored(Class<? extends LivingEntity> ignore)
@@ -111,13 +109,18 @@ public class HellBulletEntity extends ThrownItemEntity
 		updateRotation();
 		setPosition(d, e, f);
 		
-		if(age > 400)
+		if(age > getMaxAge())
 		{
 			for (int i = 0; i < 5; i++)
 				world.addParticle(new ItemStackParticleEffect(ParticleTypes.ITEM, getStack()),
 						getX(), getY(), getZ(), 0f, 0f, 0f);
 			remove(RemovalReason.DISCARDED);
 		}
+	}
+	
+	protected int getMaxAge()
+	{
+		return 400;
 	}
 	
 	protected boolean canHit(Entity entity)

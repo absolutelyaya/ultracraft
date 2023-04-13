@@ -17,6 +17,5 @@ public class CerberusBallRenderer extends FlyingItemEntityRenderer<CerberusBallE
 	public void render(CerberusBallEntity entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light)
 	{
 		super.render(entity, yaw, tickDelta, matrices, vertexConsumers, 15728880);
-		//TODO: add Aura
 	}
 }

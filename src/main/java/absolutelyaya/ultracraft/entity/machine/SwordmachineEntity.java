@@ -8,6 +8,7 @@ import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.husk.AbstractHuskEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
+import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import absolutelyaya.ultracraft.registry.DamageSources;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
@@ -44,6 +45,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -60,6 +62,8 @@ import java.util.UUID;
 public class SwordmachineEntity extends AbstractUltraHostileEntity implements GeoEntity, MeleeInterruptable, Enrageable
 {
 	private final ServerBossBar bossBar = new ServerBossBar(this.getDisplayName(), BossBar.Color.RED, BossBar.Style.PROGRESS);
+	private static final Vector4f trailColor = new Vector4f(1f, 0.5f, 0f, 0.6f);
+	private static final int trailLifetime = 40;
 	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
 	private static final RawAnimation HAND_CLOSED_ANIM = RawAnimation.begin().thenLoop("hand_closed");
 	private static final RawAnimation RAND_IDLE_ANIM = RawAnimation.begin().thenPlay("look_around");
@@ -320,14 +324,13 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		dataTracker.set(ANIMATION, ANIMATION_ENRAGE);
 	}
 	
-	//TODO: add shotgun Projectiles
 	private void fireShotgun()
 	{
 		Vec3d dir = new Vec3d(0f, 0f, 1f);
 		dir = dir.rotateY((float)Math.toRadians(-getBodyYaw()));
 		for (int i = 0; i < 16; i++)
 		{
-			HellBulletEntity bullet = HellBulletEntity.spawn(this, world);
+			ShotgunPelletEntity bullet = ShotgunPelletEntity.spawn(this, world);
 			bullet.setVelocity(dir.x, dir.y, dir.z, 1f, 20f);
 			Vec3d vel = bullet.getVelocity();
 			world.addParticle(ParticleTypes.SMOKE, bullet.getX(), bullet.getY(), bullet.getZ(), vel.x, vel.y, vel.z);
@@ -689,7 +692,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 					Vector3f left = sm.getPos().toVector3f().add(new Vector3f(0f, 1f, 1.5f).rotateY((float)Math.toRadians(sm.getYaw() + timer * 30)));
 					Vector3f right = sm.getPos().toVector3f().add(new Vector3f(0f, 1f, 0.5f).rotateY((float)Math.toRadians(sm.getYaw() + timer * 30)));
 					return new Pair<>(left, right);
-				});
+				}, trailColor, trailLifetime);
 			if(timer > 10 && timer < 25)
 			{
 				sm.setVelocity(direction.multiply(0.75f));
@@ -787,9 +790,9 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 				trailID = UUID.randomUUID();
 				switch (timer)
 				{
-					case 27 -> UltracraftClient.TRAIL_RENDERER.createTrail(trailID, this::getPointFirst); //6 ticks
-					case 42 -> UltracraftClient.TRAIL_RENDERER.createTrail(trailID, this::getPointSecond); //6 ticks
-					case 62 -> UltracraftClient.TRAIL_RENDERER.createTrail(trailID, this::getPointDownSlash); //4 ticks
+					case 27 -> UltracraftClient.TRAIL_RENDERER.createTrail(trailID, this::getPointFirst, trailColor, trailLifetime); //6 ticks
+					case 42 -> UltracraftClient.TRAIL_RENDERER.createTrail(trailID, this::getPointSecond, trailColor, trailLifetime); //6 ticks
+					case 62 -> UltracraftClient.TRAIL_RENDERER.createTrail(trailID, this::getPointDownSlash, trailColor, trailLifetime); //4 ticks
 					default -> {}
 				}
 				direction = target.getPos().subtract(sm.getPos()).multiply(1f, 0f, 1f).normalize();
@@ -928,7 +931,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 					Vector3f left = sm.getPos().toVector3f().add(new Vector3f(0f, 1f + time / 30f, 2f + time).rotateY(angle));
 					Vector3f right = sm.getPos().toVector3f().add(new Vector3f(0f, 1f + time / 30f, 1.5f + time).rotateY(angle));
 					return new Pair<>(left, right);
-				});
+				}, trailColor, trailLifetime);
 			if(timer == 20 || timer == 30)
 				damaged.clear();
 			if(timer > 10 && timer < 60)

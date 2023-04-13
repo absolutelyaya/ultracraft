@@ -21,7 +21,6 @@ public class TrailRenderer
 	static Map<UUID, Trail> newTrails = new HashMap<>();
 	static List<UUID> deletionQueue = new ArrayList<>();
 	static MinecraftClient client;
-	static int maxAge = 40;
 	static Random rand;
 	
 	public void render(MatrixStack matrixStack, Camera cam)
@@ -46,7 +45,7 @@ public class TrailRenderer
 			if(UltracraftClient.getConfigHolder().getConfig().trailLines)
 				renderAsLines(id, trailCopy, matrix, immediate);
 			else
-				renderAsQuads(trailCopy, matrix, immediate);
+				renderAsQuads(trailCopy, trail.color, trail.lifetime, matrix, immediate);
 			trail.lastRendered = time;
 		}
 		for (int i = 0; i < newTrails.size(); i++)
@@ -100,7 +99,7 @@ public class TrailRenderer
 		consumer.unfixColor();
 	}
 	
-	public void renderAsQuads(List<Pair<Long, Pair<Vector3f, Vector3f>>> trail, Matrix4f matrix, VertexConsumerProvider.Immediate immediate)
+	public void renderAsQuads(List<Pair<Long, Pair<Vector3f, Vector3f>>> trail, Vector4f col, int lifetime, Matrix4f matrix, VertexConsumerProvider.Immediate immediate)
 	{
 		//POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL
 		VertexConsumer consumer = immediate.getBuffer(RenderLayers.getLightTrail());
@@ -109,13 +108,12 @@ public class TrailRenderer
 		RenderSystem.disableTexture();
 		Pair<Vector3f, Vector3f> last = null;
 		Vector3f normal = client.getCameraEntity().getRotationVector().multiply(-1f).toVector3f();
-		Vector4f col = new Vector4f(1f, 0.5f, 0f, 0.6f);
 		for (int i = trail.size() - 1; i >= 0; i--)
 		{
 			Vector3f vec = trail.get(i).getRight().getLeft();
 			Vector3f vec2 = trail.get(i).getRight().getRight();
 			long age = client.world.getTime() - trail.get(i).getLeft();
-			float fade = Math.max((1f - (float)age / maxAge), 0f);
+			float fade = Math.max((1f - (float)age / lifetime), 0f);
 			consumer.vertex(matrix, vec2.x, vec2.y, vec2.z).color(col.x, col.y, col.z, col.w * fade).texture(0f, 0f).overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normal.x, normal.y, normal.z).next();
 			if(last != null)
 				consumer.vertex(matrix, last.getRight().x, last.getRight().y, last.getRight().z).color(col.x, col.y, col.z, col.w * fade).texture(0f, 1f).overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normal.x, normal.y, normal.z).next();
@@ -128,11 +126,14 @@ public class TrailRenderer
 		consumer.vertex(matrix, last.getLeft().x, last.getLeft().y, last.getLeft().z).color(col.x, col.y, col.z, 0f).texture(1f, 0f).overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normal.x, normal.y, normal.z).next();
 	}
 	
-	public void createTrail(UUID id, Supplier<Pair<Vector3f, Vector3f>> nextPointFunc)
+	public void createTrail(UUID id, Supplier<Pair<Vector3f, Vector3f>> nextPointFunc, Vector4f color, int lifetime)
 	{
-		Trail trail = new Trail(nextPointFunc);
+		if(trails.size() >= UltracraftClient.getConfigHolder().getConfig().maxTrails)
+			return;
+		Trail trail = new Trail(nextPointFunc, color, lifetime);
 		newTrails.put(id, trail);
-		trail.add(nextPointFunc.get());
+		Pair<Vector3f, Vector3f> p = nextPointFunc.get();
+		trail.add(p);
 	}
 	
 	public void tick()
@@ -166,7 +167,7 @@ public class TrailRenderer
 				invalid = true;
 				break;
 			}
-			else if(age > maxAge)
+			else if(age > trail.lifetime)
 				removal++;
 		}
 		if(invalid)
@@ -214,12 +215,16 @@ public class TrailRenderer
 		Queue<Pair<Long, Pair<Vector3f, Vector3f>>> points;
 		Long lastRendered;
 		Supplier<Pair<Vector3f, Vector3f>> pointSupplier;
+		Vector4f color;
+		int lifetime;
 		
-		public Trail(Supplier<Pair<Vector3f, Vector3f>> pointSupplier)
+		public Trail(Supplier<Pair<Vector3f, Vector3f>> pointSupplier, Vector4f color, int lifetime)
 		{
 			this.points = new ArrayDeque<>();
 			this.lastRendered = client.world.getTime();
 			this.pointSupplier = pointSupplier;
+			this.color = color;
+			this.lifetime = lifetime;
 		}
 		
 		public int size()
