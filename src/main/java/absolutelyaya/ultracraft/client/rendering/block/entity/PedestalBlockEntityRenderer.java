@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.client.rendering.block.entity;
 import absolutelyaya.ultracraft.block.PedestalBlock;
 import absolutelyaya.ultracraft.block.PedestalBlockEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
+import absolutelyaya.ultracraft.item.CoreEjectShotgunItem;
 import absolutelyaya.ultracraft.item.PierceRevolverItem;
 import absolutelyaya.ultracraft.item.PlushieItem;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
@@ -60,7 +61,11 @@ public class PedestalBlockEntityRenderer implements BlockEntityRenderer<Pedestal
 				matrices.translate(0f, -0.125f, 0f);
 				matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(10), 0f, 0f, 1f)));
 			}
-			//TODO: Shotgun transformation
+			if(item instanceof CoreEjectShotgunItem)
+			{
+				matrices.translate(-0.075f, -0.055f, 0f);
+				matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(15), 0f, 0f, 1f)));
+			}
 		}
 		else if (item.equals(ItemRegistry.MACHINE_SWORD))
 		{
