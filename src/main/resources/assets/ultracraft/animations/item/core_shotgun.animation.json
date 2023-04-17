@@ -97,6 +97,55 @@
 							"vector": [0, 0, 0.5]
 						}
 					}
+				},
+				"Smoke": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, -90, 0]
+						},
+						"1.05": {
+							"vector": [0, -90, 0]
+						},
+						"1.1": {
+							"vector": [0, 0, 0],
+							"easing": "step",
+							"easingArgs": [2]
+						}
+					},
+					"position": {
+						"0.6": {
+							"vector": [1, 7.5, -3]
+						},
+						"1.05": {
+							"vector": [1, 7.5, -3]
+						},
+						"1.1": {
+							"vector": [0, -64, 0],
+							"easing": "step",
+							"easingArgs": [2]
+						}
+					},
+					"scale": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.55": {
+							"vector": [0, 0, 0]
+						},
+						"0.6": {
+							"vector": [1, 1, 1],
+							"easing": "step",
+							"easingArgs": [2]
+						},
+						"1.05": {
+							"vector": [1, 1, 1]
+						},
+						"1.1": {
+							"vector": [0, 0, 0],
+							"easing": "step",
+							"easingArgs": [2]
+						}
+					}
 				}
 			}
 		}
