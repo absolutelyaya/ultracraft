@@ -23,6 +23,8 @@ public class ParticleRegistry
 			new Identifier(Ultracraft.MOD_ID, "slide"), FabricParticleTypes.simple());
 	public static final DefaultParticleType GROUND_POUND = Registry.register(Registries.PARTICLE_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "groundpound"), FabricParticleTypes.simple());
+	public static final DefaultParticleType EJECTED_CORE_FLASH = Registry.register(Registries.PARTICLE_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "ejected_core"), FabricParticleTypes.simple());
 	//complex
 	public static final ParticleType<ParryIndicatorParticleEffect> PARRY_INDICATOR = Registry.register(Registries.PARTICLE_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "parry_indicator"), FabricParticleTypes.complex(new ParryIndicatorParticleEffect.Factory()));

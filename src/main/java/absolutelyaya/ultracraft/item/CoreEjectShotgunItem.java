@@ -3,15 +3,22 @@ package absolutelyaya.ultracraft.item;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.CoreEjectShotgunRenderer;
+import absolutelyaya.ultracraft.entity.projectile.EjectedCoreEntity;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.joml.Vector2i;
@@ -35,6 +42,7 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 	RawAnimation AnimationShot = RawAnimation.begin().thenPlay("shot");
+	RawAnimation AnimationAltShot = RawAnimation.begin().thenPlay("altShot");
 	
 	public CoreEjectShotgunItem(Settings settings)
 	{
@@ -42,13 +50,11 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 	
-	//TODO: secondary fire
-	
 	@Override
 	public void onPrimaryFire(World world, PlayerEntity user)
 	{
 		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
-		if(!world.isClient && cdm.isUsable(this, 0))
+		if(!world.isClient && cdm.isUsable(this, 0) && !user.getItemCooldownManager().isCoolingDown(this))
 		{
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), controllerName, "shot");
 			cdm.setCooldown(this, 70, GunCooldownManager.PRIMARY);
@@ -67,6 +73,65 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 			world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, SoundCategory.PLAYERS,
 					1.0f, 0.2f / (user.getRandom().nextFloat() * 0.2f + 0.6f));
 		}
+	}
+	
+	@Override
+	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
+	{
+		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
+		ItemStack itemStack = user.getStackInHand(hand);
+		if(!cdm.isUsable(this, 0))
+			return TypedActionResult.fail(itemStack);
+		user.setCurrentHand(hand);
+		if(!world.isClient)
+			itemStack.getOrCreateNbt().putBoolean("charging", true);
+		return TypedActionResult.consume(itemStack);
+	}
+	
+	@Override
+	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
+	{
+		super.inventoryTick(stack, world, entity, slot, selected);
+		if(world.isClient)
+			return;
+		if(stack.hasNbt() && stack.getNbt().contains("charging"))
+			approxUseTime++;
+	}
+	
+	@Override
+	public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks)
+	{
+		NbtCompound nbt = stack.getNbt();
+		if(!world.isClient && user instanceof PlayerEntity player)
+		{
+			float useTime = 1f - MathHelper.clamp(Math.max(remainingUseTicks, 0) / 30f, 0f, 1f);
+			player.getItemCooldownManager().set(this, 50);
+			EjectedCoreEntity bullet = EjectedCoreEntity.spawn(user, world);
+			Vec3d dir = new Vec3d(0f, 0f, 1f);
+			dir = dir.rotateX((float)Math.toRadians(-user.getPitch()));
+			dir = dir.rotateY((float)Math.toRadians(-user.getHeadYaw()));
+			bullet.setVelocity(dir.x, dir.y + ((1f - useTime) * 0.5 + 0.05f), dir.z, Math.max(useTime * 1.25f, 0.25f), 0f);
+			Vec3d vel = bullet.getVelocity();
+			world.addParticle(ParticleTypes.SMOKE, bullet.getX(), bullet.getY(), bullet.getZ(), vel.x, vel.y, vel.z);
+			bullet.setNoGravity(true);
+			world.spawnEntity(bullet);
+			triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "altShot");
+		}
+		if(nbt != null)
+			nbt.remove("charging");
+		approxUseTime = -1;
+	}
+	
+	@Override
+	public boolean isUsedOnRelease(ItemStack stack)
+	{
+		return true;
+	}
+	
+	@Override
+	public int getMaxUseTime(ItemStack stack)
+	{
+		return 30;
 	}
 	
 	@Override
@@ -99,7 +164,8 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
 	{
 		controllerRegistrar.add(new AnimationController<>(this, controllerName, 1, state -> PlayState.STOP)
-										.triggerableAnim("shot", AnimationShot));
+										.triggerableAnim("shot", AnimationShot)
+										.triggerableAnim("altShot", AnimationAltShot));
 	}
 	
 	public int getApproxUseTime()

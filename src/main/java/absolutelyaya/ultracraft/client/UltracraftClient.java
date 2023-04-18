@@ -19,10 +19,7 @@ import absolutelyaya.ultracraft.client.rendering.entity.other.InterruptableCharg
 import absolutelyaya.ultracraft.client.rendering.entity.other.InterruptableChargeRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.other.ShockwaveModel;
 import absolutelyaya.ultracraft.client.rendering.entity.other.ShockwaveRenderer;
-import absolutelyaya.ultracraft.client.rendering.entity.projectile.CerberusBallRenderer;
-import absolutelyaya.ultracraft.client.rendering.entity.projectile.HellBulletRenderer;
-import absolutelyaya.ultracraft.client.rendering.entity.projectile.ShotgunPelletRenderer;
-import absolutelyaya.ultracraft.client.rendering.entity.projectile.ThrownMachineSwordRenderer;
+import absolutelyaya.ultracraft.client.rendering.entity.projectile.*;
 import absolutelyaya.ultracraft.client.sound.MovingMachineSwordSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingSlideSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingWindSoundInstance;
@@ -90,6 +87,7 @@ public class UltracraftClient implements ClientModInitializer
 		EntityRendererRegistry.register(EntityRegistry.HELL_BULLET, HellBulletRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.CERBERUS_BALL, CerberusBallRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.SHOTGUN_PELLET, ShotgunPelletRenderer::new);
+		EntityRendererRegistry.register(EntityRegistry.EJECTED_CORE, EjectedCoreRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.THROWN_MACHINE_SWORD, ThrownMachineSwordRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.SHOCKWAVE, ShockwaveRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.INTERRUPTABLE_CHARGE, InterruptableChargeRenderer::new);
@@ -99,6 +97,7 @@ public class UltracraftClient implements ClientModInitializer
 		particleRegistry.register(ParticleRegistry.DASH, DashParticle.DashParticleFactory::new);
 		particleRegistry.register(ParticleRegistry.SLIDE, SlideParticle.SlideParticleFactory::new);
 		particleRegistry.register(ParticleRegistry.GROUND_POUND, GroundPoundParticle.GroundPoundParticleFactory::new);
+		particleRegistry.register(ParticleRegistry.EJECTED_CORE_FLASH, EjectedCoreFlashParticle.EjectedCoreFlashParticleFactory::new);
 		particleRegistry.register(ParticleRegistry.PARRY_INDICATOR, ParryIndicatorParticle.ParryIndicatorParticleFactory::new);
 		particleRegistry.register(ParticleRegistry.GOOP_DROP, GoopDropParticle.GoopDropParticleFactory::new);
 		particleRegistry.register(ParticleRegistry.GOOP, GoopParticle.GoopParticleFactory::new);

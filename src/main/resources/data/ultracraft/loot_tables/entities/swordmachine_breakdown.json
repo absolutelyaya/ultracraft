@@ -6,16 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:stone_hoe",
-          "functions": [
-            {
-              "function": "minecraft:set_name",
-              "name": {
-                "text": "When I grow up, I want to be a shotgun!",
-                "italic": false
-              }
-            }
-          ]
+          "name": "ultracraft:core_shotgun"
         }
       ]
     }

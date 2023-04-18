@@ -1,8 +1,7 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
-import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
+import absolutelyaya.ultracraft.entity.projectile.*;
 import absolutelyaya.ultracraft.entity.machine.SwordmachineEntity;
 import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
 import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
@@ -11,8 +10,6 @@ import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.entity.husk.FilthEntity;
 import absolutelyaya.ultracraft.entity.husk.SchismEntity;
 import absolutelyaya.ultracraft.entity.husk.StrayEntity;
-import absolutelyaya.ultracraft.entity.projectile.CerberusBallEntity;
-import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
@@ -53,6 +50,10 @@ public class EntityRegistry
 			new Identifier(Ultracraft.MOD_ID, "shotgun_pellet"),
 			EntityType.Builder.create(ShotgunPelletEntity::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
 					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().build("shotgun_pellet"));
+	public static final EntityType<EjectedCoreEntity> EJECTED_CORE = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "ejected_core"),
+			EntityType.Builder.create(EjectedCoreEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
+					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().build("ejected_core"));
 	public static final EntityType<ThrownMachineSwordEntity> THROWN_MACHINE_SWORD = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "thrown_machinesword"),
 			EntityType.Builder.create(ThrownMachineSwordEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)

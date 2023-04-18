@@ -55,8 +55,10 @@ public class PacketRegistry
 			{
 				if(flame)
 					target.setFireTicks(100);
-				if(target instanceof ProjectileEntity p && ((ProjectileEntityAccessor)p).isParriable())
+				if(target instanceof ProjectileEntity p)
 				{
+					if(!((ProjectileEntityAccessor)p).isParriable())
+						return;
 					if(player.equals(p.getOwner()) && p instanceof ThrownItemEntity)
 					{
 						if(player.world.getGameRules().getBoolean(GameruleRegistry.ALLOW_PROJ_BOOST_THROWABLE))

@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.item;
 
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
+import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -48,6 +49,11 @@ public class HellBulletItem extends Item
 	{
 		super.appendTooltip(stack, world, tooltip, context);
 		if(context.isAdvanced())
-			tooltip.add(Text.translatable("item.ultracraft.hell_bullet.hiddenlore"));
+		{
+			if(stack.isOf(ItemRegistry.EJECTED_CORE))
+				tooltip.add(Text.translatable("item.ultracraft.ejected_core.hiddenlore"));
+			else
+				tooltip.add(Text.translatable("item.ultracraft.hell_bullet.hiddenlore"));
+		}
 	}
 }
