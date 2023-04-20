@@ -279,7 +279,8 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 	@Override
 	public void remove(RemovalReason reason)
 	{
-		UltracraftClient.TRAIL_RENDERER.removeTrail(uuid);
+		if(world.isClient)
+			UltracraftClient.TRAIL_RENDERER.removeTrail(uuid);
 		super.remove(reason);
 	}
 }

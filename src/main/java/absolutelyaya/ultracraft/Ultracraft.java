@@ -21,6 +21,10 @@ public class Ultracraft implements ModInitializer
     public static final Logger LOGGER = LogUtils.getLogger();
     static int freezeTicks;
     
+    //TODO: Disable air friction while slide jumping
+    //TODO: Projectile boosting
+    //TODO: Shotgun damage shouldn't give I-Frames
+    
     @Override
     public void onInitialize()
     {

@@ -7,7 +7,6 @@ import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.husk.AbstractHuskEntity;
-import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import absolutelyaya.ultracraft.registry.DamageSources;
@@ -408,6 +407,12 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		return dataTracker.get(SWORD_STACK);
 	}
 	
+	void tryRemoveTrail(UUID trailID)
+	{
+		if(world.isClient)
+			UltracraftClient.TRAIL_RENDERER.removeTrail(trailID);
+	}
+	
 	static class TargetHuskGoal extends ActiveTargetGoal<LivingEntity>
 	{
 		public TargetHuskGoal(SwordmachineEntity sm)
@@ -686,7 +691,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			}
 			if(timer == 6)
 				sm.setAttacking(false);
-			if(timer == 9)
+			if(timer == 9 && sm.world.isClient)
 				UltracraftClient.TRAIL_RENDERER.createTrail(trailID,
 				() -> {
 					Vector3f left = sm.getPos().toVector3f().add(new Vector3f(0f, 1f, 1.5f).rotateY((float)Math.toRadians(sm.getYaw() + timer * 30)));
@@ -704,7 +709,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 				});
 			}
 			if(timer == 26)
-				UltracraftClient.TRAIL_RENDERER.removeTrail(trailID);
+				sm.tryRemoveTrail(trailID);
 		}
 		
 		@Override
@@ -732,7 +737,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			if(sm.getAnimation() == ANIMATION_SLASH)
 				sm.dataTracker.set(ANIMATION, ANIMATION_IDLE);
 			damaged.clear();
-			UltracraftClient.TRAIL_RENDERER.removeTrail(trailID);
+			sm.tryRemoveTrail(trailID);
 		}
 	}
 	
@@ -784,9 +789,9 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			}
 			else if(timer == 22 || timer == 41 || timer == 60)
 				sm.setAttacking(false);
-			else if(timer == 27 || timer == 42 || timer == 62)
+			else if((timer == 27 || timer == 42 || timer == 62) && sm.world.isClient)
 			{
-				UltracraftClient.TRAIL_RENDERER.removeTrail(trailID);
+				sm.tryRemoveTrail(trailID);
 				trailID = UUID.randomUUID();
 				switch (timer)
 				{
@@ -798,7 +803,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 				direction = target.getPos().subtract(sm.getPos()).multiply(1f, 0f, 1f).normalize();
 			}
 			if (timer == 33 || timer == 48 || timer == 66)
-				UltracraftClient.TRAIL_RENDERER.removeTrail(trailID);
+				sm.tryRemoveTrail(trailID);
 			
 			if((timer >= 27 && timer <= 29) || (timer >= 42 && timer <= 44) || (timer == 62))
 			{
@@ -870,7 +875,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			if(sm.getAnimation() == ANIMATION_COMBO)
 				sm.dataTracker.set(ANIMATION, ANIMATION_IDLE);
 			damaged.clear();
-			UltracraftClient.TRAIL_RENDERER.removeTrail(trailID);
+			sm.tryRemoveTrail(trailID);
 			sm.setAttacking(false);
 		}
 	}
@@ -923,7 +928,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			}
 			if(timer == 6)
 				sm.setAttacking(false);
-			if(timer == 12)
+			if(timer == 12 && sm.world.isClient)
 				UltracraftClient.TRAIL_RENDERER.createTrail(trailID,
 				() -> {
 					float time = (timer - 12) / 28f * 3f;
@@ -945,7 +950,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 				});
 			}
 			if(timer == 40)
-				UltracraftClient.TRAIL_RENDERER.removeTrail(trailID);
+				sm.tryRemoveTrail(trailID);
 		}
 		
 		@Override
@@ -973,7 +978,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			if(sm.getAnimation() == ANIMATION_SPIN)
 				sm.dataTracker.set(ANIMATION, ANIMATION_IDLE);
 			damaged.clear();
-			UltracraftClient.TRAIL_RENDERER.removeTrail(trailID);
+			sm.tryRemoveTrail(trailID);
 		}
 	}
 }

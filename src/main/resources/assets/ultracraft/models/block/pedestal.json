@@ -1,7 +1,8 @@
 {
 	"credit": "Made by Absolutelyaya",
 	"textures": {
-		"1": "block/cobblestone"
+		"1": "block/cobblestone",
+		"particle": "block/cobblestone"
 	},
 	"elements": [
 		{
