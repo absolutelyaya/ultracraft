@@ -130,12 +130,8 @@ public class TrailRenderer
 	{
 		if(trails.size() >= UltracraftClient.getConfigHolder().getConfig().maxTrails)
 			return;
-		//Pair<Vector3f, Vector3f> p = nextPointFunc.get();
-		//if(p == null)
-		//	return;
 		Trail trail = new Trail(nextPointFunc, color, lifetime);
 		newTrails.put(id, trail);
-		//trail.add(p);
 	}
 	
 	public void tick()
@@ -161,6 +157,7 @@ public class TrailRenderer
 		Trail trail = trails.get(id);
 		int removal = 0;
 		boolean invalid = false;
+		//remove vertices over the max age
 		for (Pair<Long, Pair<Vector3f, Vector3f>> pair : trail.points)
 		{
 			long age = time - pair.getLeft();
@@ -173,13 +170,34 @@ public class TrailRenderer
 				removal++;
 		}
 		if(invalid)
-		{
 			trails.get(id).points.clear();
-			return;
-		}
-		else if(removal > 0)
+		else
 			for (int i = 0; i < removal; i++)
 				trail.remove();
+		//check if still moving every 10 ticks
+		if(trail.points.size() > 1 && trail.points.peek().getLeft() % 10 == 0)
+		{
+			boolean moving = false;
+			Vector3f lastPoint = null;
+			for (Pair<Long, Pair<Vector3f, Vector3f>> pair : trail.points)
+			{
+				if(lastPoint == null)
+				{
+					lastPoint = pair.getRight().getLeft();
+					continue;
+				}
+				Vector3f v = pair.getRight().getLeft();
+				if(lastPoint.distance(v) > 0.05)
+				{
+					moving = true;
+					break;
+				}
+				lastPoint = v;
+			}
+			if(!moving)
+				deletionQueue.add(id);
+		}
+		//add next vertex if not queued to be discarded
 		if(!deletionQueue.contains(id))
 		{
 			Pair<Vector3f, Vector3f> v = trail.pointSupplier.get();
@@ -242,6 +260,7 @@ public class TrailRenderer
 		
 		public void add(Pair<Vector3f, Vector3f> point)
 		{
+			//adding a tiny random offset to combat Z-Fighting
 			Vector3f randomOffset = new Vector3f(rand.nextFloat() * 0.01f, rand.nextFloat() * 0.01f, rand.nextFloat() * 0.01f);
 			point = new Pair<>(point.getLeft().add(randomOffset), point.getRight().add(randomOffset));
 			points.add(new Pair<>(client.world.getTime(), point));

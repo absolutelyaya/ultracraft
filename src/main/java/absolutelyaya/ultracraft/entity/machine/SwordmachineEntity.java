@@ -13,6 +13,8 @@ import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import absolutelyaya.ultracraft.registry.DamageSources;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.advancement.Advancement;
@@ -21,7 +23,10 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.entity.ai.goal.RevengeGoal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.entity.boss.ServerBossBar;
@@ -175,8 +180,9 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		goalSelector.add(3, new ChaseGoal(this));
 		goalSelector.add(4, new LookAroundGoal(this));
 		
-		targetSelector.add(0, new ActiveTargetGoal<>(this, PlayerEntity.class, false));
+		targetSelector.add(0, new ActiveTargetGoal<>(this, PlayerEntity.class, true));
 		targetSelector.add(0, new TargetHuskGoal(this));
+		targetSelector.add(1, new RevengeGoal(this));
 	}
 	
 	@Override
@@ -190,9 +196,14 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		byte anim = dataTracker.get(ANIMATION);
 		AnimationController<?> controller = event.getController();
 		
+		controller.setAnimationSpeed(1f);
 		switch (anim)
 		{
-			case ANIMATION_IDLE -> controller.setAnimation(event.isMoving() ? WALK_ANIM : IDLE_ANIM);
+			case ANIMATION_IDLE -> {
+				controller.setAnimationSpeed(getAttributes().getValue(
+						EntityAttributes.GENERIC_MOVEMENT_SPEED) / getAttributes().getBaseValue(EntityAttributes.GENERIC_MOVEMENT_SPEED));
+				controller.setAnimation(event.isMoving() ? WALK_ANIM : IDLE_ANIM);
+			}
 			case ANIMATION_LOOK -> controller.setAnimation(RAND_IDLE_ANIM);
 			case ANIMATION_BREAKDOWN -> controller.setAnimation(BREAKDOWN_ANIM);
 			case ANIMATION_ENRAGE -> controller.setAnimation(ENRAGE_ANIM);
@@ -337,6 +348,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	
 	private void setCurrentAttackTrail(byte attack)
 	{
+		boolean changed = attack != dataTracker.get(CURRENT_ATTACK);
 		dataTracker.set(CURRENT_ATTACK, attack);
 		
 		if(world.isClient)
@@ -347,6 +359,8 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 				UltracraftClient.TRAIL_RENDERER.removeTrail(dataTracker.get(LAST_TRAIL_ID).get());
 			return;
 		}
+		if(!changed)
+			return; //don't send needless packets
 		List<ServerPlayerEntity> players = world.getEntitiesByType(TypeFilter.instanceOf(ServerPlayerEntity.class), getBoundingBox().expand(128), LivingEntity::isAlive);
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeInt(getId());
@@ -515,6 +529,14 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	public ItemStack getSwordStack()
 	{
 		return dataTracker.get(SWORD_STACK);
+	}
+	
+	@Override
+	public void onRemoved()
+	{
+		super.onRemoved();
+		if(world.isClient)
+			setCurrentAttackTrail((byte)0); //remove attack Trail in case there is one
 	}
 	
 	static class TargetHuskGoal extends ActiveTargetGoal<LivingEntity>
