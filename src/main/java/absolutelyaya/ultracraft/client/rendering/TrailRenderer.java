@@ -130,10 +130,12 @@ public class TrailRenderer
 	{
 		if(trails.size() >= UltracraftClient.getConfigHolder().getConfig().maxTrails)
 			return;
+		//Pair<Vector3f, Vector3f> p = nextPointFunc.get();
+		//if(p == null)
+		//	return;
 		Trail trail = new Trail(nextPointFunc, color, lifetime);
 		newTrails.put(id, trail);
-		Pair<Vector3f, Vector3f> p = nextPointFunc.get();
-		trail.add(p);
+		//trail.add(p);
 	}
 	
 	public void tick()
@@ -179,7 +181,13 @@ public class TrailRenderer
 			for (int i = 0; i < removal; i++)
 				trail.remove();
 		if(!deletionQueue.contains(id))
-			trail.add(trail.pointSupplier.get());
+		{
+			Pair<Vector3f, Vector3f> v = trail.pointSupplier.get();
+			if(v == null)
+				deletionQueue.add(id);
+			else
+				trail.add(v);
+		}
 	}
 	
 	void discardOldTrails(long time)
@@ -200,7 +208,7 @@ public class TrailRenderer
 	
 	public void removeTrail(UUID id)
 	{
-		if(trails.containsKey(id))
+		if(id != null && trails.containsKey(id))
 			deletionQueue.add(id);
 	}
 	

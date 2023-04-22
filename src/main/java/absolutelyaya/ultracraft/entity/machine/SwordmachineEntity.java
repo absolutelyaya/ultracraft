@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.entity.machine;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.Enrageable;
+import absolutelyaya.ultracraft.accessor.ITrailEnjoyer;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
 import absolutelyaya.ultracraft.client.UltracraftClient;
@@ -11,6 +12,9 @@ import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import absolutelyaya.ultracraft.registry.DamageSources;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
+import absolutelyaya.ultracraft.registry.PacketRegistry;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.advancement.Advancement;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -33,6 +37,7 @@ import net.minecraft.loot.context.LootContext;
 import net.minecraft.loot.context.LootContextTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -40,6 +45,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
+import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -56,9 +62,10 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-public class SwordmachineEntity extends AbstractUltraHostileEntity implements GeoEntity, MeleeInterruptable, Enrageable
+public class SwordmachineEntity extends AbstractUltraHostileEntity implements GeoEntity, MeleeInterruptable, Enrageable, ITrailEnjoyer
 {
 	private final ServerBossBar bossBar = new ServerBossBar(this.getDisplayName(), BossBar.Color.RED, BossBar.Style.PROGRESS);
 	private static final Vector4f trailColor = new Vector4f(1f, 0.5f, 0f, 0.6f);
@@ -79,12 +86,14 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	protected static final TrackedData<Boolean> HAS_SHOTGUN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> HAS_SWORD = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> BLASTING = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Byte> CURRENT_ATTACK = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BYTE);
 	protected static final TrackedData<Integer> ENRAGED_TICKS = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> BREAKDOWN_TICKS = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> MAX_STAMINA = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> BLAST_COOLDOWN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> THROW_COOLDOWN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Optional<UUID>> LAST_TRAIL_ID = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
 	private static final byte ANIMATION_IDLE = 0;
 	private static final byte ANIMATION_LOOK = 1;
 	private static final byte ANIMATION_BREAKDOWN = 2;
@@ -93,6 +102,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	private static final byte ANIMATION_SLASH = 5;
 	private static final byte ANIMATION_COMBO = 6;
 	private static final byte ANIMATION_SPIN = 7;
+	int lastTrailStart = -1;
 	
 	public SwordmachineEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -118,6 +128,8 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		dataTracker.startTracking(HAS_SWORD, true);
 		dataTracker.startTracking(BLASTING, false);
 		dataTracker.startTracking(MAX_STAMINA, 100);
+		dataTracker.startTracking(CURRENT_ATTACK, (byte)0);
+		dataTracker.startTracking(LAST_TRAIL_ID, Optional.empty());
 	}
 	
 	@Override
@@ -323,6 +335,104 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		dataTracker.set(ANIMATION, ANIMATION_ENRAGE);
 	}
 	
+	private void setCurrentAttackTrail(byte attack)
+	{
+		dataTracker.set(CURRENT_ATTACK, attack);
+		
+		if(world.isClient)
+		{
+			if(attack != 0)
+				addEntityTrail(attack);
+			else if(dataTracker.get(LAST_TRAIL_ID).isPresent())
+				UltracraftClient.TRAIL_RENDERER.removeTrail(dataTracker.get(LAST_TRAIL_ID).get());
+			return;
+		}
+		List<ServerPlayerEntity> players = world.getEntitiesByType(TypeFilter.instanceOf(ServerPlayerEntity.class), getBoundingBox().expand(128), LivingEntity::isAlive);
+		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+		buf.writeInt(getId());
+		buf.writeBoolean(attack != 0);
+		buf.writeInt(attack);
+		players.forEach(p -> ServerPlayNetworking.send(p, PacketRegistry.ENTITY_TRAIL, buf));
+	}
+	
+	@Override
+	public void addEntityTrail(int data)
+	{
+		if(dataTracker.get(LAST_TRAIL_ID).isPresent())
+			UltracraftClient.TRAIL_RENDERER.removeTrail(dataTracker.get(LAST_TRAIL_ID).get());
+		UUID uuid = UUID.randomUUID();
+		dataTracker.set(LAST_TRAIL_ID, Optional.of(uuid));
+		lastTrailStart = data == (byte)0 ? -1 : age;
+		UltracraftClient.TRAIL_RENDERER.createTrail(uuid, () -> nextAttackTrailVertex(data, lastTrailStart), trailColor, trailLifetime);
+	}
+	
+	@Override
+	public UUID getLastTrailID()
+	{
+		if(dataTracker.get(LAST_TRAIL_ID).isPresent())
+			return dataTracker.get(LAST_TRAIL_ID).get();
+		else
+			return null;
+	}
+	
+	public Pair<Vector3f, Vector3f> nextAttackTrailVertex(int attack, int startTime)
+	{
+		if(attack == 0)
+			return null;
+		int time = age - startTime;
+		return switch(attack)
+		{
+			//SLASH
+			case 1 -> {
+				Vector3f left = getPos().toVector3f().add(new Vector3f(0f, 1f, 1.5f).rotateY((float)Math.toRadians(getYaw() + time * 30)));
+				Vector3f right = getPos().toVector3f().add(new Vector3f(0f, 1f, 0.5f).rotateY((float)Math.toRadians(getYaw() + time * 30)));
+				yield new Pair<>(left, right);
+			}
+			//COMBO 1
+			case 2 -> {
+				float fTime = time / 6f;
+				Vector3f left = getPos().toVector3f().add(
+						new Vector3f(0f, 1f, 2f).rotateY(-(float)Math.toRadians(getYaw() - 135 + fTime * 225)));
+				Vector3f right = getPos().toVector3f().add(
+						new Vector3f(0f, 1f, 2.5f).rotateY(-(float)Math.toRadians(getYaw() - 135 + fTime * 225)));
+				yield new Pair<>(left, right);
+			}
+			//COMBO 2
+			case 3 -> {
+				float fTime = time / 6f;
+				Vector3f left = getPos().toVector3f().add(
+						new Vector3f(0f, 1.2f - (0.2f * fTime), 2f).rotateY(-(float)Math.toRadians(getYaw() + 45 - fTime * 225)));
+				Vector3f right = getPos().toVector3f().add(
+						new Vector3f(0f, 1.2f - (0.2f * fTime), 2.5f).rotateY(-(float)Math.toRadians(getYaw() + 45 - fTime * 225)));
+				yield new Pair<>(left, right);
+			}
+			//COMBO 3 (down slash)
+			case 4 -> {
+				float fTime = time / 4f;
+				float yaw = getYaw();
+				float angle = fTime * 135;
+				Vector3f rot = new Vector3f((float)Math.toRadians(angle), -(float)Math.toRadians(yaw), 0f);
+				Vector3f left =
+						getPos().toVector3f().add(new Vector3f(0f, 3f, 0f).rotateX(rot.x).rotateY(rot.y));
+				Vector3f right =
+						getPos().toVector3f().add(new Vector3f(0f, 3.5f, 0f).rotateX(rot.x).rotateY(rot.y));
+				yield new Pair<>(left, right);
+			}
+			//SPIN
+			case 5 -> {
+				float fTime = time / 28f * 3f;
+				float angle = (float)Math.toRadians(fTime * -360f);
+				Vector3f left = getPos().toVector3f().add(new Vector3f(0f, 1f + fTime / 30f, 2f + fTime).rotateY(angle));
+				Vector3f right = getPos().toVector3f().add(new Vector3f(0f, 1f + fTime / 30f, 1.5f + fTime).rotateY(angle));
+				yield new Pair<>(left, right);
+			}
+			default -> {
+				Ultracraft.LOGGER.warn("Invalid Attack type for Trail on Swordmachine [" + uuid + "]. Discarding Trail");
+				yield null;
+			}
+		};
+	}
+	
 	private void fireShotgun()
 	{
 		Vec3d dir = new Vec3d(0f, 0f, 1f);
@@ -405,12 +515,6 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	public ItemStack getSwordStack()
 	{
 		return dataTracker.get(SWORD_STACK);
-	}
-	
-	void tryRemoveTrail(UUID trailID)
-	{
-		if(world.isClient)
-			UltracraftClient.TRAIL_RENDERER.removeTrail(trailID);
 	}
 	
 	static class TargetHuskGoal extends ActiveTargetGoal<LivingEntity>
@@ -691,13 +795,8 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			}
 			if(timer == 6)
 				sm.setAttacking(false);
-			if(timer == 9 && sm.world.isClient)
-				UltracraftClient.TRAIL_RENDERER.createTrail(trailID,
-				() -> {
-					Vector3f left = sm.getPos().toVector3f().add(new Vector3f(0f, 1f, 1.5f).rotateY((float)Math.toRadians(sm.getYaw() + timer * 30)));
-					Vector3f right = sm.getPos().toVector3f().add(new Vector3f(0f, 1f, 0.5f).rotateY((float)Math.toRadians(sm.getYaw() + timer * 30)));
-					return new Pair<>(left, right);
-				}, trailColor, trailLifetime);
+			if(timer == 9)
+				sm.setCurrentAttackTrail((byte)1);
 			if(timer > 10 && timer < 25)
 			{
 				sm.setVelocity(direction.multiply(0.75f));
@@ -708,8 +807,8 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 						damaged.add(e);
 				});
 			}
-			if(timer == 26)
-				sm.tryRemoveTrail(trailID);
+			if(timer == 26 && sm.dataTracker.get(CURRENT_ATTACK) == 1)
+				sm.setCurrentAttackTrail((byte)0);
 		}
 		
 		@Override
@@ -737,7 +836,8 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			if(sm.getAnimation() == ANIMATION_SLASH)
 				sm.dataTracker.set(ANIMATION, ANIMATION_IDLE);
 			damaged.clear();
-			sm.tryRemoveTrail(trailID);
+			if(sm.dataTracker.get(CURRENT_ATTACK) == 1)
+				sm.setCurrentAttackTrail((byte)0);
 		}
 	}
 	
@@ -789,21 +889,20 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			}
 			else if(timer == 22 || timer == 41 || timer == 60)
 				sm.setAttacking(false);
-			else if((timer == 27 || timer == 42 || timer == 62) && sm.world.isClient)
+			else if(timer == 27 || timer == 42 || timer == 62)
 			{
-				sm.tryRemoveTrail(trailID);
 				trailID = UUID.randomUUID();
 				switch (timer)
 				{
-					case 27 -> UltracraftClient.TRAIL_RENDERER.createTrail(trailID, this::getPointFirst, trailColor, trailLifetime); //6 ticks
-					case 42 -> UltracraftClient.TRAIL_RENDERER.createTrail(trailID, this::getPointSecond, trailColor, trailLifetime); //6 ticks
-					case 62 -> UltracraftClient.TRAIL_RENDERER.createTrail(trailID, this::getPointDownSlash, trailColor, trailLifetime); //4 ticks
+					case 27 -> sm.setCurrentAttackTrail((byte)2); //6 ticks
+					case 42 -> sm.setCurrentAttackTrail((byte)3); //6 ticks
+					case 62 -> sm.setCurrentAttackTrail((byte)4); //4 ticks
 					default -> {}
 				}
 				direction = target.getPos().subtract(sm.getPos()).multiply(1f, 0f, 1f).normalize();
 			}
 			if (timer == 33 || timer == 48 || timer == 66)
-				sm.tryRemoveTrail(trailID);
+				sm.setCurrentAttackTrail((byte)0);
 			
 			if((timer >= 27 && timer <= 29) || (timer >= 42 && timer <= 44) || (timer == 62))
 			{
@@ -815,39 +914,6 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 						damaged.add(e);
 				});
 			}
-		}
-		
-		Pair<Vector3f, Vector3f> getPointFirst()
-		{
-			float time = (timer - 27) / 6f;
-			Vector3f left = sm.getPos().toVector3f().add(
-					new Vector3f(0f, 1f, 2f).rotateY(-(float)Math.toRadians(sm.getYaw() - 135 + time * 225)));
-			Vector3f right = sm.getPos().toVector3f().add(
-					new Vector3f(0f, 1f, 2.5f).rotateY(-(float)Math.toRadians(sm.getYaw() - 135 + time * 225)));
-			return new Pair<>(left, right);
-		}
-		
-		Pair<Vector3f, Vector3f> getPointSecond()
-		{
-			float time = (timer - 42) / 6f;
-			Vector3f left = sm.getPos().toVector3f().add(
-					new Vector3f(0f, 1.2f - (0.2f * time), 2f).rotateY(-(float)Math.toRadians(sm.getYaw() + 45 - time * 225)));
-			Vector3f right = sm.getPos().toVector3f().add(
-					new Vector3f(0f, 1.2f - (0.2f * time), 2.5f).rotateY(-(float)Math.toRadians(sm.getYaw() + 45 - time * 225)));
-			return new Pair<>(left, right);
-		}
-		
-		Pair<Vector3f, Vector3f> getPointDownSlash()
-		{
-			float time = (timer - 62) / 4f;
-			float yaw = sm.getYaw();
-			float angle = time * 135;
-			Vector3f rot = new Vector3f((float)Math.toRadians(angle), -(float)Math.toRadians(yaw), 0f);
-			Vector3f left =
-					sm.getPos().toVector3f().add(new Vector3f(0f, 3f, 0f).rotateX(rot.x).rotateY(rot.y));
-			Vector3f right =
-					sm.getPos().toVector3f().add(new Vector3f(0f, 3.5f, 0f).rotateX(rot.x).rotateY(rot.y));
-			return new Pair<>(left, right);
 		}
 		
 		@Override
@@ -875,7 +941,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			if(sm.getAnimation() == ANIMATION_COMBO)
 				sm.dataTracker.set(ANIMATION, ANIMATION_IDLE);
 			damaged.clear();
-			sm.tryRemoveTrail(trailID);
+			sm.setCurrentAttackTrail((byte)0);
 			sm.setAttacking(false);
 		}
 	}
@@ -928,15 +994,8 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			}
 			if(timer == 6)
 				sm.setAttacking(false);
-			if(timer == 12 && sm.world.isClient)
-				UltracraftClient.TRAIL_RENDERER.createTrail(trailID,
-				() -> {
-					float time = (timer - 12) / 28f * 3f;
-					float angle = (float)Math.toRadians(time * -360f);
-					Vector3f left = sm.getPos().toVector3f().add(new Vector3f(0f, 1f + time / 30f, 2f + time).rotateY(angle));
-					Vector3f right = sm.getPos().toVector3f().add(new Vector3f(0f, 1f + time / 30f, 1.5f + time).rotateY(angle));
-					return new Pair<>(left, right);
-				}, trailColor, trailLifetime);
+			if(timer == 12)
+				sm.setCurrentAttackTrail((byte)5);
 			if(timer == 20 || timer == 30)
 				damaged.clear();
 			if(timer > 10 && timer < 60)
@@ -949,8 +1008,8 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 						damaged.add(e);
 				});
 			}
-			if(timer == 40)
-				sm.tryRemoveTrail(trailID);
+			if(timer == 40 && sm.dataTracker.get(CURRENT_ATTACK) == 5)
+				sm.setCurrentAttackTrail((byte)0);
 		}
 		
 		@Override
@@ -978,7 +1037,8 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			if(sm.getAnimation() == ANIMATION_SPIN)
 				sm.dataTracker.set(ANIMATION, ANIMATION_IDLE);
 			damaged.clear();
-			sm.tryRemoveTrail(trailID);
+			if(sm.dataTracker.get(CURRENT_ATTACK) == 5)
+				sm.setCurrentAttackTrail((byte)0);
 		}
 	}
 }

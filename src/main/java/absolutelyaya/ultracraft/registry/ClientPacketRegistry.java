@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.ITrailEnjoyer;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
@@ -8,6 +9,7 @@ import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
 
@@ -84,6 +86,18 @@ public class ClientPacketRegistry
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SYNC_RULE, ((client, handler, buf, sender) -> {
 			UltracraftClient.syncGameRule(buf.readByte());
+		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.ENTITY_TRAIL, ((client, handler, buf, sender) -> {
+			Entity e = client.world.getEntityById(buf.readInt());
+			if(e instanceof ITrailEnjoyer trailer)
+			{
+				if(buf.readBoolean())
+					trailer.addEntityTrail(buf.readInt());
+				else
+					UltracraftClient.TRAIL_RENDERER.removeTrail(trailer.getLastTrailID());
+			}
+			else
+				Ultracraft.LOGGER.warn("Received invalid Packet data: [entity_trail] -> Target entity isn't a TrailEnjoyer!" );
 		}));
 	}
 }
