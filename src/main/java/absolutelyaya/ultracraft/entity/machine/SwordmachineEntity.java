@@ -107,6 +107,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	private static final byte ANIMATION_SLASH = 5;
 	private static final byte ANIMATION_COMBO = 6;
 	private static final byte ANIMATION_SPIN = 7;
+	private final Multimap<EntityAttribute, EntityAttributeModifier> enragedModifiers;
 	int lastTrailStart = -1;
 	
 	public SwordmachineEntity(EntityType<? extends HostileEntity> entityType, World world)
@@ -115,9 +116,11 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		((LivingEntityAccessor)this).SetTakePunchKnockbackSupplier(() -> false); //disable knockback
 		if(!world.isClient())
 			dataTracker.set(SWORD_STACK, ItemRegistry.MACHINE_SWORD.getSwordInstance((ServerWorld)world));
+		
+		enragedModifiers = HashMultimap.create();
+		enragedModifiers.put(EntityAttributes.GENERIC_ATTACK_DAMAGE, new EntityAttributeModifier("atk_up", 1.5f, EntityAttributeModifier.Operation.MULTIPLY_BASE));
+		enragedModifiers.put(EntityAttributes.GENERIC_MOVEMENT_SPEED, new EntityAttributeModifier("spd_up", 0.15f, EntityAttributeModifier.Operation.ADDITION));
 	}
-	
-	//TODO: Speed + Damage up when enraged
 	
 	@Override
 	protected void initDataTracker()
@@ -153,8 +156,14 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		}
 		if(data.equals(ENRAGED_TICKS))
 		{
-			if(dataTracker.get(ENRAGED_TICKS) <= 200 && getAnimation() == ANIMATION_ENRAGE)
+			int t = dataTracker.get(ENRAGED_TICKS);
+			if(t <= 200 && getAnimation() == ANIMATION_ENRAGE)
+			{
+				getAttributes().addTemporaryModifiers(enragedModifiers);
 				dataTracker.set(ANIMATION, ANIMATION_IDLE);
+			}
+			if(t == 0)
+				getAttributes().removeModifiers(enragedModifiers);
 		}
 	}
 	
@@ -162,9 +171,9 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	{
 		return HostileEntity.createMobAttributes()
 					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 100.0d)
-					   .add(EntityAttributes.GENERIC_ARMOR, 6.0d)
+					   .add(EntityAttributes.GENERIC_ARMOR, 12.0d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3d)
-					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 6.0d)
+					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 8.0d)
 					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d)
 					   .add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 1.0d);
 	}
@@ -532,6 +541,13 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	}
 	
 	@Override
+	public boolean tryAttack(Entity target)
+	{
+		float f = (float)this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
+		return target.damage(DamageSources.getSwordmachine(this), f);
+	}
+	
+	@Override
 	public void onRemoved()
 	{
 		super.onRemoved();
@@ -825,7 +841,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 				List<Entity> hit = sm.world.getOtherEntities(sm, sm.getBoundingBox().expand(2f, 0f, 2f),
 						e -> (e instanceof PlayerEntity || (sm.shouldHuntHusks() && e instanceof AbstractHuskEntity)) && !damaged.contains(e));
 				hit.forEach(e -> {
-					if(e.damage(DamageSources.getSwordmachine(sm), 8))
+					if(sm.tryAttack(e))
 						damaged.add(e);
 				});
 			}
@@ -854,7 +870,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		@Override
 		public void stop()
 		{
-			sm.dataTracker.set(ATTACK_COOLDOWN, 40);
+			sm.dataTracker.set(ATTACK_COOLDOWN, sm.isEnraged() ? 20 : 40);
 			if(sm.getAnimation() == ANIMATION_SLASH)
 				sm.dataTracker.set(ANIMATION, ANIMATION_IDLE);
 			damaged.clear();
@@ -932,7 +948,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 				List<Entity> hit = sm.world.getOtherEntities(sm, sm.getBoundingBox().expand(3f, 0f, 3f),
 						e -> (e instanceof PlayerEntity || (sm.shouldHuntHusks() && e instanceof AbstractHuskEntity)) && !damaged.contains(e));
 				hit.forEach(e -> {
-					if(e.damage(DamageSources.getSwordmachine(sm), 8))
+					if(sm.tryAttack(e))
 						damaged.add(e);
 				});
 			}
@@ -959,7 +975,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		@Override
 		public void stop()
 		{
-			sm.dataTracker.set(ATTACK_COOLDOWN, 40);
+			sm.dataTracker.set(ATTACK_COOLDOWN, sm.isEnraged() ? 20 : 40);
 			if(sm.getAnimation() == ANIMATION_COMBO)
 				sm.dataTracker.set(ANIMATION, ANIMATION_IDLE);
 			damaged.clear();
@@ -1026,7 +1042,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 				List<Entity> hit = sm.world.getOtherEntities(sm, sm.getBoundingBox().expand(1f + time, 0f, 1f + time),
 						e -> (e instanceof PlayerEntity || (sm.shouldHuntHusks() && e instanceof AbstractHuskEntity)) && !damaged.contains(e));
 				hit.forEach(e -> {
-					if(e.damage(DamageSources.getSwordmachine(sm), 8))
+					if(sm.tryAttack(e))
 						damaged.add(e);
 				});
 			}
@@ -1055,7 +1071,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		@Override
 		public void stop()
 		{
-			sm.dataTracker.set(ATTACK_COOLDOWN, 40);
+			sm.dataTracker.set(ATTACK_COOLDOWN, sm.isEnraged() ? 20 : 40);
 			if(sm.getAnimation() == ANIMATION_SPIN)
 				sm.dataTracker.set(ANIMATION, ANIMATION_IDLE);
 			damaged.clear();
