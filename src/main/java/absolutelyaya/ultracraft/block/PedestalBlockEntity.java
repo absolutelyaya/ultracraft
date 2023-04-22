@@ -42,7 +42,7 @@ public class PedestalBlockEntity extends BlockEntity
 			player.getInventory().offHand.set(0, ItemStack.EMPTY);
 		}
 		if(world != null)
-			world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_LISTENERS);
+			world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_ALL);
 		//if both stacks are not empty, do nothing, but don't count it as punching a regular block.
 		return true;
 	}
@@ -76,8 +76,7 @@ public class PedestalBlockEntity extends BlockEntity
 	protected void writeNbt(NbtCompound nbt)
 	{
 		super.writeNbt(nbt);
-		if (!getStack().isEmpty())
-			nbt.put("holding", getStack().writeNbt(new NbtCompound()));
+		nbt.put("holding", getStack().writeNbt(new NbtCompound()));
 	}
 	
 	public ItemStack getStack()
