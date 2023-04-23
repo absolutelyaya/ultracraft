@@ -37,11 +37,11 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 	private static final RawAnimation THROWBACK_ANIM = RawAnimation.begin().thenLoop("throwback");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	protected static final TrackedData<Boolean> RARE = DataTracker.registerData(FilthEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(FilthEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	private static final byte ANIMATION_IDLE = 0;
 	private static final byte ANIMATION_ATTACK = 1;
 	private static final byte ANIMATION_THROWBACK = 2;
 	static int throwbackTicks;
-	//TODO add semi-random attack cooldown?
 	
 	public FilthEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -54,6 +54,7 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 	{
 		super.initDataTracker();
 		dataTracker.startTracking(RARE, random.nextInt(5000) == 0);
+		dataTracker.startTracking(ATTACK_COOLDOWN, 0);
 	}
 	
 	@Override
@@ -109,8 +110,8 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 		}
 		else if(dataTracker.get(ANIMATION) == ANIMATION_THROWBACK)
 			dataTracker.set(ANIMATION, ANIMATION_IDLE);
-		
-		//setGlowing(isAttacking());
+		if(dataTracker.get(ATTACK_COOLDOWN) > 0)
+			dataTracker.set(ATTACK_COOLDOWN, dataTracker.get(ATTACK_COOLDOWN) - 1);
 	}
 	
 	@Override
@@ -205,7 +206,7 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 		public boolean canStart()
 		{
 			this.target = mob.getTarget();
-			if (this.target == null)
+			if (this.target == null || mob.dataTracker.get(ATTACK_COOLDOWN) > 0)
 				return false;
 			
 			double d = mob.squaredDistanceTo(this.target);
@@ -281,6 +282,7 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 		{
 			if(mob.getAnimation() == ANIMATION_ATTACK)
 				mob.dataTracker.set(ANIMATION, ANIMATION_IDLE);
+			mob.dataTracker.set(ATTACK_COOLDOWN, 10 + mob.random.nextInt(10));
 			mob.setAttacking(false);
 		}
 	}
