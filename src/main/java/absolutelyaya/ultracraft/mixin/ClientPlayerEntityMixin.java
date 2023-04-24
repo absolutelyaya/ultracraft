@@ -133,8 +133,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				else if(!horizontalCollision && !jumping && !isDashing() && !wasDashing(2))
 				{
 					BlockPos pos = new BlockPos(getPos().add(Vec3d.fromPolar(0f, getYaw()).normalize()));
-					setSprinting((!isUnSolid(world.getBlockState(new BlockPos(getPos().subtract(0f, 0.79f, 0f)))) || verticalCollision) &&
-										 !world.getBlockState(pos).isSolidBlock(world, pos));
+					setSliding((!isUnSolid(world.getBlockState(new BlockPos(getPos().subtract(0f, 0.79f, 0f)))) || verticalCollision) &&
+										 !world.getBlockState(pos).isSolidBlock(world, pos), lastSprintPressed);
 				}
 				//cancel slide because it shouldn't be possible rn anyways
 				else if(isSprinting())
@@ -148,6 +148,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				{
 					setVelocity(slideDir.multiply(slideVelocity * 1.5));
 					addVelocity(0, baseJumpVel, 0);
+					setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
 				}
 				setSprinting(client.options.sprintKey.isPressed() && !groundPounding && !horizontalCollision && !jumping);
 				slideTicks++;
@@ -201,6 +202,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					if(!winged.consumeStamina())
 						setVelocity(dashDir.multiply(0.3));
 					addVelocity(0f, baseJumpVel, 0f);
+					setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
 				}
 				ci.cancel();
 			}
@@ -214,6 +216,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				dashDir = Vec3d.ZERO;
 				ci.cancel();
 			}
+			//landing stops ignoring slowdown
+			if((verticalCollision && !isUnSolid(world.getBlockState(new BlockPos(getPos().subtract(0f, 0.1f, 0f))))) &&
+					   !isSprinting() && shouldIgnoreSlowdown())
+				setIgnoreSlowdown(false);
 			//update movement data
 			if(ci.isCancelled())
 			{
@@ -245,6 +251,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				slideVelocity = Math.max(0.33f, slideVelocity * 0.995f);
 			lastSprintPressed = client.options.sprintKey.isPressed() && !isDashing() && !wasDashing(2);
 		}
+		else if (shouldIgnoreSlowdown())
+			setIgnoreSlowdown(false);
 		wasHiVel = UltracraftClient.isHiVelEnabled();
 	}
 	
@@ -254,7 +262,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		if(sliding && !last)
 			slideDir = Vec3d.fromPolar(0f, getYaw()).normalize();
 		ticksSinceSprintingChanged = 0;
-		slideVelocity = Math.max(0.33f, (float)getVelocity().multiply(1f, 0f, 1f).length());
+		slideVelocity = Math.max(0.33f, (float)getVelocity().multiply(1.2f, 0f, 1.2f).length());
 		slideTicks = 0;
 	}
 	

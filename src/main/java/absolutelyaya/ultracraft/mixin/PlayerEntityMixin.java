@@ -36,7 +36,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Shadow public abstract boolean isCreative();
 	
 	@Shadow @Final @Mutable private static Map<EntityPose, EntityDimensions> POSE_DIMENSIONS;
-	boolean wingsActive, groundPounding;
+	boolean wingsActive, groundPounding, ignoreSlowdown;
 	byte wingState, lastState;
 	float wingAnimTime;
 	int dashingTicks = -2, stamina, wingHintDisplayTicks;
@@ -138,12 +138,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public boolean wasDashing(int i)
 	{
 		return dashingTicks + i >= 0;
-	}
-	
-	@Override
-	public byte getLastState()
-	{
-		return lastState;
 	}
 	
 	@Override
@@ -289,5 +283,17 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	{
 		if(!((WingedPlayerEntity)instance).isWingsVisible())
 			instance.addExhaustion(exhaustion);
+	}
+	
+	@Override
+	public boolean shouldIgnoreSlowdown()
+	{
+		return ignoreSlowdown;
+	}
+	
+	@Override
+	public void setIgnoreSlowdown(boolean ignoreSlowdown)
+	{
+		this.ignoreSlowdown = ignoreSlowdown;
 	}
 }

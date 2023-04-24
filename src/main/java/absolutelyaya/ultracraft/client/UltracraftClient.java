@@ -67,6 +67,7 @@ public class UltracraftClient implements ClientModInitializer
 	static GameruleRegistry.Option HiVelOption = GameruleRegistry.Option.FREE;
 	static GameruleRegistry.Option TimeFreezeOption = GameruleRegistry.Option.FORCE_ON;
 	static boolean disableHandswap = false;
+	static int jumpBoost;
 	static float screenblood;
 	
 	static UltraHudRenderer hudRenderer;
@@ -139,6 +140,7 @@ public class UltracraftClient implements ClientModInitializer
 					client.player.sendMessage(Text.translatable("message.ultracraft.hi-vel-free"));
 				client.player.sendMessage(Text.translatable("message.ultracraft.freeze-forced",
 						freeze.equals(GameruleRegistry.Option.FORCE_ON) ? Text.translatable("options.on") : Text.translatable("options.off")));
+				client.player.sendMessage(Text.translatable("message.ultracraft.jump-boost", jumpBoost));
 				client.player.sendMessage(Text.translatable("message.ultracraft.join-info"));
 				client.player.sendMessage(Text.translatable("========================================="));
 			}
@@ -264,7 +266,17 @@ public class UltracraftClient implements ClientModInitializer
 			}
 			case 2 -> TimeFreezeOption = GameruleRegistry.Option.values()[value];
 			case 3 -> disableHandswap = value == 1;
-			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_sync] -> " + data);
+			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncB] -> " + data);
+		}
+	}
+	
+	public static void syncGameRule(byte data, int value)
+	{
+		int rule = data / 10;
+		switch (rule)
+		{
+			case 4 -> jumpBoost = value;
+			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncI] -> " + data);
 		}
 	}
 }

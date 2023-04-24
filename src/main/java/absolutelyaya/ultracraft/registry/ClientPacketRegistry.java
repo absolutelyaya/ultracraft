@@ -85,7 +85,11 @@ public class ClientPacketRegistry
 			UltraHudRenderer.onCatchFish(buf.readItemStack());
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SYNC_RULE, ((client, handler, buf, sender) -> {
-			UltracraftClient.syncGameRule(buf.readByte());
+			byte b = buf.readByte();
+			if(b == 40)
+				UltracraftClient.syncGameRule(b, buf.readInt());
+			else
+				UltracraftClient.syncGameRule(b);
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.ENTITY_TRAIL, ((client, handler, buf, sender) -> {
 			Entity e = client.world.getEntityById(buf.readInt());

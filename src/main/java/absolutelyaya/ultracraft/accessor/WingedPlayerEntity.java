@@ -9,8 +9,6 @@ public interface WingedPlayerEntity
 	
 	byte getWingState();
 	
-	byte getLastState();
-	
 	float getWingAnimTime();
 	
 	void setWingAnimTime(float f);
@@ -43,4 +41,8 @@ public interface WingedPlayerEntity
 	void completeGroundPound(boolean strong);
 	
 	boolean isGroundPounding();
+	
+	boolean shouldIgnoreSlowdown();
+	
+	void setIgnoreSlowdown(boolean b);
 }

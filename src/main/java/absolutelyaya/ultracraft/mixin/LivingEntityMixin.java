@@ -2,9 +2,12 @@ package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
+import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -17,8 +20,7 @@ import net.minecraft.util.TypeFilter;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -52,6 +54,15 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			punchTick();
 	}
 	
+	@ModifyConstant(method = "tickMovement", constant = @Constant(floatValue = 0.98f))
+	float modifySlowdown(float constant)
+	{
+		if(this instanceof WingedPlayerEntity winged && winged instanceof ClientPlayerEntity)
+			return winged.shouldIgnoreSlowdown() ? 1f : constant;
+		else
+			return constant;
+	}
+	
 	@SuppressWarnings("EqualsBetweenInconvertibleTypes")
 	@Inject(method = "damage", at = @At("RETURN"))
 	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
@@ -77,6 +88,13 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		}
 		if(source.getName().equals("gun"))
 			timeUntilRegen = 9;
+	}
+	
+	@Inject(method = "getJumpVelocity", at = @At("RETURN"), cancellable = true)
+	void onGetJumpVel(CallbackInfoReturnable<Float> cir)
+	{
+		if(this instanceof WingedPlayerEntity winged && winged.isWingsVisible())
+			cir.setReturnValue(cir.getReturnValue() + 0.1f * Math.max(world.getGameRules().getInt(GameruleRegistry.HIVEL_JUMP_BOOST), 0));
 	}
 	
 	void punchTick()
