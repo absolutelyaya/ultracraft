@@ -1,11 +1,13 @@
 package absolutelyaya.ultracraft.client.rendering;
 
 import absolutelyaya.ultracraft.client.RenderLayers;
+import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.util.Pair;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Matrix4f;
@@ -42,10 +44,13 @@ public class TrailRenderer
 			VertexConsumerProvider.Immediate immediate = MinecraftClient.getInstance().getBufferBuilders().getEffectVertexConsumers();
 			//actually render now
 			List<Pair<Long, Pair<Vector3f, Vector3f>>> trailCopy = trail.points.stream().toList();
-			if(UltracraftClient.getConfigHolder().getConfig().trailLines)
+			Ultraconfig config = UltracraftClient.getConfigHolder().getConfig();
+			if(config.trailLines)
 				renderAsLines(id, trailCopy, matrix, immediate);
-			else
+			else if(!config.trailParticles)
 				renderAsQuads(trailCopy, trail.color, trail.lifetime, matrix, immediate);
+			else
+				renderAsParticles(trailCopy, trail.color, trail.lifetime);
 			trail.lastRendered = time;
 		}
 		for (int i = 0; i < newTrails.size(); i++)
@@ -124,6 +129,20 @@ public class TrailRenderer
 		}
 		consumer.vertex(matrix, last.getRight().x, last.getRight().y, last.getRight().z).color(col.x, col.y, col.z, 0f).texture(0f, 1f).overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normal.x, normal.y, normal.z).next();
 		consumer.vertex(matrix, last.getLeft().x, last.getLeft().y, last.getLeft().z).color(col.x, col.y, col.z, 0f).texture(1f, 0f).overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normal.x, normal.y, normal.z).next();
+	}
+	
+	public void renderAsParticles(List<Pair<Long, Pair<Vector3f, Vector3f>>> trail, Vector4f col, int lifetime)
+	{
+		if(trail.size() <= 1)
+			return;
+		float f = Math.max(lifetime / 20f, 0.5f);
+		Pair<Vector3f, Vector3f> pa = trail.get(trail.size() - 1).getRight();
+		Pair<Vector3f, Vector3f> pb = trail.get(trail.size() - 2).getRight();
+		Vector3f va = new Vector3f(pa.getLeft()).lerp(pb.getLeft(), rand.nextFloat());
+		Vector3f vb = new Vector3f(pa.getRight()).lerp(pb.getRight(), rand.nextFloat());
+		Vector3f result = va.lerp(vb, rand.nextFloat());
+		MinecraftClient.getInstance().world.addParticle(new DustParticleEffect(new Vector3f(col.x, col.y, col.z), f),
+				result.x, result.y, result.z, 0f, 0f, 0f);
 	}
 	
 	public void createTrail(UUID id, Supplier<Pair<Vector3f, Vector3f>> nextPointFunc, Vector4f color, int lifetime)

@@ -25,6 +25,8 @@ public class Ultraconfig implements ConfigData
 	@ConfigEntry.Gui.Tooltip
 	@ConfigEntry.BoundedDiscrete(min = 16, max = 128)
 	public int maxTrails = 64;
+	@ConfigEntry.Gui.Tooltip(count = 2)
+	public boolean trailParticles = true;
 	@ConfigEntry.Category("goop")
 	@ConfigEntry.Gui.Tooltip
 	public boolean fancyGoop = false;

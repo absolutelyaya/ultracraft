@@ -120,8 +120,15 @@
   "text.autoconfig.ultracraft.option.moveUltrahud": "Move Ultrahud",
   "text.autoconfig.ultracraft.option.moveUltrahud.@Tooltip": "Moves the Ultrahud up when holding an item in your offhand.",
 
+  "text.autoconfig.ultracraft.option.maxTrails": "Maximum Trails",
+  "text.autoconfig.ultracraft.option.maxTrails.@Tooltip": "Caps the amount of Trails at this amount.",
+
   "text.autoconfig.ultracraft.option.trailLines": "Trail lines",
   "text.autoconfig.ultracraft.option.trailLines.@Tooltip": "Renders Trails as simple lines to get a better feel for where vertices are.",
+
+  "text.autoconfig.ultracraft.option.trailParticles": "Trails as particles",
+  "text.autoconfig.ultracraft.option.trailParticles.@Tooltip[0]": "Renders Trails using particles instead of the Trail renderer.",
+  "text.autoconfig.ultracraft.option.trailParticles.@Tooltip[1]": "Disabling this will currently lead to Transparency Layering issues!",
 
   "text.autoconfig.ultracraft.option.bloodOverlay": "Blood Overlay",
   "text.autoconfig.ultracraft.option.bloodOverlay.@Tooltip": "If you get splashed with a LOT of blood, it might cover your screen a bit."
