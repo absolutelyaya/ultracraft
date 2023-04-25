@@ -10,15 +10,20 @@ import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.loader.api.FabricLoader;
+import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import org.slf4j.Logger;
 
+import java.util.Optional;
+
 public class Ultracraft implements ModInitializer
 {
     public static final String MOD_ID = "ultracraft";
     public static final Logger LOGGER = LogUtils.getLogger();
+    public static String VERSION;
     static int freezeTicks;
     
     //TODO: Projectile boosting
@@ -51,6 +56,7 @@ public class Ultracraft implements ModInitializer
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((serverPlayer, lastWorld, newWorld) -> GameruleRegistry.SyncAll(serverPlayer));
         ServerPlayConnectionEvents.JOIN.register((networkHandler, sender, server) -> GameruleRegistry.SyncAll(networkHandler.player));
         
+        FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer -> VERSION = modContainer.getMetadata().getVersion().getFriendlyString());
         LOGGER.info("Ultracraft initialized.");
     }
     

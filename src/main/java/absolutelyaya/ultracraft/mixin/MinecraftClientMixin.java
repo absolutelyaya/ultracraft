@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.client.gui.screen.IntroScreen;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
@@ -13,6 +14,7 @@ import net.minecraft.client.sound.MusicType;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.resource.ResourceReload;
 import net.minecraft.sound.MusicSound;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
@@ -20,6 +22,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -37,7 +40,7 @@ public abstract class MinecraftClientMixin
 		if(world != null && !UltracraftClient.isHandSwapEnabled())
 			networkHandler.sendPacket(packet);
 		else if(player != null)
-			player.sendMessage(Text.translatable("message.ultrakill.handswap-disabled"), true);
+			player.sendMessage(Text.translatable("message.ultracraft.handswap-disabled"), true);
 	}
 	
 	@Inject(method = "getMusicType", at = @At("RETURN"), cancellable = true)
@@ -63,5 +66,15 @@ public abstract class MinecraftClientMixin
 	{
 		if(player != null && player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldCancelHits())
 			ci.cancel();
+	}
+	
+	@ModifyVariable(method = "<init>", at = @At(value = "STORE"))
+	ResourceReload onInitialResourceLoad(ResourceReload resourceReload)
+	{
+		resourceReload.whenComplete().thenRun(() -> {
+			if(IntroScreen.INSTANCE != null)
+				IntroScreen.INSTANCE.resourceLoadFinished();
+		});
+		return resourceReload;
 	}
 }

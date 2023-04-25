@@ -81,7 +81,14 @@
   "message.ultracraft.fish.mania3": "IT HAS TO BE OUT THERE... SOMEWHERE",
   "message.ultracraft.fish.mania4": "THE SIZE 2 IS REAL!!",
   "message.ultracraft.fish.mania5": "...that's... \nthat's bigger than usual! \nI have to be getting close!!",
-  "message.ultrakill.handswap-disabled": "[§4Ultracraft§r] This Server has disabled hand quick-swapping.",
+  "message.ultracraft.handswap-disabled": "[§4Ultracraft§r] This Server has disabled hand quick-swapping.",
+  "message.ultracraft.content": "Welcome to Ultracraft!\nThis Mod aims to recreate the game Ultrakill (by §6Arsi \"Hakita\" Patala§f) and its mechanics in Minecraft. The Current Content includes:\n- All Prologue Enemies\n- 2 Weapons\n- A few Blocks and Items\n- A few Secrets/Jokes\n\nIf enough people like it, I will keep working on the mod. The next Feature I would implement, is §6Style Points§f.\nPlease be sure to report Issues/Bugs and send any Feedback you have my way!\nRelevant Links are in the Mod Info.\n\n✦ Absolutelyaya ✦",
+  "message.ultracraft.consent": "Understood",
+
+  "intro.ultracraft.calibration": "BOOT UP SEQUENCE READY\n\nFIRMWARE\n  §aVERSION %s§r\n\nCALIBRATION\n  §4EXPIRED§r\n  §4NEW CALIBRATION REQUIRED§r\n\n",
+  "intro.ultracraft.input": "Press any Key",
+  "intro.ultracraft.calibration-complete": "  §aCALIBRATION COMPLETE§r",
+  "intro.ultracraft.status": "STATUS UPDATE\n\nMACHINE ID:                %s\nLOCATION:                  MINECRAFT\nCURRENT OBJECTIVE:     FIND A WEAPON\n§4MANKIND IS DEAD.§r\n§4BLOOD IS FUEL.§r\n§4HELL IS FULL.§r",
 
   "key.ultracraft.hivel_toggle": "Toggle High Velocity Mode",
   "key.ultracraft.punch": "Punch",
@@ -102,8 +109,8 @@
   "text.autoconfig.ultracraft.option.wrapToEdges": "Wrap to Edges",
   "text.autoconfig.ultracraft.option.wrapToEdges.@Tooltip": "Whether Goop should wrap to block edges",
 
-  "text.autoconfig.ultracraft.option.serverJoinInfo": "Server Join Info",
-  "text.autoconfig.ultracraft.option.serverJoinInfo.@Tooltip": "Tells you mod-relevant Server settings upon joining a multiplayer game.",
+  "text.autoconfig.ultracraft.option.serverJoinInfo": "World Join Info",
+  "text.autoconfig.ultracraft.option.serverJoinInfo.@Tooltip": "Tells you mod-relevant Game Rules upon joining a game.",
 
   "text.autoconfig.ultracraft.option.freezeVFX": "Freeze VFX",
   "text.autoconfig.ultracraft.option.freezeVFX.@Tooltip[0]": "Whether Time should freeze momentarily from certain actions (parrying/projectile-boosting)",

@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.client.gui.screen.IntroScreen;
 import absolutelyaya.ultracraft.client.gui.widget.TitleBGButton;
 import absolutelyaya.ultracraft.client.rendering.TitleBGRenderer;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
@@ -51,6 +52,9 @@ public abstract class TitleScreenMixin extends Screen
     @Inject(method = "tick", at = @At("HEAD"))
     void onTick(CallbackInfo ci)
     {
+        if(!IntroScreen.SEQUENCE_FINISHED && !UltracraftClient.getConfigHolder().get().lastVersion.equals(Ultracraft.VERSION))
+            client.setScreen(new IntroScreen());
+        
         if(wind == null)
             wind = PositionedSoundInstance.ambient(SoundRegistry.ELEVATOR_FALL.value(), 1f, 0.75f);
         else if (wind.canPlay() && windTicks <= 0 && backgroundRenderer.equals(ultrabg))
