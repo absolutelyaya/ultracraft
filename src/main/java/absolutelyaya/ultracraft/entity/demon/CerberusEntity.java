@@ -139,7 +139,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 	@Override
 	public Vec3d getEnrageFeatureSize()
 	{
-		return new Vec3d(1.1f, -1.1f, -1.1f);
+		return new Vec3d(2.2f, -2.2f, -2.2f);
 	}
 	
 	@Override

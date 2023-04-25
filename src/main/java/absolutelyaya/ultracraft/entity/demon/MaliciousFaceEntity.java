@@ -356,7 +356,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	@Override
 	public Vec3d getEnrageFeatureSize()
 	{
-		return new Vec3d(2.75f, 2.75f, 2.75f);
+		return new Vec3d(2.75f, -2.75f, -2.75f);
 	}
 	
 	@Override
