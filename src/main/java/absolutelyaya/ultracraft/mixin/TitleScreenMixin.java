@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.IntroScreen;
 import absolutelyaya.ultracraft.client.gui.widget.TitleBGButton;
@@ -32,6 +33,7 @@ public abstract class TitleScreenMixin extends Screen
     
     @Shadow public abstract boolean mouseClicked(double mouseX, double mouseY, int button);
     
+    private static final Ultraconfig config = UltracraftClient.getConfigHolder().get();
     private static final Identifier BG_ICON_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/misc/bg_icons.png");
     RotatingCubeMapRenderer ultrabg, defaultbg;
     SoundInstance wind;
@@ -52,7 +54,7 @@ public abstract class TitleScreenMixin extends Screen
     @Inject(method = "tick", at = @At("HEAD"))
     void onTick(CallbackInfo ci)
     {
-        if(!IntroScreen.SEQUENCE_FINISHED && !UltracraftClient.getConfigHolder().get().lastVersion.equals(Ultracraft.VERSION))
+        if(!IntroScreen.SEQUENCE_FINISHED && !config.lastVersion.equals(Ultracraft.VERSION))
             client.setScreen(new IntroScreen());
         
         if(wind == null)
@@ -76,7 +78,7 @@ public abstract class TitleScreenMixin extends Screen
         TitleBGButton vanilla = addDrawableChild(new TitleBGButton(-24, 34,
                 32, 32, 0, 0, 32, BG_ICON_TEXTURE, 64, 64,
                 button -> setBG("vanilla"), Text.translatable("narrator.button.background.vanilla")));
-        (UltracraftClient.getConfigHolder().get().BGID.equals("ultracraft") ? ultracraft : vanilla).onPress();
+        (config.BGID.equals("ultracraft") ? ultracraft : vanilla).onPress();
     }
     
     void setBG(String bg)
@@ -84,7 +86,7 @@ public abstract class TitleScreenMixin extends Screen
         MinecraftClient.getInstance().getSoundManager().stop(wind);
         windTicks = 0;
         backgroundRenderer = bg.equals("ultracraft") ? ultrabg : defaultbg;
-        UltracraftClient.getConfigHolder().get().BGID = bg;
+        config.BGID = bg;
         UltracraftClient.getConfigHolder().save();
     }
 }

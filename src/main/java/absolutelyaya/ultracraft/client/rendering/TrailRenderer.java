@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 
 public class TrailRenderer
 {
+	static Ultraconfig config = UltracraftClient.getConfigHolder().getConfig();
 	static Map<UUID, Trail> trails = new HashMap<>();
 	static Map<UUID, Trail> newTrails = new HashMap<>();
 	static List<UUID> deletionQueue = new ArrayList<>();
@@ -44,7 +45,6 @@ public class TrailRenderer
 			VertexConsumerProvider.Immediate immediate = MinecraftClient.getInstance().getBufferBuilders().getEffectVertexConsumers();
 			//actually render now
 			List<Pair<Long, Pair<Vector3f, Vector3f>>> trailCopy = trail.points.stream().toList();
-			Ultraconfig config = UltracraftClient.getConfigHolder().getConfig();
 			if(config.trailLines)
 				renderAsLines(id, trailCopy, matrix, immediate);
 			else if(!config.trailParticles)
@@ -147,7 +147,7 @@ public class TrailRenderer
 	
 	public void createTrail(UUID id, Supplier<Pair<Vector3f, Vector3f>> nextPointFunc, Vector4f color, int lifetime)
 	{
-		if(trails.size() >= UltracraftClient.getConfigHolder().getConfig().maxTrails)
+		if(trails.size() >= config.maxTrails)
 			return;
 		Trail trail = new Trail(nextPointFunc, color, lifetime);
 		newTrails.put(id, trail);

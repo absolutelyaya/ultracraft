@@ -29,6 +29,7 @@ import java.util.Random;
 @SuppressWarnings("SameParameterValue")
 public class UltraHudRenderer extends DrawableHelper
 {
+	private static final Ultraconfig config = UltracraftClient.getConfigHolder().get();
 	final Identifier GUI_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/ultrahud.png");
 	final Identifier WEAPONS_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/weapon_icons.png");
 	float healthPercent, staminaPercent, yOffset;
@@ -40,7 +41,6 @@ public class UltraHudRenderer extends DrawableHelper
 	
 	public void render(float tickDelta, Camera cam)
 	{
-		Ultraconfig config = UltracraftClient.getConfigHolder().get();
 		if(!MinecraftClient.isHudEnabled() ||cam.isThirdPerson() || config.ultraHudVisibility.equals(UltraHudVisibility.NEVER))
 			return;
 		if(config.ultraHudVisibility.equals(UltraHudVisibility.LIMITED) && !UltracraftClient.isHiVelEnabled())
@@ -62,7 +62,7 @@ public class UltraHudRenderer extends DrawableHelper
 		
 		//TODO: holding nothing inverts the fish... for whatever reason.
 		//Fishing Joke
-		if(fishTimer > 0f && lastCatch != null && UltracraftClient.getConfigHolder().get().fishingJoke)
+		if(fishTimer > 0f && lastCatch != null && config.fishingJoke)
 		{
 			matrices.push();
 			matrices.scale(aspect, 1f, 1f);

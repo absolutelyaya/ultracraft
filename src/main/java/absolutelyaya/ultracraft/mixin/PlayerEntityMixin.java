@@ -36,6 +36,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Shadow public abstract boolean isCreative();
 	
 	@Shadow @Final @Mutable private static Map<EntityPose, EntityDimensions> POSE_DIMENSIONS;
+	
+	@Shadow public abstract boolean isSwimming();
+	
 	boolean wingsActive, groundPounding, ignoreSlowdown;
 	byte wingState, lastState;
 	float wingAnimTime;
@@ -86,6 +89,13 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
 	{
 		if(isDashing())
+			cir.setReturnValue(false);
+	}
+	
+	@Inject(method = "isSwimming", at = @At("HEAD"), cancellable = true)
+	void onIsSwimming(CallbackInfoReturnable<Boolean> cir)
+	{
+		if(wingsActive)
 			cir.setReturnValue(false);
 	}
 	

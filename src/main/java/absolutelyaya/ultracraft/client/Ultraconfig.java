@@ -40,4 +40,5 @@ public class Ultraconfig implements ConfigData
 	public boolean trailLines = false;
 	
 	public String lastVersion = "none";
+	public boolean startedBefore = false;
 }

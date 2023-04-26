@@ -1,11 +1,14 @@
 package absolutelyaya.ultracraft.client.gui.screen;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.option.GameOptions;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
@@ -34,11 +37,19 @@ public class IntroScreen extends Screen
 	protected void init()
 	{
 		super.init();
+		Ultraconfig config = UltracraftClient.getConfigHolder().getConfig();
 		INSTANCE = this;
 		closeButton = addDrawableChild(new ButtonWidget.Builder(Text.translatable("message.ultracraft.consent"), (button) -> {
-			UltracraftClient.getConfigHolder().get().lastVersion = Ultracraft.VERSION;
+			config.lastVersion = Ultracraft.VERSION;
 			waitingForButton = false;
 		}).dimensions(width / 2 - 49, height - 36, 98, 20).build());
+		GameOptions options = MinecraftClient.getInstance().options;
+		if(!config.startedBefore && options.swapHandsKey.isDefault())
+		{
+			options.setKeyCode(options.swapHandsKey, InputUtil.fromKeyCode(InputUtil.GLFW_KEY_R, 19));
+			config.startedBefore = true;
+			UltracraftClient.getConfigHolder().save();
+		}
 	}
 	
 	@Override

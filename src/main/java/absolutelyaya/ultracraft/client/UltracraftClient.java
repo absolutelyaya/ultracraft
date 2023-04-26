@@ -76,6 +76,7 @@ public class UltracraftClient implements ClientModInitializer
 	@Override
 	public void onInitializeClient()
 	{
+		config = AutoConfig.register(Ultraconfig.class, GsonConfigSerializer::new);
 		KeybindRegistry.register();
 		
 		//EntityRenderers
@@ -128,7 +129,7 @@ public class UltracraftClient implements ClientModInitializer
 			buf.writeBoolean(isHiVelEnabled());
 			ClientPlayNetworking.send(PacketRegistry.SET_HIGH_VELOCITY_C2S_PACKET_ID, buf);
 			
-			if(UltracraftClient.getConfigHolder().get().serverJoinInfo)
+			if(config.get().serverJoinInfo)
 			{
 				GameruleRegistry.Option hivel = client.world.getGameRules().get(GameruleRegistry.HI_VEL_MODE).get();
 				GameruleRegistry.Option freeze = client.world.getGameRules().get(GameruleRegistry.TIME_STOP).get();
@@ -181,8 +182,6 @@ public class UltracraftClient implements ClientModInitializer
 			Ultracraft.tickFreeze();
 			UltracraftClient.TRAIL_RENDERER.tick();
 		});
-		
-		config = AutoConfig.register(Ultraconfig.class, GsonConfigSerializer::new);
 	}
 	
 	public static void addBlood(float f)
@@ -196,7 +195,7 @@ public class UltracraftClient implements ClientModInitializer
 	{
 		GameruleRegistry.Option option = TimeFreezeOption;
 		if(option.equals(GameruleRegistry.Option.FREE))
-			return UltracraftClient.getConfigHolder().get().freezeVFX;
+			return config.get().freezeVFX;
 		else
 			return option.equals(GameruleRegistry.Option.FORCE_ON);
 	}
