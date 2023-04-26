@@ -15,9 +15,9 @@ public class DamageSources
 	{
 		return new EntityDamageSource("gun", source);
 	}
-	public static DamageSource getShotgun(Entity source)
+	public static DamageSource getShotgun(Entity projectile, Entity source)
 	{
-		return new EntityDamageSource("shotgun", source);
+		return new ProjectileDamageSource("shotgun", projectile, source);
 	}
 	public static DamageSource getShockwave(Entity source)
 	{

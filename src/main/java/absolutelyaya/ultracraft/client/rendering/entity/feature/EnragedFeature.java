@@ -36,8 +36,8 @@ public class EnragedFeature<T extends LivingEntity> extends FeatureRenderer<T, E
 	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch)
 	{
 		Enrageable gamer = ((Enrageable)entity);
-		//if(!gamer.isEnraged() || !entity.isAlive())
-		//	return;
+		if(!gamer.isEnraged() || !entity.isAlive())
+			return;
 		matrices = new MatrixStack();
 		float aspect = (float)client.getWindow().getFramebufferWidth() / (float)client.getWindow().getFramebufferHeight();
 		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(TEXTURE));

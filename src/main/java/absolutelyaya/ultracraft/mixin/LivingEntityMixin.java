@@ -86,8 +86,10 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			player.heal(amount / 1.5f);
 			player.getHungerManager().add((int)(amount / 1.5f), 5f);
 		}
-		if(source.getName().equals("gun"))
+		if(source.getName().equals("gun") || source.getName().equals("shotgun"))
 			timeUntilRegen = 9;
+		if(source.getName().equals("swordmachine"))
+			timeUntilRegen = 12;
 	}
 	
 	@Inject(method = "getJumpVelocity", at = @At("RETURN"), cancellable = true)

@@ -92,6 +92,13 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			cir.setReturnValue(false);
 	}
 	
+	@Inject(method = "damage", at = @At("TAIL"))
+	void afterDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
+	{
+		if(wingsActive)
+			timeUntilRegen = 11;
+	}
+	
 	@Inject(method = "isSwimming", at = @At("HEAD"), cancellable = true)
 	void onIsSwimming(CallbackInfoReturnable<Boolean> cir)
 	{
