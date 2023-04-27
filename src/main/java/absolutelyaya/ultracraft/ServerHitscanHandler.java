@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft;
 
+import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.registry.DamageSources;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
@@ -69,7 +70,9 @@ public class ServerHitscanHandler
 		while (searchForEntities)
 		{
 			EntityHitResult eHit = ProjectileUtil.raycast(user, from, origunalTo, box,
-					(entity) -> (!entities.contains(entity) && !(entity instanceof ProjectileEntity)), 64f * 64f);
+					(entity) -> (!entities.contains(entity) &&
+										 (!(entity instanceof ProjectileEntity proj) ||
+												  ((ProjectileEntityAccessor)proj).isHitscanHittable())), 64f * 64f);
 			if(eHit == null)
 				break;
 			searchForEntities = eHit.getType() != HitResult.Type.MISS && maxHits > 0;

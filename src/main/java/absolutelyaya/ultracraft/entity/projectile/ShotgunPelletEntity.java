@@ -112,6 +112,12 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	}
 	
 	@Override
+	public boolean isHitscanHittable()
+	{
+		return false;
+	}
+	
+	@Override
 	public void onRemoved()
 	{
 		super.onRemoved();

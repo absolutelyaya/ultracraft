@@ -121,4 +121,10 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	{
 		return true;
 	}
+	
+	@Override
+	public boolean isHitscanHittable()
+	{
+		return false;
+	}
 }

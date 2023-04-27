@@ -68,4 +68,10 @@ public class CerberusBallEntity extends HellBulletEntity implements ProjectileEn
 	{
 	
 	}
+	
+	@Override
+	public boolean isHitscanHittable()
+	{
+		return false;
+	}
 }

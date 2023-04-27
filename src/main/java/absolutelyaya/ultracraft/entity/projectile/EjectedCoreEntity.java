@@ -18,6 +18,7 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.event.GameEvent;
 
 public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEntityAccessor
 {
@@ -70,6 +71,14 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 	}
 	
 	@Override
+	public boolean damage(DamageSource source, float amount)
+	{
+		if(source.getName().equals("gun"))
+			onCollision(new EntityHitResult(this));
+		return super.damage(source, amount);
+	}
+	
+	@Override
 	public void tick()
 	{
 		super.tick();
@@ -102,5 +111,11 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 	public void onParriedCollision(HitResult hitResult)
 	{
 	
+	}
+	
+	@Override
+	public boolean isHitscanHittable()
+	{
+		return true;
 	}
 }

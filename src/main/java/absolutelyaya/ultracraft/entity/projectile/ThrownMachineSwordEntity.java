@@ -277,6 +277,12 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 	}
 	
 	@Override
+	public boolean isHitscanHittable()
+	{
+		return false;
+	}
+	
+	@Override
 	public void onRemoved()
 	{
 		super.onRemoved();
