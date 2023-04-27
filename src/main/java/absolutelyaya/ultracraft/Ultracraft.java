@@ -11,13 +11,10 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import org.slf4j.Logger;
-
-import java.util.Optional;
 
 public class Ultracraft implements ModInitializer
 {
@@ -27,7 +24,6 @@ public class Ultracraft implements ModInitializer
     static int freezeTicks;
     
     //TODO: Projectile boosting
-    //TODO: Shotgun damage shouldn't give I-Frames
     
     @Override
     public void onInitialize()
@@ -35,6 +31,7 @@ public class Ultracraft implements ModInitializer
         ParticleRegistry.init();
         EntityRegistry.register();
         BlockRegistry.registerBlocks();
+        FluidRegistry.register();
         BlockEntityRegistry.register();
         ItemRegistry.register();
         PacketRegistry.registerC2S();

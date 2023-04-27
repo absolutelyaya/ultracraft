@@ -3,6 +3,7 @@
 	"texture_size": [32, 48],
 	"textures": {
 		"0": "ultracraft:block/elevator",
+		"1": "ultracraft:block/elevator_top",
 		"particle": "ultracraft:block/elevator"
 	},
 	"elements": [
@@ -14,8 +15,8 @@
 				"east": {"uv": [16, 0, 8, 5.33333], "texture": "#0"},
 				"south": {"uv": [16, 0, 8, 5.33333], "texture": "#0"},
 				"west": {"uv": [8, 0, 16, 5.33333], "texture": "#0"},
-				"up": {"uv": [8, 0, 16, 5.33333], "texture": "#0"},
-				"down": {"uv": [8, 0, 16, 5.33333], "texture": "#0"}
+				"up": {"uv": [0, 0, 16, 16], "texture": "#1"},
+				"down": {"uv": [0, 0, 16, 16], "texture": "#1"}
 			}
 		}
 	]

@@ -22,6 +22,9 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "cerberus_ball"), new HellBulletItem(new FabricItemSettings().fireproof().maxCount(21)));
 	public static final Item EJECTED_CORE = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "ejected_core"), new HellBulletItem(new FabricItemSettings().maxCount(0)));
+	public static final Item BLOOD_BUCKET = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "blood_bucket"), new BucketItem(FluidRegistry.STILL_BLOOD,
+					new FabricItemSettings().maxCount(1).recipeRemainder(Items.BUCKET)));
 	public static final PlushieItem PLUSHIE = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "plushie"), new PlushieItem(new FabricItemSettings()));
 	public static final PlushieItem PITR = Registry.register(Registries.ITEM,
@@ -67,6 +70,7 @@ public class ItemRegistry
 			content.add(BlockRegistry.ELEVATOR.asItem());
 			content.add(BlockRegistry.PEDESTAL.asItem());
 			content.add(BlockRegistry.CERBERUS.asItem());
+			content.add(BLOOD_BUCKET);
 			content.add(PIERCE_REVOLVER);
 			content.add(CORE_SHOTGUN);
 			content.add(MACHINE_SWORD);
