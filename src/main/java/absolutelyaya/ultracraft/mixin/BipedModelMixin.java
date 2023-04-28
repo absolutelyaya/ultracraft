@@ -52,8 +52,16 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AnimalMode
 			rightLeg.translate(new Vector3f(1f, 9f, -0.5f));
 			
 			body.rotate(new Vector3f(-45f, -7.5f, 0f).mul(MathHelper.RADIANS_PER_DEGREE));
-			leftArm.rotate(new Vector3f(32.5f, 22.5f, 0f).mul(MathHelper.RADIANS_PER_DEGREE));
-			rightArm.rotate(new Vector3f(-67.6f, 12.53f, -0.44f).mul(MathHelper.RADIANS_PER_DEGREE));
+			if(livingEntity.getMainArm().equals(Arm.RIGHT))
+			{
+				leftArm.rotate(new Vector3f(32.5f, 22.5f, 0f).mul(MathHelper.RADIANS_PER_DEGREE));
+				rightArm.rotate(new Vector3f(-67.6f, 12.53f, -0.44f).mul(MathHelper.RADIANS_PER_DEGREE).add(new Vector3f(head.pitch, head.yaw, 0f)));
+			}
+			else
+			{
+				rightArm.rotate(new Vector3f(32.5f, 22.5f, 0f).mul(MathHelper.RADIANS_PER_DEGREE));
+				leftArm.rotate(new Vector3f(-67.6f, 12.53f, -0.44f).mul(MathHelper.RADIANS_PER_DEGREE).add(new Vector3f(head.pitch, head.yaw, 0f)));
+			}
 			leftLeg.rotate(new Vector3f(-82.49f, 2.47f, 0.32f).mul(MathHelper.RADIANS_PER_DEGREE));
 			rightLeg.rotate(new Vector3f(-75.86f, -7.11f, -2.36f).mul(MathHelper.RADIANS_PER_DEGREE));
 			
@@ -80,16 +88,16 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AnimalMode
 		if(livingEntity.getMainHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldAim())
 		{
 			if(livingEntity.getMainArm().equals(Arm.LEFT))
-				leftArm.rotate(new Vector3f(-60f, 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE));
+				leftArm.rotate(new Vector3f(-60f, 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE).add(new Vector3f(head.pitch, head.yaw, 0f)));
 			else
-				rightArm.rotate(new Vector3f(-60f, 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE));
+				rightArm.rotate(new Vector3f(-60f, 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE).add(new Vector3f(head.pitch, head.yaw, 0f)));
 		}
 		if(livingEntity.getOffHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldAim())
 		{
 			if(livingEntity.getMainArm().getOpposite().equals(Arm.LEFT))
-				leftArm.rotate(new Vector3f(-60f, 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE));
+				leftArm.rotate(new Vector3f(-60f, 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE).add(new Vector3f(head.pitch, head.yaw, 0f)));
 			else
-				rightArm.rotate(new Vector3f(-60f, 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE));
+				rightArm.rotate(new Vector3f(-60f, 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE).add(new Vector3f(head.pitch, head.yaw, 0f)));
 		}
 	}
 }
