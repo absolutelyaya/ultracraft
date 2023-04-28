@@ -10,6 +10,7 @@ import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceModel
 import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.EnragedFeature;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.EnragedModel;
+import absolutelyaya.ultracraft.client.rendering.entity.feature.WingsFeature;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.WingsModel;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.SchismRenderer;
@@ -23,6 +24,7 @@ import absolutelyaya.ultracraft.client.rendering.entity.projectile.*;
 import absolutelyaya.ultracraft.client.sound.MovingMachineSwordSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingSlideSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingWindSoundInstance;
+import absolutelyaya.ultracraft.entity.husk.FilthEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import absolutelyaya.ultracraft.particle.*;
 import absolutelyaya.ultracraft.particle.goop.GoopDropParticle;
@@ -40,6 +42,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
@@ -50,6 +53,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
@@ -163,6 +167,8 @@ public class UltracraftClient implements ClientModInitializer
 		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {
 			if(type.equals(EntityRegistry.MALICIOUS_FACE))
 				helper.register(new EnragedFeature<>(context.getModelLoader()));
+			if(type.equals(EntityType.PLAYER))
+				helper.register(new WingsFeature<>(context.getModelLoader()));
 		});
 		
 		WorldRenderEvents.AFTER_ENTITIES.register((ctx) -> {
@@ -185,6 +191,13 @@ public class UltracraftClient implements ClientModInitializer
 		ClientTickEvents.END_WORLD_TICK.register(minecraft -> {
 			Ultracraft.tickFreeze();
 			UltracraftClient.TRAIL_RENDERER.tick();
+		});
+		ClientSendMessageEvents.CHAT.register(message -> {
+			PlayerEntity player = MinecraftClient.getInstance().player;
+			if(player == null)
+				return;
+			player.world.getEntitiesByType(EntityRegistry.FILTH, player.getBoundingBox().expand(128.0), entity -> true)
+					.forEach(FilthEntity::throwback);
 		});
 		FluidRenderHandlerRegistry.INSTANCE.register(FluidRegistry.STILL_BLOOD, FluidRegistry.Flowing_BLOOD,
 				new SimpleFluidRenderHandler(new Identifier(Ultracraft.MOD_ID, "block/blood_still"), new Identifier(Ultracraft.MOD_ID, "block/blood_flow")));

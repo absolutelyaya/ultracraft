@@ -135,6 +135,9 @@
   "text.autoconfig.ultracraft.option.trailLines": "Trail lines",
   "text.autoconfig.ultracraft.option.trailLines.@Tooltip": "Renders Trails as simple lines to get a better feel for where vertices are.",
 
+  "text.autoconfig.ultracraft.option.slideCamOffset": "Slide Camera Offset Percent",
+  "text.autoconfig.ultracraft.option.slideCamOffset.@Tooltip": "How much the third person camera is moved while sliding.",
+
   "text.autoconfig.ultracraft.option.trailParticles": "Trails as particles",
   "text.autoconfig.ultracraft.option.trailParticles.@Tooltip[0]": "Renders Trails using particles instead of the Trail renderer.",
   "text.autoconfig.ultracraft.option.trailParticles.@Tooltip[1]": "Disabling this will currently lead to Transparency Layering issues!",

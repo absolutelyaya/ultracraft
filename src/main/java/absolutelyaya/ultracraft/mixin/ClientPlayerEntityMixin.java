@@ -7,7 +7,6 @@ import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.FluidBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.input.Input;
@@ -266,7 +265,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	
 	boolean isUnSolid(BlockState state)
 	{
-		return state.isAir() || state.isOf(Blocks.WATER) || state.isOf(Blocks.LAVA);
+		return state.isAir() || state.getBlock() instanceof FluidBlock;
 	}
 	
 	@Redirect(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;hasForwardMovement()Z"))

@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
 import net.minecraft.world.GameRules;
 
 public class GameruleRegistry
@@ -16,7 +17,16 @@ public class GameruleRegistry
 			GameRuleRegistry.register("ultra-projBoosThrowable", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(false));
 	public static final GameRules.Key<EnumRule<Option>> HI_VEL_MODE =
 			GameRuleRegistry.register("ultra-hiVelMode", GameRules.Category.PLAYER, GameRuleFactory.createEnumRule(Option.FREE,
-					(server, rule) -> OnChanged(server, (byte)(10 + rule.get().ordinal()))));
+					(server, rule) -> {
+						if(server.isRemote() && rule.get().equals(Option.FORCE_ON))
+						{
+							server.getPlayerManager().getPlayerList().forEach(p -> {
+								if(p.hasPermissionLevel(2))
+									p.sendMessage(Text.translatable("message.ultracraft.server.freeze-enable-warning"));
+							});
+						}
+						OnChanged(server, (byte)(10 + rule.get().ordinal()));
+					}));
 	public static final GameRules.Key<EnumRule<Option>> TIME_STOP =
 			GameRuleRegistry.register("ultra-timeStopEffect", GameRules.Category.PLAYER,
 			GameRuleFactory.createEnumRule(Option.FORCE_OFF, new Option[] { Option.FORCE_ON, Option.FORCE_OFF },

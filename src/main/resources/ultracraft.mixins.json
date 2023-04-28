@@ -14,7 +14,6 @@
   "client": [
     "BipedModelMixin",
     "CameraMixin",
-    "ChatSendMixin",
     "ClientLivingEntityMixin",
     "ClientPlayerEntityMixin",
     "GameRendererMixin",
@@ -22,7 +21,6 @@
     "KeyboardInputMixin",
     "LivingEntityRendererMixin",
     "MinecraftClientMixin",
-    "PlayerRendererMixin",
     "TitleScreenMixin"
   ],
   "injectors": {

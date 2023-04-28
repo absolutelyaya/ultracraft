@@ -59,6 +59,7 @@ public abstract class MinecraftClientMixin
 			ClientPlayNetworking.send(PacketRegistry.PRIMARY_SHOT_PACKET_ID, buf);
 			cir.setReturnValue(false);
 		}
+		//TODO: add punchable block interaction here
 	}
 	
 	@Inject(method = "handleBlockBreaking", at = @At("HEAD"), cancellable = true)

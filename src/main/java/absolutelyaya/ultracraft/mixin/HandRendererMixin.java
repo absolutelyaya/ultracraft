@@ -40,6 +40,7 @@ public abstract class HandRendererMixin
 			matrices.push();
 			renderArmHoldingItem(matrices, vertexConsumers, light, equipProgress, swingProgress, player.getMainArm().getOpposite());
 			matrices.pop();
+			matrices.push();
 			boolean right = player.getMainArm() == Arm.RIGHT;
 			float x = 0.8f * MathHelper.sin((float)(MathHelper.sqrt(swingProgress) * Math.PI));
 			float y = 0.2f * MathHelper.sin((float)(MathHelper.sqrt(swingProgress) * Math.PI * 2));
@@ -53,6 +54,7 @@ public abstract class HandRendererMixin
 			applySwingOffset(matrices, player.getMainArm().getOpposite(), swingProgress);
 			renderItem(player, item, right ? ModelTransformation.Mode.FIRST_PERSON_RIGHT_HAND : ModelTransformation.Mode.FIRST_PERSON_LEFT_HAND,
 					!right, matrices, vertexConsumers, light);
+			matrices.pop();
 			ci.cancel();
 		}
 	}

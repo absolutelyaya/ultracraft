@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,11 +22,12 @@ public abstract class CameraMixin
 	@Inject(method = "update", at = @At("TAIL"))
 	void onUpdate(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci)
 	{
-		if(thirdPerson && focusedEntity instanceof PlayerEntity player)
+		float f = UltracraftClient.getConfigHolder().get().slideCamOffset / 100f;
+		if(thirdPerson && focusedEntity instanceof PlayerEntity player && f > 0f)
 		{
 			WingedPlayerEntity winged = (WingedPlayerEntity)player;
 			if(winged.isWingsVisible() && player.isSprinting())
-				moveBy(clipToSpace(1.5), 1.0, -1.5);
+				moveBy(clipToSpace(1.5f * f), f, -1.5f * f);
 		}
 	}
 }

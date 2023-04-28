@@ -27,6 +27,9 @@ public class Ultraconfig implements ConfigData
 	public int maxTrails = 64;
 	@ConfigEntry.Gui.Tooltip(count = 2)
 	public boolean trailParticles = true;
+	@ConfigEntry.Gui.Tooltip
+	@ConfigEntry.BoundedDiscrete(min = 0, max = 100)
+	public int slideCamOffset = 100;
 	@ConfigEntry.Category("goop")
 	@ConfigEntry.Gui.Tooltip
 	public boolean fancyGoop = false;
@@ -39,6 +42,8 @@ public class Ultraconfig implements ConfigData
 	@ConfigEntry.Gui.Tooltip
 	public boolean trailLines = false;
 	
+	@ConfigEntry.Gui.Excluded
 	public String lastVersion = "none";
+	@ConfigEntry.Gui.Excluded
 	public boolean startedBefore = false;
 }

@@ -8,7 +8,6 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
-import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.EntityModelLoader;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.render.item.ItemRenderer;
@@ -22,9 +21,9 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 	private static final Identifier TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/entity/wings.png");
 	private final WingsModel<T> wings;
 	
-	public WingsFeature(FeatureRendererContext<T, M> context, EntityModelLoader loader)
+	public WingsFeature(EntityModelLoader loader)
 	{
-		super(context);
+		super(null);
 		wings = new WingsModel<>(loader.getModelPart(UltracraftClient.WINGS_LAYER));
 	}
 	
@@ -34,7 +33,7 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 		WingedPlayerEntity winged = ((WingedPlayerEntity)entity);
 		if(winged.isWingsVisible())
 		{
-			this.getContextModel().copyStateTo(this.wings);
+			//this.getContextModel().copyStateTo(this.wings);
 			this.wings.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, winged);
 			VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE), false, false);
 			if(entity.isSneaking())

@@ -18,8 +18,6 @@ import net.minecraft.util.math.Vec3d;
 import org.joml.AxisAngle4d;
 import org.joml.Quaternionf;
 
-import java.util.Optional;
-
 public class EnragedFeature<T extends LivingEntity> extends FeatureRenderer<T, EntityModel<T>>
 {
 	static Identifier TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/entity/enraged.png");
@@ -39,7 +37,6 @@ public class EnragedFeature<T extends LivingEntity> extends FeatureRenderer<T, E
 		if(!gamer.isEnraged() || !entity.isAlive())
 			return;
 		matrices = new MatrixStack();
-		float aspect = (float)client.getWindow().getFramebufferWidth() / (float)client.getWindow().getFramebufferHeight();
 		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(TEXTURE));
 		Camera cam = MinecraftClient.getInstance().gameRenderer.getCamera();
 		Vec3d pos = entity.getPos().subtract(cam.getPos());
