@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
+import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -60,9 +61,9 @@ public class PacketRegistry
 				{
 					if(!((ProjectileEntityAccessor)p).isParriable())
 						return;
-					if(player.equals(p.getOwner()) && p instanceof ThrownItemEntity)
+					if(player.equals(p.getOwner()) && p instanceof ThrownItemEntity thrown)
 					{
-						if(player.world.getGameRules().getBoolean(GameruleRegistry.ALLOW_PROJ_BOOST_THROWABLE))
+						if(player.world.getGameRules().getBoolean(GameruleRegistry.ALLOW_PROJ_BOOST_THROWABLE) || thrown instanceof ShotgunPelletEntity)
 						{
 							Ultracraft.freeze((ServerWorld) player.world, 5);
 							world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);

@@ -9,7 +9,6 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.item.ItemStack;
@@ -95,7 +94,7 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	@Override
 	public boolean isParriable()
 	{
-		return age < 2;
+		return age < 4;
 	}
 	
 	@Override
@@ -103,12 +102,12 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	{
 		Entity owner = getOwner();
 		Vec3d pos = hitResult.getPos();
-		Entity hit = null;
 		if(hitResult.getType().equals(HitResult.Type.ENTITY))
-			hit = ((EntityHitResult)hitResult).getEntity();
-		owner.damage(DamageSources.getParriedProjectile(parrier, this), 5);
-		world.createExplosion(owner.equals(hit) ? hit : null,
-				DamageSources.getParryCollateral(parrier), null, pos, 0.5f, false, World.ExplosionSourceType.NONE);
+		{
+			Entity hit = ((EntityHitResult)hitResult).getEntity();
+			hit.damage(DamageSources.getParriedProjectile(parrier, this), 5);
+		}
+		world.createExplosion(owner, DamageSources.getParryCollateral(parrier), null, pos, 1f, false, World.ExplosionSourceType.NONE);
 	}
 	
 	@Override
@@ -131,5 +130,7 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 		super.onCollision(hitResult);
 		if(world.isClient)
 			UltracraftClient.TRAIL_RENDERER.removeTrail(uuid);
+		if(parrier != null)
+			onParriedCollision(hitResult);
 	}
 }
