@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.client.rendering.item.CoreEjectShotgunRenderer;
 import absolutelyaya.ultracraft.entity.projectile.EjectedCoreEntity;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -92,9 +93,8 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
 	{
 		super.inventoryTick(stack, world, entity, slot, selected);
-		if(world.isClient)
-			return;
-		if(stack.hasNbt() && stack.getNbt().contains("charging"))
+		if(world.isClient && stack.hasNbt() && stack.getNbt().contains("charging") &&
+				   entity instanceof ClientPlayerEntity player && player.equals(MinecraftClient.getInstance().player))
 			approxUseTime++;
 	}
 	

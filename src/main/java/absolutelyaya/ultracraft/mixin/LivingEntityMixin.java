@@ -54,15 +54,6 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			punchTick();
 	}
 	
-	@ModifyConstant(method = "tickMovement", constant = @Constant(floatValue = 0.98f))
-	float modifySlowdown(float constant)
-	{
-		if(this instanceof WingedPlayerEntity winged && winged instanceof ClientPlayerEntity)
-			return winged.shouldIgnoreSlowdown() ? 1f : constant;
-		else
-			return constant;
-	}
-	
 	@SuppressWarnings("EqualsBetweenInconvertibleTypes")
 	@Inject(method = "damage", at = @At("RETURN"))
 	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)

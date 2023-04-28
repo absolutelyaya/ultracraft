@@ -15,6 +15,7 @@
     "BipedModelMixin",
     "CameraMixin",
     "ChatSendMixin",
+    "ClientLivingEntityMixin",
     "ClientPlayerEntityMixin",
     "GameRendererMixin",
     "HandRendererMixin",

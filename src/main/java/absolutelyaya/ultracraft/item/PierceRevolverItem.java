@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.PierceRevolverRenderer;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -65,12 +66,11 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
 	{
 		super.inventoryTick(stack, world, entity, slot, selected);
-		if(world.isClient)
-			return;
 		if(stack.hasNbt() && stack.getNbt().contains("charging"))
 		{
-			approxUseTime++;
-			if(entity instanceof PlayerEntity player)
+			if(world.isClient && entity instanceof ClientPlayerEntity player && player.equals(MinecraftClient.getInstance().player))
+				approxUseTime++;
+			else if(entity instanceof PlayerEntity player)
 				triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "charging");
 		}
 	}
