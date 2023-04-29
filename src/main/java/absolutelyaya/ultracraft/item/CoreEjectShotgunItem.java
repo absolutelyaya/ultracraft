@@ -93,6 +93,12 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
 	{
 		super.inventoryTick(stack, world, entity, slot, selected);
+		if(!selected && stack.hasNbt() && stack.getNbt().contains("charging"))
+		{
+			stack.getNbt().remove("charging");
+			if(world.isClient)
+				approxUseTime = -1;
+		}
 		if(world.isClient && stack.hasNbt() && stack.getNbt().contains("charging") &&
 				   entity instanceof ClientPlayerEntity player && player.equals(MinecraftClient.getInstance().player))
 			approxUseTime++;

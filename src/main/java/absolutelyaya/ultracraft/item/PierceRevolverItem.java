@@ -68,6 +68,15 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 		super.inventoryTick(stack, world, entity, slot, selected);
 		if(stack.hasNbt() && stack.getNbt().contains("charging"))
 		{
+			if(!selected)
+			{
+				stack.getNbt().remove("charging");
+				if(!world.isClient)
+					triggerAnim(entity, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "stop");
+				if(world.isClient && entity instanceof ClientPlayerEntity player && player.equals(MinecraftClient.getInstance().player))
+					approxUseTime = -1;
+				return;
+			}
 			if(world.isClient && entity instanceof ClientPlayerEntity player && player.equals(MinecraftClient.getInstance().player))
 				approxUseTime++;
 			else if(entity instanceof PlayerEntity player)
@@ -144,9 +153,7 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 				ServerHitscanHandler.performHitscan(user, (byte)1, 10, 3);
 		}
 		else if(!world.isClient && user instanceof PlayerEntity)
-		{
 			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "stop");
-		}
 		if(nbt != null)
 			nbt.remove("charging");
 		approxUseTime = -1;
