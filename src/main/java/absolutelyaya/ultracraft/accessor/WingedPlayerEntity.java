@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.accessor;
 
 import absolutelyaya.ultracraft.client.GunCooldownManager;
+import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 
 public interface WingedPlayerEntity
@@ -45,4 +46,6 @@ public interface WingedPlayerEntity
 	boolean shouldIgnoreSlowdown();
 	
 	void setIgnoreSlowdown(boolean b);
+	
+	Vec3d getSlideDir();
 }

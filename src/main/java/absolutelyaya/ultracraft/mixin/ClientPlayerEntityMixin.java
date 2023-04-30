@@ -315,4 +315,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	{
 		return UltracraftClient.isHiVelEnabled();
 	}
+	
+	@Override
+	public Vec3d getSlideDir()
+	{
+		return slideDir;
+	}
 }
