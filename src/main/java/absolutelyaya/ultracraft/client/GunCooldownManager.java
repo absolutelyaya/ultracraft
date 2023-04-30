@@ -28,8 +28,6 @@ public class GunCooldownManager
 	
 	public void tickCooldowns()
 	{
-		if(!owner.world.isClient)
-			ServerPlayNetworking.send((ServerPlayerEntity) owner, PacketRegistry.UPDATE_GUNCD_PACKET_ID, new PacketByteBuf(Unpooled.buffer()));
 		List<Item> remove = new ArrayList<>();
 		Object[] keys = cooldowns.keySet().toArray();
 		for (int i = 0; i < cooldowns.size(); i++)

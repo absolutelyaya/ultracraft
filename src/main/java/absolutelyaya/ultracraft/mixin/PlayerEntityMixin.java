@@ -250,8 +250,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Inject(method = "tick", at = @At("TAIL"))
 	void onTick(CallbackInfo ci)
 	{
-		if(!world.isClient)
-			gunCDM.tickCooldowns();
+		gunCDM.tickCooldowns();
 	}
 	
 	@Inject(method = "tickMovement", at = @At("TAIL"))
