@@ -29,16 +29,20 @@ public class GameruleRegistry
 					}));
 	public static final GameRules.Key<EnumRule<Option>> TIME_STOP =
 			GameRuleRegistry.register("ultra-timeStopEffect", GameRules.Category.PLAYER,
-			GameRuleFactory.createEnumRule(Option.FORCE_OFF, new Option[] { Option.FORCE_ON, Option.FORCE_OFF },
+				GameRuleFactory.createEnumRule(Option.FORCE_OFF, new Option[] { Option.FORCE_ON, Option.FORCE_OFF },
 					(server, rule) -> OnChanged(server, (byte)(20 + rule.get().ordinal()))));
 	public static final GameRules.Key<GameRules.BooleanRule> DISABLE_HANDSWAP =
 			GameRuleRegistry.register("ultra-disableHandSwap", GameRules.Category.PLAYER,
-			GameRuleFactory.createBooleanRule(false,
+				GameRuleFactory.createBooleanRule(false,
 					(server, rule) -> OnChanged(server, (byte)(30 + (rule.get() ? 1 : 0)))));
 	public static final GameRules.Key<GameRules.IntRule> HIVEL_JUMP_BOOST =
 			GameRuleRegistry.register("ultra-hivelJumpBoost", GameRules.Category.PLAYER,
-					GameRuleFactory.createIntRule(3,
+					GameRuleFactory.createIntRule(2,
 							(server, rule) -> OnChanged(server, (byte)40, rule.get())));
+	public static final GameRules.Key<GameRules.BooleanRule> SLAM_STORAGE =
+			GameRuleRegistry.register("ultra-allowSlamStorage", GameRules.Category.PLAYER,
+					GameRuleFactory.createBooleanRule(true,
+							(server, rule) -> OnChanged(server, (byte) ((byte)50 + (rule.get() ? 1 : 0)))));
 	
 	public static void OnChanged(MinecraftServer server, byte b)
 	{

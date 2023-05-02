@@ -75,7 +75,8 @@ public class UltracraftClient implements ClientModInitializer
 	static GameruleRegistry.Option HiVelOption = GameruleRegistry.Option.FREE;
 	static GameruleRegistry.Option TimeFreezeOption = GameruleRegistry.Option.FORCE_ON;
 	static boolean disableHandswap = false;
-	static int jumpBoost;
+	static boolean slamStorage = true;
+	public static int jumpBoost;
 	static float screenblood;
 	
 	static UltraHudRenderer hudRenderer;
@@ -254,6 +255,11 @@ public class UltracraftClient implements ClientModInitializer
 									Text.translatable(option.equals(GameruleRegistry.Option.FORCE_ON) ? "options.on" : "options.off")), true);
 	}
 	
+	public static boolean isSlamStorageEnabled()
+	{
+		return slamStorage;
+	}
+	
 	public static void setHighVel(boolean b, boolean fromServer)
 	{
 		PlayerEntity player = MinecraftClient.getInstance().player;
@@ -285,6 +291,7 @@ public class UltracraftClient implements ClientModInitializer
 			}
 			case 2 -> TimeFreezeOption = GameruleRegistry.Option.values()[value];
 			case 3 -> disableHandswap = value == 1;
+			case 5 -> slamStorage = value == 1;
 			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncB] -> " + data);
 		}
 	}

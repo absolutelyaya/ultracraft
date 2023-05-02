@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.mixin;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
@@ -86,7 +87,10 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	void onGetJumpVel(CallbackInfoReturnable<Float> cir)
 	{
 		if(this instanceof WingedPlayerEntity winged && winged.isWingsVisible())
-			cir.setReturnValue(cir.getReturnValue() + 0.1f * Math.max(world.getGameRules().getInt(GameruleRegistry.HIVEL_JUMP_BOOST), 0));
+		{
+			if(!world.isClient)
+				cir.setReturnValue(cir.getReturnValue() + 0.1f * Math.max(world.getGameRules().getInt(GameruleRegistry.HIVEL_JUMP_BOOST), 0));
+		}
 	}
 	
 	void punchTick()
