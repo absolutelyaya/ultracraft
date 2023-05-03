@@ -1,12 +1,14 @@
 package absolutelyaya.ultracraft.entity;
 
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
+import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -38,6 +40,20 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 		boolean b = super.damage(source, amount);
 		timeUntilRegen = 9;
 		return b;
+	}
+	
+	@Override
+	public void onSpawnPacket(EntitySpawnS2CPacket packet)
+	{
+		super.onSpawnPacket(packet);
+		world.addParticle(ParticleRegistry.TELEPORT, packet.getX(), packet.getY(), packet.getZ(), 0f, 0f, 0f);
+	}
+	
+	@Override
+	public boolean teleport(double x, double y, double z, boolean particleEffects)
+	{
+		world.addParticle(ParticleRegistry.TELEPORT, x, y, z, 0f, 0f, 0f);
+		return super.teleport(x, y, z, particleEffects);
 	}
 	
 	public void addParryIndicatorParticle(Vec3d offset, boolean useYaw, boolean unparriable)
