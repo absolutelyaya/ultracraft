@@ -102,13 +102,14 @@ public class PacketRegistry
 		ServerPlayNetworking.registerGlobalReceiver(PUNCH_BLOCK_PACKET_ID, (server, player, handler, buf, sender) -> {
 			World world = player.getWorld();
 			BlockPos target = buf.readBlockPos();
+			boolean mainHand = buf.readBoolean();
 			
 			server.execute(() -> {
 				if(target != null)
 				{
 					BlockState state = world.getBlockState(target);
 					if(state.getBlock() instanceof IPunchableBlock punchable)
-						punchable.onPunch(player, target);
+						punchable.onPunch(player, target, mainHand);
 				}
 			});
 		});

@@ -74,8 +74,9 @@ public class KeybindRegistry
 					{
 						PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 						buf.writeBlockPos(hit.getBlockPos());
+						buf.writeBoolean(false);
 						ClientPlayNetworking.send(PacketRegistry.PUNCH_BLOCK_PACKET_ID, buf);
-						if (punchable.onPunch(player, hit.getBlockPos()))
+						if (punchable.onPunch(player, hit.getBlockPos(), false))
 							return; //if punch interaction was successful, don't display break particles and stuff
 					}
 					Vec3d pos = hit.getPos();

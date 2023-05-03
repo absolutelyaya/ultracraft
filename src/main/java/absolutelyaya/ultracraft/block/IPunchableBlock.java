@@ -5,5 +5,5 @@ import net.minecraft.util.math.BlockPos;
 
 public interface IPunchableBlock
 {
-	boolean onPunch(PlayerEntity puncher, BlockPos pos);
+	boolean onPunch(PlayerEntity puncher, BlockPos pos, boolean mainHand);
 }

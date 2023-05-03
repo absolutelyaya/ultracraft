@@ -5,6 +5,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
@@ -23,14 +24,15 @@ public class PedestalBlockEntity extends BlockEntity
 		stack = ItemStack.EMPTY;
 	}
 	
-	public boolean onPunch(PlayerEntity player)
+	public boolean onPunch(PlayerEntity player, boolean mainHand)
 	{
 		markDirty();
-		if(player.getOffHandStack().isEmpty())
+		PlayerInventory inventory = player.getInventory();
+		if((player.getOffHandStack().isEmpty() && !mainHand) || (mainHand && player.getMainHandStack().isEmpty()))
 		{
 			if(!stack.isEmpty())
 			{
-				player.getInventory().offHand.set(0, stack);
+				(mainHand ? inventory.main : inventory.offHand).set(mainHand ? inventory.selectedSlot : 0, stack);
 				stack = ItemStack.EMPTY;
 			}
 			else
@@ -38,8 +40,9 @@ public class PedestalBlockEntity extends BlockEntity
 		}
 		else if(stack.isEmpty())
 		{
-			stack = player.getOffHandStack();
-			player.getInventory().offHand.set(0, ItemStack.EMPTY);
+			stack = mainHand ? player.getMainHandStack() : player.getOffHandStack();
+			if(!player.isCreative())
+				(mainHand ? inventory.main : inventory.offHand).set(mainHand ? inventory.selectedSlot : 0, ItemStack.EMPTY);
 		}
 		if(world != null)
 			world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_ALL);
