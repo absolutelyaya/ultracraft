@@ -32,6 +32,7 @@ public class UltraHudRenderer extends DrawableHelper
 	private static final Ultraconfig config = UltracraftClient.getConfigHolder().get();
 	final Identifier GUI_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/ultrahud.png");
 	final Identifier WEAPONS_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/weapon_icons.png");
+	final Identifier CROSSHAIR_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/crosshair_stats.png");
 	float healthPercent, staminaPercent, yOffset;
 	static float fishTimer;
 	static ItemStack lastCatch;
@@ -52,13 +53,18 @@ public class UltraHudRenderer extends DrawableHelper
 		RenderSystem.disableDepthTest();
 		RenderSystem.disableCull();
 		
-		float aspect = (float)client.getWindow().getFramebufferWidth() / (float)client.getWindow().getFramebufferHeight();
+		int width = client.getWindow().getFramebufferWidth();
+		int height = client.getWindow().getFramebufferHeight();
 		
 		MatrixStack matrices = new MatrixStack();
+		
+		
+		float aspect = (float)width / (float)height;
 		matrices.peek().getPositionMatrix().perspective(90 * 0.0174f,
-						aspect, 0.05F, client.gameRenderer.getViewDistance() * 4.0F);
+				aspect, 0.05F, client.gameRenderer.getViewDistance() * 4.0F);
 		RenderSystem.backupProjectionMatrix();
 		RenderSystem.setProjectionMatrix(matrices.peek().getPositionMatrix());
+		RenderSystem.enableBlend();
 		
 		//TODO: holding nothing inverts the fish... for whatever reason.
 		//Fishing Joke
@@ -93,6 +99,22 @@ public class UltraHudRenderer extends DrawableHelper
 			matrices.pop();
 		}
 		
+		healthPercent = MathHelper.lerp(tickDelta, healthPercent, player.getHealth() / player.getMaxHealth());
+		staminaPercent = MathHelper.lerp(tickDelta, staminaPercent, ((WingedPlayerEntity)player).getStamina() / 90f);
+		//Crosshair
+		if(config.ultraHudCrosshair)
+		{
+			matrices.push();
+			matrices.scale(aspect, 1f, 1f);
+			matrices.translate(-0.75, -0.5, 0);
+			RenderSystem.setShaderTexture(0, CROSSHAIR_TEXTURE);
+			drawTexture(matrices.peek().getPositionMatrix(), new Vector4f(-6f, -5f, 5f, 11f * healthPercent), 100f,
+					new Vec2f(32f, 32f), new Vector4f(0f, 11 - 11f * healthPercent, 5f, 11f * healthPercent), 0.75f);
+			drawTexture(matrices.peek().getPositionMatrix(), new Vector4f(2f, -5f, 5f, 11f * staminaPercent), 100f,
+					new Vec2f(32f, 32f), new Vector4f(8f, 11 - 11f * staminaPercent, 5f, 11f * staminaPercent), 0.75f);
+			matrices.pop();
+		}
+		
 		matrices.push();
 		matrices.scale(0.8f, -0.5f, 0.5f);
 		
@@ -104,8 +126,7 @@ public class UltraHudRenderer extends DrawableHelper
 		matrices.translate(-15, 0, 150);
 		if(config.moveUltrahud)
 			matrices.translate(0f, yOffset = MathHelper.lerp(tickDelta, yOffset, player.getOffHandStack().isEmpty() ? 0f : -64f), 0f);
-			
-		RenderSystem.enableBlend();
+		
 		matrices.push();
 		RenderSystem.enableTexture();
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
@@ -116,11 +137,9 @@ public class UltraHudRenderer extends DrawableHelper
 				new Vec2f(80f, 64f), new Vector4f(0f, 0f, 48f, 48f), 0.75f);
 		//bars
 		//health
-		healthPercent = MathHelper.lerp(tickDelta, healthPercent, player.getHealth() / player.getMaxHealth());
 		drawTexture(textureMatrix, new Vector4f(-60f + 2.8125f, -35f + 11.250f, 61.875f * healthPercent, 5.625f), 0f,
 				new Vec2f(80f, 64f), new Vector4f(2f, 48f, 44f * healthPercent, 4f), 1f);
 		//stamina
-		staminaPercent = MathHelper.lerp(tickDelta, staminaPercent, ((WingedPlayerEntity)player).getStamina() / 90f);
 		drawTexture(textureMatrix, new Vector4f(-60f + 2.8125f, -35f + 2.8125f, 61.875f * staminaPercent, 5.625f), 0f,
 				new Vec2f(80f, 64f), new Vector4f(2f, 52f, 44f * staminaPercent, 4f), 1f);
 		//Railgun

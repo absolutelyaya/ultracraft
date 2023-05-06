@@ -123,8 +123,10 @@
 
   "text.autoconfig.ultracraft.option.ultraHudVisibility": "Show UltraHUD",
   "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[0]": "Whether the UltraHUD should be rendered.",
-  "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[1]": "If set to NEVER, you won't know your stamina in Hi-Velocity Mode.",
-  "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[2]": "LIMITED = only show when in Hi-Velocity Mode",
+  "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[1]": "LIMITED = only show when in Hi-Velocity Mode",
+
+  "text.autoconfig.ultracraft.option.ultraHudCrosshair": "UltraHUD Crosshair meters",
+  "text.autoconfig.ultracraft.option.ultraHudCrosshair.@Tooltip": "Adds Health and Energy bars around your Crosshair.",
 
   "text.autoconfig.ultracraft.option.moveUltrahud": "Move Ultrahud",
   "text.autoconfig.ultracraft.option.moveUltrahud.@Tooltip": "Moves the Ultrahud up when holding an item in your offhand.",

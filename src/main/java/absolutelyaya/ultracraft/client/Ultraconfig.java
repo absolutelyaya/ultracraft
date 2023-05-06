@@ -16,8 +16,10 @@ public class Ultraconfig implements ConfigData
 	public boolean freezeVFX = true;
 	@ConfigEntry.Gui.Tooltip
 	public boolean fishingJoke = true;
-	@ConfigEntry.Gui.Tooltip(count = 3)
+	@ConfigEntry.Gui.Tooltip(count = 2)
 	public UltraHudRenderer.UltraHudVisibility ultraHudVisibility = UltraHudRenderer.UltraHudVisibility.ALWAYS;
+	@ConfigEntry.Gui.Tooltip
+	public boolean ultraHudCrosshair = true;
 	@ConfigEntry.Gui.Tooltip
 	public boolean moveUltrahud = true;
 	@ConfigEntry.Gui.Tooltip
