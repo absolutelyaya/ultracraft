@@ -182,7 +182,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				if(!slamStored)
 					setVelocity(0, -2, 0);
 				//landing
-				if(verticalCollision)
+				if(verticalCollision && getVelocity().y < 0f)
 				{
 					groundPounding = false;
 					ticksSinceLastGroundPound = 0;
@@ -292,7 +292,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 					buf.writeBoolean(groundPounding);
 					buf.writeBoolean(strong);
-					ClientPlayNetworking.send(PacketRegistry.GROUND_POUND_PACKET_ID, buf);
+					ClientPlayNetworking.send(PacketRegistry.GROUND_POUND_C2S_PACKET_ID, buf);
 					if(groundPounding)
 						startGroundPound();
 					else

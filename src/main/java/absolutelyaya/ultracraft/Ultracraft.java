@@ -23,8 +23,6 @@ public class Ultracraft implements ModInitializer
     public static String VERSION;
     static int freezeTicks;
     
-    //TODO: Projectile boosting
-    
     @Override
     public void onInitialize()
     {
@@ -76,7 +74,7 @@ public class Ultracraft implements ModInitializer
             }
         }
         freezeTicks += ticks;
-        LOGGER.info("Stopping time for " + ticks + " ticks. (Intentional Visual Effect! Do not report!)");
+        LOGGER.info("Stopping time for " + ticks + " ticks.");
     }
     
     public static void tickFreeze()

@@ -11,9 +11,11 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.particle.BlockStateParticleEffect;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-
-import java.util.Random;
+import net.minecraft.util.math.random.Random;
 
 @SuppressWarnings("CodeBlock2Expr")
 @Environment(EnvType.CLIENT)
@@ -38,8 +40,7 @@ public class ClientPacketRegistry
 			if(player == null)
 				return;
 			Vec3d dir = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
-			Random rand = new Random();
-			
+			Random rand = client.player.getRandom();
 			((WingedPlayerEntity)player).onDash();
 			Vec3d pos;
 			for (int i = 0; i < 5; i++)
@@ -58,7 +59,7 @@ public class ClientPacketRegistry
 			if(client.player.getPos().squaredDistanceTo(pos) < 0.1)
 				return;
 			double halfheight = buf.readDouble();
-			Random rand = new Random();
+			Random rand = client.player.world.getRandom();
 			for (int i = 0; i < Math.min(3 * amount, 32); i++)
 				client.player.world.addParticle(new GoopDropParticleEffect(new Vec3d(0.56, 0.09, 0.01),
 								0.6f + rand.nextFloat() * 0.4f * (amount / 10f)), pos.x, pos.y + halfheight, pos.z,
@@ -98,6 +99,19 @@ public class ClientPacketRegistry
 			}
 			else
 				Ultracraft.LOGGER.warn("Received invalid Packet data: [entity_trail] -> Target entity isn't a TrailEnjoyer!" );
+		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.GROUND_POUND_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
+			PlayerEntity player = client.player.world.getPlayerByUuid(buf.readUuid());
+			Random random = player.getRandom();
+			for (int i = 0; i < 32; i++)
+			{
+				float x = (float)((random.nextDouble() * 6) - 3 + player.getX());
+				float z = (float)((random.nextDouble() * 6) - 3 + player.getZ());
+				player.world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, player.world.getBlockState(new BlockPos(player.getX(),
+						player.getY() - 0.1, player.getZ()))), x, player.getY() + 0.1, z, 0f, 1f, 0f);
+			}
 		}));
 	}
 }

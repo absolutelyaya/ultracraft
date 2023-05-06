@@ -33,7 +33,7 @@ public class PacketRegistry
 	public static final Identifier PRIMARY_SHOT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "primary_shot");
 	public static final Identifier SET_HIGH_VELOCITY_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "sethivel_c2s");
 	public static final Identifier DASH_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_c2s");
-	public static final Identifier GROUND_POUND_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ground_pound");
+	public static final Identifier GROUND_POUND_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ground_pound_c2s");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
@@ -44,6 +44,7 @@ public class PacketRegistry
 	public static final Identifier CATCH_FISH_ID = new Identifier(Ultracraft.MOD_ID, "fish");
 	public static final Identifier SYNC_RULE = new Identifier(Ultracraft.MOD_ID, "sync_rule");
 	public static final Identifier ENTITY_TRAIL = new Identifier(Ultracraft.MOD_ID, "entity_trail");
+	public static final Identifier GROUND_POUND_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ground_pound_s2c");
 	
 	public static void registerC2S()
 	{
@@ -142,13 +143,8 @@ public class PacketRegistry
 			buf.writeDouble(dir.z);
 			for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
 				ServerPlayNetworking.send(p, DASH_S2C_PACKET_ID, buf);
-			
-			//server.execute(() -> {
-			//	player.setVelocity(dir);
-			//	((WingedPlayerEntity)player).onDash();
-			//});
 		});
-		ServerPlayNetworking.registerGlobalReceiver(GROUND_POUND_PACKET_ID, (server, player, handler, buf, sender) -> {
+		ServerPlayNetworking.registerGlobalReceiver(GROUND_POUND_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			boolean start = buf.readBoolean();
 			boolean strong = buf.readBoolean();
 			server.execute(() -> {
@@ -158,6 +154,12 @@ public class PacketRegistry
 				else
 					winged.completeGroundPound(strong);
 			});
+			if(start)
+				return;
+			buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeUuid(player.getUuid());
+			for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
+				ServerPlayNetworking.send(p, GROUND_POUND_S2C_PACKET_ID, buf);
 		});
 	}
 }

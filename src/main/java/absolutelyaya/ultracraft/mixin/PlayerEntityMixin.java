@@ -229,13 +229,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		world.getOtherEntities(this, getBoundingBox().expand(3f, 0.5f, 3f)).forEach(e -> {
 			if((e instanceof LivingEntityAccessor l) && l.takePunchKnockback())
 				e.addVelocity(0f, 1f, 0f);
-			for (int i = 0; i < 32; i++)
-			{
-				float x = (float)((random.nextDouble() * 6) - 3 + getX());
-				float z = (float)((random.nextDouble() * 6) - 3 + getZ());
-				world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, world.getBlockState(new BlockPos(getX(), getY() - 0.1, getZ()))),
-						x, getY() + 0.1, z, 0f, 1f, 0f);
-			}
 		});
 		world.getOtherEntities(this, getBoundingBox().expand(0f, 1f, 0f).offset(0f, -0.5f, 0f)).forEach(e ->
 				e.damage(DamageSources.getPound(this), 6));

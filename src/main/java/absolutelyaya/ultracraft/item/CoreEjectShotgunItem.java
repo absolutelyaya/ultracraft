@@ -21,6 +21,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.joml.Vector2i;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -55,24 +56,36 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 	public void onPrimaryFire(World world, PlayerEntity user)
 	{
 		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
-		if(!world.isClient && cdm.isUsable(this, 0) && !user.getItemCooldownManager().isCoolingDown(this))
+		Vec3d dir = new Vec3d(0f, 0f, 1f);
+		dir = dir.rotateX((float)Math.toRadians(-user.getPitch()));
+		dir = dir.rotateY((float)Math.toRadians(-user.getHeadYaw()));
+		if(!cdm.isUsable(this, 0) || user.getItemCooldownManager().isCoolingDown(this))
+			return;
+		if(!world.isClient)
 		{
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), controllerName, "shot");
 			cdm.setCooldown(this, 70, GunCooldownManager.PRIMARY);
-			Vec3d dir = new Vec3d(0f, 0f, 1f);
-			dir = dir.rotateX((float)Math.toRadians(-user.getPitch()));
-			dir = dir.rotateY((float)Math.toRadians(-user.getHeadYaw()));
 			for (int i = 0; i < 16; i++)
 			{
 				ShotgunPelletEntity bullet = ShotgunPelletEntity.spawn(user, world);
 				bullet.setVelocity(dir.x, dir.y, dir.z, 1f, 20f);
-				Vec3d vel = bullet.getVelocity();
-				world.addParticle(ParticleTypes.SMOKE, bullet.getX(), bullet.getY(), bullet.getZ(), vel.x, vel.y, vel.z);
 				bullet.setNoGravity(true);
 				world.spawnEntity(bullet);
 			}
 			world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, SoundCategory.PLAYERS,
 					1.0f, 0.2f / (user.getRandom().nextFloat() * 0.2f + 0.6f));
+		}
+		if(world.isClient)
+		{
+			Vec3d eyePos = user.getEyePos();
+			Random rand = user.getRandom();
+			for (int i = 0; i < 16; i++)
+			{
+				world.addParticle(ParticleTypes.SMOKE, eyePos.x, eyePos.y - 0.2, eyePos.z,
+						dir.x * 0.5 + (rand.nextFloat() - 0.5f) * 0.2,
+						dir.y * 0.5 + (rand.nextFloat() - 0.5f) * 0.2,
+						dir.z * 0.5 + (rand.nextFloat() - 0.5f) * 0.2);
+			}
 		}
 	}
 	
