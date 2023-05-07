@@ -1,5 +1,8 @@
 package absolutelyaya.ultracraft.item;
 
+import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.client.GunCooldownManager;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -32,5 +35,18 @@ public abstract class AbstractWeaponItem extends Item
 	public boolean shouldCancelHits()
 	{
 		return true;
+	}
+	
+	@Override
+	public boolean isItemBarVisible(ItemStack stack)
+	{
+		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
+		return cdm.getCooldown(stack.getItem(), GunCooldownManager.PRIMARY) > 0;
+	}
+	
+	@Override
+	public int getItemBarColor(ItemStack stack)
+	{
+		return 0x28ccdf;
 	}
 }

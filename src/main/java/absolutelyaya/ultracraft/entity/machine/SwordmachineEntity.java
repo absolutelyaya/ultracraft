@@ -170,8 +170,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
 		return HostileEntity.createMobAttributes()
-					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 100.0d)
-					   .add(EntityAttributes.GENERIC_ARMOR, 12.0d)
+					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 125.0d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 8.0d)
 					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d)
@@ -322,9 +321,12 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
+		if(source.getName().equals("shotgun"))
+			amount *= 1.5;
+		//TODO: projectile boost x2.25
 		boolean b = super.damage(source, amount);
 		bossBar.setPercent(getHealth() / getMaxHealth());
-		if(dataTracker.get(HAS_SHOTGUN) && getHealth() < getMaxHealth() / 2)
+		if(dataTracker.get(HAS_SHOTGUN) && getHealth() < 75)
 		{
 			dataTracker.set(BREAKDOWN_TICKS, 60);
 			dataTracker.set(ANIMATION, ANIMATION_BREAKDOWN);

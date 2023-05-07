@@ -39,22 +39,22 @@ public class ServerHitscanHandler
 			ServerPlayNetworking.send(player, PacketRegistry.HITSCAN_PACKET_ID, buf);
 	}
 	
-	public static void performHitscan(LivingEntity user, byte type, int damage)
+	public static void performHitscan(LivingEntity user, byte type, float damage)
 	{
 		performHitscan(user, type, damage, 1, 0);
 	}
 	
-	public static void performHitscan(LivingEntity user, byte type, int damage, int maxHits)
+	public static void performHitscan(LivingEntity user, byte type, float damage, int maxHits)
 	{
 		performHitscan(user, type, damage, maxHits, 0);
 	}
 	
-	public static void performHitscan(LivingEntity user, byte type, int damage, float explosionPower)
+	public static void performHitscan(LivingEntity user, byte type, float damage, float explosionPower)
 	{
 		performHitscan(user, type, damage, 1, explosionPower);
 	}
 	
-	public static void performHitscan(LivingEntity user, byte type, int damage, int maxHits, float explosionPower)
+	public static void performHitscan(LivingEntity user, byte type, float damage, int maxHits, float explosionPower)
 	{
 		World world = user.getWorld();
 		Vec3d origin = user.getPos().add(new Vec3d(0f, user.getStandingEyeHeight(), 0f));

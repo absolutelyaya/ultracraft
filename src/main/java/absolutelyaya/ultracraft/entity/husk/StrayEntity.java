@@ -11,6 +11,7 @@ import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -50,8 +51,7 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
 		return HostileEntity.createMobAttributes()
-					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 15.0d)
-					   .add(EntityAttributes.GENERIC_ARMOR, 2.0d)
+					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 1.5d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 6.0d)
 					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d);
@@ -72,6 +72,16 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 	{
 		super.initDataTracker();
 		dataTracker.startTracking(ATTACK_COOLDOWN, 10);
+	}
+	
+	@Override
+	public boolean damage(DamageSource source, float amount)
+	{
+		if(getVelocity().y < 0f)
+			amount *= 1.5;
+		if(source.isFire())
+			amount *= 0.5;
+		return super.damage(source, amount);
 	}
 	
 	private <E extends GeoEntity> PlayState predicate(AnimationState<E> event)

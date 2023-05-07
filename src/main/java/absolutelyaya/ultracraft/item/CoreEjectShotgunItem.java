@@ -65,7 +65,7 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 		{
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), controllerName, "shot");
 			cdm.setCooldown(this, 70, GunCooldownManager.PRIMARY);
-			for (int i = 0; i < 16; i++)
+			for (int i = 0; i < 12; i++)
 			{
 				ShotgunPelletEntity bullet = ShotgunPelletEntity.spawn(user, world);
 				bullet.setVelocity(dir.x, dir.y, dir.z, 1f, 20f);
@@ -79,7 +79,7 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 		{
 			Vec3d eyePos = user.getEyePos();
 			Random rand = user.getRandom();
-			for (int i = 0; i < 16; i++)
+			for (int i = 0; i < 12; i++)
 			{
 				world.addParticle(ParticleTypes.SMOKE, eyePos.x, eyePos.y - 0.2, eyePos.z,
 						dir.x * 0.5 + (rand.nextFloat() - 0.5f) * 0.2,
@@ -158,19 +158,6 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 	{
 		GunCooldownManager cdm = ((WingedPlayerEntity) MinecraftClient.getInstance().player).getGunCooldownManager();
 		return (int)((float)(70 - cdm.getCooldown(stack.getItem(), GunCooldownManager.PRIMARY)) / 70f * 14f);
-	}
-	
-	@Override
-	public boolean isItemBarVisible(ItemStack stack)
-	{
-		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
-		return cdm.getCooldown(stack.getItem(), GunCooldownManager.PRIMARY) > 0;
-	}
-	
-	@Override
-	public int getItemBarColor(ItemStack stack)
-	{
-		return 0x28ccdf;
 	}
 	
 	@Override

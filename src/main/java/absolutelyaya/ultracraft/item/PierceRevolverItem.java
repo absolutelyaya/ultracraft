@@ -105,7 +105,7 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 			world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_BLAST, SoundCategory.PLAYERS, 0.75f,
 					0.9f + (user.getRandom().nextFloat() - 0.5f) * 0.2f);
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), controllerName, b ? "shot" : "shot2");
-			ServerHitscanHandler.performHitscan(user, (byte)0, 4);
+			ServerHitscanHandler.performHitscan(user, (byte)0, 1f);
 			cdm.setCooldown(this, 10, GunCooldownManager.PRIMARY);
 			b = !b;
 		}
@@ -116,19 +116,6 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 	{
 		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
 		return (int)((float)(10 - cdm.getCooldown(stack.getItem(), GunCooldownManager.PRIMARY)) / 10f * 14f);
-	}
-	
-	@Override
-	public boolean isItemBarVisible(ItemStack stack)
-	{
-		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
-		return cdm.getCooldown(stack.getItem(), GunCooldownManager.PRIMARY) > 0;
-	}
-	
-	@Override
-	public int getItemBarColor(ItemStack stack)
-	{
-		return 0x28ccdf;
 	}
 	
 	@Override
@@ -150,7 +137,7 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 				player.getItemCooldownManager().set(this, 50);
 			}
 			if(!world.isClient)
-				ServerHitscanHandler.performHitscan(user, (byte)1, 10, 3);
+				ServerHitscanHandler.performHitscan(user, (byte)1, 1, 3);
 		}
 		else if(!world.isClient && user instanceof PlayerEntity)
 			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "stop");

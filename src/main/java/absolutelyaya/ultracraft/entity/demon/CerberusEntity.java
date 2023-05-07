@@ -62,8 +62,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
 		return AbstractUltraHostileEntity.createMobAttributes()
-					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 50.0d)
-					   .add(EntityAttributes.GENERIC_ARMOR, 6.0d)
+					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 22.0d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 6.0d)
 					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d)
@@ -241,7 +240,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 	
 	public boolean isCracked()
 	{
-		return getHealth() < 25f; //under half health
+		return getHealth() < getMaxHealth() / 2f;
 	}
 	
 	@Override

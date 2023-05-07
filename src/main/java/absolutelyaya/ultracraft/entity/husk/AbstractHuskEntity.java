@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.world.World;
 
@@ -12,6 +13,17 @@ public abstract class AbstractHuskEntity extends AbstractUltraHostileEntity
 	protected AbstractHuskEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
 		super(entityType, world);
+	}
+	
+	@Override
+	public boolean damage(DamageSource source, float amount)
+	{
+		if(getVelocity().y < 0f)
+			amount *= 1.5;
+		if(getBurningDuration() > 0 && !source.isFire() && !source.isExplosive())
+			amount *= 1.5;
+		//TODO: projectile boost x2
+		return super.damage(source, amount);
 	}
 	
 	static class GetIntoSightGoal extends Goal

@@ -67,8 +67,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
 		return HostileEntity.createMobAttributes()
-					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 60.0d)
-					   .add(EntityAttributes.GENERIC_ARMOR, 6.0d)
+					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 15.0d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.4d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 0.0d)
 					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64)
@@ -252,6 +251,8 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
+		if(source.getName().equals("pound"))
+			amount *= 2;
 		if(dataTracker.get(DEAD))
 		{
 			if(source.equals(DamageSource.STARVE)) //starve because there's no way this damage would occur accidentally
