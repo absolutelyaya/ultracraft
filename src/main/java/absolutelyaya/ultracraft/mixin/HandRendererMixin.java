@@ -31,27 +31,27 @@ public abstract class HandRendererMixin
 	@Shadow protected abstract void applySwingOffset(MatrixStack matrices, Arm arm, float swingProgress);
 	
 	@Inject(method = "renderFirstPersonItem", at = @At(value = "HEAD"), cancellable = true)
-	void onGetHandRendererType(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci)
+	void onRenderFirstPersonItem(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci)
 	{
 		LivingEntityAccessor playerAccessor = ((LivingEntityAccessor)player);
 		if(hand == Hand.OFF_HAND && (playerAccessor.IsPunching() || !item.isEmpty()))
 		{
-			swingProgress = playerAccessor.GetPunchProgress(Ultracraft.isTimeFrozen() ? 0f : tickDelta);
+			float swing = playerAccessor.GetPunchProgress(Ultracraft.isTimeFrozen() ? 0f : tickDelta);
 			matrices.push();
-			renderArmHoldingItem(matrices, vertexConsumers, light, equipProgress, swingProgress, player.getMainArm().getOpposite());
+			renderArmHoldingItem(matrices, vertexConsumers, light, 0f, swing, player.getMainArm().getOpposite());
 			matrices.pop();
 			matrices.push();
 			boolean right = player.getMainArm() == Arm.RIGHT;
-			float x = 0.8f * MathHelper.sin((float)(MathHelper.sqrt(swingProgress) * Math.PI));
-			float y = 0.2f * MathHelper.sin((float)(MathHelper.sqrt(swingProgress) * Math.PI * 2));
-			float z = -0.2f * MathHelper.sin((float)(swingProgress * Math.PI));
+			float x = 0.8f * MathHelper.sin((float)(MathHelper.sqrt(swing) * Math.PI));
+			float y = 0.2f * MathHelper.sin((float)(MathHelper.sqrt(swing) * Math.PI * 2));
+			float z = -0.2f * MathHelper.sin((float)(swing * Math.PI));
 			int o = right ? 1 : -1;
 			if(item.isOf(ItemRegistry.BLUE_SKULL) || item.isOf(ItemRegistry.RED_SKULL))
 				matrices.translate(((float)o * x) - 0.1, y + 0.4f, z - 0.4f);
 			else
 				matrices.translate(((float)o * x) - 0.1, y + 0.1f, z - 0.2f);
-			applyEquipOffset(matrices, player.getMainArm().getOpposite(), equipProgress);
-			applySwingOffset(matrices, player.getMainArm().getOpposite(), swingProgress);
+			applyEquipOffset(matrices, player.getMainArm().getOpposite(), 0f);
+			applySwingOffset(matrices, player.getMainArm().getOpposite(), swing);
 			renderItem(player, item, right ? ModelTransformation.Mode.FIRST_PERSON_RIGHT_HAND : ModelTransformation.Mode.FIRST_PERSON_LEFT_HAND,
 					!right, matrices, vertexConsumers, light);
 			matrices.pop();

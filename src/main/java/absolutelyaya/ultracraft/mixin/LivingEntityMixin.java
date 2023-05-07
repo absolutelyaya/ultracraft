@@ -123,7 +123,8 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		{
 			punchTicks = 0;
 			punching = true;
-			swingHand(Hand.OFF_HAND);
+			if(!world.isClient)
+				swingHand(Hand.OFF_HAND);
 			return true;
 		}
 		return false;
