@@ -23,7 +23,7 @@ public class PitrItem extends PlushieItem
 	{
 		super.appendTooltip(stack, world, tooltip, context);
 		if(context.isAdvanced())
-			tooltip.add(Text.translatable("item.ultracraft.plushie.pitr-hiddenlore"));
+			tooltip.add(Text.translatable("item.ultracraft.plushie." + (getType().equals(Type.PITRPOIN) ? "pitrpoin" : "pitr") + "-hiddenlore"));
 	}
 	
 	@Override

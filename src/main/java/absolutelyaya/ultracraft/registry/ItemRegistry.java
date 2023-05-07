@@ -29,6 +29,8 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "plushie"), new PlushieItem(new FabricItemSettings()));
 	public static final PlushieItem PITR = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "pitr"), new PitrItem(new FabricItemSettings()));
+	public static final PlushieItem PITR_POIN = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "pitr_poin"), new PitrPoinItem(new FabricItemSettings()));
 	
 	public static final PierceRevolverItem PIERCE_REVOLVER = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "pierce_revolver"), new PierceRevolverItem(new FabricItemSettings().maxCount(1)));
@@ -84,6 +86,7 @@ public class ItemRegistry
 			content.add(PLUSHIE.getDefaultStack("yaya"));
 			content.add(PLUSHIE.getDefaultStack("hakita"));
 			content.add(PITR.getDefaultStack("pitr"));
+			content.add(PITR_POIN.getDefaultStack("pitrpoin"));
 			content.add(PLUSHIE.getDefaultStack("v1"));
 		});
 	}

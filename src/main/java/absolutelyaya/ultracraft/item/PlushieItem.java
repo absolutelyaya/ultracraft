@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.item;
 
+import absolutelyaya.ultracraft.client.rendering.item.AbstractPlushieRenderer;
 import absolutelyaya.ultracraft.client.rendering.item.PlushieRenderer;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.item.TooltipContext;
@@ -41,7 +42,8 @@ public class PlushieItem extends Item implements GeoItem
 	
 	public ItemStack getDefaultStack(String type)
 	{
-		ItemStack stack = type.equals("pitr") ? new ItemStack(ItemRegistry.PITR) : new ItemStack(this);
+		ItemStack stack = type.equals("pitr") ? new ItemStack(ItemRegistry.PITR) :
+								  type.equals("pitrpoin") ? new ItemStack(ItemRegistry.PITR_POIN) : new ItemStack(this);
 		NbtCompound nbt = stack.getOrCreateNbt();
 		nbt.put("type", NbtString.of(type));
 		stack.setNbt(nbt);
@@ -66,7 +68,7 @@ public class PlushieItem extends Item implements GeoItem
 	
 	public Type getType()
 	{
-		return getType(((PlushieRenderer)((RenderProvider)getRenderProvider().get()).getCustomRenderer()).getCurrentItemStack());
+		return getType(((AbstractPlushieRenderer<?>)((RenderProvider)getRenderProvider().get()).getCustomRenderer()).getCurrentItemStack());
 	}
 	
 	public Type getType(ItemStack stack)
@@ -82,6 +84,7 @@ public class PlushieItem extends Item implements GeoItem
 			case "yaya" -> Type.YAYA;
 			case "hakita" -> Type.HAKITA;
 			case "pitr" -> Type.PITR;
+			case "pitrpoin" -> Type.PITRPOIN;
 		};
 	}
 	
@@ -109,7 +112,7 @@ public class PlushieItem extends Item implements GeoItem
 		{
 			case YAYA -> controller.setAnimation(POSE_SIT);
 			case HAKITA -> controller.setAnimation(POSE_HAKITA);
-			case PITR ->
+			case PITR, PITRPOIN ->
 			{
 				controller.setAnimationSpeed(2f);
 				controller.setAnimation(BREAKDANCE);
@@ -142,7 +145,8 @@ public class PlushieItem extends Item implements GeoItem
 		YAYA("Yaya", "item.ultracraft.plushie.yaya-lore"),
 		HAKITA("Hakita", "item.ultracraft.plushie.hakita-lore"),
 		PITR("PITR", "item.ultracraft.plushie.pitr-lore"),
-		V1("V1", "item.ultracraft.plushie.v1-lore");
+		V1("V1", "item.ultracraft.plushie.v1-lore"),
+		PITRPOIN("PITR (Hell-Neow Cosplay Edition)", "item.ultracraft.plushie.pitrpoin-lore");
 		
 		Type(String name, String lore)
 		{
