@@ -22,9 +22,9 @@ public class UltraDamageSource extends EntityDamageSource
 	public Text getDeathMessage(LivingEntity entity)
 	{
 		String string = "death.attack." + this.name;
-		if(source instanceof PlayerEntity || (source != null && source.hasCustomName()))
+		if(entity != null)
 			string += ".player";
-		return Text.translatable(string, entity.getDisplayName(), this.source.getDisplayName());
+		return Text.translatable(string, entity.getDisplayName(), source.getDisplayName());
 	}
 	
 	public UltraDamageSource setHitscan()
@@ -41,5 +41,11 @@ public class UltraDamageSource extends EntityDamageSource
 	public boolean isOf(DamageSources.Type type)
 	{
 		return this.type.equals(type);
+	}
+	
+	@Override
+	public boolean isScaledWithDifficulty()
+	{
+		return false;
 	}
 }

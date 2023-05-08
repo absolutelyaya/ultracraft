@@ -14,7 +14,7 @@ import net.minecraft.world.GameRules;
 public class GameruleRegistry
 {
 	public static final GameRules.Key<GameRules.BooleanRule> ALLOW_PROJ_BOOST_THROWABLE =
-			GameRuleRegistry.register("ultra-projBoosThrowable", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(false));
+			GameRuleRegistry.register("ultra-projBoostThrowable", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(false));
 	public static final GameRules.Key<EnumRule<Option>> HI_VEL_MODE =
 			GameRuleRegistry.register("ultra-hiVelMode", GameRules.Category.PLAYER, GameRuleFactory.createEnumRule(Option.FREE,
 					(server, rule) -> {
@@ -43,6 +43,10 @@ public class GameruleRegistry
 			GameRuleRegistry.register("ultra-allowSlamStorage", GameRules.Category.PLAYER,
 					GameRuleFactory.createBooleanRule(true,
 							(server, rule) -> OnChanged(server, (byte) ((byte)50 + (rule.get() ? 1 : 0)))));
+	public static final GameRules.Key<GameRules.BooleanRule> HIVEL_FALLDAMAGE =
+			GameRuleRegistry.register("ultra-hivelFallDamage", GameRules.Category.PLAYER,
+			GameRuleFactory.createBooleanRule(false,
+					(server, rule) -> OnChanged(server, (byte) ((byte)60 + (rule.get() ? 1 : 0)))));
 	
 	public static void OnChanged(MinecraftServer server, byte b)
 	{
@@ -84,6 +88,8 @@ public class GameruleRegistry
 		OnChanged(player, (byte)(20 + player.server.getGameRules().get(TIME_STOP).get().ordinal()));
 		OnChanged(player, (byte)(30 + (player.server.getGameRules().getBoolean(DISABLE_HANDSWAP) ? 1 : 0)));
 		OnChanged(player, (byte)40, player.server.getGameRules().getInt(HIVEL_JUMP_BOOST));
+		OnChanged(player, (byte)(50 + (player.server.getGameRules().getBoolean(SLAM_STORAGE) ? 1 : 0)));
+		OnChanged(player, (byte)(60 + (player.server.getGameRules().getBoolean(HIVEL_FALLDAMAGE) ? 1 : 0)));
 	}
 	
 	public static void register()

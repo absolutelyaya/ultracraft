@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import com.chocohead.mm.api.ClassTinkerers;
 import net.minecraft.entity.*;
@@ -86,6 +87,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
 	{
 		if(isDashing())
+			cir.setReturnValue(false);
+		if(wingsActive && source.isFromFalling() && !world.isClient && !world.getGameRules().get(GameruleRegistry.HIVEL_FALLDAMAGE).get())
 			cir.setReturnValue(false);
 	}
 	

@@ -62,7 +62,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	{
 		if(!cir.getReturnValue() || world.isClient || !IsCanBleed())
 			return;
-		if(source instanceof UltraDamageSource && !((Object)this instanceof AbstractUltraHostileEntity))
+		if(source instanceof UltraDamageSource && !((Object)this instanceof AbstractUltraHostileEntity) && !((Object)this instanceof PlayerEntity))
 			amount *= 2.5f;
 		List<PlayerEntity> nearby = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(32), e -> true);
 		List<PlayerEntity> heal = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(2), e -> !e.equals(this));

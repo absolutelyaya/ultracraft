@@ -167,6 +167,12 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	}
 	
 	@Override
+	public boolean isFireImmune()
+	{
+		return true;
+	}
+	
+	@Override
 	public void tickMovement()
 	{
 		super.tickMovement();

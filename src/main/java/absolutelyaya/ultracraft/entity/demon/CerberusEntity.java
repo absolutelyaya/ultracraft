@@ -188,6 +188,12 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 			return 1;
 	}
 	
+	@Override
+	public boolean isFireImmune()
+	{
+		return true;
+	}
+	
 	private void throwBullet(LivingEntity target)
 	{
 		CerberusBallEntity bullet = CerberusBallEntity.spawn(this, world);

@@ -6,6 +6,7 @@
   "mixins": [
     "EntityMixin",
     "FishingBobberMixin",
+    "HungerManagerMixin",
     "LivingEntityMixin",
     "PlayerEntityMixin",
     "ProjectileEntityMixin",

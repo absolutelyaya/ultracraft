@@ -61,8 +61,8 @@ public class HellBulletEntity extends ThrownItemEntity
 	protected void onEntityHit(EntityHitResult entityHitResult) {
 		super.onEntityHit(entityHitResult);
 		Entity entity = entityHitResult.getEntity();
-		if(!entity.getClass().equals(ignore) || ((ProjectileEntityAccessor)this).isParried())
-			entity.damage(DamageSource.thrownProjectile(this, this.getOwner()), 6f);
+		if(!entity.getClass().equals(ignore) && !((ProjectileEntityAccessor)this).isParried())
+			entity.damage(DamageSource.thrownProjectile(this, this.getOwner()), 5f);
 	}
 	
 	@Override

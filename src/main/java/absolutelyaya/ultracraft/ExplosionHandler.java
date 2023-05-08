@@ -1,11 +1,13 @@
 package absolutelyaya.ultracraft;
 
+import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -55,7 +57,7 @@ public class ExplosionHandler
 					pos.z + (random.nextFloat() - 0.5) * 2 * (radius / 5),
 					0f, 0f, 0f);
 		}
-		world.playSound(pos.x, pos.y, pos.z, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.NEUTRAL, radius / 3f, (float)(1 + (random.nextFloat() - 0.5f) * 0.1), true);
+		world.playSound(pos.x, pos.y, pos.z, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.NEUTRAL, radius * 0.75f, (float)(1 + (random.nextFloat() - 0.5f) * 0.1), true);
 	}
 	
 	private static void explosionServer(Entity ignored, ServerWorld world, Vec3d pos, DamageSource source, float damage, float falloff, float radius)
@@ -63,8 +65,12 @@ public class ExplosionHandler
 		Box box = new Box(pos.subtract(radius, radius, radius), pos.add(radius, radius, radius));
 		world.getOtherEntities(ignored, box, Entity::isLiving).forEach(e -> {
 			float normalizedDistance = (float)e.squaredDistanceTo(pos) / (radius * radius);
-			e.damage(source, MathHelper.lerp(normalizedDistance, damage, Math.max(damage - falloff, 0f)));
-			e.addVelocity(e.getPos().subtract(pos).normalize().multiply((radius / 5f) * (1f - normalizedDistance)));
+			e.damage(source.setBypassesProtection().setBypassesArmor().setUnblockable(), MathHelper.lerp(normalizedDistance, damage, Math.max(damage - falloff, 0f)));
+			if(!(e instanceof PlayerEntity))
+				e.setOnFireFor(10);
+			if(e instanceof LivingEntityAccessor living && !living.takePunchKnockback())
+				return;
+			e.addVelocity(pos.subtract(e.getPos()).normalize().multiply((radius / 5f) * (1f - normalizedDistance)));
 		});
 	}
 }
