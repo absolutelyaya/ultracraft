@@ -16,6 +16,7 @@ public class PitrItem extends PlushieItem
 	public PitrItem(Settings settings)
 	{
 		super(settings);
+		defaultType = Type.PITR;
 	}
 	
 	@Override

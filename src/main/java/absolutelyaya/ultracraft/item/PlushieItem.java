@@ -34,6 +34,7 @@ public class PlushieItem extends Item implements GeoItem
 	RawAnimation POSE_HAKITA = RawAnimation.begin().thenPlay("hakita");
 	RawAnimation POSE_SLIDE = RawAnimation.begin().thenPlay("slide");
 	RawAnimation BREAKDANCE = RawAnimation.begin().thenPlay("breakdance");
+	protected Type defaultType = Type.V1;
 	
 	public PlushieItem(Settings settings)
 	{
@@ -74,13 +75,13 @@ public class PlushieItem extends Item implements GeoItem
 	public Type getType(ItemStack stack)
 	{
 		if(stack == null)
-			return Type.V1;
+			return defaultType;
 		NbtCompound nbt = stack.getNbt();
 		if(nbt == null || !nbt.contains("type"))
-			return Type.V1;
+			return defaultType;
 		return switch(nbt.getString("type"))
 		{
-			default -> Type.V1;
+			default -> defaultType;
 			case "yaya" -> Type.YAYA;
 			case "hakita" -> Type.HAKITA;
 			case "pitr" -> Type.PITR;

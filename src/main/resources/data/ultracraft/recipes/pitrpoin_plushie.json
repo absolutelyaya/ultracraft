@@ -1,0 +1,17 @@
+{
+  "type": "ultracraft:plushie",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "ultracraft:pitr"
+    },
+    {
+      "item": "minecraft:pink_dye"
+    }
+  ],
+  "result": {
+    "item": "ultracraft:plushie",
+    "type": "pitrpoin",
+    "count": 1
+  }
+}
