@@ -1,6 +1,8 @@
 package absolutelyaya.ultracraft.entity.other;
 
 import absolutelyaya.ultracraft.accessor.Interruptable;
+import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.damage.UltraDamageSource;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -61,7 +63,7 @@ public class InterruptableCharge extends Entity
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
-		boolean result = source.getName().equals("gun");
+		boolean result = source instanceof UltraDamageSource us && us.isHitscan();
 		if(result)
 		{
 			owner.onInterrupted((PlayerEntity)source.getSource());

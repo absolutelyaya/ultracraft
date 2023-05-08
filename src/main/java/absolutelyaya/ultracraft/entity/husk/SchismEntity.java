@@ -1,9 +1,11 @@
 package absolutelyaya.ultracraft.entity.husk;
 
+import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.Interruptable;
 import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
@@ -136,7 +138,8 @@ public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Inter
 	{
 		world.playSound(null, interruptor.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
 		Ultracraft.freeze((ServerWorld)world, 10);
-		world.createExplosion(interruptor, getX(), getY(), getZ(), 2, World.ExplosionSourceType.NONE);
+		damage(DamageSources.getInterrupted(interruptor), 5f);
+		ExplosionHandler.explosion(interruptor, world, new Vec3d(getX(), getY(), getZ()), DamageSources.getExplosion(interruptor), 5f, 2f, 3f);
 	}
 	
 	@Override

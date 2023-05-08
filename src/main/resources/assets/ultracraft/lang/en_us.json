@@ -65,6 +65,8 @@
   "death.attack.interrupt.player": "%1$s was interrupted to death by %2$s",
   "death.attack.parry_collateral": "%1$s became collateral damage of a parry explosion",
   "death.attack.parry_colletaral.player": "%1$s became collateral damage of %2$ss parry",
+  "death.attack.proj_boost": "%1$s got blown to bits with a projectile boost",
+  "death.attack.proj_boost.player": "%1$s got blown to bits with a projectile boost by %2$ss",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 

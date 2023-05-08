@@ -1,7 +1,10 @@
 package absolutelyaya.ultracraft.entity.projectile;
 
+import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
+import absolutelyaya.ultracraft.damage.UltraDamageSource;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
@@ -18,7 +21,6 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
 
 public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEntityAccessor
 {
@@ -63,8 +65,7 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 		
 		if (!world.isClient)
 		{
-			world.createExplosion(null,
-					DamageSource.explosion(this, getOwner()), null, hitResult.getPos(), 1.5f, false, World.ExplosionSourceType.NONE);
+			ExplosionHandler.explosion(null, world, hitResult.getPos(), DamageSources.getExplosion(getOwner()), 3.5f, 2.5f, 2f);
 			world.sendEntityStatus(this, (byte)3);
 		}
 		this.kill();
@@ -73,8 +74,12 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
-		if(source.getName().equals("gun"))
-			onCollision(new EntityHitResult(this));
+		if(source instanceof UltraDamageSource us && us.isHitscan())
+		{
+			ExplosionHandler.explosion(null, world, getPos(), DamageSources.getExplosion(getOwner()), 7f, 4.6f, 2f);
+			world.sendEntityStatus(this, (byte)3);
+			this.kill();
+		}
 		return super.damage(source, amount);
 	}
 	

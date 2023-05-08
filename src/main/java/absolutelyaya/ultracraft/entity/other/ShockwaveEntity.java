@@ -1,6 +1,6 @@
 package absolutelyaya.ultracraft.entity.other;
 
-import absolutelyaya.ultracraft.registry.DamageSources;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import net.minecraft.entity.*;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;

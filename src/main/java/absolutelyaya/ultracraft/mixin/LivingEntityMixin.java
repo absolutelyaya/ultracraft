@@ -3,6 +3,9 @@ package absolutelyaya.ultracraft.mixin;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.damage.UltraDamageSource;
+import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
@@ -57,9 +60,10 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	@Inject(method = "damage", at = @At("RETURN"))
 	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
 	{
-		//TODO: increase mod damage to non-mod entities
 		if(!cir.getReturnValue() || world.isClient || !IsCanBleed())
 			return;
+		if(source instanceof UltraDamageSource && !((Object)this instanceof AbstractUltraHostileEntity))
+			amount *= 2.5f;
 		List<PlayerEntity> nearby = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(32), e -> true);
 		List<PlayerEntity> heal = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(2), e -> !e.equals(this));
 		for (PlayerEntity player : nearby)
@@ -77,9 +81,9 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			player.heal(amount / 1.5f);
 			player.getHungerManager().add((int)(amount / 1.5f), 5f);
 		}
-		if(source.getName().equals("gun") || source.getName().equals("shotgun"))
+		if(source instanceof UltraDamageSource us && (us.isOf(DamageSources.Type.GUN) || us.isOf(DamageSources.Type.SHOTGUN)))
 			timeUntilRegen = 9;
-		if(source.getName().equals("swordmachine"))
+		if(source instanceof UltraDamageSource us && us.isOf(DamageSources.Type.SWORDSMACHINE))
 			timeUntilRegen = 12;
 	}
 	

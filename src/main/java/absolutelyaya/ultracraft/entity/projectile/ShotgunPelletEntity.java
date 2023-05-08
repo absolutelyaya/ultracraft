@@ -1,8 +1,9 @@
 package absolutelyaya.ultracraft.entity.projectile;
 
+import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.client.UltracraftClient;
-import absolutelyaya.ultracraft.registry.DamageSources;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.MinecraftClient;
@@ -75,7 +76,7 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	{
 		Entity entity = entityHitResult.getEntity();
 		if(!entity.getClass().equals(ignore) || ((ProjectileEntityAccessor)this).isParried())
-			entity.damage(DamageSources.getShotgun(this, this.getOwner()), 0.25f);
+			entity.damage(DamageSources.getShotgun(this.getOwner()), 0.25f);
 	}
 	
 	@Override
@@ -102,12 +103,7 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	{
 		Entity owner = getOwner();
 		Vec3d pos = hitResult.getPos();
-		if(hitResult.getType().equals(HitResult.Type.ENTITY))
-		{
-			Entity hit = ((EntityHitResult)hitResult).getEntity();
-			hit.damage(DamageSources.getParriedProjectile(parrier, this), 5);
-		}
-		world.createExplosion(owner, DamageSources.getParryCollateral(parrier), null, pos, 1f, false, World.ExplosionSourceType.NONE);
+		ExplosionHandler.explosion(owner, world, pos, DamageSources.getProjectileBoost(parrier), 3.5f, 2.3f, 3f);
 	}
 	
 	@Override

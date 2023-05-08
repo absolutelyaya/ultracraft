@@ -68,7 +68,7 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 			for (int i = 0; i < 12; i++)
 			{
 				ShotgunPelletEntity bullet = ShotgunPelletEntity.spawn(user, world);
-				bullet.setVelocity(dir.x, dir.y, dir.z, 1f, 20f);
+				bullet.setVelocity(dir.x, dir.y, dir.z, 1.5f, 15f);
 				bullet.setNoGravity(true);
 				world.spawnEntity(bullet);
 			}

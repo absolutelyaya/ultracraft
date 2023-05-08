@@ -6,11 +6,12 @@ import absolutelyaya.ultracraft.accessor.ITrailEnjoyer;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.damage.UltraDamageSource;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.husk.AbstractHuskEntity;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
-import absolutelyaya.ultracraft.registry.DamageSources;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import com.google.common.collect.HashMultimap;
@@ -321,9 +322,13 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
-		if(source.getName().equals("shotgun"))
-			amount *= 1.5;
-		//TODO: projectile boost x2.25
+		if(source instanceof UltraDamageSource us)
+		{
+			if(us.isOf(DamageSources.Type.PROJBOOST))
+				amount *= 2.25;
+			else if(us.isOf(DamageSources.Type.SHOTGUN))
+				amount *= 1.5;
+		}
 		boolean b = super.damage(source, amount);
 		bossBar.setPercent(getHealth() / getMaxHealth());
 		if(dataTracker.get(HAS_SHOTGUN) && getHealth() < 75)

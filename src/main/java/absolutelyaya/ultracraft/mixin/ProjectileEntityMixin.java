@@ -1,8 +1,9 @@
 package absolutelyaya.ultracraft.mixin;
 
+import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
-import absolutelyaya.ultracraft.registry.DamageSources;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -98,9 +99,8 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 		Entity hit = null;
 		if(hitResult.getType().equals(HitResult.Type.ENTITY))
 			hit = ((EntityHitResult)hitResult).getEntity();
-		owner.damage(DamageSources.getParriedProjectile(parrier, ((ProjectileEntity)(Object)this)), 15);
-		world.createExplosion(owner.equals(hit) ? hit : null,
-				DamageSources.getParryCollateral(parrier), null, pos, 2, false, World.ExplosionSourceType.NONE);
+		owner.damage(DamageSources.getParriedProjectile(parrier), 15);
+		ExplosionHandler.explosion(owner.equals(hit) ? hit : null, world, pos, DamageSources.getParryCollateral(parrier), 5f, 1f, 3f);
 	}
 	
 	@Override

@@ -1,7 +1,7 @@
 package absolutelyaya.ultracraft;
 
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
-import absolutelyaya.ultracraft.registry.DamageSources;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -19,6 +19,7 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,20 +42,20 @@ public class ServerHitscanHandler
 	
 	public static void performHitscan(LivingEntity user, byte type, float damage)
 	{
-		performHitscan(user, type, damage, 1, 0);
+		performHitscan(user, type, damage, 1, null);
 	}
 	
 	public static void performHitscan(LivingEntity user, byte type, float damage, int maxHits)
 	{
-		performHitscan(user, type, damage, maxHits, 0);
+		performHitscan(user, type, damage, maxHits, null);
 	}
 	
-	public static void performHitscan(LivingEntity user, byte type, float damage, float explosionPower)
+	public static void performHitscan(LivingEntity user, byte type, float damage, HitscanExplosionData explosion)
 	{
-		performHitscan(user, type, damage, 1, explosionPower);
+		performHitscan(user, type, damage, 1, explosion);
 	}
 	
-	public static void performHitscan(LivingEntity user, byte type, float damage, int maxHits, float explosionPower)
+	public static void performHitscan(LivingEntity user, byte type, float damage, int maxHits, @Nullable HitscanExplosionData explosion)
 	{
 		World world = user.getWorld();
 		Vec3d origin = user.getPos().add(new Vec3d(0f, user.getStandingEyeHeight(), 0f));
@@ -86,8 +87,21 @@ public class ServerHitscanHandler
 			}
 		}
 		entities.forEach((e) -> e.damage(DamageSources.getGun(user), damage));
-		if(explosionPower > 0f)
-			world.createExplosion(null, modifiedTo.x, modifiedTo.y, modifiedTo.z, explosionPower, World.ExplosionSourceType.NONE);
+		if(explosion != null)
+			ExplosionHandler.explosion(null, world, new Vec3d(modifiedTo.x, modifiedTo.y, modifiedTo.z), DamageSources.getExplosion(user),
+					explosion.damage, explosion.falloff, explosion.radius);
 		sendPacket((ServerWorld)user.world, origin.add(new Vec3d(-0.5f, -0.3f, 0f).rotateY(-(float)Math.toRadians(user.getYaw()))), modifiedTo, type);
+	}
+	
+	public static class HitscanExplosionData
+	{
+		public float radius, damage, falloff;
+		
+		public HitscanExplosionData(float radius, float damage, float falloff)
+		{
+			this.radius = radius;
+			this.damage = damage;
+			this.falloff = falloff;
+		}
 	}
 }

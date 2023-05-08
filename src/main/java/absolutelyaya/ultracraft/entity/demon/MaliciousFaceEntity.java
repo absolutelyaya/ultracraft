@@ -1,14 +1,16 @@
 package absolutelyaya.ultracraft.entity.demon;
 
+import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
+import absolutelyaya.ultracraft.damage.UltraDamageSource;
 import absolutelyaya.ultracraft.entity.AbstractUltraFlyingEntity;
 import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import absolutelyaya.ultracraft.particle.goop.GoopStringParticleEffect;
-import absolutelyaya.ultracraft.registry.DamageSources;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import net.minecraft.block.BlockState;
@@ -251,13 +253,20 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
-		if(source.getName().equals("pound"))
-			amount *= 2;
+		if(source instanceof UltraDamageSource us)
+		{
+			if(!world.isClient)
+				System.out.println(us.isExplosive() + " - " + source.getName() + " - " + amount + " => " + getHealth());
+			if(us.isExplosive())
+				return false;
+			if(us.isOf(DamageSources.Type.POUND))
+				amount *= 2;
+		}
 		if(dataTracker.get(DEAD))
 		{
 			if(source.equals(DamageSource.STARVE)) //starve because there's no way this damage would occur accidentally
 				setHealth(0);
-			if(source.getName().equals("pound"))
+			if(source instanceof UltraDamageSource us && us.isOf(DamageSources.Type.POUND))
 			{
 				setHealth(0);
 				for (int i = 0; i < 32; i++)
@@ -416,7 +425,8 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	public void onInterrupt(PlayerEntity parrier)
 	{
 		if(!world.isClient && getServer() != null)
-			getServer().execute(() -> world.createExplosion(parrier, getX(), getY(), getZ(), 4f, World.ExplosionSourceType.NONE));
+			getServer().execute(() -> ExplosionHandler.explosion(parrier, world, new Vec3d(getX(), getY(), getZ()),
+					DamageSources.getExplosion(parrier), 10f, 0f, 5.5f));
 		damage(DamageSource.mob(parrier), 10);
 		dataTracker.set(WAS_INTERRUPTED, true);
 	}
@@ -732,7 +742,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 			}
 			if(timer <= 0)
 			{
-				ServerHitscanHandler.performHitscan(face, (byte)5, 0, 2f);
+				ServerHitscanHandler.performHitscan(face, (byte)5, 0, new ServerHitscanHandler.HitscanExplosionData(5.5f, 10f, 0f));
 				if(repeat)
 				{
 					timer = 22;

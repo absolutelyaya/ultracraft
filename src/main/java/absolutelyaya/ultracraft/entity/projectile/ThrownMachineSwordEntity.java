@@ -4,7 +4,7 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.entity.machine.SwordmachineEntity;
-import absolutelyaya.ultracraft.registry.DamageSources;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.block.BlockState;
@@ -162,14 +162,14 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 					if(isParried())
 					{
 						sm.onInterrupt(parrier);
-						sm.damage(DamageSources.getParriedProjectile(parrier, this), 12);
+						sm.damage(DamageSources.getParriedProjectile(parrier), 12);
 					}
 				}
 				if(getOwner() instanceof PlayerEntity p && tryPickup(p))
 				{
 					p.giveItemStack(dataTracker.get(SWORD));
 					if(isParried())
-						p.damage(DamageSources.getParriedProjectile(parrier, this), 12);
+						p.damage(DamageSources.getParriedProjectile(parrier), 12);
 				}
 				discard();
 			}

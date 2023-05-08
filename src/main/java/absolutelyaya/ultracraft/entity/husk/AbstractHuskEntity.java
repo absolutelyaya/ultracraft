@@ -1,5 +1,7 @@
 package absolutelyaya.ultracraft.entity.husk;
 
+import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.damage.UltraDamageSource;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -22,7 +24,8 @@ public abstract class AbstractHuskEntity extends AbstractUltraHostileEntity
 			amount *= 1.5;
 		if(getBurningDuration() > 0 && !source.isFire() && !source.isExplosive())
 			amount *= 1.5;
-		//TODO: projectile boost x2
+		if(source instanceof UltraDamageSource us && us.isOf(DamageSources.Type.PROJBOOST))
+			amount *= 2;
 		return super.damage(source, amount);
 	}
 	

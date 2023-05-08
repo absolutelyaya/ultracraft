@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.registry;
 
+import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ITrailEnjoyer;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
@@ -9,6 +10,7 @@ import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.BlockStateParticleEffect;
@@ -59,7 +61,7 @@ public class ClientPacketRegistry
 			if(client.player.getPos().squaredDistanceTo(pos) < 0.1)
 				return;
 			double halfheight = buf.readDouble();
-			Random rand = client.player.world.getRandom();
+			Random rand = client.player.getRandom();
 			for (int i = 0; i < Math.min(3 * amount, 32); i++)
 				client.player.world.addParticle(new GoopDropParticleEffect(new Vec3d(0.56, 0.09, 0.01),
 								0.6f + rand.nextFloat() * 0.4f * (amount / 10f)), pos.x, pos.y + halfheight, pos.z,
@@ -113,5 +115,11 @@ public class ClientPacketRegistry
 						player.getY() - 0.1, player.getZ()))), x, player.getY() + 0.1, z, 0f, 1f, 0f);
 			}
 		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.EXPLOSION_PACKET_ID, (((client, handler, buf, responseSender) -> {
+			if(client.player == null)
+				return;
+			ExplosionHandler.explosionClient((ClientWorld)client.player.world,
+					new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble()), (float)buf.readDouble());
+		})));
 	}
 }
