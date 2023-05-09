@@ -22,14 +22,18 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import java.util.List;
+
 public class PacketRegistry
 {
-	public static final Identifier PUNCH_ENTITY_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_entiy");
+	public static final Identifier PUNCH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "parry");
 	public static final Identifier PUNCH_BLOCK_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_block");
 	public static final Identifier PRIMARY_SHOT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "primary_shot");
 	public static final Identifier SET_HIGH_VELOCITY_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "sethivel_c2s");
@@ -176,5 +180,22 @@ public class PacketRegistry
 			for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
 				ServerPlayNetworking.send(p, GROUND_POUND_S2C_PACKET_ID, buf);
 		});
+	}
+	
+	static ProjectileEntity getNearestProjectile(List<ProjectileEntity> projectiles, Vec3d to)
+	{
+		double nearestDistance = 100.0;
+		ProjectileEntity nearest = null;
+		
+		for (ProjectileEntity e : projectiles)
+		{
+			double distance = e.squaredDistanceTo(to);
+			if(distance < nearestDistance)
+			{
+				nearest = e;
+				nearestDistance = distance;
+			}
+		}
+		return nearest;
 	}
 }

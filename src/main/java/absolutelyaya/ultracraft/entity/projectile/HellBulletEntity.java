@@ -114,7 +114,7 @@ public class HellBulletEntity extends ThrownItemEntity
 			for (int i = 0; i < 5; i++)
 				world.addParticle(new ItemStackParticleEffect(ParticleTypes.ITEM, getStack()),
 						getX(), getY(), getZ(), 0f, 0f, 0f);
-			remove(RemovalReason.DISCARDED);
+			discard();
 		}
 	}
 	

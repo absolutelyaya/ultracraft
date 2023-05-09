@@ -1,7 +1,6 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
-import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.client.UltracraftClient;
@@ -12,6 +11,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.entity.Entity;
@@ -20,15 +20,11 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.glfw.GLFW;
-
-import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class KeybindRegistry
@@ -55,74 +51,45 @@ public class KeybindRegistry
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			while(PUNCH.wasPressed())
 			{
-				PlayerEntity player = client.player;
-				HitResult crosshairTarget = client.crosshairTarget;
+				ClientPlayerEntity player = client.player;
 				
 				if(player == null || !((LivingEntityAccessor)player).Punch())
 					return;
 				
+				HitResult crosshairTarget = client.crosshairTarget;
 				Entity entity = null;
-				if(crosshairTarget == null)
-					return;
-				if(crosshairTarget.getType().equals(HitResult.Type.ENTITY))
-					entity = ((EntityHitResult)crosshairTarget).getEntity();
-				else if(crosshairTarget.getType().equals(HitResult.Type.BLOCK))
+				if(crosshairTarget != null)
 				{
-					BlockHitResult hit = ((BlockHitResult)crosshairTarget);
-					BlockState state = player.world.getBlockState(hit.getBlockPos());
-					if(state.getBlock() instanceof IPunchableBlock punchable)
+					if(crosshairTarget.getType().equals(HitResult.Type.ENTITY))
+						entity = ((EntityHitResult)crosshairTarget).getEntity();
+					else if(crosshairTarget.getType().equals(HitResult.Type.BLOCK))
 					{
-						PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-						buf.writeBlockPos(hit.getBlockPos());
-						buf.writeBoolean(false);
-						ClientPlayNetworking.send(PacketRegistry.PUNCH_BLOCK_PACKET_ID, buf);
-						if (punchable.onPunch(player, hit.getBlockPos(), false))
-							return; //if punch interaction was successful, don't display break particles and stuff
+						BlockHitResult hit = ((BlockHitResult)crosshairTarget);
+						BlockState state = player.world.getBlockState(hit.getBlockPos());
+						if(state.getBlock() instanceof IPunchableBlock punchable)
+						{
+							PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+							buf.writeBlockPos(hit.getBlockPos());
+							buf.writeBoolean(false);
+							ClientPlayNetworking.send(PacketRegistry.PUNCH_BLOCK_PACKET_ID, buf);
+							if (punchable.onPunch(player, hit.getBlockPos(), false))
+								return; //if punch interaction was successful, don't display break particles and stuff
+						}
+						Vec3d pos = hit.getPos();
+						for (int i = 0; i < 6; i++)
+							player.world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), pos.x, pos.y, pos.z, 0f, 0f, 0f);
+						player.playSound(state.getSoundGroup().getHitSound(), 1f, 1f);
+						if(state.isIn(BlockTagRegistry.PUNCH_BREAKABLE))
+							player.world.breakBlock(hit.getBlockPos(), true, player);
 					}
-					Vec3d pos = hit.getPos();
-					for (int i = 0; i < 6; i++)
-					{
-						player.world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), pos.x, pos.y, pos.z, 0f, 0f, 0f);
-					}
-					player.playSound(state.getSoundGroup().getHitSound(), 1f, 1f);
-					if(state.isIn(BlockTagRegistry.PUNCH_BREAKABLE))
-						player.world.breakBlock(hit.getBlockPos(), true, player);
-					return;
 				}
-				
-				Vec3d forward = player.getRotationVecClient();
-				Vec3d pos = player.getCameraPosVec(0f).add(forward.normalize().multiply(1));
-				List<ProjectileEntity> projectiles = player.world.getEntitiesByClass(ProjectileEntity.class,
-						new Box(pos.x - 0.75f, pos.y - 0.75f, pos.z - 0.75f, pos.x + 0.75f, pos.y + 0.75f, pos.z + 0.75f),
-						(e) -> !((ProjectileEntityAccessor)e).isParried());
-				if(projectiles.size() > 0)
-					entity = getNearestProjectile(projectiles, pos);
-				
-				if(entity != null)
-				{
-					PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+				boolean b = entity != null && !(entity instanceof ProjectileEntity);
+				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+				buf.writeBoolean(b);
+				if(b)
 					buf.writeInt(entity.getId());
-					buf.writeBoolean(!player.getStackInHand(Hand.OFF_HAND).isEmpty());
-					ClientPlayNetworking.send(PacketRegistry.PUNCH_ENTITY_PACKET_ID, buf);
-				}
+				ClientPlayNetworking.send(PacketRegistry.PUNCH_PACKET_ID, buf);
 			}
 		});
-	}
-	
-	static ProjectileEntity getNearestProjectile(List<ProjectileEntity> projectiles, Vec3d to)
-	{
-		double nearestDistance = 100.0;
-		ProjectileEntity nearest = null;
-		
-		for (ProjectileEntity e : projectiles)
-		{
-			double distance = e.squaredDistanceTo(to);
-			if(distance < nearestDistance)
-			{
-				nearest = e;
-				nearestDistance = distance;
-			}
-		}
-		return nearest;
 	}
 }

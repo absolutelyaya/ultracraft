@@ -54,7 +54,7 @@ public class ShockwaveEntity extends Entity
 	public void tick()
 	{
 		if (age > duration)
-			remove(RemovalReason.DISCARDED);
+			discard();
 		setRadius(getRadius() + 0.25f);
 		
 		if(affectOnly != null)
