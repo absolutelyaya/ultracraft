@@ -50,57 +50,70 @@ public class PacketRegistry
 	
 	public static void registerC2S()
 	{
-		ServerPlayNetworking.registerGlobalReceiver(PUNCH_ENTITY_PACKET_ID, (server, player, handler, buf, sender) -> {
-			World world = player.getWorld();
-			Entity target = world.getEntityById(buf.readInt());
-			boolean flame = buf.readBoolean();
+		ServerPlayNetworking.registerGlobalReceiver(PUNCH_PACKET_ID, (server, player, handler, buf, sender) -> {
+			World world = player.world;
+			Entity target;
+			if(buf.readBoolean())
+				target = world.getEntityById(buf.readInt());
+			else
+				target = null;
 			
-			if(target != null)
-			{
-				if(flame)
-					target.setFireTicks(100);
-				if(target instanceof ProjectileEntity p)
+			server.execute(() -> {
+				ProjectileEntity p;
+				Vec3d forward = player.getRotationVector();
+				Vec3d pos = player.getCameraPosVec(0f).add(forward.normalize());
+				List<ProjectileEntity> projectiles = player.world.getEntitiesByClass(ProjectileEntity.class,
+						new Box(pos.x - 0.75f, pos.y - 0.75f, pos.z - 0.75f, pos.x + 0.75f, pos.y + 0.75f, pos.z + 0.75f),
+						(e) -> !((ProjectileEntityAccessor)e).isParried());
+				
+				player.swingHand(Hand.OFF_HAND, true);
+				
+				//Punch Entity
+				if(target != null)
 				{
-					if(!((ProjectileEntityAccessor)p).isParriable())
-						return;
-					if(player.equals(p.getOwner()) && p instanceof ThrownItemEntity thrown)
+					if(!player.getOffHandStack().isEmpty())
+						target.setFireTicks(100);
+					if (target instanceof MeleeInterruptable mp && (!(mp instanceof MobEntity) || ((MobEntity)mp).isAttacking()))
 					{
-						if(player.world.getGameRules().getBoolean(GameruleRegistry.ALLOW_PROJ_BOOST_THROWABLE) || thrown instanceof ShotgunPelletEntity)
-						{
-							Ultracraft.freeze((ServerWorld) player.world, 5);
-							world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
-							ProjectileEntityAccessor pa = (ProjectileEntityAccessor)p;
-							pa.setParried(true, player);
-						}
-						else
-							return;
+						Ultracraft.freeze((ServerWorld) player.world, 10);
+						target.damage(DamageSources.getInterrupted(player), 6);
+						mp.onInterrupt(player);
+						world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
+						player.heal(4);
 					}
 					else
 					{
-						Ultracraft.freeze((ServerWorld) player.world, 10);
-						world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
-						ProjectileEntityAccessor pa = (ProjectileEntityAccessor)p;
-						pa.setParried(true, player);
+						world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.75f, 0.5f);
+						target.damage(DamageSource.mob(player), 1);
 					}
+					boolean fatal = !target.isAlive();
+					Vec3d vel = forward.multiply(fatal ? 1.5f : 0.75f);
+					if(target instanceof ProjectileEntity || (target instanceof LivingEntityAccessor && ((LivingEntityAccessor)target).takePunchKnockback()))
+						target.setVelocity(vel);
+					return;
 				}
-				else if (target instanceof MeleeInterruptable mp && (!(mp instanceof MobEntity) || ((MobEntity)mp).isAttacking()))
+				
+				//Projectile Parry
+				if(projectiles.size() > 0)
+					p = getNearestProjectile(projectiles, pos);
+				else
+					return;
+				if(!((ProjectileEntityAccessor)p).isParriable())
+					return;
+				if(player.equals(p.getOwner()) && p instanceof ThrownItemEntity thrown)
 				{
-					Ultracraft.freeze((ServerWorld) player.world, 10);
-					target.damage(DamageSources.getInterrupted(player), 15);
-					mp.onInterrupt(player);
-					world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
-					player.heal(4);
+					if(player.world.getGameRules().getBoolean(GameruleRegistry.ALLOW_PROJ_BOOST_THROWABLE) || thrown instanceof ShotgunPelletEntity)
+						Ultracraft.freeze((ServerWorld) player.world, 5);
+					else
+						return;
 				}
 				else
-				{
-					world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.75f, 0.5f);
-					target.damage(DamageSource.mob(player), 4);
-				}
-				boolean fatal = !target.isAlive();
-				Vec3d vel = player.getRotationVecClient().normalize().multiply(fatal ? 1.5f : 0.75f).multiply(target instanceof ProjectileEntity ? 2.5f : 1f);
-				if(target instanceof ProjectileEntity || (target instanceof LivingEntityAccessor && ((LivingEntityAccessor)target).takePunchKnockback()))
-					target.setVelocity(vel);
-			}
+					Ultracraft.freeze((ServerWorld) player.world, 10);
+				world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
+				ProjectileEntityAccessor pa = (ProjectileEntityAccessor)p;
+				pa.setParried(true, player);
+				p.setVelocity(forward.multiply(2.5f));
+			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(PUNCH_BLOCK_PACKET_ID, (server, player, handler, buf, sender) -> {
 			World world = player.getWorld();

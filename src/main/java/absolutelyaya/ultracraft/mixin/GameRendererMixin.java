@@ -23,8 +23,10 @@ public class GameRendererMixin
 	@Inject(method = "bobView", at = @At("HEAD"), cancellable = true)
 	public void onBobView(MatrixStack matrices, float tickDelta, CallbackInfo ci)
 	{
+		if(client.player == null)
+			return;
 		WingedPlayerEntity winged = (WingedPlayerEntity)client.player;
-		if(client.player != null && winged.isWingsVisible() && (client.player.isSprinting() || winged.isDashing()))
+		if(winged.isWingsVisible() && (client.player.isSprinting() || winged.isDashing()))
 			ci.cancel();
 		if(Ultracraft.isTimeFrozen())
 			ci.cancel();
