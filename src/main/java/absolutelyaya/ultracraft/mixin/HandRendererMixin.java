@@ -2,6 +2,8 @@ package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
+import absolutelyaya.ultracraft.item.AbstractWeaponItem;
+import absolutelyaya.ultracraft.item.PlushieItem;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -9,10 +11,15 @@ import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ToolItem;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.MathHelper;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,10 +44,13 @@ public abstract class HandRendererMixin
 		if(hand == Hand.OFF_HAND && (playerAccessor.IsPunching() || !item.isEmpty()))
 		{
 			float swing = playerAccessor.GetPunchProgress(Ultracraft.isTimeFrozen() ? 0f : tickDelta);
+			if(item.getItem() instanceof AbstractWeaponItem)
+				matrices.translate(0f, -0.2f, 0f);
 			matrices.push();
-			renderArmHoldingItem(matrices, vertexConsumers, light, 0f, swing, player.getMainArm().getOpposite());
+			renderArmHoldingItem(matrices, vertexConsumers, light, equipProgress, swing, player.getMainArm().getOpposite());
 			matrices.pop();
 			matrices.push();
+			boolean transform = true;
 			boolean right = player.getMainArm() == Arm.RIGHT;
 			float x = 0.8f * MathHelper.sin((float)(MathHelper.sqrt(swing) * Math.PI));
 			float y = 0.2f * MathHelper.sin((float)(MathHelper.sqrt(swing) * Math.PI * 2));
@@ -48,12 +58,38 @@ public abstract class HandRendererMixin
 			int o = right ? 1 : -1;
 			if(item.isOf(ItemRegistry.BLUE_SKULL) || item.isOf(ItemRegistry.RED_SKULL))
 				matrices.translate(((float)o * x) - 0.1, y + 0.4f, z - 0.4f);
+			else if(item.getItem() instanceof AbstractWeaponItem)
+			{
+				matrices.translate(((float)o * x) - 0.1, y - 0.25, z - 0.5);
+				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(25f), new Vector3f(1, 0, 0))));
+			}
+			else if (item.getItem() instanceof PlushieItem)
+			{
+				matrices.translate(((float)o * x - 0.05), y + 0.05, z - 0.15);
+				transform = false;
+			}
+			else if (item.getItem() instanceof BlockItem)
+				matrices.translate(((float)o * x) - 0.1, y + 0.15f, z - 0.2f);
+			else if(item.getItem() instanceof ToolItem)
+			{
+				matrices.translate(((float)o * x - 1.15f), y - 1.75f, z - 1f);
+				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(35f), new Vector3f(1, 0, 0))));
+				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(180f), new Vector3f(0, 0, 1))));
+			}
 			else
-				matrices.translate(((float)o * x) - 0.1, y + 0.1f, z - 0.2f);
-			applyEquipOffset(matrices, player.getMainArm().getOpposite(), 0f);
+			{
+				matrices.translate(((float)o * x) - 0.35f, y + 0.05f, z - 0.9f);
+				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(-20), new Vector3f(1, 0, 0))));
+				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(25), new Vector3f(0, 1, 0))));
+				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(15), new Vector3f(0, 0, 1))));
+				matrices.scale(0.35f, 0.35f, 0.35f);
+				transform = false;
+			}
+			applyEquipOffset(matrices, player.getMainArm().getOpposite(), item.getItem() instanceof ToolItem ? 1f - equipProgress : equipProgress);
 			applySwingOffset(matrices, player.getMainArm().getOpposite(), swing);
-			renderItem(player, item, right ? ModelTransformation.Mode.FIRST_PERSON_RIGHT_HAND : ModelTransformation.Mode.FIRST_PERSON_LEFT_HAND,
-					!right, matrices, vertexConsumers, light);
+			renderItem(player, item,
+					transform ? (right ? ModelTransformation.Mode.FIRST_PERSON_RIGHT_HAND : ModelTransformation.Mode.FIRST_PERSON_LEFT_HAND) :
+							ModelTransformation.Mode.NONE, !right, matrices, vertexConsumers, light);
 			matrices.pop();
 			ci.cancel();
 		}
