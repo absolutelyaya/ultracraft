@@ -9,7 +9,7 @@ public class DamageSources
 	
 	public static UltraDamageSource getGun(Entity source)
 	{
-		return new UltraDamageSource(Type.GUN, source);
+		return new UltraDamageSource(Type.GUN, source).setHitscan();
 	}
 	public static UltraDamageSource getShotgun(Entity source)
 	{

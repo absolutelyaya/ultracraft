@@ -66,7 +66,7 @@ public abstract class HandRendererMixin
 			else if (item.getItem() instanceof PlushieItem)
 			{
 				matrices.translate(((float)o * x - 0.05), y + 0.05, z - 0.15);
-				transform = false;
+				return;
 			}
 			else if (item.getItem() instanceof BlockItem)
 				matrices.translate(((float)o * x) - 0.1, y + 0.15f, z - 0.2f);

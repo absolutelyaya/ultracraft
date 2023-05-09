@@ -44,6 +44,8 @@ public class ExplosionHandler
 	
 	public static void explosionClient(ClientWorld world, Vec3d pos, float radius)
 	{
+		world.playSound(pos.x, pos.y, pos.z, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.NEUTRAL, Math.max(radius * 0.75f, 1f),
+				(float)(1 + (random.nextFloat() - 0.5f) * 0.1), true);
 		if(radius <= 2)
 		{
 			world.addParticle(ParticleTypes.EXPLOSION, pos.x, pos.y, pos.z, 0f, 0f, 0f);
@@ -57,7 +59,6 @@ public class ExplosionHandler
 					pos.z + (random.nextFloat() - 0.5) * 2 * (radius / 5),
 					0f, 0f, 0f);
 		}
-		world.playSound(pos.x, pos.y, pos.z, SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.NEUTRAL, radius * 0.75f, (float)(1 + (random.nextFloat() - 0.5f) * 0.1), true);
 	}
 	
 	private static void explosionServer(Entity ignored, ServerWorld world, Vec3d pos, DamageSource source, float damage, float falloff, float radius)
