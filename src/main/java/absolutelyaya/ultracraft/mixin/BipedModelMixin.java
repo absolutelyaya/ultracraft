@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.mixin;
 
+import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import com.chocohead.mm.api.ClassTinkerers;
 import net.minecraft.client.model.ModelPart;
@@ -89,16 +90,17 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AnimalMode
 		if(livingEntity.getMainHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldAim())
 		{
 			if(livingEntity.getMainArm().equals(Arm.LEFT))
-				leftArm.rotate(new Vector3f(-60f, 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE).add(new Vector3f(head.pitch, head.yaw, 0f)));
+			{
+				leftArm.resetTransform();
+				leftArm.rotate(new Vector3f(-90f - ((LivingEntityAccessor)livingEntity).getRecoil(), 0f, 0f)
+									   .mul(MathHelper.RADIANS_PER_DEGREE).add(new Vector3f(head.pitch, head.yaw * 0.6f, 0f)));
+			}
 			else
-				rightArm.rotate(new Vector3f(-60f, 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE).add(new Vector3f(head.pitch, head.yaw, 0f)));
-		}
-		if(livingEntity.getOffHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldAim())
-		{
-			if(livingEntity.getMainArm().getOpposite().equals(Arm.LEFT))
-				leftArm.rotate(new Vector3f(-60f, 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE).add(new Vector3f(head.pitch, head.yaw, 0f)));
-			else
-				rightArm.rotate(new Vector3f(-60f, 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE).add(new Vector3f(head.pitch, head.yaw, 0f)));
+			{
+				rightArm.resetTransform();
+				rightArm.rotate(new Vector3f(-90f - ((LivingEntityAccessor)livingEntity).getRecoil(), 0f, 0f)
+										.mul(MathHelper.RADIANS_PER_DEGREE).add(new Vector3f(head.pitch, head.yaw * 0.6f, 0f)));
+			}
 		}
 	}
 }

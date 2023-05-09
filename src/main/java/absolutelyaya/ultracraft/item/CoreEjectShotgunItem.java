@@ -48,7 +48,7 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 	
 	public CoreEjectShotgunItem(Settings settings)
 	{
-		super(settings);
+		super(settings, 45f);
 		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 	
@@ -61,6 +61,7 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 		dir = dir.rotateY((float)Math.toRadians(-user.getHeadYaw()));
 		if(!cdm.isUsable(this, 0) || user.getItemCooldownManager().isCoolingDown(this))
 			return;
+		super.onPrimaryFire(world, user);
 		if(!world.isClient)
 		{
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), controllerName, "shot");

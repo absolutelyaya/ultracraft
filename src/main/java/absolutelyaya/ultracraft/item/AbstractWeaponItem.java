@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.item;
 
+import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import net.minecraft.client.MinecraftClient;
@@ -12,12 +13,18 @@ import org.joml.Vector2i;
 
 public abstract class AbstractWeaponItem extends Item
 {
-	public AbstractWeaponItem(Settings settings)
+	protected final float recoil;
+	
+	public AbstractWeaponItem(Settings settings, float recoil)
 	{
 		super(settings);
+		this.recoil = recoil;
 	}
 	
-	public abstract void onPrimaryFire(World world, PlayerEntity user);
+	public void onPrimaryFire(World world, PlayerEntity user)
+	{
+		((LivingEntityAccessor)user).addRecoil(recoil);
+	}
 	
 	@Override
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)

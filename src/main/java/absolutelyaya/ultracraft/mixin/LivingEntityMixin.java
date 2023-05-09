@@ -19,6 +19,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypeFilter;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -39,7 +40,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
 	int punchTicks, punchDuration = 6;
 	boolean punching;
-	float punchProgress, prevPunchProgress;
+	float punchProgress, prevPunchProgress, recoil;
 	
 	boolean timeFrozen;
 	
@@ -54,6 +55,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		timeFrozen = Ultracraft.isTimeFrozen();
 		if(!timeFrozen || punchTicks < 2)
 			punchTick();
+		recoil = MathHelper.lerp(0.3f, recoil, 0f);
 	}
 	
 	@SuppressWarnings("EqualsBetweenInconvertibleTypes")
@@ -176,5 +178,17 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	public void SetTakePunchKnockbackSupplier(Supplier<Boolean> supplier)
 	{
 		takePunchKnockpackSupplier = supplier;
+	}
+	
+	@Override
+	public void addRecoil(float recoil)
+	{
+		this.recoil += recoil;
+	}
+	
+	@Override
+	public float getRecoil()
+	{
+		return recoil;
 	}
 }

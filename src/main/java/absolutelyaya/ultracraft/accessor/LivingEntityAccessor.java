@@ -17,4 +17,8 @@ public interface LivingEntityAccessor
 	boolean takePunchKnockback();
 	
 	void SetTakePunchKnockbackSupplier(Supplier<Boolean> supplier);
+	
+	void addRecoil(float recoil);
+	
+	float getRecoil();
 }
