@@ -6,6 +6,8 @@ import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.item.MachineSwordItem;
+import absolutelyaya.ultracraft.item.PlushieItem;
+import absolutelyaya.ultracraft.registry.ItemRegistry;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -201,7 +203,7 @@ public class UltraHudRenderer extends DrawableHelper
 	
 	boolean shouldRenderSpriteInstead(Item item)
 	{
-		return item instanceof AbstractWeaponItem || item instanceof MachineSwordItem;
+		return item instanceof AbstractWeaponItem || item instanceof MachineSwordItem || item instanceof PlushieItem;
 	}
 	
 	void drawItem(MatrixStack matrices, Matrix4f textureMatrix, MinecraftClient client, VertexConsumerProvider immediate, ItemStack stack, boolean hand)
@@ -211,10 +213,16 @@ public class UltraHudRenderer extends DrawableHelper
 		{
 			if(!hand)
 				return;
-			Vector2i uv = item instanceof AbstractWeaponItem weapon ? weapon.getHUDTexture() : new Vector2i(0, 2);
+			Vector2i uv = new Vector2i(3, 5);
+			if(item instanceof AbstractWeaponItem weapon)
+				uv = weapon.getHUDTexture();
+			else if (item.equals(ItemRegistry.MACHINE_SWORD))
+				uv = new Vector2i(0, 5);
+			else if (item instanceof PlushieItem)
+				uv = new Vector2i(3, 0);
 			RenderSystem.setShaderTexture(0, WEAPONS_TEXTURE);
 			drawTexture(textureMatrix, new Vector4f(-60f, -35f + 22.5f, 67.5f, 45f), 0f,
-					new Vec2f(96f, 96f), new Vector4f(uv.x * 48f, uv.y * 32f, 48f, 32f), 0.75f);
+					new Vec2f(192, 192), new Vector4f(uv.x * 48f, uv.y * 32f, 48f, 32f), 0.75f);
 		}
 		else
 			client.getItemRenderer().renderItem(stack, ModelTransformation.Mode.GUI,
