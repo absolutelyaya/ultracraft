@@ -76,6 +76,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			buf.writeDouble(getPos().y);
 			buf.writeDouble(getPos().z);
 			buf.writeDouble(getHeight() / 2);
+			buf.writeBoolean(source instanceof UltraDamageSource us && us.isOf(DamageSources.Type.SHOTGUN));
 			ServerPlayNetworking.send((ServerPlayerEntity)player, PacketRegistry.BLEED_PACKET_ID, buf);
 		}
 		for (PlayerEntity player : heal)

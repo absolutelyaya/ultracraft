@@ -61,13 +61,14 @@ public class ClientPacketRegistry
 			if(client.player.getPos().squaredDistanceTo(pos) < 0.1)
 				return;
 			double halfheight = buf.readDouble();
+			boolean shotgun = buf.readBoolean();
 			Random rand = client.player.getRandom();
 			for (int i = 0; i < Math.min(3 * amount, 32); i++)
 				client.player.world.addParticle(new GoopDropParticleEffect(new Vec3d(0.56, 0.09, 0.01),
 								0.6f + rand.nextFloat() * 0.4f * (amount / 10f)), pos.x, pos.y + halfheight, pos.z,
 						rand.nextDouble() - 0.5, rand.nextDouble() - 0.5, rand.nextDouble() - 0.5);
 			if(client.player.squaredDistanceTo(pos) < 10)
-				UltracraftClient.addBlood(amount / 30f);
+				UltracraftClient.addBlood(amount / (shotgun ? 5f : 30f));
 		})));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SET_HIGH_VELOCITY_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)

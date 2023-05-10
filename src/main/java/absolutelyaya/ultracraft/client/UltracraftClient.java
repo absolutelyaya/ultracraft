@@ -56,7 +56,6 @@ import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.play.WorldEventS2CPacket;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import software.bernie.geckolib.network.GeckoLibNetwork;
@@ -184,8 +183,13 @@ public class UltracraftClient implements ClientModInitializer
 			if(config.getConfig().bloodOverlay)
 			{
 				RenderSystem.enableBlend();
-				MinecraftClient.getInstance().inGameHud.renderOverlay(new Identifier(Ultracraft.MOD_ID, "textures/gui/blood_overlay.png"), screenblood);
-				screenblood = Math.max(0f, screenblood - delta / 60);
+				MinecraftClient.getInstance().inGameHud.renderOverlay(new Identifier(Ultracraft.MOD_ID, "textures/gui/blood_overlay2.png"),
+						Math.min(screenblood - 1.25f, 0.75f));
+				MinecraftClient.getInstance().inGameHud.renderOverlay(new Identifier(Ultracraft.MOD_ID, "textures/gui/blood_overlay1.png"),
+						Math.min(screenblood - 0.25f, Math.max(0.6f - Math.min(screenblood - 0.75f, 0.6f), 0f)));
+				MinecraftClient.getInstance().inGameHud.renderOverlay(new Identifier(Ultracraft.MOD_ID, "textures/gui/blood_overlay.png"),
+						Math.min(screenblood - 0.75f, 0.6f));
+				screenblood = Math.max(0f, screenblood - delta / 120);
 			}
 		});
 		
@@ -210,8 +214,7 @@ public class UltracraftClient implements ClientModInitializer
 	
 	public static void addBlood(float f)
 	{
-		if(f > 0.25)
-			screenblood = Math.min(2.5f, screenblood + f);
+		screenblood = Math.min(3.5f, screenblood + f);
 	}
 	
 	//if no Server override, return client setting
