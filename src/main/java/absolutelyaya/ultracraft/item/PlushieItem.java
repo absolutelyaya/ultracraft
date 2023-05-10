@@ -34,6 +34,7 @@ public class PlushieItem extends Item implements GeoItem
 	RawAnimation POSE_HAKITA = RawAnimation.begin().thenPlay("hakita");
 	RawAnimation POSE_SLIDE = RawAnimation.begin().thenPlay("slide");
 	RawAnimation BREAKDANCE = RawAnimation.begin().thenPlay("breakdance");
+	RawAnimation HELL_NEOW = RawAnimation.begin().thenPlay("hellneow");
 	protected Type defaultType = Type.V1;
 	
 	public PlushieItem(Settings settings)
@@ -113,11 +114,12 @@ public class PlushieItem extends Item implements GeoItem
 		{
 			case YAYA -> controller.setAnimation(POSE_SIT);
 			case HAKITA -> controller.setAnimation(POSE_HAKITA);
-			case PITR, PITRPOIN ->
+			case PITR ->
 			{
 				controller.setAnimationSpeed(2f);
 				controller.setAnimation(BREAKDANCE);
 			}
+			case PITRPOIN -> controller.setAnimation(HELL_NEOW);
 			case V1 -> controller.setAnimation(POSE_SLIDE);
 		}
 		return PlayState.CONTINUE;
