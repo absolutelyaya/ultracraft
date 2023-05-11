@@ -8,6 +8,7 @@ import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.util.Identifier;
@@ -35,7 +36,7 @@ public class ThrownMachineSwordRenderer extends EntityRenderer<ThrownMachineSwor
 		matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(entity.lastRot = MathHelper.lerp(tickDelta, entity.lastRot, rot)), 1f, 0f, 0f)));
 		matrices.translate(0f, -0.5f, 0f);
 		itemRenderer.renderItem(entity.getStack().isEmpty() ? ItemRegistry.MACHINE_SWORD.getDefaultStack() : entity.getStack(),
-				ModelTransformation.Mode.NONE, light, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, entity.getId());
+				ModelTransformationMode.NONE, light, OverlayTexture.DEFAULT_UV, matrices, vertexConsumers, entity.world, entity.getId());
 		matrices.pop();
 	}
 	

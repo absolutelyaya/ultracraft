@@ -110,7 +110,6 @@ public class TrailRenderer
 		VertexConsumer consumer = immediate.getBuffer(RenderLayers.getLightTrail());
 		RenderSystem.enableBlend();
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		RenderSystem.disableTexture();
 		Pair<Vector3f, Vector3f> last = null;
 		Vector3f normal = client.getCameraEntity().getRotationVector().multiply(-1f).toVector3f();
 		for (int i = trail.size() - 1; i >= 0; i--)

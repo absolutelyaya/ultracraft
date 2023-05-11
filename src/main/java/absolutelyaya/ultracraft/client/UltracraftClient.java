@@ -15,7 +15,7 @@ import absolutelyaya.ultracraft.client.rendering.entity.feature.WingsModel;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.SchismRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.StrayRenderer;
-import absolutelyaya.ultracraft.client.rendering.entity.machine.SwordmachineRenderer;
+import absolutelyaya.ultracraft.client.rendering.entity.machine.SwordsmachineRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.other.InterruptableChargeModel;
 import absolutelyaya.ultracraft.client.rendering.entity.other.InterruptableChargeRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.other.ShockwaveModel;
@@ -93,7 +93,7 @@ public class UltracraftClient implements ClientModInitializer
 		EntityRendererRegistry.register(EntityRegistry.SCHISM, SchismRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.MALICIOUS_FACE, MaliciousFaceRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.CERBERUS, CerberusRenderer::new);
-		EntityRendererRegistry.register(EntityRegistry.SWORDMACHINE, SwordmachineRenderer::new);
+		EntityRendererRegistry.register(EntityRegistry.SWORDSMACHINE, SwordsmachineRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.HELL_BULLET, HellBulletRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.CERBERUS_BALL, CerberusBallRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.SHOTGUN_PELLET, ShotgunPelletRenderer::new);
@@ -183,11 +183,11 @@ public class UltracraftClient implements ClientModInitializer
 			if(config.getConfig().bloodOverlay)
 			{
 				RenderSystem.enableBlend();
-				MinecraftClient.getInstance().inGameHud.renderOverlay(new Identifier(Ultracraft.MOD_ID, "textures/gui/blood_overlay2.png"),
+				MinecraftClient.getInstance().inGameHud.renderOverlay(matrices, new Identifier(Ultracraft.MOD_ID, "textures/gui/blood_overlay2.png"),
 						Math.min(screenblood - 1.25f, 0.75f));
-				MinecraftClient.getInstance().inGameHud.renderOverlay(new Identifier(Ultracraft.MOD_ID, "textures/gui/blood_overlay1.png"),
+				MinecraftClient.getInstance().inGameHud.renderOverlay(matrices, new Identifier(Ultracraft.MOD_ID, "textures/gui/blood_overlay1.png"),
 						Math.min(screenblood - 0.25f, Math.max(0.6f - Math.min(screenblood - 0.75f, 0.6f), 0f)));
-				MinecraftClient.getInstance().inGameHud.renderOverlay(new Identifier(Ultracraft.MOD_ID, "textures/gui/blood_overlay.png"),
+				MinecraftClient.getInstance().inGameHud.renderOverlay(matrices, new Identifier(Ultracraft.MOD_ID, "textures/gui/blood_overlay.png"),
 						Math.min(screenblood - 0.75f, 0.6f));
 				screenblood = Math.max(0f, screenblood - delta / 120);
 			}

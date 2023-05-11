@@ -39,7 +39,7 @@ public class IntroOverlay extends Overlay
 				StringVisitable.plain(Text.translatable("intro.ultracraft.status",
 						MinecraftClient.getInstance().getSession().getUsername()).getString()), width);
 		for (int i = 0; i < lines.size(); i++)
-			drawWithShadow(matrices, textRenderer, lines.get(i), 32, 32 + i * (textRenderer.fontHeight + 2),
+			textRenderer.drawWithShadow(matrices, lines.get(i), 32, 32 + i * (textRenderer.fontHeight + 2),
 					new Color(1f, 1f, 1f, MathHelper.clamp(alpha, 0.05f, 1f)).getRGB());
 		alpha -= 1f / 120f;
 		if(alpha <= 0f)

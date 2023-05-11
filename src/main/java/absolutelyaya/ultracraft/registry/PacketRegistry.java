@@ -13,7 +13,6 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
@@ -80,7 +79,7 @@ public class PacketRegistry
 					if (target instanceof MeleeInterruptable mp && (!(mp instanceof MobEntity) || ((MobEntity)mp).isAttacking()))
 					{
 						Ultracraft.freeze((ServerWorld) player.world, 10);
-						target.damage(DamageSources.getInterrupted(player), 6);
+						target.damage(DamageSources.get(world, DamageSources.INTERRUPT, player), 6);
 						mp.onInterrupt(player);
 						world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
 						player.heal(4);
@@ -88,7 +87,7 @@ public class PacketRegistry
 					else
 					{
 						world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.75f, 0.5f);
-						target.damage(DamageSource.mob(player), 1);
+						target.damage(world.getDamageSources().mobAttack(player), 1);
 					}
 					boolean fatal = !target.isAlive();
 					Vec3d vel = forward.multiply(fatal ? 1.5f : 0.75f);

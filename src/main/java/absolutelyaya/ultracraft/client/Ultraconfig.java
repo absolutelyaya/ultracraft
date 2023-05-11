@@ -43,6 +43,7 @@ public class Ultraconfig implements ConfigData
 	@ConfigEntry.Category("debug")
 	@ConfigEntry.Gui.Tooltip
 	public boolean trailLines = false;
+	public boolean repeatIntro = false;
 	
 	@ConfigEntry.Gui.Excluded
 	public String lastVersion = "none";

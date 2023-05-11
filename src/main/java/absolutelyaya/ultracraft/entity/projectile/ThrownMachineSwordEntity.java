@@ -3,7 +3,7 @@ package absolutelyaya.ultracraft.entity.projectile;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.client.UltracraftClient;
-import absolutelyaya.ultracraft.entity.machine.SwordmachineEntity;
+import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
@@ -156,20 +156,20 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 				return;
 			if(isOwnerAlive())
 			{
-				if(getOwner() instanceof SwordmachineEntity sm)
+				if(getOwner() instanceof SwordsmachineEntity sm)
 				{
 					sm.setHasSword(true);
 					if(isParried())
 					{
 						sm.onInterrupt(parrier);
-						sm.damage(DamageSources.getParriedProjectile(parrier), 12);
+						sm.damage(DamageSources.get(world, DamageSources.PARRY, parrier), 12);
 					}
 				}
 				if(getOwner() instanceof PlayerEntity p && tryPickup(p))
 				{
 					p.giveItemStack(dataTracker.get(SWORD));
 					if(isParried())
-						p.damage(DamageSources.getParriedProjectile(parrier), 12);
+						p.damage(DamageSources.get(world, DamageSources.PARRY, parrier), 12);
 				}
 				discard();
 			}
@@ -211,7 +211,7 @@ public class ThrownMachineSwordEntity extends PersistentProjectileEntity impleme
 			onPlayerCollision(p);
 		if(!isOwner(hit))
 		{
-			if(hit.damage(DamageSources.getSwordmachine(getOwner()), 6) && getOwner() instanceof PlayerEntity playerOwner)
+			if(hit.damage(DamageSources.get(world, DamageSources.SWORDSMACHINE, getOwner()), 6) && getOwner() instanceof PlayerEntity playerOwner)
 				playerOwner.playSound(SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 0.5f, hitNoisePitch += 0.05);
 		}
 	}

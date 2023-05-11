@@ -15,8 +15,8 @@ import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.sound.MusicType;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.resource.ResourceReload;
 import net.minecraft.sound.MusicSound;
 import net.minecraft.text.Text;
@@ -45,7 +45,7 @@ public abstract class MinecraftClientMixin
 	
 	@Shadow @Nullable public ClientPlayerInteractionManager interactionManager;
 	
-	@Redirect(method = "handleInputEvents()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V"))
+	@Redirect(method = "handleInputEvents()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/packet/Packet;)V"))
 	void OnHandSwap(ClientPlayNetworkHandler networkHandler, Packet<?> packet)
 	{
 		if(world != null && !UltracraftClient.isHandSwapEnabled())
@@ -122,7 +122,10 @@ public abstract class MinecraftClientMixin
 	{
 		resourceReload.whenComplete().thenRun(() -> {
 			if(IntroScreen.INSTANCE != null)
+			{
 				IntroScreen.INSTANCE.resourceLoadFinished();
+				IntroScreen.RESOURCES_LOADED = true;
+			}
 		});
 		return resourceReload;
 	}

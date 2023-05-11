@@ -5,7 +5,6 @@ import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
-import absolutelyaya.ultracraft.damage.UltraDamageSource;
 import absolutelyaya.ultracraft.entity.AbstractUltraFlyingEntity;
 import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
@@ -22,6 +21,7 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -32,6 +32,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -124,7 +125,8 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 			{
 				float x = (float)((random.nextDouble() * 16) - 8 + getX());
 				float z = (float)((random.nextDouble() * 16) - 8 + getZ());
-				world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, world.getBlockState(new BlockPos(getX(), getY() - 2, getZ()))),
+				world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK,
+						world.getBlockState(new BlockPos((int)getX(), (int)getY() - 2, (int)getZ()))),
 						x, getY(), z, 0f, 0f, 0f);
 			}
 		}
@@ -259,20 +261,15 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
-		if(source instanceof UltraDamageSource us)
-		{
-			if(!world.isClient)
-				System.out.println(us.isExplosive() + " - " + source.getName() + " - " + amount + " => " + getHealth());
-			if(us.isExplosive())
-				return false;
-			if(us.isOf(DamageSources.Type.POUND))
-				amount *= 2;
-		}
+		if(source.isIn(DamageTypeTags.IS_EXPLOSION))
+			return false;
+		if(source.isOf(DamageSources.POUND))
+			amount *= 2;
 		if(dataTracker.get(DEAD))
 		{
-			if(source.equals(DamageSource.STARVE)) //starve because there's no way this damage would occur accidentally
+			if(source.isOf(DamageTypes.STARVE)) //starve because there's no way this damage would occur accidentally
 				setHealth(0);
-			if(source instanceof UltraDamageSource us && us.isOf(DamageSources.Type.POUND))
+			if(source.isOf(DamageSources.POUND))
 			{
 				setHealth(0);
 				for (int i = 0; i < 32; i++)
@@ -286,7 +283,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 			}
 			return false;
 		}
-		if(source.equals(DamageSource.FALL))
+		if(source.isOf(DamageTypes.FALL))
 			return false;
 		if(getHealth() - amount <= 0f && !dataTracker.get(DEAD))
 		{
@@ -324,7 +321,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 			}
 			List<Entity> entities = world.getOtherEntities(this, getBoundingBox(), Entity::isLiving);
 			for (Entity e : entities)
-				e.damage(DamageSources.MAURICE, 999f);
+				e.damage(DamageSources.get(world, DamageSources.MAURICE), 999f);
 			dataTracker.set(LANDED, true);
 			setPosition(getPos().subtract(0f, 0.5f, 0f));
 		}
@@ -333,7 +330,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	@Override
 	public void kill()
 	{
-		damage(DamageSource.STARVE, Float.MAX_VALUE);
+		damage(DamageSources.get(world, DamageTypes.STARVE), Float.MAX_VALUE);
 	}
 	
 	@Override
@@ -432,8 +429,8 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	{
 		if(!world.isClient && getServer() != null)
 			getServer().execute(() -> ExplosionHandler.explosion(parrier, world, new Vec3d(getX(), getY(), getZ()),
-					DamageSources.getExplosion(parrier), 10f, 0f, 5.5f));
-		damage(DamageSource.mob(parrier), 10);
+					getDamageSources().explosion(parrier, parrier), 10f, 0f, 5.5f));
+		damage(getDamageSources().mobAttack(parrier), 10);
 		dataTracker.set(WAS_INTERRUPTED, true);
 	}
 	

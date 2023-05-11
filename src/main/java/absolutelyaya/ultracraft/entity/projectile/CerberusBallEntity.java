@@ -2,7 +2,6 @@ package absolutelyaya.ultracraft.entity.projectile;
 
 import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
-import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.entity.EntityType;
@@ -29,7 +28,7 @@ public class CerberusBallEntity extends HellBulletEntity implements ProjectileEn
 	protected void onCollision(HitResult hitResult)
 	{
 		super.onCollision(hitResult);
-		ExplosionHandler.explosion(null, world, hitResult.getPos(), DamageSources.getExplosion(getOwner()), 4f, 0f, 2f);
+		ExplosionHandler.explosion(null, world, hitResult.getPos(), getDamageSources().explosion(this, getOwner()), 4f, 0f, 2f);
 	}
 	
 	public static CerberusBallEntity spawn(LivingEntity owner, World world)

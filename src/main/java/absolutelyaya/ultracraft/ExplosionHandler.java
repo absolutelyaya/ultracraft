@@ -66,7 +66,7 @@ public class ExplosionHandler
 		Box box = new Box(pos.subtract(radius, radius, radius), pos.add(radius, radius, radius));
 		world.getOtherEntities(ignored, box, Entity::isLiving).forEach(e -> {
 			float normalizedDistance = (float)e.squaredDistanceTo(pos) / (radius * radius);
-			e.damage(source.setBypassesProtection().setBypassesArmor().setUnblockable(), MathHelper.lerp(normalizedDistance, damage, Math.max(damage - falloff, 0f)));
+			e.damage(source, MathHelper.lerp(normalizedDistance, damage, Math.max(damage - falloff, 0f)));
 			if(!(e instanceof PlayerEntity))
 				e.setOnFireFor(10);
 			if(e instanceof LivingEntityAccessor living && !living.takePunchKnockback())

@@ -144,7 +144,8 @@ public abstract class SurfaceAlignedParticle extends SpriteBillboardParticle
 					faceCenter.add(modVerts[3]);
 					faceCenter.multiply(0.25f);
 					
-					BlockPos pos = new BlockPos(camPos.add(faceCenter));
+					Vec3d v = camPos.add(faceCenter);
+					BlockPos pos = new BlockPos((int)v.x, (int)v.y, (int)v.z);
 					render = !world.isAir(pos.down()) && !world.getBlockState(pos).isSolidBlock(world, pos);
 					if(!render)
 						faceShouldRender.set(vi, false); //so faces don't reappear after being removed
@@ -160,7 +161,7 @@ public abstract class SurfaceAlignedParticle extends SpriteBillboardParticle
 					{
 						Vec3d mv = modVerts[i];
 						mv = mv.add(camPos);
-						BlockPos vpos = new BlockPos(mv);
+						BlockPos vpos = new BlockPos((int)mv.x, (int)mv.y, (int)mv.z);
 						if((world.isAir(vpos.down()) || world.getBlockState(pos).isSolidBlock(world, pos)) && targetSize >= 2)
 							mv = moveToBlockEdge(mv);
 						modVerts[i] = mv.subtract(camPos);
@@ -213,8 +214,8 @@ public abstract class SurfaceAlignedParticle extends SpriteBillboardParticle
 	public void tick()
 	{
 		super.tick();
-		if(world.getBlockState(new BlockPos(x - dir.getX(), y - dir.getY(), z - dir.getZ())).isAir() ||
-				   !world.getBlockState(new BlockPos(x, y, z)).isAir())
+		if(world.getBlockState(new BlockPos((int)(x - dir.getX()), (int)(y - dir.getY()), (int)(z - dir.getZ()))).isAir() ||
+				   !world.getBlockState(new BlockPos((int)x, (int)y, (int)z)).isAir())
 			markDead();
 		deformation = (float)age / maxAge;
 	}

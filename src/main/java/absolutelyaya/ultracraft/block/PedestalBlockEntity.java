@@ -9,11 +9,10 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.network.Packet;
 import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.util.math.BlockPos;
-import org.jetbrains.annotations.Nullable;
 
 public class PedestalBlockEntity extends BlockEntity
 {
@@ -59,12 +58,11 @@ public class PedestalBlockEntity extends BlockEntity
 	public void readNbt(NbtCompound nbt)
 	{
 		super.readNbt(nbt);
-		System.out.println("read -> " + nbt);
 		if (nbt.contains("holding", 10))
 			stack = ItemStack.fromNbt(nbt.getCompound("holding"));
 		else
 			stack = ItemStack.EMPTY;
-		if(nbt.contains("type", NbtElement.STRING_TYPE))
+		if(nbt.contains("type", NbtElement.STRING_TYPE) && world != null)
 		{
 			type = nbt.getString("type");
 			world.setBlockState(getPos(), getCachedState().with(PedestalBlock.TYPE, PedestalBlock.Type.valueOf(type.toUpperCase())));
@@ -73,7 +71,6 @@ public class PedestalBlockEntity extends BlockEntity
 			type = "none";
 	}
 	
-	@Nullable
 	@Override
 	public Packet<ClientPlayPacketListener> toUpdatePacket()
 	{
@@ -91,7 +88,7 @@ public class PedestalBlockEntity extends BlockEntity
 		super.writeNbt(nbt);
 		nbt.put("holding", getStack().writeNbt(new NbtCompound()));
 		nbt.putString("type", getCachedState().get(PedestalBlock.TYPE).name);
-		System.out.println("write -> " + nbt);
+		nbt.putBoolean("fancy", getCachedState().get(PedestalBlock.FANCY));
 	}
 	
 	public ItemStack getStack()

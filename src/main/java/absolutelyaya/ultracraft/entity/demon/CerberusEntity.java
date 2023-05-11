@@ -55,7 +55,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 	public CerberusEntity(EntityType<? extends AbstractUltraHostileEntity> entityType, World world)
 	{
 		super(entityType, world);
-		stepHeight = 1f;
+		setStepHeight(1f);
 		((LivingEntityAccessor)this).SetTakePunchKnockbackSupplier(() -> false); //disable knockback
 	}
 	
@@ -377,7 +377,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 			{
 				mob.world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), mob.getBoundingBox().expand(0.2), p -> true)
 						.forEach(p -> {
-							p.damage(DamageSource.mob(mob), 8f);
+							p.damage(mob.getDamageSources().mobAttack(mob), 8f);
 							p.setVelocity(ramDir.multiply(3).add(0.0, 0.5, 0.0));
 						});
 				Vec3d lookPos = mob.getPos().add(ramDir.multiply(10));

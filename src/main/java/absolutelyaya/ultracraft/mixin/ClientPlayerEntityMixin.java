@@ -19,6 +19,7 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.shape.VoxelShape;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -49,8 +50,6 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	
 	@Shadow private boolean lastSneaking;
 	
-	@Shadow public abstract void setSprinting(boolean sprinting);
-	
 	@Shadow @Final public ClientPlayNetworkHandler networkHandler;
 	@Shadow private double lastBaseY;
 	@Shadow private int ticksSinceLastPositionPacketSent;
@@ -58,7 +57,6 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Shadow private boolean lastOnGround;
 	@Shadow private boolean autoJumpEnabled;
 	@Shadow @Final protected MinecraftClient client;
-	@Shadow public int ticksSinceSprintingChanged;
 	
 	@Shadow protected abstract void sendSprintingPacket();
 	
@@ -73,7 +71,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	int groundPoundTicks, ticksSinceLastGroundPound = -1, slideTicks, wallJumps = 3;
 	float slideVelocity, baseJumpVel = 0.42f;
 	
-	@Inject(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/Packet;)V", ordinal = 0), cancellable = true)
+	@Inject(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/packet/Packet;)V", ordinal = 0), cancellable = true)
 	public void onSendSneakChangedPacket(CallbackInfo ci)
 	{
 		WingedPlayerEntity winged = this;
@@ -128,7 +126,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			if(client.options.sprintKey.isPressed() && !lastSprintPressed && !groundPounding)
 			{
 				//start ground pound
-				if(isUnSolid(world.getBlockState(new BlockPos(getPos().subtract(0f, 0.99f, 0f)))) && !verticalCollision && !getAbilities().flying)
+				if(isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.99f, 0f)))) && !verticalCollision && !getAbilities().flying)
 				{
 					groundPoundTicks = 0;
 					groundPounding = true;
@@ -137,8 +135,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				//start slide
 				else if(!horizontalCollision && !jumping && !isDashing() && !wasDashing(2))
 				{
-					BlockPos pos = new BlockPos(getPos().add(Vec3d.fromPolar(0f, getYaw()).normalize()));
-					setSliding((!isUnSolid(world.getBlockState(new BlockPos(getPos().subtract(0f, 0.79f, 0f)))) || verticalCollision) &&
+					BlockPos pos = posToBlock(getPos().add(Vec3d.fromPolar(0f, getYaw()).normalize()));
+					setSliding((!isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.79f, 0f)))) || verticalCollision) &&
 										 !world.getBlockState(pos).isSolidBlock(world, pos), lastSprintPressed);
 				}
 				//cancel slide because it shouldn't be possible rn anyways
@@ -157,7 +155,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				}
 				setSprinting(client.options.sprintKey.isPressed() && !groundPounding && !horizontalCollision && !jumping);
 				slideTicks++;
-				if(isUnSolid(world.getBlockState(new BlockPos(getPos().subtract(0f, 0.25f, 0f)))))
+				if(isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.25f, 0f)))))
 					slideTicks = 0;
 				ci.cancel();
 			}
@@ -170,7 +168,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				ci.cancel();
 			}
 			//skip on liquids
-			if(isSprinting() && !lastTouchedWater && world.getBlockState(new BlockPos(getPos().subtract(0f, 0.1, 0f))).getBlock() instanceof FluidBlock)
+			if(isSprinting() && !lastTouchedWater && world.getBlockState(posToBlock(getPos().subtract(0f, 0.1, 0f))).getBlock() instanceof FluidBlock)
 			{
 				Vec3d vel = getVelocity();
 				setVelocity(new Vec3d(vel.x, Math.max(baseJumpVel / 2f, vel.y * -0.75), vel.z));
@@ -206,7 +204,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			{
 				setVelocity(dashDir);
 				//dash jump (preserves velocity)
-				if(jumping && !lastJumping && !isUnSolid(world.getBlockState(new BlockPos(getPos().subtract(0f, 0.49f, 0f)))))
+				if(jumping && !lastJumping && !isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.49f, 0f)))))
 				{
 					winged.onDashJump();
 					if(!winged.consumeStamina())
@@ -227,7 +225,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				ci.cancel();
 			}
 			//stop ignoring slowdown when not sliding/dashing and on ground
-			if((verticalCollision && !isUnSolid(world.getBlockState(new BlockPos(getPos().subtract(0f, 0.1f, 0f))))) &&
+			if((verticalCollision && !isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.1f, 0f))))) &&
 					   !isSprinting() && shouldIgnoreSlowdown() && !isDashing())
 				setIgnoreSlowdown(false);
 			//reset walljumps upon landing
@@ -238,14 +236,14 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			ArrayList<VoxelShape> touchingWalls = new ArrayList<>(StreamSupport.stream(temp.spliterator(), false).toList());
 			temp = world.getBlockCollisions(this, getBoundingBox().expand(0f, 0, 0.1f));
 			touchingWalls.addAll(StreamSupport.stream(temp.spliterator(), false).toList());
-			if(!groundPounding && touchingWalls.size() > 0 && isUnSolid(world.getBlockState(new BlockPos(getPos().subtract(0f, 0.2f, 0f)))))
+			if(!groundPounding && touchingWalls.size() > 0 && isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.2f, 0f)))))
 			{
 				Vec3d vel = getVelocity();
 				setVelocity(new Vec3d(vel.x, Math.max(vel.y, -0.2), vel.z));
 				ci.cancel();
 			}
 			//wall jump
-			if(wallJumps > 0 && isUnSolid(world.getBlockState(new BlockPos(getPos().subtract(0f, 0.5f, 0f)))) &&
+			if(wallJumps > 0 && isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.5f, 0f)))) &&
 					   jumping && !lastJumping && !lastOnGround && touchingWalls.size() > 0 && (UltracraftClient.isSlamStorageEnabled() || !groundPounding))
 			{
 				Vec3d vel = new Vec3d(0, 0, 0);
@@ -285,7 +283,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				ticksSinceLastPositionPacketSent = 0;
 				lastYaw = getYaw();
 				autoJumpEnabled = client.options.getAutoJump().getValue();
-				lastTouchedWater = world.getBlockState(new BlockPos(getPos().subtract(0f, 0.1, 0f))).getBlock() instanceof FluidBlock;
+				lastTouchedWater = world.getBlockState(posToBlock(getPos().subtract(0f, 0.1, 0f))).getBlock() instanceof FluidBlock;
 				if(lastGroundPounding != groundPounding)
 				{
 					boolean strong = client.options.sprintKey.isPressed() && consumeStamina();
@@ -321,7 +319,6 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		this.setFlag(3, sliding); //sprinting flag
 		if(sliding && !last)
 			slideDir = Vec3d.fromPolar(0f, getYaw()).normalize();
-		ticksSinceSprintingChanged = 0;
 		slideVelocity = Math.max(0.33f, (float)getVelocity().multiply(1.2f, 0f, 1.2f).length());
 		slideTicks = 0;
 	}
@@ -355,14 +352,12 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			setWingAnimTime(getWingAnimTime() + MinecraftClient.getInstance().getTickDelta());
 	}
 	
-	@Inject(method = "setSprinting", at = @At(value = "HEAD"), cancellable = true)
-	public void onSetSprinting(boolean sprinting, CallbackInfo ci)
+	@Override
+	public void setSprinting(boolean sprinting)
 	{
 		if(UltracraftClient.isHiVelEnabled() && isSprinting() != sprinting)
-		{
 			setSliding(sprinting, lastSprinting);
-			ci.cancel();
-		}
+		super.setSprinting(sprinting);
 	}
 	
 	@Inject(method = "canSprint", at = @At(value = "HEAD"), cancellable = true)
@@ -383,5 +378,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	public Vec3d getSlideDir()
 	{
 		return slideDir;
+	}
+	
+	BlockPos posToBlock(Vec3d vec)
+	{
+		return new BlockPos(new Vec3i((int)vec.x, (int)vec.y, (int)vec.z));
 	}
 }

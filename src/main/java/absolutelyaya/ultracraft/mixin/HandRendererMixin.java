@@ -8,7 +8,7 @@ import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
-import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.BlockItem;
@@ -31,7 +31,7 @@ public abstract class HandRendererMixin
 {
 	@Shadow protected abstract void renderArmHoldingItem(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, float equipProgress, float swingProgress, Arm arm);
 	
-	@Shadow public abstract void renderItem(LivingEntity entity, ItemStack stack, ModelTransformation.Mode renderMode, boolean leftHanded, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light);
+	@Shadow public abstract void renderItem(LivingEntity entity, ItemStack stack, ModelTransformationMode renderMode, boolean leftHanded, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light);
 	
 	@Shadow protected abstract void applyEquipOffset(MatrixStack matrices, Arm arm, float equipProgress);
 	
@@ -88,8 +88,8 @@ public abstract class HandRendererMixin
 			applyEquipOffset(matrices, player.getMainArm().getOpposite(), item.getItem() instanceof ToolItem ? 1f - equipProgress : equipProgress);
 			applySwingOffset(matrices, player.getMainArm().getOpposite(), swing);
 			renderItem(player, item,
-					transform ? (right ? ModelTransformation.Mode.FIRST_PERSON_RIGHT_HAND : ModelTransformation.Mode.FIRST_PERSON_LEFT_HAND) :
-							ModelTransformation.Mode.NONE, !right, matrices, vertexConsumers, light);
+					transform ? (right ? ModelTransformationMode.FIRST_PERSON_RIGHT_HAND : ModelTransformationMode.FIRST_PERSON_LEFT_HAND) :
+							ModelTransformationMode.NONE, !right, matrices, vertexConsumers, light);
 			matrices.pop();
 			ci.cancel();
 		}

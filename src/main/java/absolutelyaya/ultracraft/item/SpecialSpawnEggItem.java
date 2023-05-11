@@ -42,12 +42,12 @@ public class SpecialSpawnEggItem extends SpawnEggItem
 	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context)
 	{
 		super.appendTooltip(stack, world, tooltip, context);
-		if (stack.getNbt() != null && stack.getNbt().getString("realname").equals("item.ultracraft.swordmachine_spawn_egg.special") &&
-					((SpawnEggItem)stack.getItem()).getEntityType(stack.getNbt()).equals(EntityRegistry.SWORDMACHINE))
+		if (stack.getNbt() != null && stack.getNbt().getString("realname").equals("item.ultracraft.swordsmachine_spawn_egg.special") &&
+					((SpawnEggItem)stack.getItem()).getEntityType(stack.getNbt()).equals(EntityRegistry.SWORDSMACHINE))
 		{
-			tooltip.add(Text.translatable("item.ultracraft.swordmachine_spawn_egg.special.lore"));
+			tooltip.add(Text.translatable("item.ultracraft.swordsmachine_spawn_egg.special.lore"));
 			if (context.isAdvanced())
-				tooltip.add(Text.translatable("item.ultracraft.swordmachine_spawn_egg.special.hiddenlore"));
+				tooltip.add(Text.translatable("item.ultracraft.swordsmachine_spawn_egg.special.hiddenlore"));
 		}
 	}
 }

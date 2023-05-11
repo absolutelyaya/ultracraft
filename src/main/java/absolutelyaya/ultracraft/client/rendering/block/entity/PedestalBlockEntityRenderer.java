@@ -12,7 +12,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.*;
 import org.joml.AxisAngle4f;
@@ -40,7 +40,7 @@ public class PedestalBlockEntityRenderer implements BlockEntityRenderer<Pedestal
 			if(entity.isFancy())
 				applyFloatTransformation(matrices);
 			applyCustomTransformations(stack.getItem(), matrices);
-			renderer.renderItem(stack, ModelTransformation.Mode.FIXED, light, overlay, matrices, vertexConsumers, 0);
+			renderer.renderItem(stack, ModelTransformationMode.FIXED, light, overlay, matrices, vertexConsumers, entity.getWorld(), 0);
 			matrices.pop();
 		}
 	}

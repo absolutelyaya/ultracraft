@@ -112,8 +112,8 @@ public class ClientPacketRegistry
 			{
 				float x = (float)((random.nextDouble() * 6) - 3 + player.getX());
 				float z = (float)((random.nextDouble() * 6) - 3 + player.getZ());
-				player.world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, player.world.getBlockState(new BlockPos(player.getX(),
-						player.getY() - 0.1, player.getZ()))), x, player.getY() + 0.1, z, 0f, 1f, 0f);
+				player.world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, player.world.getBlockState(new BlockPos((int)player.getX(),
+						(int)(player.getY() - 0.1), (int)player.getZ()))), x, player.getY() + 0.1, z, 0f, 1f, 0f);
 			}
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.EXPLOSION_PACKET_ID, (((client, handler, buf, responseSender) -> {

@@ -1,0 +1,15 @@
+{
+  "replace": false,
+  "values": [
+    "ultracraft:maurice",
+    "ultracraft:gun",
+    "ultracraft:shotgun",
+    "ultracraft:shockwave",
+    "ultracraft:swordsmachine",
+    "ultracraft:groundpound",
+    "ultracraft:parry",
+    "ultracraft:parry_collateral",
+    "ultracraft:interrupt",
+    "ultracraft:projectile_boost"
+  ]
+}

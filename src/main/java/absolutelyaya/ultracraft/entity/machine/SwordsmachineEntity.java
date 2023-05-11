@@ -6,7 +6,6 @@ import absolutelyaya.ultracraft.accessor.ITrailEnjoyer;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
 import absolutelyaya.ultracraft.client.UltracraftClient;
-import absolutelyaya.ultracraft.damage.UltraDamageSource;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.husk.AbstractHuskEntity;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
@@ -71,7 +70,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class SwordmachineEntity extends AbstractUltraHostileEntity implements GeoEntity, MeleeInterruptable, Enrageable, ITrailEnjoyer
+public class SwordsmachineEntity extends AbstractUltraHostileEntity implements GeoEntity, MeleeInterruptable, Enrageable, ITrailEnjoyer
 {
 	private final ServerBossBar bossBar = new ServerBossBar(this.getDisplayName(), BossBar.Color.RED, BossBar.Style.PROGRESS);
 	private static final Vector4f trailColor = new Vector4f(1f, 0.5f, 0f, 0.6f);
@@ -88,18 +87,18 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	private static final RawAnimation COMBO_ANIM = RawAnimation.begin().thenPlay("combo");
 	private static final RawAnimation SPIN_ANIM = RawAnimation.begin().thenPlay("spin");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-	protected static final TrackedData<ItemStack> SWORD_STACK = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
-	protected static final TrackedData<Boolean> HAS_SHOTGUN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-	protected static final TrackedData<Boolean> HAS_SWORD = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-	protected static final TrackedData<Boolean> BLASTING = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-	protected static final TrackedData<Byte> CURRENT_ATTACK = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.BYTE);
-	protected static final TrackedData<Integer> ENRAGED_TICKS = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
-	protected static final TrackedData<Integer> BREAKDOWN_TICKS = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
-	protected static final TrackedData<Integer> MAX_STAMINA = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
-	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
-	protected static final TrackedData<Integer> BLAST_COOLDOWN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
-	protected static final TrackedData<Integer> THROW_COOLDOWN = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
-	protected static final TrackedData<Optional<UUID>> LAST_TRAIL_ID = DataTracker.registerData(SwordmachineEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
+	protected static final TrackedData<ItemStack> SWORD_STACK = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
+	protected static final TrackedData<Boolean> HAS_SHOTGUN = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Boolean> HAS_SWORD = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Boolean> BLASTING = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Byte> CURRENT_ATTACK = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.BYTE);
+	protected static final TrackedData<Integer> ENRAGED_TICKS = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Integer> BREAKDOWN_TICKS = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Integer> MAX_STAMINA = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Integer> BLAST_COOLDOWN = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Integer> THROW_COOLDOWN = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Optional<UUID>> LAST_TRAIL_ID = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
 	private static final byte ANIMATION_IDLE = 0;
 	private static final byte ANIMATION_LOOK = 1;
 	private static final byte ANIMATION_BREAKDOWN = 2;
@@ -111,7 +110,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	private final Multimap<EntityAttribute, EntityAttributeModifier> enragedModifiers;
 	int lastTrailStart = -1;
 	
-	public SwordmachineEntity(EntityType<? extends HostileEntity> entityType, World world)
+	public SwordsmachineEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
 		super(entityType, world);
 		((LivingEntityAccessor)this).SetTakePunchKnockbackSupplier(() -> false); //disable knockback
@@ -274,7 +273,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	{
 		super.readCustomDataFromNbt(nbt);
 		if (hasCustomName())
-			bossBar.setName(Text.translatable("entity.ultracraft.swordmachine-named", getDisplayName()));
+			bossBar.setName(Text.translatable("entity.ultracraft.swordsmachine-named", getDisplayName()));
 		if(nbt.contains("shotgun", NbtElement.BYTE_TYPE))
 			dataTracker.set(HAS_SHOTGUN, nbt.getBoolean("shotgun"));
 		if(nbt.contains("sword", NbtElement.BYTE_TYPE))
@@ -285,7 +284,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	public void setCustomName(@Nullable Text name)
 	{
 		super.setCustomName(name);
-		bossBar.setName(Text.translatable("entity.ultracraft.swordmachine-named", getDisplayName()));
+		bossBar.setName(Text.translatable("entity.ultracraft.swordsmachine-named", getDisplayName()));
 	}
 	
 	@Override
@@ -322,13 +321,10 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
-		if(source instanceof UltraDamageSource us)
-		{
-			if(us.isOf(DamageSources.Type.PROJBOOST))
-				amount *= 2.25;
-			else if(us.isOf(DamageSources.Type.SHOTGUN))
-				amount *= 1.5;
-		}
+		if(source.isOf(DamageSources.PROJBOOST))
+			amount *= 2.25;
+		else if(source.isOf(DamageSources.SHOTGUN))
+			amount *= 1.5;
 		boolean b = super.damage(source, amount);
 		bossBar.setPercent(getHealth() / getMaxHealth());
 		if(dataTracker.get(HAS_SHOTGUN) && getHealth() < 75)
@@ -340,7 +336,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 			Advancement advancement = world.getServer().getAdvancementLoader().get(new Identifier(Ultracraft.MOD_ID, "shotgun_get"));
 			if(source.getAttacker() instanceof ServerPlayerEntity p && !p.getAdvancementTracker().getProgress(advancement).isDone())
 			{
-				LootTable lootTable = world.getServer().getLootManager().getTable(new Identifier(Ultracraft.MOD_ID, "entities/swordmachine_breakdown"));
+				LootTable lootTable = world.getServer().getLootManager().getTable(new Identifier(Ultracraft.MOD_ID, "entities/swordsmachine_breakdown"));
 				LootContext.Builder builder = getLootContextBuilder(source.getAttacker() instanceof PlayerEntity, source);
 				lootTable.generateLoot(builder.build(LootContextTypes.ENTITY), this::dropStack);
 				for (String string : p.getAdvancementTracker().getProgress(advancement).getUnobtainedCriteria())
@@ -353,7 +349,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	@Override
 	protected Identifier getLootTableId()
 	{
-		return new Identifier(Ultracraft.MOD_ID, "entities/swordmachine_death");
+		return new Identifier(Ultracraft.MOD_ID, "entities/swordsmachine_death");
 	}
 	
 	private void enrage()
@@ -457,7 +453,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 				yield new Pair<>(left, right);
 			}
 			default -> {
-				Ultracraft.LOGGER.warn("Invalid Attack type for Trail on Swordmachine [" + uuid + "]. Discarding Trail");
+				Ultracraft.LOGGER.warn("Invalid Attack type for Trail on Swordsmachine [" + uuid + "]. Discarding Trail");
 				yield null;
 			}
 		};
@@ -551,7 +547,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	public boolean tryAttack(Entity target)
 	{
 		float f = (float)this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
-		return target.damage(DamageSources.getSwordmachine(this), f);
+		return target.damage(DamageSources.get(world, DamageSources.SWORDSMACHINE, this), f);
 	}
 	
 	@Override
@@ -564,7 +560,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	
 	static class TargetHuskGoal extends ActiveTargetGoal<LivingEntity>
 	{
-		public TargetHuskGoal(SwordmachineEntity sm)
+		public TargetHuskGoal(SwordsmachineEntity sm)
 		{
 			super(sm, LivingEntity.class, 0, true, true, l -> l instanceof AbstractHuskEntity);
 		}
@@ -572,7 +568,7 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 		@Override
 		public boolean canStart()
 		{
-			return ((SwordmachineEntity)mob).shouldHuntHusks() && super.canStart();
+			return ((SwordsmachineEntity)mob).shouldHuntHusks() && super.canStart();
 		}
 		
 		@Override
@@ -585,10 +581,10 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	
 	static class ChaseGoal extends Goal
 	{
-		SwordmachineEntity sm;
+		SwordsmachineEntity sm;
 		LivingEntity target;
 		
-		public ChaseGoal(SwordmachineEntity sm)
+		public ChaseGoal(SwordsmachineEntity sm)
 		{
 			this.sm = sm;
 		}
@@ -621,10 +617,10 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	
 	static class LookAroundGoal extends Goal
 	{
-		SwordmachineEntity sm;
+		SwordsmachineEntity sm;
 		int timer;
 		
-		public LookAroundGoal(SwordmachineEntity sm)
+		public LookAroundGoal(SwordsmachineEntity sm)
 		{
 			this.sm = sm;
 		}
@@ -670,11 +666,11 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	
 	static class ShotgunGoal extends Goal
 	{
-		SwordmachineEntity sm;
+		SwordsmachineEntity sm;
 		LivingEntity target;
 		int timer;
 		
-		public ShotgunGoal(SwordmachineEntity sm)
+		public ShotgunGoal(SwordsmachineEntity sm)
 		{
 			this.sm = sm;
 		}
@@ -733,11 +729,11 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	
 	static class ThrowSwordGoal extends Goal
 	{
-		SwordmachineEntity sm;
+		SwordsmachineEntity sm;
 		LivingEntity target;
 		int timer;
 		
-		public ThrowSwordGoal(SwordmachineEntity sm)
+		public ThrowSwordGoal(SwordsmachineEntity sm)
 		{
 			this.sm = sm;
 		}
@@ -796,13 +792,13 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	static class SlashGoal extends Goal
 	{
 		List<Entity> damaged = new ArrayList<>();
-		SwordmachineEntity sm;
+		SwordsmachineEntity sm;
 		LivingEntity target;
 		int timer;
 		Vec3d direction;
 		UUID trailID;
 		
-		public SlashGoal(SwordmachineEntity sm)
+		public SlashGoal(SwordsmachineEntity sm)
 		{
 			this.sm = sm;
 		}
@@ -889,13 +885,13 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	static class ComboGoal extends Goal
 	{
 		List<Entity> damaged = new ArrayList<>();
-		SwordmachineEntity sm;
+		SwordsmachineEntity sm;
 		LivingEntity target;
 		int timer;
 		Vec3d direction;
 		UUID trailID;
 		
-		public ComboGoal(SwordmachineEntity sm)
+		public ComboGoal(SwordsmachineEntity sm)
 		{
 			this.sm = sm;
 		}
@@ -994,13 +990,13 @@ public class SwordmachineEntity extends AbstractUltraHostileEntity implements Ge
 	static class SpinGoal extends Goal
 	{
 		List<Entity> damaged = new ArrayList<>();
-		SwordmachineEntity sm;
+		SwordsmachineEntity sm;
 		LivingEntity target;
 		int timer;
 		Vec3d direction;
 		UUID trailID;
 		
-		public SpinGoal(SwordmachineEntity sm)
+		public SpinGoal(SwordsmachineEntity sm)
 		{
 			this.sm = sm;
 		}

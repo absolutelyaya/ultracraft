@@ -1,14 +1,13 @@
 package absolutelyaya.ultracraft.client.rendering.entity.machine;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.client.rendering.entity.feature.gecko.SwordmachineEmissiveLayer;
-import absolutelyaya.ultracraft.client.rendering.entity.feature.gecko.SwordmachineRageLayer;
-import absolutelyaya.ultracraft.entity.machine.SwordmachineEntity;
-import com.mojang.blaze3d.systems.RenderSystem;
+import absolutelyaya.ultracraft.client.rendering.entity.feature.gecko.SwordsmachineEmissiveLayer;
+import absolutelyaya.ultracraft.client.rendering.entity.feature.gecko.SwordsmachineRageLayer;
+import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -18,33 +17,33 @@ import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
-public class SwordmachineRenderer extends GeoEntityRenderer<SwordmachineEntity>
+public class SwordsmachineRenderer extends GeoEntityRenderer<SwordsmachineEntity>
 {
 	private static final String SWORD = "machinesword";
 	
-	public SwordmachineRenderer(EntityRendererFactory.Context ctx)
+	public SwordsmachineRenderer(EntityRendererFactory.Context ctx)
 	{
-		super(ctx, new SwordmachineModel());
-		addRenderLayer(new SwordmachineEmissiveLayer(this));
+		super(ctx, new SwordsmachineModel());
+		addRenderLayer(new SwordsmachineEmissiveLayer(this));
 		
 		addRenderLayer(new BlockAndItemGeoLayer<>(this)
 		{
 			@Override
-			protected ItemStack getStackForBone(GeoBone bone, SwordmachineEntity animatable)
+			protected ItemStack getStackForBone(GeoBone bone, SwordsmachineEntity animatable)
 			{
 				if(bone.getName().equals(SWORD) && animatable.isHasSword())
 					return animatable.getSwordStack();
 				return super.getStackForBone(bone, animatable);
 			}
-		
+			
 			@Override
-			protected ModelTransformation.Mode getTransformTypeForStack(GeoBone bone, ItemStack stack, SwordmachineEntity animatable)
+			protected ModelTransformationMode getTransformTypeForStack(GeoBone bone, ItemStack stack, SwordsmachineEntity animatable)
 			{
 				return super.getTransformTypeForStack(bone, stack, animatable);
 			}
-		
+			
 			@Override
-			protected void renderStackForBone(MatrixStack poseStack, GeoBone bone, ItemStack stack, SwordmachineEntity animatable, VertexConsumerProvider bufferSource, float partialTick, int packedLight, int packedOverlay)
+			protected void renderStackForBone(MatrixStack poseStack, GeoBone bone, ItemStack stack, SwordsmachineEntity animatable, VertexConsumerProvider bufferSource, float partialTick, int packedLight, int packedOverlay)
 			{
 				poseStack.push();
 				if(bone.getName().equals(SWORD))
@@ -56,23 +55,23 @@ public class SwordmachineRenderer extends GeoEntityRenderer<SwordmachineEntity>
 				poseStack.pop();
 			}
 		});
-		addRenderLayer(new SwordmachineRageLayer(this));
+		addRenderLayer(new SwordsmachineRageLayer(this));
 	}
 	
 	@Override
-	public Identifier getTexture(SwordmachineEntity object)
+	public Identifier getTexture(SwordsmachineEntity object)
 	{
-		return new Identifier(Ultracraft.MOD_ID, "textures/entity/swordmachine.png");
+		return new Identifier(Ultracraft.MOD_ID, "textures/entity/swordsmachine.png");
 	}
 	
 	@Override
-	public RenderLayer getRenderType(SwordmachineEntity animatable, Identifier texture, VertexConsumerProvider bufferSource, float partialTick)
+	public RenderLayer getRenderType(SwordsmachineEntity animatable, Identifier texture, VertexConsumerProvider bufferSource, float partialTick)
 	{
 		return RenderLayer.getEntityTranslucent(texture);
 	}
 	
 	@Override
-	public void render(SwordmachineEntity entity, float entityYaw, float partialTick, MatrixStack poseStack, VertexConsumerProvider bufferSource, int packedLight)
+	public void render(SwordsmachineEntity entity, float entityYaw, float partialTick, MatrixStack poseStack, VertexConsumerProvider bufferSource, int packedLight)
 	{
 		super.render(entity, entityYaw, partialTick, poseStack, bufferSource, packedLight);
 	}

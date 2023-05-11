@@ -55,9 +55,9 @@ public class ItemRegistry
 	public static final SpawnEggItem CERBERUS_SPAWN_EGG = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "cerberus_spawn_egg"),
 			new SpawnEggItem(EntityRegistry.CERBERUS, 0xa0938e, 0x5a5353, new FabricItemSettings()));
-	public static final SpecialSpawnEggItem SWORDMACHINE_SPAWN_EGG = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "swordmachine_spawn_egg"),
-			new SpecialSpawnEggItem(EntityRegistry.SWORDMACHINE, 0xf4b41b, 0x423d40, new FabricItemSettings()));
+	public static final SpecialSpawnEggItem SWORDSMACHINE_SPAWN_EGG = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "swordsmachine_spawn_egg"),
+			new SpecialSpawnEggItem(EntityRegistry.SWORDSMACHINE, 0xf4b41b, 0x423d40, new FabricItemSettings()));
 	
 	public static final ItemGroup ULTRACRAFT_TAB =
 			FabricItemGroup.builder(new Identifier(Ultracraft.MOD_ID, "item")).icon(() -> new ItemStack(BLUE_SKULL)).build();
@@ -81,8 +81,8 @@ public class ItemRegistry
 			content.add(SCHISM_SPAWN_EGG);
 			content.add(MALICIOUS_SPAWN_EGG);
 			content.add(CERBERUS_SPAWN_EGG);
-			content.add(SWORDMACHINE_SPAWN_EGG);
-			content.add(SWORDMACHINE_SPAWN_EGG.getDefaultStack("item.ultracraft.swordmachine_spawn_egg.special", "Dan"));
+			content.add(SWORDSMACHINE_SPAWN_EGG);
+			content.add(SWORDSMACHINE_SPAWN_EGG.getDefaultStack("item.ultracraft.swordsmachine_spawn_egg.special", "Dan"));
 			content.add(PLUSHIE.getDefaultStack("yaya"));
 			content.add(PLUSHIE.getDefaultStack("hakita"));
 			content.add(PITR.getDefaultStack("pitr"));

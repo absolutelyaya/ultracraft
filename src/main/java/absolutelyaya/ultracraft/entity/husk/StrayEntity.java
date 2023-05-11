@@ -19,6 +19,7 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -81,7 +82,7 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 	{
 		if(getVelocity().y < 0f)
 			amount *= 1.5;
-		if(source.isFire())
+		if(source.isIn(DamageTypeTags.IS_FIRE))
 			amount *= 0.5;
 		return super.damage(source, amount);
 	}
@@ -159,8 +160,8 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 	{
 		world.playSound(null, interruptor.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
 		Ultracraft.freeze((ServerWorld)world, 10);
-		damage(DamageSources.getInterrupted(interruptor), 5f);
-		ExplosionHandler.explosion(interruptor, world, new Vec3d(getX(), getY(), getZ()), DamageSources.getExplosion(interruptor), 5f, 2f, 3f);
+		damage(DamageSources.get(world, DamageSources.INTERRUPT, interruptor), 5f);
+		ExplosionHandler.explosion(interruptor, world, new Vec3d(getX(), getY(), getZ()), getDamageSources().explosion(this, interruptor), 5f, 2f, 3f);
 	}
 	
 	@Override

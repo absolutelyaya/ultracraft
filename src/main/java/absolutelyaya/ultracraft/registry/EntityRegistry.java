@@ -2,7 +2,7 @@ package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.entity.projectile.*;
-import absolutelyaya.ultracraft.entity.machine.SwordmachineEntity;
+import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
 import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
 import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.demon.CerberusEntity;
@@ -34,9 +34,9 @@ public class EntityRegistry
 	public static final EntityType<CerberusEntity> CERBERUS = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "cerberus"),
 			EntityType.Builder.create(CerberusEntity::new, SpawnGroup.MONSTER).setDimensions(1.75F, 4F).maxTrackingRange(8).build("cerberus"));
-	public static final EntityType<SwordmachineEntity> SWORDMACHINE = Registry.register(Registries.ENTITY_TYPE,
-			new Identifier(Ultracraft.MOD_ID, "swordmachine"),
-			EntityType.Builder.create(SwordmachineEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2.5F).maxTrackingRange(8).build("swordmachine"));
+	public static final EntityType<SwordsmachineEntity> SWORDSMACHINE = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "swordsmachine"),
+			EntityType.Builder.create(SwordsmachineEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2.5F).maxTrackingRange(8).build("swordsmachine"));
 	
 	public static final EntityType<HellBulletEntity> HELL_BULLET = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "hell_bullet"),
@@ -75,6 +75,6 @@ public class EntityRegistry
 		FabricDefaultAttributeRegistry.register(SCHISM, SchismEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(MALICIOUS_FACE, MaliciousFaceEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(CERBERUS, CerberusEntity.getDefaultAttributes());
-		FabricDefaultAttributeRegistry.register(SWORDMACHINE, SwordmachineEntity.getDefaultAttributes());
+		FabricDefaultAttributeRegistry.register(SWORDSMACHINE, SwordsmachineEntity.getDefaultAttributes());
 	}
 }

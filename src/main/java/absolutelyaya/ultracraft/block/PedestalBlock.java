@@ -47,7 +47,7 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx)
 	{
-		return super.getDefaultState().with(TYPE, Type.NONE).with(FACING, ctx.getPlayerFacing().getOpposite()).with(FANCY, false);
+		return super.getDefaultState().with(TYPE, Type.NONE).with(FACING, ctx.getHorizontalPlayerFacing().getOpposite()).with(FANCY, false);
 	}
 	
 	@Override

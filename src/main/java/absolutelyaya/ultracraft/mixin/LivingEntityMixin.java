@@ -4,7 +4,7 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.damage.DamageSources;
-import absolutelyaya.ultracraft.damage.UltraDamageSource;
+import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
@@ -64,8 +64,11 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	{
 		if(!cir.getReturnValue() || world.isClient || !IsCanBleed())
 			return;
-		if(source instanceof UltraDamageSource && !((Object)this instanceof AbstractUltraHostileEntity) && !((Object)this instanceof PlayerEntity))
+		if(source.isIn(DamageTypeTags.ULTRACRAFT) && !((Object)this instanceof AbstractUltraHostileEntity) && !((Object)this instanceof PlayerEntity))
+		{
+			System.out.println("AAAAAAAA");
 			amount *= 2.5f;
+		}
 		List<PlayerEntity> nearby = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(32), e -> true);
 		List<PlayerEntity> heal = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(2), e -> !e.equals(this));
 		for (PlayerEntity player : nearby)
@@ -76,7 +79,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			buf.writeDouble(getPos().y);
 			buf.writeDouble(getPos().z);
 			buf.writeDouble(getHeight() / 2);
-			buf.writeBoolean(source instanceof UltraDamageSource us && us.isOf(DamageSources.Type.SHOTGUN));
+			buf.writeBoolean(source.isOf(DamageSources.SHOTGUN));
 			ServerPlayNetworking.send((ServerPlayerEntity)player, PacketRegistry.BLEED_PACKET_ID, buf);
 		}
 		for (PlayerEntity player : heal)
@@ -84,9 +87,9 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			player.heal(amount / 1.5f);
 			player.getHungerManager().add((int)(amount / 1.5f), 5f);
 		}
-		if(source instanceof UltraDamageSource us && (us.isOf(DamageSources.Type.GUN) || us.isOf(DamageSources.Type.SHOTGUN)))
+		if(source.isOf(DamageSources.GUN) || source.isOf(DamageSources.SHOTGUN))
 			timeUntilRegen = 9;
-		if(source instanceof UltraDamageSource us && us.isOf(DamageSources.Type.SWORDSMACHINE))
+		if(source.isOf(DamageSources.SWORDSMACHINE))
 			timeUntilRegen = 12;
 	}
 	

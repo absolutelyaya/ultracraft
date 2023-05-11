@@ -9,6 +9,7 @@ import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import com.chocohead.mm.api.ClassTinkerers;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -88,7 +89,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	{
 		if(isDashing())
 			cir.setReturnValue(false);
-		if(wingsActive && source.isFromFalling() && !world.isClient && !world.getGameRules().get(GameruleRegistry.HIVEL_FALLDAMAGE).get())
+		if(wingsActive && source.isOf(DamageTypes.FALL) && !world.isClient && !world.getGameRules().get(GameruleRegistry.HIVEL_FALLDAMAGE).get())
 			cir.setReturnValue(false);
 	}
 	
@@ -231,7 +232,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 				e.addVelocity(0f, 1f, 0f);
 		});
 		world.getOtherEntities(this, getBoundingBox().expand(0f, 1f, 0f).offset(0f, -0.5f, 0f)).forEach(e ->
-				e.damage(DamageSources.getPound(this), 6));
+				e.damage(DamageSources.get(world, DamageSources.POUND, this), 6));
 	}
 	
 	@Override

@@ -138,8 +138,8 @@ public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Inter
 	{
 		world.playSound(null, interruptor.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
 		Ultracraft.freeze((ServerWorld)world, 10);
-		damage(DamageSources.getInterrupted(interruptor), 5f);
-		ExplosionHandler.explosion(interruptor, world, new Vec3d(getX(), getY(), getZ()), DamageSources.getExplosion(interruptor), 5f, 2f, 3f);
+		damage(DamageSources.get(world, DamageSources.INTERRUPT, interruptor), 5f);
+		ExplosionHandler.explosion(interruptor, world, new Vec3d(getX(), getY(), getZ()), getDamageSources().explosion(this, interruptor), 5f, 2f, 3f);
 	}
 	
 	@Override

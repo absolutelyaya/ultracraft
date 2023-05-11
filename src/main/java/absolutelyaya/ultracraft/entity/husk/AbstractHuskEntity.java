@@ -1,13 +1,13 @@
 package absolutelyaya.ultracraft.entity.husk;
 
 import absolutelyaya.ultracraft.damage.DamageSources;
-import absolutelyaya.ultracraft.damage.UltraDamageSource;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.world.World;
 
 public abstract class AbstractHuskEntity extends AbstractUltraHostileEntity
@@ -22,9 +22,9 @@ public abstract class AbstractHuskEntity extends AbstractUltraHostileEntity
 	{
 		if(getVelocity().y < 0f)
 			amount *= 1.5;
-		if(getBurningDuration() > 0 && !source.isFire() && !source.isExplosive())
+		if(getBurningDuration() > 0 && !source.isIn(DamageTypeTags.IS_FIRE) && !source.isIn(DamageTypeTags.IS_EXPLOSION))
 			amount *= 1.5;
-		if(source instanceof UltraDamageSource us && us.isOf(DamageSources.Type.PROJBOOST))
+		if(source.isOf(DamageSources.PROJBOOST))
 			amount *= 2;
 		return super.damage(source, amount);
 	}

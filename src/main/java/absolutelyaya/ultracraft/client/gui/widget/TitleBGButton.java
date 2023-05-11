@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.client.gui.widget;
 
+import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
@@ -7,7 +8,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import software.bernie.geckolib3.core.util.Color;
 
 public class TitleBGButton extends TexturedButtonWidget
 {
@@ -44,7 +44,7 @@ public class TitleBGButton extends TexturedButtonWidget
 			return;
 		TextRenderer renderer = MinecraftClient.getInstance().textRenderer;
 		int textX = getX() + 34 + renderer.getWidth(getMessage()) / 2;
-		drawCenteredText(matrices, renderer, getMessage(),
+		drawCenteredTextWithShadow(matrices, renderer, getMessage(),
 				textX, getY() + 12,
 				Color.ofRGBA(1f, 1f, 1f, hoverTime).getColor());
 		hoverTime = MathHelper.clamp(hoverTime + (isHovered() ? delta : -delta) / 2f, 0.05f, 1f);

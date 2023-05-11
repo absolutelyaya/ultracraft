@@ -9,12 +9,13 @@ import absolutelyaya.ultracraft.item.MachineSwordItem;
 import absolutelyaya.ultracraft.item.PlushieItem;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import com.mojang.blaze3d.systems.RenderSystem;
+import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.*;
-import net.minecraft.client.render.model.json.ModelTransformation;
+import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -23,7 +24,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import org.joml.*;
-import software.bernie.geckolib3.core.util.Color;
 
 import java.lang.Math;
 import java.util.Random;
@@ -130,7 +130,6 @@ public class UltraHudRenderer extends DrawableHelper
 			matrices.translate(0f, yOffset = MathHelper.lerp(tickDelta, yOffset, player.getOffHandStack().isEmpty() ? 0f : -64f), 0f);
 		
 		matrices.push();
-		RenderSystem.enableTexture();
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
 		matrices.translate(1f, 35f, 0f);
 		matrices.scale(1f, -1f, 1f);
@@ -225,8 +224,8 @@ public class UltraHudRenderer extends DrawableHelper
 					new Vec2f(192, 192), new Vector4f(uv.x * 48f, uv.y * 32f, 48f, 32f), 0.75f);
 		}
 		else
-			client.getItemRenderer().renderItem(stack, ModelTransformation.Mode.GUI,
-					15728880, OverlayTexture.DEFAULT_UV, matrices, immediate, 1);
+			client.getItemRenderer().renderItem(stack, ModelTransformationMode.GUI,
+					15728880, OverlayTexture.DEFAULT_UV, matrices, immediate, client.world, 1);
 	}
 	
 	void drawText(MatrixStack matrices, Text text, float x, float y, float alpha)
@@ -235,10 +234,10 @@ public class UltraHudRenderer extends DrawableHelper
 		VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
 		Matrix4f matrix = matrices.peek().getPositionMatrix();
 		client.textRenderer.draw(text, x, y, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
-				matrix, immediate, false, Color.ofRGBA(0f, 0f, 0f, 0.5f * alpha).getColor(), 15728880);
+				matrix, immediate, TextRenderer.TextLayerType.NORMAL, Color.ofRGBA(0f, 0f, 0f, 0.5f * alpha).getColor(), 15728880);
 		matrix.translate(0f, 0f, -0.1f);
 		client.textRenderer.draw(text, x, y, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
-				matrix, immediate, false, 0, 15728880);
+				matrix, immediate, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
 	}
 	
 	void drawTexture(Matrix4f matrix, Vector4f transform, float z, Vec2f textureSize, Vector4f uv, float alpha)

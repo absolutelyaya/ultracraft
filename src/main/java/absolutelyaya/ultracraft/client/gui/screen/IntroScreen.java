@@ -20,13 +20,14 @@ import java.util.List;
 public class IntroScreen extends Screen
 {
 	public static IntroScreen INSTANCE;
-	public static boolean SEQUENCE_FINISHED;
+	public static boolean SEQUENCE_FINISHED, RESOURCES_LOADED;
 	
 	ButtonWidget closeButton;
-	boolean waitingForInput, waitingForButton, hurry, popupGrow;
+	boolean waitingForInput, waitingForButton, hurry, popupGrow, broken = true;
 	int timer, step;
 	String goalText, curText = "something broke... sorry about that.";
 	float closeButtonAlpha = 0f, popupSize = 0f;
+	Ultraconfig config;
 	
 	public IntroScreen()
 	{
@@ -37,8 +38,9 @@ public class IntroScreen extends Screen
 	protected void init()
 	{
 		super.init();
-		Ultraconfig config = UltracraftClient.getConfigHolder().getConfig();
+		config = UltracraftClient.getConfigHolder().getConfig();
 		INSTANCE = this;
+		SEQUENCE_FINISHED = false;
 		closeButton = addDrawableChild(new ButtonWidget.Builder(Text.translatable("message.ultracraft.consent"), (button) -> {
 			config.lastVersion = Ultracraft.VERSION;
 			waitingForButton = false;
@@ -73,9 +75,9 @@ public class IntroScreen extends Screen
 		closeButton.setAlpha(closeButtonAlpha);
 		List<OrderedText> lines = textRenderer.wrapLines(StringVisitable.plain(curText), width);
 		for (int i = 0; i < lines.size(); i++)
-			drawWithShadow(matrices, textRenderer, lines.get(i), 32, 32 + i * (textRenderer.fontHeight + 2), Color.WHITE.getRGB());
+			textRenderer.drawWithShadow(matrices, lines.get(i), 32, 32 + i * (textRenderer.fontHeight + 2), Color.WHITE.getRGB());
 		if(waitingForInput)
-			drawCenteredText(matrices, textRenderer, Text.translatable("intro.ultracraft.input"), width / 2, height - 25, Color.WHITE.getRGB());
+			drawCenteredTextWithShadow(matrices, textRenderer, Text.translatable("intro.ultracraft.input"), width / 2, height - 25, Color.WHITE.getRGB());
 		if(popupGrow)
 		{
 			if(popupSize < 1f)
@@ -96,7 +98,7 @@ public class IntroScreen extends Screen
 		{
 			lines = textRenderer.wrapLines(Text.translatable("message.ultracraft.content"), width - 60);
 			for (int i = 0; i < lines.size(); i++)
-				drawWithShadow(matrices, textRenderer, lines.get(i), 28, 38 + i * (textRenderer.fontHeight + 2), Color.WHITE.getRGB());
+				textRenderer.drawWithShadow(matrices, lines.get(i), 28, 38 + i * (textRenderer.fontHeight + 2), Color.WHITE.getRGB());
 			fill(matrices, width / 2 - 51, height - 35, width / 2 + 51, height - 14, Color.WHITE.getRGB());
 			closeButton.render(matrices, mouseX, mouseY, delta);
 		}
@@ -106,6 +108,12 @@ public class IntroScreen extends Screen
 	public void tick()
 	{
 		super.tick();
+		if(config.repeatIntro && RESOURCES_LOADED)
+		{
+			resourceLoadFinished();
+			config.repeatIntro = false;
+			UltracraftClient.getConfigHolder().save();
+		}
 		if(goalText == null)
 			return;
 		if(goalText.length() > 0 && !waitingForInput && popupSize <= 0f && timer-- <= 0)
@@ -153,7 +161,7 @@ public class IntroScreen extends Screen
 	@Override
 	public boolean shouldCloseOnEsc()
 	{
-		return false;
+		return broken && RESOURCES_LOADED;
 	}
 	
 	@Override
@@ -172,6 +180,7 @@ public class IntroScreen extends Screen
 		curText = "";
 		goalText = Text.translatable("intro.ultracraft.calibration", Ultracraft.VERSION).getString();
 		timer = 40;
+		broken = false;
 		init();
 	}
 }

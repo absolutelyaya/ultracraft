@@ -86,9 +86,9 @@ public class ServerHitscanHandler
 				entities.add(eHit.getEntity());
 			}
 		}
-		entities.forEach((e) -> e.damage(DamageSources.getGun(user), damage));
+		entities.forEach((e) -> e.damage(DamageSources.get(world, DamageSources.GUN, user), damage));
 		if(explosion != null)
-			ExplosionHandler.explosion(null, world, new Vec3d(modifiedTo.x, modifiedTo.y, modifiedTo.z), DamageSources.getExplosion(user),
+			ExplosionHandler.explosion(null, world, new Vec3d(modifiedTo.x, modifiedTo.y, modifiedTo.z), world.getDamageSources().explosion(null, user),
 					explosion.damage, explosion.falloff, explosion.radius);
 		sendPacket((ServerWorld)user.world, origin.add(new Vec3d(-0.5f, -0.3f, 0f).rotateY(-(float)Math.toRadians(user.getYaw()))), modifiedTo, type);
 	}

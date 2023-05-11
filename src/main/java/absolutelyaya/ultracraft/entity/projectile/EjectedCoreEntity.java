@@ -2,9 +2,8 @@ package absolutelyaya.ultracraft.entity.projectile;
 
 import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
-import absolutelyaya.ultracraft.damage.UltraDamageSource;
+import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
-import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
@@ -58,14 +57,15 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 		{
 			Vec3d newVel = getVelocity().multiply(-0.5f, 1f, -0.5f);
 			setVelocity(newVel);
-			world.playSound(null, new BlockPos(entityHit.getPos()), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.HOSTILE, 1f, 1.75f);
+			Vec3d pos = entityHit.getPos();
+			world.playSound(null, new BlockPos((int)pos.x, (int)pos.y, (int)pos.z), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.HOSTILE, 1f, 1.75f);
 			return;
 		}
 		super.onCollision(hitResult);
 		
 		if (!world.isClient)
 		{
-			ExplosionHandler.explosion(null, world, hitResult.getPos(), DamageSources.getExplosion(getOwner()), 3.5f, 2.5f, 2f);
+			ExplosionHandler.explosion(null, world, hitResult.getPos(), getDamageSources().explosion(getOwner(), getOwner()), 3.5f, 2.5f, 2f);
 			world.sendEntityStatus(this, (byte)3);
 		}
 		this.kill();
@@ -74,9 +74,9 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
-		if(source instanceof UltraDamageSource us && us.isHitscan())
+		if(source.isIn(DamageTypeTags.HITSCAN))
 		{
-			ExplosionHandler.explosion(null, world, getPos(), DamageSources.getExplosion(getOwner()), 7f, 4.6f, 2f);
+			ExplosionHandler.explosion(null, world, getPos(), getDamageSources().explosion(getOwner(), getOwner()), 7f, 4.6f, 2f);
 			world.sendEntityStatus(this, (byte)3);
 			this.kill();
 		}

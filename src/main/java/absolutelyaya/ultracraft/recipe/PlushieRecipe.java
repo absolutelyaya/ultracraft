@@ -11,6 +11,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.*;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.collection.DefaultedList;
@@ -48,7 +49,7 @@ public class PlushieRecipe implements CraftingRecipe
 	}
 	
 	@Override
-	public ItemStack craft(CraftingInventory inventory)
+	public ItemStack craft(CraftingInventory inventory, DynamicRegistryManager registryManager)
 	{
 		return output.copy();
 	}
@@ -60,7 +61,7 @@ public class PlushieRecipe implements CraftingRecipe
 	}
 	
 	@Override
-	public ItemStack getOutput()
+	public ItemStack getOutput(DynamicRegistryManager registryManager)
 	{
 		return output;
 	}

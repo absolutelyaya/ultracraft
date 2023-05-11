@@ -92,7 +92,7 @@ public class GoopDropParticle extends SpriteBillboardParticle
 				Vec3d vec3d = Entity.adjustMovementForCollisions(null, new Vec3d(dx, dy, dz), this.getBoundingBox(), this.world, List.of());
 				Vec3d diff = vec3d.subtract(new Vec3d(dx, dy, dz));
 				
-				nextParticle(new BlockPos(point), diff);
+				nextParticle(new BlockPos((int)point.x, (int)point.y, (int)point.z), diff);
 				markDead();
 			}
 		}

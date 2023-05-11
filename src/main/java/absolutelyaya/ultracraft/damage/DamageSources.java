@@ -1,73 +1,34 @@
 package absolutelyaya.ultracraft.damage;
 
+import absolutelyaya.ultracraft.Ultracraft;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageType;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.util.Identifier;
+import net.minecraft.world.World;
 
 public class DamageSources
 {
-	public static final UltraDamageSource MAURICE = (UltraDamageSource) new UltraDamageSource(Type.MAURICE, null).setHitscan().setUnblockable().setBypassesArmor();
+	public static final RegistryKey<DamageType> MAURICE = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "maurice"));
+	public static final RegistryKey<DamageType> GUN = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "gun"));
+	public static final RegistryKey<DamageType> SHOTGUN = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "shotgun"));
+	public static final RegistryKey<DamageType> SHOCKWAVE = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "shockwave"));
+	public static final RegistryKey<DamageType> SWORDSMACHINE = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "swordsmachine"));
+	public static final RegistryKey<DamageType> POUND = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "groundpound"));
+	public static final RegistryKey<DamageType> PARRY = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "parry"));
+	public static final RegistryKey<DamageType> PARRYAOE = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "parry_collateral"));
+	public static final RegistryKey<DamageType> INTERRUPT = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "interrupt"));
+	public static final RegistryKey<DamageType> PROJBOOST = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "projectile_boost"));
 	
-	public static UltraDamageSource getGun(Entity source)
+	public static DamageSource get(World world, RegistryKey<DamageType> type)
 	{
-		return new UltraDamageSource(Type.GUN, source).setHitscan();
-	}
-	public static UltraDamageSource getShotgun(Entity source)
-	{
-		return (UltraDamageSource) new UltraDamageSource(Type.SHOTGUN, source).setProjectile();
-	}
-	public static UltraDamageSource getShockwave(Entity source)
-	{
-		return new UltraDamageSource(Type.SHOCKWAVE, source);
-	}
-	public static UltraDamageSource getSwordmachine(Entity source)
-	{
-		return new UltraDamageSource(Type.SWORDSMACHINE, source);
-	}
-	public static UltraDamageSource getPound(Entity source)
-	{
-		return new UltraDamageSource(Type.POUND, source);
-	}
-	public static UltraDamageSource getParriedProjectile(PlayerEntity source)
-	{
-		return (UltraDamageSource) new UltraDamageSource(Type.PARRY, source).setProjectile();
-	}
-	public static UltraDamageSource getInterrupted(Entity source)
-	{
-		return (UltraDamageSource) new UltraDamageSource(Type.INTERRUPT, source).setBypassesArmor().setBypassesProtection().setUnblockable();
-	}
-	public static UltraDamageSource getParryCollateral(Entity parrier)
-	{
-		return (UltraDamageSource) new UltraDamageSource(Type.PARRYAOE, parrier).setExplosive();
+		return new DamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type));
 	}
 	
-	public static UltraDamageSource getExplosion(Entity source)
+	public static DamageSource get(World world, RegistryKey<DamageType> type, Entity attacker)
 	{
-		return (UltraDamageSource) new UltraDamageSource(Type.EXPLOSION, source).setExplosive();
-	}
-	
-	public static UltraDamageSource getProjectileBoost(PlayerEntity booster)
-	{
-		return (UltraDamageSource) new UltraDamageSource(Type.PROJBOOST, booster).setExplosive();
-	}
-	
-	public enum Type
-	{
-		MAURICE("maurice"),
-		GUN("gun"),
-		SHOTGUN("shotgun"),
-		SHOCKWAVE("shockwave"),
-		SWORDSMACHINE("swordmachine"),
-		POUND("pound"),
-		PARRY("projectile_parried"),
-		PARRYAOE("parry_collateral"),
-		INTERRUPT("interrupt"),
-		EXPLOSION("explosion"),
-		PROJBOOST("proj_boost");
-		final String name;
-		
-		Type(String name)
-		{
-			this.name = name;
-		}
+		return new DamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type), attacker);
 	}
 }

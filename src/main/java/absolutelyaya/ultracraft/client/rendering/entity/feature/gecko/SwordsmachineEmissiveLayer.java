@@ -1,7 +1,7 @@
 package absolutelyaya.ultracraft.client.rendering.entity.feature.gecko;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.entity.machine.SwordmachineEntity;
+import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -12,17 +12,17 @@ import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
-public class SwordmachineEmissiveLayer extends GeoRenderLayer<SwordmachineEntity>
+public class SwordsmachineEmissiveLayer extends GeoRenderLayer<SwordsmachineEntity>
 {
-	private static final Identifier TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/entity/swordmachine_emissive.png");
+	private static final Identifier TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/entity/swordsmachine_emissive.png");
 	
-	public SwordmachineEmissiveLayer(GeoRenderer<SwordmachineEntity> entityRendererIn)
+	public SwordsmachineEmissiveLayer(GeoRenderer<SwordsmachineEntity> entityRendererIn)
 	{
 		super(entityRendererIn);
 	}
 	
 	@Override
-	public void render(MatrixStack poseStack, SwordmachineEntity animatable, BakedGeoModel bakedModel, RenderLayer renderType, VertexConsumerProvider bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay)
+	public void render(MatrixStack poseStack, SwordsmachineEntity animatable, BakedGeoModel bakedModel, RenderLayer renderType, VertexConsumerProvider bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay)
 	{
 		RenderLayer armorRenderType = RenderLayer.getEntityTranslucentEmissive(TEXTURE);
 		
