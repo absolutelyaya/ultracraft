@@ -55,12 +55,9 @@ public class UltraHudRenderer extends DrawableHelper
 		RenderSystem.disableDepthTest();
 		RenderSystem.disableCull();
 		
+		MatrixStack matrices = new MatrixStack();
 		int width = client.getWindow().getFramebufferWidth();
 		int height = client.getWindow().getFramebufferHeight();
-		
-		MatrixStack matrices = new MatrixStack();
-		
-		
 		float aspect = (float)width / (float)height;
 		matrices.peek().getPositionMatrix().perspective(90 * 0.0174f,
 				aspect, 0.05F, client.gameRenderer.getViewDistance() * 4.0F);

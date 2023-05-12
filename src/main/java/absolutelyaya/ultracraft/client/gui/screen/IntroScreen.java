@@ -23,9 +23,9 @@ public class IntroScreen extends Screen
 	public static boolean SEQUENCE_FINISHED, RESOURCES_LOADED;
 	
 	ButtonWidget closeButton;
-	boolean waitingForInput, waitingForButton, hurry, popupGrow, broken = true;
-	int timer, step;
-	String goalText, curText = "something broke... sorry about that.";
+	boolean waitingForInput, waitingForButton, hurry, popupGrow;
+	int timer, step, ticksBroken = 0;
+	String goalText, curText = "Something went wrong trying to display the Ultracraft intro sequence. Retrying in a moment...";
 	float closeButtonAlpha = 0f, popupSize = 0f;
 	Ultraconfig config;
 	
@@ -114,6 +114,13 @@ public class IntroScreen extends Screen
 			config.repeatIntro = false;
 			UltracraftClient.getConfigHolder().save();
 		}
+		if(ticksBroken > -1)
+			ticksBroken++;
+		if(ticksBroken > 100)
+		{
+			RESOURCES_LOADED = true;
+			resourceLoadFinished();
+		}
 		if(goalText == null)
 			return;
 		if(goalText.length() > 0 && !waitingForInput && popupSize <= 0f && timer-- <= 0)
@@ -161,7 +168,7 @@ public class IntroScreen extends Screen
 	@Override
 	public boolean shouldCloseOnEsc()
 	{
-		return broken && RESOURCES_LOADED;
+		return false;
 	}
 	
 	@Override
@@ -180,7 +187,7 @@ public class IntroScreen extends Screen
 		curText = "";
 		goalText = Text.translatable("intro.ultracraft.calibration", Ultracraft.VERSION).getString();
 		timer = 40;
-		broken = false;
+		ticksBroken = -1;
 		init();
 	}
 }
