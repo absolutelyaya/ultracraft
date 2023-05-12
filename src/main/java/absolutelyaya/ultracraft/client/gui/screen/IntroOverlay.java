@@ -26,9 +26,9 @@ public class IntroOverlay extends Overlay
 		matrices.translate(0f, 0f, -500f);
 		MinecraftClient.getInstance().currentScreen.render(matrices, 0, 0, delta);
 		matrices.translate(0f, 0f, 500f);
-		RenderSystem.setShaderColor(1f, MathHelper.clamp(alpha, 0f, 1f), MathHelper.clamp(alpha, 0f, 1f),
-				MathHelper.clamp(alpha, 0f, 1f));
 		RenderSystem.enableBlend();
+		RenderSystem.defaultBlendFunc();
+		RenderSystem.setShaderColor(1f, 1f, 1f, MathHelper.clamp(alpha, 0f, 1f));
 		renderBackground(width, height);
 		fillGradient(matrices, 0, 0, width, height / 3,
 				new Color(0, 0, 0, 150).getRGB(), new Color(0, 0, 0, 0).getRGB());
@@ -42,7 +42,7 @@ public class IntroOverlay extends Overlay
 			textRenderer.drawWithShadow(matrices, lines.get(i), 32, 32 + i * (textRenderer.fontHeight + 2),
 					new Color(1f, 1f, 1f, MathHelper.clamp(alpha, 0.05f, 1f)).getRGB());
 		alpha -= 1f / 120f;
-		if(alpha <= 0f)
+		if(alpha <= -0.1f)
 			MinecraftClient.getInstance().setOverlay(null);
 	}
 	

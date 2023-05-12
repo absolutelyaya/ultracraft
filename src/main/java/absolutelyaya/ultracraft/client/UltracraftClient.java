@@ -148,8 +148,9 @@ public class UltracraftClient implements ClientModInitializer
 							hivel.equals(GameruleRegistry.Option.FORCE_ON) ? Text.translatable("options.on") : Text.translatable("options.off")));
 				else
 					client.player.sendMessage(Text.translatable("message.ultracraft.hi-vel-free"));
-				client.player.sendMessage(Text.translatable("message.ultracraft.freeze-forced",
-						freeze.equals(GameruleRegistry.Option.FORCE_ON) ? Text.translatable("options.on") : Text.translatable("options.off")));
+				if(client.getServer() != null && client.getServer().isRemote())
+					client.player.sendMessage(Text.translatable("message.ultracraft.freeze-forced",
+							freeze.equals(GameruleRegistry.Option.FORCE_ON) ? Text.translatable("options.on") : Text.translatable("options.off")));
 				client.player.sendMessage(Text.translatable("message.ultracraft.jump-boost", jumpBoost));
 				if(fallDamage)
 					client.player.sendMessage(Text.translatable("message.ultracraft.fall-damage"));

@@ -72,7 +72,7 @@
 
   "message.ultracraft.join-info-header": "===============[§4Ultracraft§r]===============",
   "message.ultracraft.hi-vel-forced": "This World is forcing §bHigh Velocity Mode§r to be %s",
-  "message.ultracraft.hi-vel-free": "This World allows toggling §bHigh Velocity Mode§r freely.",
+  "message.ultracraft.hi-vel-free": "This World allows toggling §bHigh Velocity Mode§r freely",
   "message.ultracraft.freeze-forced": "This World is forcing the §bTime-Freeze effect§r to be %s",
   "message.ultracraft.jump-boost": "This World has §bHigh Velocity Jump Boost§r set to %s",
   "message.ultracraft.fall-damage": "§cHigh Velocity Mode will NOT spare you from fall damage here!",
@@ -135,7 +135,7 @@
   "text.autoconfig.ultracraft.option.ultraHudCrosshair.@Tooltip": "Adds Health and Energy bars around your Crosshair.",
 
   "text.autoconfig.ultracraft.option.moveUltrahud": "Move Ultrahud",
-  "text.autoconfig.ultracraft.option.moveUltrahud.@Tooltip": "Moves the Ultrahud up when holding an item in your offhand.",
+  "text.autoconfig.ultracraft.option.moveUltrahud.@Tooltip": "Moves the UltraHUD up when holding an item in your offhand.",
 
   "text.autoconfig.ultracraft.option.maxTrails": "Maximum Trails",
   "text.autoconfig.ultracraft.option.maxTrails.@Tooltip": "Caps the amount of Trails at this amount.",
