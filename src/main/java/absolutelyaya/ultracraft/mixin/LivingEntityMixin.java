@@ -65,10 +65,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		if(!cir.getReturnValue() || world.isClient || !IsCanBleed())
 			return;
 		if(source.isIn(DamageTypeTags.ULTRACRAFT) && !((Object)this instanceof AbstractUltraHostileEntity) && !((Object)this instanceof PlayerEntity))
-		{
-			System.out.println("AAAAAAAA");
 			amount *= 2.5f;
-		}
 		List<PlayerEntity> nearby = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(32), e -> true);
 		List<PlayerEntity> heal = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(2), e -> !e.equals(this));
 		for (PlayerEntity player : nearby)
@@ -84,7 +81,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		}
 		for (PlayerEntity player : heal)
 		{
-			player.heal(amount / 1.5f);
+			player.heal(amount * (source.isOf(DamageSources.SHOTGUN) ? 10f : 2.5f));
 			player.getHungerManager().add((int)(amount / 1.5f), 5f);
 		}
 		if(source.isOf(DamageSources.GUN) || source.isOf(DamageSources.SHOTGUN))

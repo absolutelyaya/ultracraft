@@ -36,7 +36,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-public class ThrownMachineSwordEntity extends PersistentProjectileEntity implements ProjectileEntityAccessor
+public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implements ProjectileEntityAccessor
 {
 	protected static final TrackedData<ItemStack> SWORD = DataTracker.registerData(ThrownMachineSwordEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	protected static final TrackedData<Float> DISTANCE = DataTracker.registerData(ThrownMachineSwordEntity.class, TrackedDataHandlerRegistry.FLOAT);

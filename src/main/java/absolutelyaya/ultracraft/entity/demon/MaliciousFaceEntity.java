@@ -70,7 +70,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
 		return HostileEntity.createMobAttributes()
-					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 15.0d)
+					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 30.0d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.4d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 0.0d)
 					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64)

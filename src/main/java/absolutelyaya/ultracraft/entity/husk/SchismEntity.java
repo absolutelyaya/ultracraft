@@ -52,7 +52,7 @@ public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Inter
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
 		return HostileEntity.createMobAttributes()
-					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 5.0d)
+					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 10.0d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.35d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 6.0d)
 					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d);

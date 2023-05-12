@@ -35,7 +35,10 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.UUID;
 
 public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEntity, IAnimatedEnemy, Enrageable
 {
@@ -62,7 +65,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
 		return AbstractUltraHostileEntity.createMobAttributes()
-					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 22.0d)
+					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 44.0d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 6.0d)
 					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d)
@@ -331,6 +334,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 	static class RamAttackGoal extends TimedAttackGoal<CerberusEntity>
 	{
 		Vec3d ramDir;
+		List<PlayerEntity> hits = new ArrayList<>();
 		
 		public RamAttackGoal(CerberusEntity cerb)
 		{
@@ -360,6 +364,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 		{
 			super.start();
 			mob.getNavigation().stop();
+			hits.clear();
 		}
 		
 		@Override
@@ -377,12 +382,23 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 			{
 				mob.world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), mob.getBoundingBox().expand(0.2), p -> true)
 						.forEach(p -> {
-							p.damage(mob.getDamageSources().mobAttack(mob), 8f);
-							p.setVelocity(ramDir.multiply(3).add(0.0, 0.5, 0.0));
+							if(!hits.contains(p))
+							{
+								p.damage(mob.getDamageSources().mobAttack(mob), 8f);
+								p.setVelocity(ramDir.multiply(3).add(0.0, 0.5, 0.0));
+								hits.add(p);
+							}
 						});
 				Vec3d lookPos = mob.getPos().add(ramDir.multiply(10));
 				mob.getLookControl().lookAt(lookPos.x, mob.getEyeY(), lookPos.z, 90, 90);
 			}
+		}
+		
+		@Override
+		public void stop()
+		{
+			super.stop();
+			hits.clear();
 		}
 	}
 	

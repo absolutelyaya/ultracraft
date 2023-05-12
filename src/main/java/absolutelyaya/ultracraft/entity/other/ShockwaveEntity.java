@@ -10,6 +10,9 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ShockwaveEntity extends Entity
 {
 	private static final TrackedData<Float> RADIUS = DataTracker.registerData(ShockwaveEntity.class, TrackedDataHandlerRegistry.FLOAT);
@@ -18,6 +21,7 @@ public class ShockwaveEntity extends Entity
 	Class<?> ignored;
 	Class<?> affectOnly;
 	Entity owner;
+	List<Entity> hits = new ArrayList<>();
 	
 	public ShockwaveEntity(EntityType<?> entityType, World world)
 	{
@@ -62,6 +66,7 @@ public class ShockwaveEntity extends Entity
 			world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox(), this::shouldDamage).forEach(e -> {
 				e.damage(DamageSources.get(world, DamageSources.SHOCKWAVE, owner), damage);
 				e.setVelocity(0f, velocity, 0f);
+				hits.add(e);
 			});
 		}
 		else
@@ -69,13 +74,14 @@ public class ShockwaveEntity extends Entity
 			world.getOtherEntities(this, getBoundingBox(), this::shouldDamage).forEach(e -> {
 				e.damage(DamageSources.get(world, DamageSources.SHOCKWAVE, owner), damage);
 				e.setVelocity(0f, velocity, 0f);
+				hits.add(e);
 			});
 		}
 	}
 	
 	boolean shouldDamage(Entity entity)
 	{
-		return entity.isAlive() && distanceTo(entity) > getRadius() - 1f && !entity.getClass().equals(ignored);
+		return entity.isAlive() && distanceTo(entity) > getRadius() - 1f && !entity.getClass().equals(ignored) && !hits.contains(entity);
 	}
 	
 	@Override

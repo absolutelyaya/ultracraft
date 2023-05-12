@@ -54,7 +54,7 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
 		return HostileEntity.createMobAttributes()
-					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 1.5d)
+					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 3.0d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 6.0d)
 					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d);
