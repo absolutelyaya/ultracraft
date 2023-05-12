@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import com.chocohead.mm.api.ClassTinkerers;
@@ -96,7 +97,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Inject(method = "damage", at = @At("TAIL"))
 	void afterDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
 	{
-		if(wingsActive)
+		if(wingsActive && !source.isIn(DamageTypeTags.IS_PER_TICK))
 			timeUntilRegen = 11;
 	}
 	

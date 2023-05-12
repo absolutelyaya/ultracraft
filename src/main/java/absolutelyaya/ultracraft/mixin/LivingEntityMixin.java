@@ -84,6 +84,8 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			player.heal(amount * (source.isOf(DamageSources.SHOTGUN) ? 10f : 2.5f));
 			player.getHungerManager().add((int)(amount / 1.5f), 5f);
 		}
+		if(source.isIn(DamageTypeTags.IS_PER_TICK))
+			return;
 		if(source.isOf(DamageSources.GUN) || source.isOf(DamageSources.SHOTGUN))
 			timeUntilRegen = 9;
 		if(source.isOf(DamageSources.SWORDSMACHINE))

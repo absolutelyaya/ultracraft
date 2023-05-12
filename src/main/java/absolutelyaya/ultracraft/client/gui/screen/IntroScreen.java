@@ -25,7 +25,7 @@ public class IntroScreen extends Screen
 	ButtonWidget closeButton;
 	boolean waitingForInput, waitingForButton, hurry, popupGrow;
 	int timer, step, ticksBroken = 0;
-	String goalText, curText = "Something went wrong trying to display the Ultracraft intro sequence. Retrying in a moment...";
+	String goalText, curText = "Something went wrong with the Ultracraft intro sequence.\nRetrying in a moment...";
 	float closeButtonAlpha = 0f, popupSize = 0f;
 	Ultraconfig config;
 	
@@ -116,7 +116,7 @@ public class IntroScreen extends Screen
 		}
 		if(ticksBroken > -1)
 			ticksBroken++;
-		if(ticksBroken > 100)
+		if(ticksBroken > 50)
 		{
 			RESOURCES_LOADED = true;
 			resourceLoadFinished();
