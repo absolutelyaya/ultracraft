@@ -10,22 +10,27 @@ import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -36,6 +41,26 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	@Shadow public abstract boolean isPushable();
 	
 	@Shadow public abstract void swingHand(Hand hand);
+	
+	@Shadow protected boolean jumping;
+	
+	@Shadow protected abstract void jump();
+	
+	@Shadow private int jumpingCooldown;
+	
+	@Shadow protected abstract float getBaseMovementSpeedMultiplier();
+	
+	@Shadow public abstract float getMovementSpeed();
+	
+	@Shadow public abstract boolean hasStatusEffect(StatusEffect effect);
+	
+	@Shadow protected abstract boolean shouldSwimInFluids();
+	
+	@Shadow public abstract boolean isClimbing();
+	
+	@Shadow public abstract boolean canWalkOnFluid(FluidState state);
+	
+	@Shadow public abstract void updateLimbs(boolean flutter);
 	
 	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
 	int punchTicks, punchDuration = 6;
@@ -98,8 +123,75 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		if(this instanceof WingedPlayerEntity winged && winged.isWingsVisible())
 		{
 			if(!world.isClient)
-				cir.setReturnValue(cir.getReturnValue() + 0.1f * Math.max(world.getGameRules().getInt(GameruleRegistry.HIVEL_JUMP_BOOST), 0));
+				cir.setReturnValue(cir.getReturnValue() + 0.1f * Math.max(world.getGameRules().getInt(GameruleRegistry.HIVEL_JUMP_BOOST) +
+						(isTouchingWater() ? 0.5f : 0f), 0));
 		}
+	}
+	
+	Vec3d fluidMovement(double gravity, boolean falling, Vec3d motion)
+	{
+		gravity /= falling ? 16f : 3f;
+		double vel = motion.y;
+		if (falling && Math.abs(vel - gravity) > 0.15)
+			vel = -0.15;
+		else
+			vel -= gravity;
+		return new Vec3d(motion.x, vel, motion.z);
+	}
+	
+	@Inject(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;shouldSwimInFluids()Z", ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
+	void onTravel(Vec3d movementInput, CallbackInfo ci, double d, boolean bl, FluidState fluidState)
+	{
+		if(!(this instanceof WingedPlayerEntity winged && winged.isWingsVisible()) || ((PlayerEntity)winged).getAbilities().flying)
+			return;
+		if(!isTouchingWater() || shouldSwimInFluids() || canWalkOnFluid(fluidState))
+			return;
+		float f = isSprinting() ? 0.9F : getBaseMovementSpeedMultiplier();
+		float g = 0.03f;
+		if(fluidState.isIn(FluidTags.WATER))
+		{
+			float h = (float)EnchantmentHelper.getDepthStrider((LivingEntity)(Object)this);
+			if (h > 3.0f)
+				h = 3.0f;
+			if (!onGround)
+				h *= 0.5f;
+			if (h > 0.0f)
+			{
+				f += (0.54f - f) * h / 3.0f;
+				g += (getMovementSpeed() - g) * h / 3.0f;
+			}
+			if (hasStatusEffect(StatusEffects.DOLPHINS_GRACE))
+				f = 0.96f;
+		}
+		updateVelocity(g, movementInput);
+		move(MovementType.SELF, getVelocity());
+		Vec3d vec3d = getVelocity();
+		if (horizontalCollision && isClimbing())
+			vec3d = new Vec3d(vec3d.x, 0.2, vec3d.z);
+		if(winged.shouldIgnoreSlowdown())
+			f = 0.9f;
+		setVelocity(vec3d.multiply(f, 1f, f));
+		setVelocity(fluidMovement(d, getVelocity().y <= 0f, getVelocity()));
+		
+		updateLimbs(this instanceof Flutterer);
+		ci.cancel();
+	}
+	
+	@Inject(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;shouldSwimInFluids()Z"))
+	void onTickMovement(CallbackInfo ci)
+	{
+		if (this instanceof WingedPlayerEntity winged && winged.isWingsVisible() && onGround && jumping && jumpingCooldown == 0)
+		{
+			jump();
+			jumpingCooldown = 10;
+		}
+	}
+	
+	@Inject(method = "shouldSwimInFluids", at = @At("HEAD"), cancellable = true)
+	void onShouldSwimInFluids(CallbackInfoReturnable<Boolean> cir)
+	{
+		if(this instanceof WingedPlayerEntity winged && winged.isWingsVisible())
+			cir.setReturnValue(false);
 	}
 	
 	void punchTick()

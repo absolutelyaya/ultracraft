@@ -106,10 +106,10 @@ public class ClientPacketRegistry
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.GROUND_POUND_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)
 				return;
-			PlayerEntity player = client.player.getServer().getPlayerManager().getPlayer(buf.readUuid());
+			PlayerEntity player = client.world.getPlayerByUuid(buf.readUuid());
 			if(player == null)
 				return;
-			Random random = player.getRandom();
+			Random random = client.player.getRandom();
 			for (int i = 0; i < 32; i++)
 			{
 				float x = (float)((random.nextDouble() * 6) - 3 + player.getX());

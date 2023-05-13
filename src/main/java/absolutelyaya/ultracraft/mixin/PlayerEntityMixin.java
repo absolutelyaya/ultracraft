@@ -11,6 +11,7 @@ import com.chocohead.mm.api.ClassTinkerers;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
+import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -37,8 +38,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	
 	@Shadow @Final @Mutable private static Map<EntityPose, EntityDimensions> POSE_DIMENSIONS;
 	
-	@Shadow public abstract boolean isSwimming();
-	
+	@Shadow @Final private PlayerAbilities abilities;
 	boolean wingsActive, groundPounding, ignoreSlowdown;
 	byte wingState, lastState;
 	float wingAnimTime;
@@ -105,6 +105,13 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	void onIsSwimming(CallbackInfoReturnable<Boolean> cir)
 	{
 		if(wingsActive)
+			cir.setReturnValue(false);
+	}
+	
+	@Inject(method = "shouldSwimInFluids", at = @At("HEAD"), cancellable = true)
+	void onShouldSwimInFluids(CallbackInfoReturnable<Boolean> cir)
+	{
+		if(wingsActive || abilities.flying)
 			cir.setReturnValue(false);
 	}
 	

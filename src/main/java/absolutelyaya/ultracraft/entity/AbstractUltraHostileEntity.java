@@ -66,4 +66,10 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 					getX() + offset.x, getY() + offset.y, getZ() + offset.z, 1, 0f, 0f, 0f, 0f);
 		}
 	}
+	
+	@Override
+	protected boolean shouldSwimInFluids()
+	{
+		return false;
+	}
 }
