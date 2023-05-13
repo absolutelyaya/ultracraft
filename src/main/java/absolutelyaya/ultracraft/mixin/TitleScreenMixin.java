@@ -76,10 +76,10 @@ public abstract class TitleScreenMixin extends Screen
     void onInit(CallbackInfo ci)
     {
         TitleBGButton ultracraft = addDrawableChild(new TitleBGButton(-24, 2,
-                32, 32, 32, 0, 32, BG_ICON_TEXTURE, 64, 64,
+                32, 32, 32, 0, 32, BG_ICON_TEXTURE, 64, 128,
                 button -> setBG("ultracraft"), Text.translatable("narrator.button.background.ultracraft")));
         TitleBGButton vanilla = addDrawableChild(new TitleBGButton(-24, 34,
-                32, 32, 0, 0, 32, BG_ICON_TEXTURE, 64, 64,
+                32, 32, 0, 0, 32, BG_ICON_TEXTURE, 64, 128,
                 button -> setBG("vanilla"), Text.translatable("narrator.button.background.vanilla")));
         (config.BGID.equals("ultracraft") ? ultracraft : vanilla).onPress();
     }
