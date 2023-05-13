@@ -105,6 +105,14 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 		if (hitResult.getType() != HitResult.Type.MISS)
 			onCollision(hitResult);
 		checkBlockCollision();
+		
+		if(isInStasis() && dataTracker.get(STASIS_TICKS) % 5 == 0)
+		{
+			world.getOtherEntities(this, getBoundingBox().expand(0.5)).forEach(e -> {
+				if(!e.equals(getOwner()))
+					e.damage(DamageSources.get(world, DamageSources.SWORDSMACHINE, getOwner()), 2);
+			});
+		}
 	}
 	
 	Vector3f getTrailPos(float deg, float distance)
@@ -192,6 +200,11 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 		return dataTracker.get(DISTANCE);
 	}
 	
+	boolean isInStasis()
+	{
+		return dataTracker.get(REACHED_DEST) && dataTracker.get(STASIS_TICKS) < 100 && !isParried() && !dataTracker.get(RETURNING);
+	}
+	
 	@Override
 	protected boolean tryPickup(PlayerEntity player)
 	{
@@ -209,7 +222,7 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 		Entity hit = entityHitResult.getEntity();
 		if(hit instanceof PlayerEntity p)
 			onPlayerCollision(p);
-		if(!isOwner(hit))
+		if(!isOwner(hit) && !isInStasis())
 		{
 			if(hit.damage(DamageSources.get(world, DamageSources.SWORDSMACHINE, getOwner()), 6) && getOwner() instanceof PlayerEntity playerOwner)
 				playerOwner.playSound(SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 0.5f, hitNoisePitch += 0.05);
