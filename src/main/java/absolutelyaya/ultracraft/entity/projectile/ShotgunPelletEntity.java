@@ -76,7 +76,7 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	{
 		Entity entity = entityHitResult.getEntity();
 		if(!entity.getClass().equals(ignore) || ((ProjectileEntityAccessor)this).isParried())
-			entity.damage(DamageSources.get(world, DamageSources.SHOTGUN, getOwner()), 0.5f);
+			entity.damage(DamageSources.get(world, DamageSources.SHOTGUN, getOwner()), 0.8f);
 	}
 	
 	@Override

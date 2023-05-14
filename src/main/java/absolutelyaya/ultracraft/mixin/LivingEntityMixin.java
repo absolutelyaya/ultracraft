@@ -194,6 +194,13 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			cir.setReturnValue(false);
 	}
 	
+	@Inject(method = "canWalkOnFluid", at = @At("HEAD"), cancellable = true)
+	void onCanWalkOnFluid(FluidState state, CallbackInfoReturnable<Boolean> cir)
+	{
+		if(this instanceof WingedPlayerEntity winged && winged.isWingsVisible() && isSprinting())
+			cir.setReturnValue(true);
+	}
+	
 	void punchTick()
 	{
 		int i = punchDuration;

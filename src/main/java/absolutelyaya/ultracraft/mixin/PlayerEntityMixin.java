@@ -8,6 +8,7 @@ import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import com.chocohead.mm.api.ClassTinkerers;
+import net.minecraft.block.FluidBlock;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
@@ -39,6 +40,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Shadow @Final @Mutable private static Map<EntityPose, EntityDimensions> POSE_DIMENSIONS;
 	
 	@Shadow @Final private PlayerAbilities abilities;
+	
 	boolean wingsActive, groundPounding, ignoreSlowdown;
 	byte wingState, lastState;
 	float wingAnimTime;
@@ -90,7 +92,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	{
 		if(isDashing())
 			cir.setReturnValue(false);
-		if(wingsActive && source.isOf(DamageTypes.FALL) && !world.isClient && !world.getGameRules().get(GameruleRegistry.HIVEL_FALLDAMAGE).get())
+		if(wingsActive && source.isOf(DamageTypes.FALL) && (!world.isClient && !world.getGameRules().get(GameruleRegistry.HIVEL_FALLDAMAGE).get()) ||
+				   getSteppingBlockState().getBlock() instanceof FluidBlock)
 			cir.setReturnValue(false);
 	}
 	

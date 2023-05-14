@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.registry.BlockTagRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
@@ -14,6 +15,8 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.util.math.BlockPos;
@@ -168,8 +171,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				ci.cancel();
 			}
 			//skip on liquids
-			if(isSprinting() && !lastTouchedWater && world.getBlockState(posToBlock(getPos().subtract(0f, 0.1, 0f))).getBlock() instanceof FluidBlock
-					   && !(world.getBlockState(posToBlock(getPos())).getBlock() instanceof FluidBlock))
+			BlockPos belowPos = posToBlock(getPos().subtract(0f, 0.1f, 0f));
+			FluidState fluidBelow = world.getBlockState(belowPos).getFluidState();
+			if(isSprinting() && !fluidBelow.getFluid().equals(Fluids.EMPTY) && !fluidBelow.isIn(BlockTagRegistry.UNSKIPPABLE_FLUIDS)
+					   && world.getFluidState(belowPos.up()).getFluid().equals(Fluids.EMPTY))
 			{
 				Vec3d vel = getVelocity();
 				setVelocity(new Vec3d(vel.x, Math.max(baseJumpVel / 2f, vel.y * -0.75), vel.z));
@@ -389,6 +394,6 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	
 	BlockPos posToBlock(Vec3d vec)
 	{
-		return new BlockPos(new Vec3i((int)vec.x, (int)vec.y, (int)vec.z));
+		return new BlockPos(new Vec3i((int)Math.floor(vec.x), (int)Math.floor(vec.y), (int)Math.floor(vec.z)));
 	}
 }
