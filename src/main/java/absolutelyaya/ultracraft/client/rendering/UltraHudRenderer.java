@@ -52,6 +52,8 @@ public class UltraHudRenderer extends DrawableHelper
 		ClientPlayerEntity player = client.player;
 		if(player == null)
 			return;
+		if(player.isSpectator())
+			return;
 		RenderSystem.disableDepthTest();
 		RenderSystem.disableCull();
 		
@@ -159,6 +161,11 @@ public class UltraHudRenderer extends DrawableHelper
 		matrices.push();
 		matrices.scale(30, 30, -30);
 		matrices.translate(-0.025, 0.425, 0);
+		if(cam.getSubmersionType().equals(CameraSubmersionType.WATER))
+		{
+			matrices.translate(0.45, 0.025, -0.5);
+			matrices.scale(1.05f, 1f, 1f);
+		}
 		matrices.multiply(new Quaternionf(new AxisAngle4f(0.12f, -1f, 1f, 0f)));
 		VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
 		Matrix3f normal = matrices.peek().getNormalMatrix();
