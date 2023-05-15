@@ -91,6 +91,9 @@
   "message.ultracraft.handswap-disabled": "[§4Ultracraft§r] This Server has disabled hand quick-swapping.",
   "message.ultracraft.content": "Welcome to Ultracraft!\nThis Mod aims to recreate the game Ultrakill (by §6Arsi \"Hakita\" Patala§f) and its mechanics in Minecraft. The Current Content includes:\n- All Prologue Enemies\n- 2 Weapons\n- A few Blocks and Items\n- A few Secrets/Jokes\n\nIf enough people like it, I will keep working on the mod. The next Feature I would implement, is §6Style Points§f.\nPlease be sure to report Issues/Bugs and send any Feedback you have my way!\nRelevant Links are in the Mod Info.\n\n✦ Absolutelyaya ✦",
   "message.ultracraft.consent": "Understood",
+  "message.ultracraft.intro-error": "Something went wrong with the Ultracraft intro sequence.\nThe issue: Sometimes detecting the asset reload being finished doesn't work.\nLuckily, we have a buton that can solve any problem!",
+  "message.ultracraft.fixer-button": "Fix that",
+  "message.ultracraft.fixer-button.tooltip": "This button actually just starts the intro Sequence manually.\nDon't tell it that though, it already has self-esteem issues.",
 
   "intro.ultracraft.calibration": "BOOT UP SEQUENCE READY\n\nFIRMWARE\n  §aVERSION %s§r\n\nCALIBRATION\n  §4EXPIRED§r\n  §4NEW CALIBRATION REQUIRED§r\n\n",
   "intro.ultracraft.input": "Press any Key",

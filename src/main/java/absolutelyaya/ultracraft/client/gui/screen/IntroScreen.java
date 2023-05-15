@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.client.UltracraftClient;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.util.InputUtil;
@@ -22,10 +23,10 @@ public class IntroScreen extends Screen
 	public static IntroScreen INSTANCE;
 	public static boolean SEQUENCE_FINISHED, RESOURCES_LOADED;
 	
-	ButtonWidget closeButton;
+	ButtonWidget closeButton, retryButton;
 	boolean waitingForInput, waitingForButton, hurry, popupGrow;
-	int timer, step, ticksBroken = 0;
-	String goalText, curText = "Something went wrong with the Ultracraft intro sequence.\nRetrying in a moment...";
+	int timer, step;
+	String goalText, curText;
 	float closeButtonAlpha = 0f, popupSize = 0f;
 	Ultraconfig config;
 	
@@ -41,6 +42,11 @@ public class IntroScreen extends Screen
 		config = UltracraftClient.getConfigHolder().getConfig();
 		INSTANCE = this;
 		SEQUENCE_FINISHED = false;
+		retryButton = addDrawableChild(new ButtonWidget.Builder(Text.translatable("message.ultracraft.fixer-button"), (button) -> {
+			RESOURCES_LOADED = true;
+			resourceLoadFinished();
+		}).dimensions(width / 2 - 49, 32 + textRenderer.fontHeight * 5, 98, 20)
+											   .tooltip(Tooltip.of(Text.translatable("message.ultracraft.fixer-button.tooltip"))).build());
 		closeButton = addDrawableChild(new ButtonWidget.Builder(Text.translatable("message.ultracraft.consent"), (button) -> {
 			config.lastVersion = Ultracraft.VERSION;
 			waitingForButton = false;
@@ -63,6 +69,12 @@ public class IntroScreen extends Screen
 				new Color(0, 0, 0, 150).getRGB(), new Color(0, 0, 0, 0).getRGB());
 		fillGradient(matrices, 0, height - height / 3, width, height,
 				new Color(0, 0, 0, 0).getRGB(), new Color(0, 0, 0, 150).getRGB());
+		
+		if(!RESOURCES_LOADED)
+		{
+			retryButton.render(matrices, mouseX, mouseY, delta);
+			curText = Text.translatable("message.ultracraft.intro-error").getString();
+		}
 		
 		if(step == 1 && closeButtonAlpha < 1f)
 		{
@@ -113,13 +125,6 @@ public class IntroScreen extends Screen
 			resourceLoadFinished();
 			config.repeatIntro = false;
 			UltracraftClient.getConfigHolder().save();
-		}
-		if(ticksBroken > -1)
-			ticksBroken++;
-		if(ticksBroken > 50)
-		{
-			RESOURCES_LOADED = true;
-			resourceLoadFinished();
 		}
 		if(goalText == null)
 			return;
@@ -174,6 +179,8 @@ public class IntroScreen extends Screen
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers)
 	{
+		if(!RESOURCES_LOADED)
+			return false;
 		if(waitingForInput && step != 2)
 			waitingForInput = false;
 		if(!waitingForInput && goalText.length() > 0)
@@ -187,7 +194,7 @@ public class IntroScreen extends Screen
 		curText = "";
 		goalText = Text.translatable("intro.ultracraft.calibration", Ultracraft.VERSION).getString();
 		timer = 40;
-		ticksBroken = -1;
-		init();
+		retryButton.active = false;
+		retryButton.visible = false;
 	}
 }

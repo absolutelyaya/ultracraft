@@ -123,8 +123,8 @@ public abstract class MinecraftClientMixin
 		resourceReload.whenComplete().thenRun(() -> {
 			if(IntroScreen.INSTANCE != null)
 			{
-				IntroScreen.INSTANCE.resourceLoadFinished();
-				IntroScreen.RESOURCES_LOADED = true;
+				//IntroScreen.INSTANCE.resourceLoadFinished();
+				//IntroScreen.RESOURCES_LOADED = true;
 			}
 		});
 		return resourceReload;
