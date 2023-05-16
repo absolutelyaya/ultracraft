@@ -21,9 +21,10 @@ public abstract class AbstractWeaponItem extends Item
 		this.recoil = recoil;
 	}
 	
-	public void onPrimaryFire(World world, PlayerEntity user)
+	public boolean onPrimaryFire(World world, PlayerEntity user)
 	{
 		((LivingEntityAccessor)user).addRecoil(recoil);
+		return true;
 	}
 	
 	@Override

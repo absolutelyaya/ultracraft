@@ -23,6 +23,7 @@
     "KeyboardInputMixin",
     "LivingEntityRendererMixin",
     "MinecraftClientMixin",
+    "OtherClientPlayerMixin",
     "TitleScreenMixin"
   ],
   "injectors": {

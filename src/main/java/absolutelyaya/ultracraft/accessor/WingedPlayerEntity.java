@@ -28,6 +28,8 @@ public interface WingedPlayerEntity
 	
 	boolean wasDashing(int i);
 	
+	int getDashingTicks();
+	
 	int getStamina();
 	
 	boolean consumeStamina();

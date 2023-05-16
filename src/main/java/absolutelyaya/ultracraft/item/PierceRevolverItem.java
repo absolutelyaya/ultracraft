@@ -97,7 +97,7 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 	}
 	
 	@Override
-	public void onPrimaryFire(World world, PlayerEntity user)
+	public boolean onPrimaryFire(World world, PlayerEntity user)
 	{
 		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
 		if(cdm.isUsable(this, 0))
@@ -105,7 +105,7 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 			if(world.isClient)
 			{
 				super.onPrimaryFire(world, user);
-				return;
+				return true;
 			}
 			world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_BLAST, SoundCategory.PLAYERS, 0.75f,
 					0.9f + (user.getRandom().nextFloat() - 0.5f) * 0.2f);
@@ -113,7 +113,10 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 			ServerHitscanHandler.performHitscan(user, (byte)0, 2f);
 			cdm.setCooldown(this, 10, GunCooldownManager.PRIMARY);
 			b = !b;
+			return true;
 		}
+		else
+			return false;
 	}
 	
 	@Override

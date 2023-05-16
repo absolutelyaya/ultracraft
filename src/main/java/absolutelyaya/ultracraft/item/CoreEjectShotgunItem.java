@@ -53,14 +53,14 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 	}
 	
 	@Override
-	public void onPrimaryFire(World world, PlayerEntity user)
+	public boolean onPrimaryFire(World world, PlayerEntity user)
 	{
 		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
 		Vec3d dir = new Vec3d(0f, 0f, 1f);
 		dir = dir.rotateX((float)Math.toRadians(-user.getPitch()));
 		dir = dir.rotateY((float)Math.toRadians(-user.getHeadYaw()));
 		if(!cdm.isUsable(this, 0) || user.getItemCooldownManager().isCoolingDown(this))
-			return;
+			return false;
 		super.onPrimaryFire(world, user);
 		if(!world.isClient)
 		{
@@ -88,6 +88,7 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 						dir.z * 0.5 + (rand.nextFloat() - 0.5f) * 0.2);
 			}
 		}
+		return true;
 	}
 	
 	@Override

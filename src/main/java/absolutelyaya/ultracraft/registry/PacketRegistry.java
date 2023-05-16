@@ -34,7 +34,7 @@ public class PacketRegistry
 {
 	public static final Identifier PUNCH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "parry");
 	public static final Identifier PUNCH_BLOCK_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_block");
-	public static final Identifier PRIMARY_SHOT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "primary_shot");
+	public static final Identifier PRIMARY_SHOT_PACKET_ID_C2S = new Identifier(Ultracraft.MOD_ID, "primary_shot_c2s");
 	public static final Identifier SET_HIGH_VELOCITY_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "sethivel_c2s");
 	public static final Identifier DASH_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_c2s");
 	public static final Identifier GROUND_POUND_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ground_pound_c2s");
@@ -50,6 +50,7 @@ public class PacketRegistry
 	public static final Identifier ENTITY_TRAIL = new Identifier(Ultracraft.MOD_ID, "entity_trail");
 	public static final Identifier GROUND_POUND_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ground_pound_s2c");
 	public static final Identifier EXPLOSION_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "explosion");
+	public static final Identifier PRIMARY_SHOT_PACKET_ID_S2C = new Identifier(Ultracraft.MOD_ID, "primary_shot_s2c");
 	
 	public static void registerC2S()
 	{
@@ -132,9 +133,18 @@ public class PacketRegistry
 				}
 			});
 		});
-		ServerPlayNetworking.registerGlobalReceiver(PRIMARY_SHOT_PACKET_ID, (server, player, handler, buf, sender) -> {
+		ServerPlayNetworking.registerGlobalReceiver(PRIMARY_SHOT_PACKET_ID_C2S, (server, player, handler, buf, sender) -> {
 			if (player.getMainHandStack().getItem() instanceof AbstractWeaponItem gun)
-				gun.onPrimaryFire(player.world, player);
+			{
+				if (!gun.onPrimaryFire(player.world, player))
+					return;
+				for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
+				{
+					buf = new PacketByteBuf(Unpooled.buffer());
+					buf.writeUuid(player.getUuid());
+					ServerPlayNetworking.send(p, PRIMARY_SHOT_PACKET_ID_S2C, buf);
+				}
+			}
 			else
 				Ultracraft.LOGGER.warn(player + " tried to use primary fire action but is holding a non-weapon Item!");
 		});
@@ -176,6 +186,9 @@ public class PacketRegistry
 				return;
 			buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeUuid(player.getUuid());
+			buf.writeDouble(player.getX());
+			buf.writeDouble(player.getY());
+			buf.writeDouble(player.getZ());
 			for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
 				ServerPlayNetworking.send(p, GROUND_POUND_S2C_PACKET_ID, buf);
 		});
