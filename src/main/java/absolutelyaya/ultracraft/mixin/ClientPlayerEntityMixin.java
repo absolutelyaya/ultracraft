@@ -209,21 +209,21 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			if(winged.isDashing())
 			{
 				setVelocity(dashDir);
-				//dash jump (preserves velocity)
-				if(jumping && !lastJumping && !isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.49f, 0f)))))
-				{
-					winged.onDashJump();
-					if(!winged.consumeStamina())
-						setVelocity(dashDir.multiply(0.3));
-					addVelocity(0f, baseJumpVel, 0f);
-					setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
-				}
 				ci.cancel();
 			}
-			//stop dashing
-			if(winged.wasDashing())
+			//dash jump (preserves velocity)
+			if(winged.wasDashing() && jumping && !lastJumping && !isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.49f, 0f)))))
 			{
-				if(onGround)
+				winged.onDashJump();
+				if(!winged.consumeStamina())
+					setVelocity(dashDir.multiply(0.3));
+				addVelocity(0f, baseJumpVel, 0f);
+				setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
+			}
+			//stop dashing
+			if(winged.wasDashing() && !isDashing())
+			{
+				if(isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.1f, 0f)))))
 					setVelocity(Vec3d.ZERO);
 				else
 					setVelocity(dashDir.multiply(0.3));

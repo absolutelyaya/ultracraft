@@ -165,7 +165,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Override
 	public boolean wasDashing()
 	{
-		return dashingTicks + 1 == 0;
+		return dashingTicks + 1 >= 0;
 	}
 	
 	@Override
