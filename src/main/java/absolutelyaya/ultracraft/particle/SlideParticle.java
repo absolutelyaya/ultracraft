@@ -37,7 +37,7 @@ public class SlideParticle extends BillboardStripeParticle
 			particle.setSprite(spriteProvider);
 			particle.width = 0.20f;
 			particle.maxLength = 0.8f + rand.nextFloat() * 0.5f;
-			particle.maxAge = 10 + rand.nextInt(16);
+			particle.maxAge = 6 + rand.nextInt(6);
 			particle.setColor(0.8f, 0.75f, 0.3f);
 			particle.setVelocity(rand.nextDouble() - 0.5, rand.nextDouble() * 0.3, rand.nextDouble() - 0.5);
 			particle.setAcceleration(new Vec3d(velocityX, velocityY, velocityZ));

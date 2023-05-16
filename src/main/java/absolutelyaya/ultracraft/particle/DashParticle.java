@@ -37,7 +37,7 @@ public class DashParticle extends BillboardStripeParticle
 			particle.setSprite(spriteProvider);
 			particle.width = 0.20f;
 			particle.maxLength = 0.8f + rand.nextFloat() * 0.5f;
-			particle.maxAge = 10 + rand.nextInt(16);
+			particle.maxAge = 4 + rand.nextInt(7);
 			particle.setColor(0.75f, 0.75f, 0.75f);
 			Vec3d dir = new Vec3d(velocityX, velocityY, velocityZ).normalize();
 			particle.setVelocity(dir.x, dir.y, dir.z);

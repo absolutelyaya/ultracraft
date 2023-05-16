@@ -51,8 +51,8 @@ public abstract class BillboardStripeParticle extends Particle
 		super.tick();
 		if(age <= 3)
 			alpha = age / 3f;
-		if(age - maxAge + 20 > 0)
-			alpha = (maxAge - age) / 20f;
+		if(age - maxAge + 4 > 0)
+			alpha = (maxAge - age) / 4f;
 		if(acceleration.lengthSquared() > 0)
 			setVelocity(velocityX + acceleration.x, velocityY + acceleration.y, velocityZ + acceleration.z);
 	}
