@@ -184,13 +184,18 @@ public class UltracraftClient implements ClientModInitializer
 			if(config.getConfig().bloodOverlay)
 			{
 				RenderSystem.enableBlend();
-				MinecraftClient.getInstance().inGameHud.renderOverlay(matrices, new Identifier(Ultracraft.MOD_ID, "textures/gui/blood_overlay2.png"),
+				String bloodName = config.get().danganronpa ? "textures/misc/blood_overlay_c" : "textures/misc/blood_overlay";
+				MinecraftClient.getInstance().inGameHud.renderOverlay(matrices, new Identifier(Ultracraft.MOD_ID, bloodName + "3.png"),
 						Math.min(screenblood - 1.25f, 0.75f));
-				MinecraftClient.getInstance().inGameHud.renderOverlay(matrices, new Identifier(Ultracraft.MOD_ID, "textures/gui/blood_overlay1.png"),
+				MinecraftClient.getInstance().inGameHud.renderOverlay(matrices, new Identifier(Ultracraft.MOD_ID, bloodName + "2.png"),
 						Math.min(screenblood - 0.25f, Math.max(0.6f - Math.min(screenblood - 0.75f, 0.6f), 0f)));
-				MinecraftClient.getInstance().inGameHud.renderOverlay(matrices, new Identifier(Ultracraft.MOD_ID, "textures/gui/blood_overlay.png"),
+				MinecraftClient.getInstance().inGameHud.renderOverlay(matrices, new Identifier(Ultracraft.MOD_ID, bloodName + "1.png"),
 						Math.min(screenblood - 0.75f, 0.6f));
 				screenblood = Math.max(0f, screenblood - delta / 120);
+				
+				if(Ultracraft.isTimeFrozen())
+					MinecraftClient.getInstance().inGameHud.renderOverlay(matrices, new Identifier(Ultracraft.MOD_ID, "textures/misc/time_freeze_overlay.png"),
+						0.25f);
 			}
 		});
 		

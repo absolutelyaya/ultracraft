@@ -156,5 +156,8 @@
   "text.autoconfig.ultracraft.option.bloodOverlay": "Blood Overlay",
   "text.autoconfig.ultracraft.option.bloodOverlay.@Tooltip": "If you get splashed with a LOT of blood, it might cover your screen a bit.",
 
+  "text.autoconfig.ultracraft.option.danganronpa": "Censor Blood",
+  "text.autoconfig.ultracraft.option.danganronpa.@Tooltip": "Replaces Blood VFX colors with neon Pink.",
+
   "text.autoconfig.ultracraft.option.repeatIntro": "Repeat Intro"
 }

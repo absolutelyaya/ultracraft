@@ -64,7 +64,8 @@ public class ClientPacketRegistry
 			boolean shotgun = buf.readBoolean();
 			Random rand = client.player.getRandom();
 			for (int i = 0; i < Math.min(3 * amount, 32); i++)
-				client.player.world.addParticle(new GoopDropParticleEffect(new Vec3d(0.56, 0.09, 0.01),
+				client.player.world.addParticle(new GoopDropParticleEffect(
+						UltracraftClient.getConfigHolder().get().danganronpa ? new Vec3d(1.0, 0.32, 0.83) : new Vec3d(0.56, 0.09, 0.01),
 								0.6f + rand.nextFloat() * 0.4f * (amount / 10f)), pos.x, pos.y + halfheight, pos.z,
 						rand.nextDouble() - 0.5, rand.nextDouble() - 0.5, rand.nextDouble() - 0.5);
 			if(client.player.squaredDistanceTo(pos) < 10)

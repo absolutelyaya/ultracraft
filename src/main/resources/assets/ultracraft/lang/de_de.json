@@ -156,5 +156,8 @@
   "text.autoconfig.ultracraft.option.bloodOverlay": "Blut Overlay",
   "text.autoconfig.ultracraft.option.bloodOverlay.@Tooltip": "Wenn due mit VIEL Blut bespritzt wirst, könnte es deinen Bildschirm bedecken.",
 
-  "text.autoconfig.ultracraft.option.repeatIntro": "Intro Widerholen"
+  "text.autoconfig.ultracraft.option.danganronpa": "Blut Zensieren",
+  "text.autoconfig.ultracraft.option.danganronpa.@Tooltip": "Färbt alle Blut-Effekte Neon Pink.",
+
+  "text.autoconfig.ultracraft.option.repeatIntro": "Intro wiederholen"
 }

@@ -32,6 +32,8 @@ public class Ultraconfig implements ConfigData
 	@ConfigEntry.Gui.Tooltip
 	@ConfigEntry.BoundedDiscrete(min = 0, max = 100)
 	public int slideCamOffset = 100;
+	@ConfigEntry.Gui.Tooltip
+	public boolean danganronpa = true;
 	@ConfigEntry.Category("goop")
 	@ConfigEntry.Gui.Tooltip
 	public boolean fancyGoop = false;
