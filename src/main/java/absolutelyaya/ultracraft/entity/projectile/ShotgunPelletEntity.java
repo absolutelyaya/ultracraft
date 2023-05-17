@@ -134,10 +134,12 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	@Override
 	protected void onCollision(HitResult hitResult)
 	{
-		super.onCollision(hitResult);
+		if(isRemoved())
+			return;
 		if(world.isClient)
 			UltracraftClient.TRAIL_RENDERER.removeTrail(uuid);
 		if(parrier != null)
 			onParriedCollision(hitResult);
+		super.onCollision(hitResult);
 	}
 }

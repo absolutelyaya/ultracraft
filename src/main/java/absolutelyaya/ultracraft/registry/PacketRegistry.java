@@ -137,19 +137,21 @@ public class PacketRegistry
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(PRIMARY_SHOT_PACKET_ID_C2S, (server, player, handler, buf, sender) -> {
-			if (player.getMainHandStack().getItem() instanceof AbstractWeaponItem gun)
-			{
-				if (!gun.onPrimaryFire(player.world, player))
-					return;
-				for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
+			server.execute(() -> {
+				if (player.getMainHandStack().getItem() instanceof AbstractWeaponItem gun)
 				{
-					buf = new PacketByteBuf(Unpooled.buffer());
-					buf.writeUuid(player.getUuid());
-					ServerPlayNetworking.send(p, PRIMARY_SHOT_PACKET_ID_S2C, buf);
+					if (!gun.onPrimaryFire(player.world, player))
+						return;
+					for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
+					{
+						PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
+						cbuf.writeUuid(player.getUuid());
+						ServerPlayNetworking.send(p, PRIMARY_SHOT_PACKET_ID_S2C, cbuf);
+					}
 				}
-			}
-			else
-				Ultracraft.LOGGER.warn(player + " tried to use primary fire action but is holding a non-weapon Item!");
+				else
+					Ultracraft.LOGGER.warn(player + " tried to use primary fire action but is holding a non-weapon Item!");
+			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(SET_HIGH_VELOCITY_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			WingedPlayerEntity winged = (WingedPlayerEntity)player;

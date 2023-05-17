@@ -68,9 +68,9 @@ public class HellBulletEntity extends ThrownItemEntity
 	protected void onCollision(HitResult hitResult)
 	{
 		super.onCollision(hitResult);
-		if(hitResult instanceof EntityHitResult ehr && ehr.getEntity().getClass().equals(ignore) && !((ProjectileEntityAccessor)this).isParried())
+		if(hitResult instanceof EntityHitResult hit && hit.getEntity().getClass().equals(ignore) && !((ProjectileEntityAccessor)this).isParried())
 			return;
-		if (!world.isClient)
+		if (!world.isClient && !isRemoved())
 		{
 			world.sendEntityStatus(this, (byte)3);
 			discard();
@@ -91,7 +91,7 @@ public class HellBulletEntity extends ThrownItemEntity
 	@Override
 	public void tick()
 	{
-		if(world.isClient && Ultracraft.isTimeFrozen())
+		if(isRemoved() || (world.isClient && Ultracraft.isTimeFrozen()))
 			return;
 		if (!shot) {
 			emitGameEvent(GameEvent.PROJECTILE_SHOOT, getOwner());
