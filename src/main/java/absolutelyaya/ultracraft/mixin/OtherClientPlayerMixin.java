@@ -44,10 +44,9 @@ public abstract class OtherClientPlayerMixin extends PlayerEntity implements Win
 				Vec3d pos = getPos().add((random.nextDouble() - 0.5) * getWidth(),
 						random.nextDouble() * getHeight(), (random.nextDouble() - 0.5) * getWidth()).add(dir.multiply(0.25));
 				world.addParticle(ParticleRegistry.DASH, true, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
-				world.addParticle(ParticleTypes.FLAME, true, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
 				lastDashPos = getPos();
 			}
-			if(isSprinting() && isWingsVisible())
+			if(isSprinting() && isWingsActive())
 			{
 				if(!wasSprinting)
 				{

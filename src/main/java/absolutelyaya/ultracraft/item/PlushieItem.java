@@ -30,11 +30,11 @@ public class PlushieItem extends Item implements GeoItem
 {
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
-	RawAnimation POSE_SIT = RawAnimation.begin().thenPlay("sit");
-	RawAnimation POSE_HAKITA = RawAnimation.begin().thenPlay("hakita");
-	RawAnimation POSE_SLIDE = RawAnimation.begin().thenPlay("slide");
-	RawAnimation BREAKDANCE = RawAnimation.begin().thenPlay("breakdance");
-	RawAnimation HELL_NEOW = RawAnimation.begin().thenPlay("hellneow");
+	final RawAnimation POSE_SIT = RawAnimation.begin().thenPlay("sit");
+	final RawAnimation POSE_HAKITA = RawAnimation.begin().thenPlay("hakita");
+	final RawAnimation POSE_SLIDE = RawAnimation.begin().thenPlay("slide");
+	final RawAnimation BREAKDANCE = RawAnimation.begin().thenPlay("breakdance");
+	final RawAnimation HELL_NEOW = RawAnimation.begin().thenPlay("hellneow");
 	protected Type defaultType = Type.V1;
 	
 	public PlushieItem(Settings settings)

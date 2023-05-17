@@ -40,10 +40,10 @@ public class Ultracraft implements ModInitializer
     
         ServerTickEvents.END_SERVER_TICK.register(minecraft -> tickFreeze());
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
-            ((WingedPlayerEntity)newPlayer).setWingsVisible(((WingedPlayerEntity)oldPlayer).isWingsVisible());
+            ((WingedPlayerEntity)newPlayer).setWingsVisible(((WingedPlayerEntity)oldPlayer).isWingsActive());
             PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
             buf.writeUuid(newPlayer.getUuid());
-            buf.writeBoolean(((WingedPlayerEntity)oldPlayer).isWingsVisible());
+            buf.writeBoolean(((WingedPlayerEntity)oldPlayer).isWingsActive());
             for (ServerPlayerEntity p : ((ServerWorld)newPlayer.world).getPlayers())
                 ServerPlayNetworking.send(p, PacketRegistry.SET_HIGH_VELOCITY_S2C_PACKET_ID, buf);
         });

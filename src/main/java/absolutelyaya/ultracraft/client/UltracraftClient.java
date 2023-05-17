@@ -163,8 +163,15 @@ public class UltracraftClient implements ClientModInitializer
 		
 		ClientEntityEvents.ENTITY_LOAD.register((entity, clientWorld) -> {
 			if (entity instanceof PlayerEntity player)
+			{
 				MinecraftClient.getInstance().getSoundManager().play(new MovingSlideSoundInstance(player));
-			if (entity instanceof ThrownMachineSwordEntity sword)
+				if(player.getUuid().equals(MinecraftClient.getInstance().player.getUuid()))
+					return;
+				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+				buf.writeUuid(player.getUuid());
+				ClientPlayNetworking.send(PacketRegistry.REQUEST_HIVEL_PACKET_ID, buf);
+			}
+			else if (entity instanceof ThrownMachineSwordEntity sword)
 				MinecraftClient.getInstance().getSoundManager().play(new MovingMachineSwordSoundInstance(sword));
 		});
 		

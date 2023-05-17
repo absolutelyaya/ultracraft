@@ -12,7 +12,7 @@ import net.minecraft.util.Identifier;
 
 public class InterruptableChargeRenderer extends EntityRenderer<InterruptableCharge>
 {
-	InterruptableChargeModel model;
+	final InterruptableChargeModel model;
 	
 	public InterruptableChargeRenderer(EntityRendererFactory.Context ctx)
 	{

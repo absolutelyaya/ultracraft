@@ -3,28 +3,21 @@ package absolutelyaya.ultracraft.mixin;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
-import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import com.chocohead.mm.api.ClassTinkerers;
 import net.minecraft.block.FluidBlock;
-import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.message.MessageType;
-import net.minecraft.network.message.SentMessage;
-import net.minecraft.network.message.SignedMessage;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.apache.commons.compress.compressors.lz77support.Parameters;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -71,7 +64,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	void onUpdatePose(PlayerEntity instance, EntityPose entityPose)
 	{
 		WingedPlayerEntity winged = ((WingedPlayerEntity)instance);
-		boolean hiVelMode = winged.isWingsVisible();
+		boolean hiVelMode = winged.isWingsActive();
 		if(hiVelMode)
 		{
 			if(winged.isDashing())
@@ -208,7 +201,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	}
 	
 	@Override
-	public boolean isWingsVisible()
+	public boolean isWingsActive()
 	{
 		return wingsActive;
 	}
@@ -276,7 +269,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		gunCDM.tickCooldowns();
 		if(wingHintDisplayTicks > 0)
 			wingHintDisplayTicks--;
-		if(dashingTicks > -20)
+		if(dashingTicks > -60)
 			dashingTicks--;
 	}
 	
@@ -291,7 +284,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 					random.nextDouble() * getHeight(), (random.nextDouble() - 0.5) * getWidth()).add(dir.multiply(0.25));
 			world.addParticle(ParticleRegistry.DASH, true, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
 		}
-		if(isSprinting() && isWingsVisible())
+		if(isSprinting() && isWingsActive())
 		{
 			Vec3d dir = getVelocity().multiply(1.0, 0.0, 1.0).normalize();
 			Vec3d particleVel = new Vec3d(-dir.x, -dir.y, -dir.z).multiply(random.nextDouble() * 0.1 + 0.025);
@@ -315,14 +308,14 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Inject(method = "adjustMovementForSneaking", at = @At("HEAD"), cancellable = true)
 	void onAdjustMovementForSneaking(Vec3d movement, MovementType type, CallbackInfoReturnable<Vec3d> cir)
 	{
-		if(isWingsVisible())
+		if(isWingsActive())
 			cir.setReturnValue(movement);
 	}
 	
 	@Redirect(method = "increaseTravelMotionStats", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;addExhaustion(F)V", ordinal = 3))
 	void addExhaustion(PlayerEntity instance, float exhaustion)
 	{
-		if(!((WingedPlayerEntity)instance).isWingsVisible())
+		if(!((WingedPlayerEntity)instance).isWingsActive())
 			instance.addExhaustion(exhaustion);
 	}
 	

@@ -3,7 +3,6 @@ package absolutelyaya.ultracraft.mixin;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,7 +34,7 @@ public abstract class EntityMixin
 	@ModifyArg(method = "updateVelocity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;movementInputToVelocity(Lnet/minecraft/util/math/Vec3d;FF)Lnet/minecraft/util/math/Vec3d;"), index = 2)
 	public float onConvertMovementInputToVel(float yaw)
 	{
-		if(getWorld().isClient() && this instanceof WingedPlayerEntity winged && winged.isWingsVisible() && winged instanceof PlayerEntity p && p.isSprinting())
+		if(getWorld().isClient() && this instanceof WingedPlayerEntity winged && winged.isWingsActive() && winged instanceof PlayerEntity p && p.isSprinting())
 			return (float)(Math.toDegrees(Math.atan2(winged.getSlideDir().z, winged.getSlideDir().x) - Math.toRadians(90)));
 		return yaw;
 	}

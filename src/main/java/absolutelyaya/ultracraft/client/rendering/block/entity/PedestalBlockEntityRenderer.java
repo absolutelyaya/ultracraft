@@ -20,7 +20,7 @@ import org.joml.Quaternionf;
 
 public class PedestalBlockEntityRenderer implements BlockEntityRenderer<PedestalBlockEntity>
 {
-	ItemRenderer renderer;
+	final ItemRenderer renderer;
 	
 	public PedestalBlockEntityRenderer(BlockEntityRendererFactory.Context context)
 	{

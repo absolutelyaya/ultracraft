@@ -6,6 +6,7 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
+@SuppressWarnings("CanBeFinal")
 @Config(name = Ultracraft.MOD_ID)
 @Config.Gui.Background("minecraft:textures/block/stone_bricks.png")
 public class Ultraconfig implements ConfigData

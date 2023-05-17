@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class SurfaceAlignedParticle extends SpriteBillboardParticle
 {
-	static Ultraconfig config;
+	static final Ultraconfig config;
 	
 	private final List<Boolean> faceShouldRender = new ArrayList<>();
 	private final List<Vec3d> verts = new ArrayList<>();

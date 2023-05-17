@@ -18,7 +18,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 
@@ -75,9 +74,8 @@ public class ClientPacketRegistry
 									0.6f + rand.nextFloat() * 0.4f * (amount / 10f)), pos.x, pos.y + halfheight, pos.z,
 							rand.nextDouble() - 0.5, rand.nextDouble() - 0.5, rand.nextDouble() - 0.5);
 				if(client.player.squaredDistanceTo(pos) < 10)
-					UltracraftClient.addBlood(amount / (shotgun ? 5f : 30f));
+					UltracraftClient.addBlood(amount / (shotgun ? 10f : 30f));
 			});
-			
 		})));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SET_HIGH_VELOCITY_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)

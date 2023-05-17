@@ -16,7 +16,7 @@ public interface WingedPlayerEntity
 	
 	void setWingsVisible(boolean b);
 	
-	boolean isWingsVisible();
+	boolean isWingsActive();
 	
 	void onDash();
 	

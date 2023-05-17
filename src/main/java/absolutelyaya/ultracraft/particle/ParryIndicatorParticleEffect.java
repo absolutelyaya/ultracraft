@@ -10,7 +10,7 @@ import net.minecraft.registry.Registries;
 
 public class ParryIndicatorParticleEffect implements ParticleEffect
 {
-	boolean unparriable;
+	final boolean unparriable;
 	
 	public ParryIndicatorParticleEffect(boolean unparriable)
 	{

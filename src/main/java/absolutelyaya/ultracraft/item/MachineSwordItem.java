@@ -38,12 +38,6 @@ public class MachineSwordItem extends SwordItem implements GeoItem
 		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 	
-	@Override
-	public ItemStack getDefaultStack()
-	{
-		return super.getDefaultStack();
-	}
-	
 	public ItemStack getSwordInstance(ServerWorld world)
 	{
 		ItemStack stack = getDefaultStack();

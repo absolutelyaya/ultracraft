@@ -18,8 +18,8 @@ public class GunCooldownManager
 	public static final int PRIMARY = 0;
 	public static final int SECONDARY = 1;
 	
-	PlayerEntity owner;
-	HashMap<Item, AtomicInteger[]> cooldowns = new HashMap<>();
+	final PlayerEntity owner;
+	final HashMap<Item, AtomicInteger[]> cooldowns = new HashMap<>();
 	
 	public GunCooldownManager(PlayerEntity owner)
 	{
@@ -42,7 +42,7 @@ public class GunCooldownManager
 					remove.add(key);
 			}
 		}
-		remove.forEach(i -> cooldowns.remove(i));
+		remove.forEach(cooldowns::remove);
 	}
 	
 	public void setCooldown(Item item, int ticks, int idx)

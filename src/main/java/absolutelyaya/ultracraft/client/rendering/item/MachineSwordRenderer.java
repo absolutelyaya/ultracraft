@@ -13,7 +13,7 @@ import software.bernie.geckolib.renderer.GeoItemRenderer;
 
 public class MachineSwordRenderer extends GeoItemRenderer<MachineSwordItem>
 {
-	MinecraftClient client;
+	final MinecraftClient client;
 	
 	public MachineSwordRenderer()
 	{

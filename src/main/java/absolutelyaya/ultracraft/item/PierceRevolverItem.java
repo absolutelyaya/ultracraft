@@ -37,11 +37,11 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 	protected int approxUseTime = -1;
-	RawAnimation AnimationStop = RawAnimation.begin().then("nothing", Animation.LoopType.LOOP);
-	RawAnimation AnimationCharge = RawAnimation.begin().thenPlay("charging").thenLoop("charged");
-	RawAnimation AnimationDischarge = RawAnimation.begin().thenPlay("discharge");
-	RawAnimation AnimationShot = RawAnimation.begin().thenPlay("shot");
-	RawAnimation AnimationShot2 = RawAnimation.begin().thenPlay("shot2");
+	final RawAnimation AnimationStop = RawAnimation.begin().then("nothing", Animation.LoopType.LOOP);
+	final RawAnimation AnimationCharge = RawAnimation.begin().thenPlay("charging").thenLoop("charged");
+	final RawAnimation AnimationDischarge = RawAnimation.begin().thenPlay("discharge");
+	final RawAnimation AnimationShot = RawAnimation.begin().thenPlay("shot");
+	final RawAnimation AnimationShot2 = RawAnimation.begin().thenPlay("shot2");
 	boolean b;
 	
 	public PierceRevolverItem(Settings settings)
@@ -110,7 +110,7 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 			world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_BLAST, SoundCategory.PLAYERS, 0.75f,
 					0.9f + (user.getRandom().nextFloat() - 0.5f) * 0.2f);
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), controllerName, b ? "shot" : "shot2");
-			ServerHitscanHandler.performHitscan(user, (byte)0, 2f);
+			ServerHitscanHandler.performHitscan(user, (byte)0, 1f);
 			cdm.setCooldown(this, 10, GunCooldownManager.PRIMARY);
 			b = !b;
 			return true;

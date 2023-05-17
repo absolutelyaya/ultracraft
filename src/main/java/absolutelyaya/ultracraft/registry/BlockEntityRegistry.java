@@ -14,7 +14,6 @@ public class BlockEntityRegistry
 	public static final BlockEntityType<PedestalBlockEntity> PEDESTAL;
 	public static final BlockEntityType<CerberusBlockEntity> CERBERUS;
 	
-	@SuppressWarnings("ConstantConditions")
 	public static void register() {
 	}
 	

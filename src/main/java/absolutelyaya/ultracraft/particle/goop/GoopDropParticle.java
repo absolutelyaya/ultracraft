@@ -16,8 +16,8 @@ public class GoopDropParticle extends SpriteBillboardParticle
 {
 	protected final SpriteProvider spriteProvider;
 	protected final Vec3d color;
-	float rotSpeed;
-	float totalScale;
+	final float rotSpeed;
+	final float totalScale;
 	
 	protected GoopDropParticle(ClientWorld clientWorld, Vec3d pos, Vec3d vel, SpriteProvider spriteProvider, Vec3d color, float scale)
 	{

@@ -43,8 +43,8 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 	protected int approxUseTime = -1;
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
-	RawAnimation AnimationShot = RawAnimation.begin().thenPlay("shot");
-	RawAnimation AnimationAltShot = RawAnimation.begin().thenPlay("altShot");
+	final RawAnimation AnimationShot = RawAnimation.begin().thenPlay("shot");
+	final RawAnimation AnimationAltShot = RawAnimation.begin().thenPlay("altShot");
 	
 	public CoreEjectShotgunItem(Settings settings)
 	{

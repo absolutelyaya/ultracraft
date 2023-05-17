@@ -13,7 +13,7 @@ import net.minecraft.util.Identifier;
 
 public class ShockwaveRenderer extends EntityRenderer<ShockwaveEntity>
 {
-	ShockwaveModel model;
+	final ShockwaveModel model;
 	
 	public ShockwaveRenderer(EntityRendererFactory.Context ctx)
 	{

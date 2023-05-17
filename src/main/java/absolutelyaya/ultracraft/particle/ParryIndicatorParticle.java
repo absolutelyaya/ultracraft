@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class ParryIndicatorParticle extends SpriteBillboardParticle
 {
-	float rotSpeed;
+	final float rotSpeed;
 	
 	protected ParryIndicatorParticle(ClientWorld world, double x, double y, double z)
 	{

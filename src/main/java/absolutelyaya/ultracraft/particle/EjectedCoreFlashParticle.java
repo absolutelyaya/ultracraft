@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class EjectedCoreFlashParticle extends SpriteBillboardParticle
 {
-	float rotSpeed;
+	final float rotSpeed;
 	
 	protected EjectedCoreFlashParticle(ClientWorld world, double x, double y, double z)
 	{

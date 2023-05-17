@@ -172,7 +172,7 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 	
 	static class GetOutOfMyPersonalSpaceGoal extends Goal
 	{
-		StrayEntity stray;
+		final StrayEntity stray;
 		PlayerEntity tooClose;
 		int checkTimer = 10;
 		
@@ -221,7 +221,7 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 	
 	static class ThrowAttackGoal extends Goal
 	{
-		StrayEntity stray;
+		final StrayEntity stray;
 		LivingEntity target;
 		InterruptableCharge charge;
 		int time;

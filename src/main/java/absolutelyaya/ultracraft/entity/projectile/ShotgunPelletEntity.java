@@ -13,7 +13,10 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.particle.BlockStateParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.Pair;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
@@ -77,6 +80,14 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 		Entity entity = entityHitResult.getEntity();
 		if(!entity.getClass().equals(ignore) || ((ProjectileEntityAccessor)this).isParried())
 			entity.damage(DamageSources.get(world, DamageSources.SHOTGUN, getOwner()), 0.5f);
+	}
+	
+	@Override
+	protected void onBlockHit(BlockHitResult blockHitResult)
+	{
+		super.onBlockHit(blockHitResult);
+		world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, world.getBlockState(blockHitResult.getBlockPos())),
+				getX(), getY(), getZ(), 0, 0, 0);
 	}
 	
 	@Override

@@ -11,8 +11,8 @@ import java.util.Set;
 
 public class ClientHitscanHandler
 {
-	HitscanRenderer renderer = new HitscanRenderer();
-	Set<Hitscan> hitscans = new HashSet<>();
+	final HitscanRenderer renderer = new HitscanRenderer();
+	final Set<Hitscan> hitscans = new HashSet<>();
 	
 	public void addEntry(Vec3d from, Vec3d to, byte type)
 	{

@@ -157,7 +157,7 @@ public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Inter
 	static class AttackGoal extends Goal
 	{
 		InterruptableCharge charge;
-		SchismEntity schism;
+		final SchismEntity schism;
 		LivingEntity target;
 		boolean vertical;
 		int shot, timer;

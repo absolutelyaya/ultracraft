@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.network.PacketByteBuf;
@@ -29,6 +30,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.List;
+import java.util.UUID;
 
 public class PacketRegistry
 {
@@ -38,6 +40,7 @@ public class PacketRegistry
 	public static final Identifier SET_HIGH_VELOCITY_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "sethivel_c2s");
 	public static final Identifier DASH_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_c2s");
 	public static final Identifier GROUND_POUND_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ground_pound_c2s");
+	public static final Identifier REQUEST_HIVEL_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "request_hivel");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
@@ -191,6 +194,16 @@ public class PacketRegistry
 			buf.writeDouble(player.getZ());
 			for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
 				ServerPlayNetworking.send(p, GROUND_POUND_S2C_PACKET_ID, buf);
+		});
+		ServerPlayNetworking.registerGlobalReceiver(REQUEST_HIVEL_PACKET_ID, (server, player, handler, buf, sender) -> {
+			UUID targetID = buf.readUuid();
+			PlayerEntity target = server.getPlayerManager().getPlayer(targetID);
+			if(target == null)
+				return;
+			buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeUuid(targetID);
+			buf.writeBoolean(((WingedPlayerEntity)target).isWingsActive());
+			ServerPlayNetworking.send(player, SET_HIGH_VELOCITY_S2C_PACKET_ID, buf);
 		});
 	}
 	

@@ -13,7 +13,7 @@ import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
 public class EnragedCerebusLayer extends GeoRenderLayer<CerberusEntity>
 {
-	EnragedFeature<CerberusEntity> rage;
+	final EnragedFeature<CerberusEntity> rage;
 	
 	public EnragedCerebusLayer(GeoRenderer<CerberusEntity> entityRendererIn)
 	{

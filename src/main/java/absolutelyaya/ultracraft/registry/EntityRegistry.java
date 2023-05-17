@@ -41,19 +41,19 @@ public class EntityRegistry
 	public static final EntityType<HellBulletEntity> HELL_BULLET = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "hell_bullet"),
 			EntityType.Builder.create(HellBulletEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
-					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().build("hell_bullet"));
+					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().disableSaving().build("hell_bullet"));
 	public static final EntityType<CerberusBallEntity> CERBERUS_BALL = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "cerberus_ball"),
 			EntityType.Builder.create(CerberusBallEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
-					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().build("cerberus_ball"));
+					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().disableSaving().build("cerberus_ball"));
 	public static final EntityType<ShotgunPelletEntity> SHOTGUN_PELLET = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "shotgun_pellet"),
 			EntityType.Builder.create(ShotgunPelletEntity::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
-					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().build("shotgun_pellet"));
+					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().disableSaving().build("shotgun_pellet"));
 	public static final EntityType<EjectedCoreEntity> EJECTED_CORE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "ejected_core"),
 			EntityType.Builder.create(EjectedCoreEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
-					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().build("ejected_core"));
+					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().disableSaving().build("ejected_core"));
 	public static final EntityType<ThrownMachineSwordEntity> THROWN_MACHINE_SWORD = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "thrown_machinesword"),
 			EntityType.Builder.create(ThrownMachineSwordEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
@@ -67,7 +67,6 @@ public class EntityRegistry
 			EntityType.Builder.create(InterruptableCharge::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
 					.disableSummon().maxTrackingRange(5).build("interruptable_charge"));
 	
-	@SuppressWarnings("ConstantConditions")
 	public static void register()
 	{
 		FabricDefaultAttributeRegistry.register(FILTH, FilthEntity.getDefaultAttributes());

@@ -62,8 +62,13 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	
 	@Shadow public abstract void updateLimbs(boolean flutter);
 	
+	@Shadow protected float lastDamageTaken;
+	
+	@Shadow protected abstract void applyDamage(DamageSource source, float amount);
+	
+	final int punchDuration = 6;
 	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
-	int punchTicks, punchDuration = 6;
+	int punchTicks;
 	boolean punching;
 	float punchProgress, prevPunchProgress, recoil;
 	
@@ -90,7 +95,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		if(!cir.getReturnValue() || world.isClient || !IsCanBleed())
 			return;
 		if(source.isIn(DamageTypeTags.ULTRACRAFT) && !((Object)this instanceof AbstractUltraHostileEntity) && !((Object)this instanceof PlayerEntity))
-			amount *= 2.5f;
+			applyDamage(source, amount * 1.5f); //mod damage x2.5 (x1 + x1.5) if done to a non-mod entity
 		List<PlayerEntity> nearby = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(32), e -> true);
 		List<PlayerEntity> heal = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(2), e -> !e.equals(this));
 		for (PlayerEntity player : nearby)
@@ -106,8 +111,9 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		}
 		for (PlayerEntity player : heal)
 		{
-			player.heal(amount * (source.isOf(DamageSources.SHOTGUN) ? 10f : 2.5f));
-			player.getHungerManager().add((int)(amount / 1.5f), 5f);
+			float healing = amount * (source.isOf(DamageSources.SHOTGUN) ? 1f : 2.5f);
+			player.heal(healing);
+			player.getHungerManager().add((int)(healing / 1.5f), 5f);
 		}
 		if(source.isIn(DamageTypeTags.IS_PER_TICK))
 			return;
@@ -120,7 +126,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	@Inject(method = "getJumpVelocity", at = @At("RETURN"), cancellable = true)
 	void onGetJumpVel(CallbackInfoReturnable<Float> cir)
 	{
-		if(this instanceof WingedPlayerEntity winged && winged.isWingsVisible())
+		if(this instanceof WingedPlayerEntity winged && winged.isWingsActive())
 		{
 			if(!world.isClient)
 				cir.setReturnValue(cir.getReturnValue() + 0.1f * Math.max(world.getGameRules().getInt(GameruleRegistry.HIVEL_JUMP_BOOST) +
@@ -142,7 +148,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	@Inject(method = "travel", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;shouldSwimInFluids()Z", ordinal = 0), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true)
 	void onTravel(Vec3d movementInput, CallbackInfo ci, double d, boolean bl, FluidState fluidState)
 	{
-		if(!(this instanceof WingedPlayerEntity winged && winged.isWingsVisible()) || ((PlayerEntity)winged).getAbilities().flying)
+		if(!(this instanceof WingedPlayerEntity winged && winged.isWingsActive()) || ((PlayerEntity)winged).getAbilities().flying)
 			return;
 		if(!isTouchingWater() || shouldSwimInFluids() || canWalkOnFluid(fluidState))
 			return;
@@ -180,7 +186,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	@Inject(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;shouldSwimInFluids()Z"))
 	void onTickMovement(CallbackInfo ci)
 	{
-		if (this instanceof WingedPlayerEntity winged && winged.isWingsVisible() && onGround && jumping && jumpingCooldown == 0)
+		if (this instanceof WingedPlayerEntity winged && winged.isWingsActive() && onGround && jumping && jumpingCooldown == 0)
 		{
 			jump();
 			jumpingCooldown = 10;
@@ -190,14 +196,14 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	@Inject(method = "shouldSwimInFluids", at = @At("HEAD"), cancellable = true)
 	void onShouldSwimInFluids(CallbackInfoReturnable<Boolean> cir)
 	{
-		if(this instanceof WingedPlayerEntity winged && winged.isWingsVisible())
+		if(this instanceof WingedPlayerEntity winged && winged.isWingsActive())
 			cir.setReturnValue(false);
 	}
 	
 	@Inject(method = "canWalkOnFluid", at = @At("HEAD"), cancellable = true)
 	void onCanWalkOnFluid(FluidState state, CallbackInfoReturnable<Boolean> cir)
 	{
-		if(this instanceof WingedPlayerEntity winged && winged.isWingsVisible() && isSprinting())
+		if(this instanceof WingedPlayerEntity winged && winged.isWingsActive() && isSprinting())
 			cir.setReturnValue(true);
 	}
 	

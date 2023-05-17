@@ -13,7 +13,7 @@ import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
 
 public class SwordsmachineRageLayer extends GeoRenderLayer<SwordsmachineEntity>
 {
-	EnragedFeature<SwordsmachineEntity> rage;
+	final EnragedFeature<SwordsmachineEntity> rage;
 	
 	public SwordsmachineRageLayer(GeoRenderer<SwordsmachineEntity> entityRendererIn)
 	{

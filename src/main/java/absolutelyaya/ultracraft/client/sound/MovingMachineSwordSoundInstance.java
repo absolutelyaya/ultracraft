@@ -2,8 +2,6 @@ package absolutelyaya.ultracraft.client.sound;
 
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 
 public class MovingMachineSwordSoundInstance extends MovingPlayerSoundInstance
 {

@@ -20,7 +20,7 @@ public class MovingWindSoundInstance extends MovingPlayerSoundInstance
 		if(owner.isRemoved())
 			setDone();
 		WingedPlayerEntity winged = (WingedPlayerEntity)owner;
-		if(!winged.isWingsVisible())
+		if(!winged.isWingsActive())
 		{
 			desiredVolume = volume = 0;
 			return;

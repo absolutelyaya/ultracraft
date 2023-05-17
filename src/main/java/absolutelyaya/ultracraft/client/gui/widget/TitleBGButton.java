@@ -13,7 +13,8 @@ import net.minecraft.util.math.MathHelper;
 public class TitleBGButton extends TexturedButtonWidget
 {
 	static TitleBGButton lastPressed;
-	float hoverTime, originalX, actualXPos, desiredXPos;
+	final float originalX;
+	float hoverTime, actualXPos, desiredXPos;
 	boolean wasLastPressed, wasHovered;
 	
 	public TitleBGButton(int x, int y, int width, int height, int u, int v, int hoveredVOffset, Identifier texture, int textureWidth, int textureHeight, PressAction pressAction, Text message)

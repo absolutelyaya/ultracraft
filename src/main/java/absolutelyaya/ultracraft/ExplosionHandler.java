@@ -23,7 +23,7 @@ import java.util.Random;
 
 public class ExplosionHandler
 {
-	static Random random = new java.util.Random();
+	static final Random random = new java.util.Random();
 	
 	public static void explosion(Entity ignored, World world, Vec3d pos, DamageSource source, float damage, float falloff, float radius)
 	{

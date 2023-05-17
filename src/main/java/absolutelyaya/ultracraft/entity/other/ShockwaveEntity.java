@@ -21,7 +21,7 @@ public class ShockwaveEntity extends Entity
 	Class<?> ignored;
 	Class<?> affectOnly;
 	Entity owner;
-	List<Entity> hits = new ArrayList<>();
+	final List<Entity> hits = new ArrayList<>();
 	
 	public ShockwaveEntity(EntityType<?> entityType, World world)
 	{

@@ -17,7 +17,7 @@ public abstract class BillboardStripeParticle extends Particle
 	float length, width, maxLength = 2f;
 	Sprite sprite;
 	Vec3d acceleration = Vec3d.ZERO;
-	boolean debugging = false;
+	final boolean debugging = false;
 	
 	protected BillboardStripeParticle(ClientWorld world, double x, double y, double z)
 	{

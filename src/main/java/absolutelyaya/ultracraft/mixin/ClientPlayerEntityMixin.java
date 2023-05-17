@@ -72,7 +72,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	Vec3d slideDir = Vec3d.ZERO;
 	boolean groundPounding, lastGroundPounding, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored;
 	int groundPoundTicks, ticksSinceLastGroundPound = -1, slideTicks, wallJumps = 3;
-	float slideVelocity, baseJumpVel = 0.42f;
+	float slideVelocity;
+	final float baseJumpVel = 0.42f;
 	
 	@Inject(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/packet/Packet;)V", ordinal = 0), cancellable = true)
 	public void onSendSneakChangedPacket(CallbackInfo ci)
@@ -258,7 +259,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				Optional<Integer> Z = Optional.empty();
 				for (VoxelShape shape : touchingWalls)
 				{
-					Optional<Vec3d> opos = shape.getClosestPointTo(getPos());;
+					Optional<Vec3d> opos = shape.getClosestPointTo(getPos());
 					if(opos.isEmpty())
 						continue;
 					Vec3d v = unhorizontalize(getPos().multiply(1, 0, 1).subtract(opos.get().multiply(1, 0, 1)).normalize());
@@ -381,7 +382,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	}
 	
 	@Override
-	public boolean isWingsVisible()
+	public boolean isWingsActive()
 	{
 		return UltracraftClient.isHiVelEnabled();
 	}

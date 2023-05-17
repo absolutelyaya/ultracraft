@@ -8,7 +8,7 @@ import net.minecraft.util.Identifier;
 
 public class RecipeSerializers
 {
-	public static PlushieRecipe.PlushieRecipeSerializer PLUSHIE_SERIALIZER =
+	public static final PlushieRecipe.PlushieRecipeSerializer PLUSHIE_SERIALIZER =
 			Registry.register(Registries.RECIPE_SERIALIZER, new Identifier(Ultracraft.MOD_ID, "plushie"), new PlushieRecipe.PlushieRecipeSerializer());
 	
 	public static void register()

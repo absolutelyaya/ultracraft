@@ -93,15 +93,5 @@ public class ServerHitscanHandler
 		sendPacket((ServerWorld)user.world, origin.add(new Vec3d(-0.5f, -0.3f, 0f).rotateY(-(float)Math.toRadians(user.getYaw()))), modifiedTo, type);
 	}
 	
-	public static class HitscanExplosionData
-	{
-		public float radius, damage, falloff;
-		
-		public HitscanExplosionData(float radius, float damage, float falloff)
-		{
-			this.radius = radius;
-			this.damage = damage;
-			this.falloff = falloff;
-		}
-	}
+	public record HitscanExplosionData(float radius, float damage, float falloff) {}
 }

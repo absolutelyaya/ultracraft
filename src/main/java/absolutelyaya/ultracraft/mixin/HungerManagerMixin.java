@@ -14,7 +14,7 @@ public class HungerManagerMixin
 	@Inject(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;heal(F)V"), cancellable = true)
 	void onHeal(PlayerEntity player, CallbackInfo ci)
 	{
-		if(((WingedPlayerEntity)player).isWingsVisible())
+		if(((WingedPlayerEntity)player).isWingsActive())
 			ci.cancel();
 	}
 }

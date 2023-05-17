@@ -17,7 +17,7 @@ public abstract class KeyboardInputMixin extends Input
 	void onTick(boolean slowDown, float f, CallbackInfo ci)
 	{
 		PlayerEntity player = MinecraftClient.getInstance().player;
-		if(player != null && ((WingedPlayerEntity)player).isWingsVisible() && player.isSprinting())
+		if(player != null && ((WingedPlayerEntity)player).isWingsActive() && player.isSprinting())
 			movementForward = 0f;
 	}
 }

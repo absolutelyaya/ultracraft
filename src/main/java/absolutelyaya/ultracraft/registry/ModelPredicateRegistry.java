@@ -9,7 +9,6 @@ import net.minecraft.util.Identifier;
 
 public class ModelPredicateRegistry
 {
-	@SuppressWarnings("ConstantConditions")
 	public static void registerModels()
 	{
 		ModelPredicateProviderRegistry.register(BlockRegistry.PEDESTAL.asItem(), new Identifier(Ultracraft.MOD_ID, "type"),

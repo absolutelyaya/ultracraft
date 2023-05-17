@@ -26,7 +26,7 @@ public abstract class CameraMixin
 		if(thirdPerson && focusedEntity instanceof PlayerEntity player && f > 0f)
 		{
 			WingedPlayerEntity winged = (WingedPlayerEntity)player;
-			if(winged.isWingsVisible() && player.isSprinting())
+			if(winged.isWingsActive() && player.isSprinting())
 				moveBy(clipToSpace(1.5f * f), f, -1.5f * f);
 		}
 	}

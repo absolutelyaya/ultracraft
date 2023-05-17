@@ -581,7 +581,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	
 	static class ChaseGoal extends Goal
 	{
-		SwordsmachineEntity sm;
+		final SwordsmachineEntity sm;
 		LivingEntity target;
 		
 		public ChaseGoal(SwordsmachineEntity sm)
@@ -617,7 +617,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	
 	static class LookAroundGoal extends Goal
 	{
-		SwordsmachineEntity sm;
+		final SwordsmachineEntity sm;
 		int timer;
 		
 		public LookAroundGoal(SwordsmachineEntity sm)
@@ -666,7 +666,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	
 	static class ShotgunGoal extends Goal
 	{
-		SwordsmachineEntity sm;
+		final SwordsmachineEntity sm;
 		LivingEntity target;
 		int timer;
 		
@@ -729,7 +729,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	
 	static class ThrowSwordGoal extends Goal
 	{
-		SwordsmachineEntity sm;
+		final SwordsmachineEntity sm;
 		LivingEntity target;
 		int timer;
 		
@@ -791,8 +791,8 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	
 	static class SlashGoal extends Goal
 	{
-		List<Entity> damaged = new ArrayList<>();
-		SwordsmachineEntity sm;
+		final List<Entity> damaged = new ArrayList<>();
+		final SwordsmachineEntity sm;
 		LivingEntity target;
 		int timer;
 		Vec3d direction;
@@ -884,8 +884,8 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	
 	static class ComboGoal extends Goal
 	{
-		List<Entity> damaged = new ArrayList<>();
-		SwordsmachineEntity sm;
+		final List<Entity> damaged = new ArrayList<>();
+		final SwordsmachineEntity sm;
 		LivingEntity target;
 		int timer;
 		Vec3d direction;
@@ -989,8 +989,8 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	
 	static class SpinGoal extends Goal
 	{
-		List<Entity> damaged = new ArrayList<>();
-		SwordsmachineEntity sm;
+		final List<Entity> damaged = new ArrayList<>();
+		final SwordsmachineEntity sm;
 		LivingEntity target;
 		int timer;
 		Vec3d direction;

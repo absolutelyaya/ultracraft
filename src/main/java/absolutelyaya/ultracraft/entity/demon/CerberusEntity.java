@@ -38,7 +38,6 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.UUID;
 
 public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEntity, IAnimatedEnemy, Enrageable
 {
@@ -262,7 +261,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 	
 	static class ApproachTargetGoal extends Goal
 	{
-		CerberusEntity cerb;
+		final CerberusEntity cerb;
 		
 		public ApproachTargetGoal(CerberusEntity cerb)
 		{
@@ -334,7 +333,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 	static class RamAttackGoal extends TimedAttackGoal<CerberusEntity>
 	{
 		Vec3d ramDir;
-		List<PlayerEntity> hits = new ArrayList<>();
+		final List<PlayerEntity> hits = new ArrayList<>();
 		
 		public RamAttackGoal(CerberusEntity cerb)
 		{

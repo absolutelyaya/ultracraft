@@ -39,8 +39,8 @@ public class UltraHudRenderer extends DrawableHelper
 	static float fishTimer;
 	static ItemStack lastCatch;
 	static int fishCaught;
-	String[] fishMania = new String[] {"message.ultracraft.fish.mania1", "message.ultracraft.fish.mania2", "message.ultracraft.fish.mania3", "message.ultracraft.fish.mania4"};
-	Random rand = new Random();
+	final String[] fishMania = new String[] {"message.ultracraft.fish.mania1", "message.ultracraft.fish.mania2", "message.ultracraft.fish.mania3", "message.ultracraft.fish.mania4"};
+	final Random rand = new Random();
 	
 	public void render(float tickDelta, Camera cam)
 	{

@@ -188,8 +188,8 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 	
 	static class FilthLungeAttackGoal extends Goal
 	{
-		FilthEntity mob;
-		float velocity;
+		final FilthEntity mob;
+		final float velocity;
 		LivingEntity target;
 		int time;
 		boolean didDamage;

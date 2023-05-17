@@ -8,7 +8,6 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.item.Item;
@@ -71,9 +70,11 @@ public class HellBulletEntity extends ThrownItemEntity
 		super.onCollision(hitResult);
 		if(hitResult instanceof EntityHitResult ehr && ehr.getEntity().getClass().equals(ignore) && !((ProjectileEntityAccessor)this).isParried())
 			return;
-		if (!this.world.isClient)
-			this.world.sendEntityStatus(this, (byte)3);
-		this.kill();
+		if (!world.isClient)
+		{
+			world.sendEntityStatus(this, (byte)3);
+			discard();
+		}
 	}
 	
 	public void setIgnored(Class<? extends LivingEntity> ignore)
@@ -114,7 +115,8 @@ public class HellBulletEntity extends ThrownItemEntity
 			for (int i = 0; i < 5; i++)
 				world.addParticle(new ItemStackParticleEffect(ParticleTypes.ITEM, getStack()),
 						getX(), getY(), getZ(), 0f, 0f, 0f);
-			discard();
+			if(!world.isClient())
+				discard();
 		}
 	}
 	

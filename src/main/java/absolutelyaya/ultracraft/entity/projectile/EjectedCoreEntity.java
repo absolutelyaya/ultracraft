@@ -67,8 +67,8 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 		{
 			ExplosionHandler.explosion(null, world, hitResult.getPos(), getDamageSources().explosion(getOwner(), getOwner()), 3.5f, 2.5f, 2f);
 			world.sendEntityStatus(this, (byte)3);
+			discard();
 		}
-		this.kill();
 	}
 	
 	@Override

@@ -11,7 +11,7 @@ import net.minecraft.world.World;
 
 public class AbstractUltraFlyingEntity extends AbstractUltraHostileEntity
 {
-	float drag;
+	final float drag;
 	
 	protected AbstractUltraFlyingEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{

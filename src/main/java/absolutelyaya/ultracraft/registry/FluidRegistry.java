@@ -9,8 +9,8 @@ import net.minecraft.util.Identifier;
 
 public class FluidRegistry
 {
-	public static FlowableFluid STILL_BLOOD = Registry.register(Registries.FLUID, new Identifier(Ultracraft.MOD_ID, "blood"), new BloodFluid.Still());
-	public static FlowableFluid Flowing_BLOOD = Registry.register(Registries.FLUID, new Identifier(Ultracraft.MOD_ID, "blood_flowing"), new BloodFluid.Flowing());
+	public static final FlowableFluid STILL_BLOOD = Registry.register(Registries.FLUID, new Identifier(Ultracraft.MOD_ID, "blood"), new BloodFluid.Still());
+	public static final FlowableFluid Flowing_BLOOD = Registry.register(Registries.FLUID, new Identifier(Ultracraft.MOD_ID, "blood_flowing"), new BloodFluid.Flowing());
 	
 	public static void register()
 	{

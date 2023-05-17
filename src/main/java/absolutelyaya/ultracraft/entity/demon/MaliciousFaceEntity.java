@@ -450,7 +450,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	static class MaliciousMoveControl extends MoveControl
 	{
 		private final MaliciousFaceEntity face;
-		Random rand;
+		final Random rand;
 		boolean strafeDir;
 		int tickSinceStrafeDirSwitch;
 		
@@ -631,7 +631,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	
 	static class MaliciousSalvaeGoal extends Goal
 	{
-		MaliciousFaceEntity face;
+		final MaliciousFaceEntity face;
 		LivingEntity target;
 		int timer, shots;
 		
@@ -681,7 +681,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	
 	static class MaliciousBeamGoal extends Goal
 	{
-		MaliciousFaceEntity face;
+		final MaliciousFaceEntity face;
 		LivingEntity target;
 		int timer;
 		Vec3d lastTargetPos, targetPos;

@@ -19,12 +19,12 @@ import java.util.function.Supplier;
 
 public class TrailRenderer
 {
-	static Ultraconfig config = UltracraftClient.getConfigHolder().getConfig();
-	static Map<UUID, Trail> trails = new HashMap<>();
-	static Map<UUID, Trail> newTrails = new HashMap<>();
-	static List<UUID> deletionQueue = new ArrayList<>();
-	static MinecraftClient client;
-	static Random rand;
+	static final Ultraconfig config = UltracraftClient.getConfigHolder().getConfig();
+	static final Map<UUID, Trail> trails = new HashMap<>();
+	static final Map<UUID, Trail> newTrails = new HashMap<>();
+	static final List<UUID> deletionQueue = new ArrayList<>();
+	static final MinecraftClient client;
+	static final Random rand;
 	
 	public void render(MatrixStack matrixStack, Camera cam)
 	{
@@ -256,11 +256,11 @@ public class TrailRenderer
 	
 	public static class Trail
 	{
-		Queue<Pair<Long, Pair<Vector3f, Vector3f>>> points;
+		final Queue<Pair<Long, Pair<Vector3f, Vector3f>>> points;
+		final Supplier<Pair<Vector3f, Vector3f>> pointSupplier;
+		final Vector4f color;
+		final int lifetime;
 		Long lastRendered;
-		Supplier<Pair<Vector3f, Vector3f>> pointSupplier;
-		Vector4f color;
-		int lifetime;
 		
 		public Trail(Supplier<Pair<Vector3f, Vector3f>> pointSupplier, Vector4f color, int lifetime)
 		{

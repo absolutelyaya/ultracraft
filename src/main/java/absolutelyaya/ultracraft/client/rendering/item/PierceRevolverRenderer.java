@@ -17,7 +17,7 @@ import java.util.Random;
 
 public class PierceRevolverRenderer extends GeoItemRenderer<PierceRevolverItem>
 {
-	Random random = new Random();
+	final Random random = new Random();
 	
 	public PierceRevolverRenderer()
 	{

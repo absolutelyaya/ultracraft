@@ -2,7 +2,6 @@ package absolutelyaya.ultracraft.client.rendering.entity.demon;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.client.UltracraftClient;
-import absolutelyaya.ultracraft.client.rendering.entity.other.InterruptableChargeModel;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.model.Model;

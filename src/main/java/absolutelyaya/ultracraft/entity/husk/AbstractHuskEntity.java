@@ -31,7 +31,7 @@ public abstract class AbstractHuskEntity extends AbstractUltraHostileEntity
 	
 	static class GetIntoSightGoal extends Goal
 	{
-		AbstractHuskEntity husk;
+		final AbstractHuskEntity husk;
 		LivingEntity target;
 		
 		public GetIntoSightGoal(AbstractHuskEntity husk)

@@ -31,7 +31,7 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch)
 	{
 		WingedPlayerEntity winged = ((WingedPlayerEntity)entity);
-		if(winged.isWingsVisible())
+		if(winged.isWingsActive())
 		{
 			//this.getContextModel().copyStateTo(this.wings);
 			this.wings.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, winged);

@@ -22,7 +22,7 @@ public class MovingSlideSoundInstance extends MovingPlayerSoundInstance
 		y = owner.getY();
 		z = owner.getZ();
 		WingedPlayerEntity winged = (WingedPlayerEntity)owner;
-		if(winged.isWingsVisible() && owner.isSprinting() && owner.isOnGround())
+		if(winged.isWingsActive() && owner.isSprinting() && owner.isOnGround())
 		{
 			float speed = (float)owner.getVelocity().length();
 			pitch = speed * 4f;

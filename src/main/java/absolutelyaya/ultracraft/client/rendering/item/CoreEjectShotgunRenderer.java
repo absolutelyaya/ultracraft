@@ -18,7 +18,7 @@ import java.util.Random;
 
 public class CoreEjectShotgunRenderer extends GeoItemRenderer<CoreEjectShotgunItem>
 {
-	Random random = new Random();
+	final Random random = new Random();
 	
 	public CoreEjectShotgunRenderer()
 	{
