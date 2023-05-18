@@ -11,6 +11,7 @@ import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -18,6 +19,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 
@@ -129,16 +131,17 @@ public class ClientPacketRegistry
 			PlayerEntity player = client.world.getPlayerByUuid(buf.readUuid());
 			if(player == null)
 				return;
+			BlockPos pos = buf.readBlockPos();
+			BlockState state = client.player.world.getBlockState(pos);
 			MinecraftClient.getInstance().execute(() -> {
 				Random random = client.player.getRandom();
 				for (int i = 0; i < 32; i++)
 				{
 					float x = (float)((random.nextDouble() * 6) - 3 + player.getX());
 					float z = (float)((random.nextDouble() * 6) - 3 + player.getZ());
-					client.player.world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, player.getSteppingBlockState()),
-							x, player.getY() + 0.1, z, 0f, 1f, 0f);
+					client.player.world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), true,
+							x, pos.up().getY() + 0.1, z, 0f, 1f, 0f);
 				}
-				client.player.world.addBlockBreakParticles(player.getSteppingPos(), player.getSteppingBlockState());
 			});
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.EXPLOSION_PACKET_ID, (((client, handler, buf, responseSender) -> {

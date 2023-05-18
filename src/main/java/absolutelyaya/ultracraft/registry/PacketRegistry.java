@@ -186,16 +186,14 @@ public class PacketRegistry
 					winged.startGroundPound();
 				else
 					winged.completeGroundPound(strong);
+				if(start)
+					return;
+				PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
+				cbuf.writeUuid(player.getUuid());
+				cbuf.writeBlockPos(player.getSteppingPos());
+				for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
+					ServerPlayNetworking.send(p, GROUND_POUND_S2C_PACKET_ID, cbuf);
 			});
-			if(start)
-				return;
-			buf = new PacketByteBuf(Unpooled.buffer());
-			buf.writeUuid(player.getUuid());
-			buf.writeDouble(player.getX());
-			buf.writeDouble(player.getY());
-			buf.writeDouble(player.getZ());
-			for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
-				ServerPlayNetworking.send(p, GROUND_POUND_S2C_PACKET_ID, buf);
 		});
 		ServerPlayNetworking.registerGlobalReceiver(REQUEST_HIVEL_PACKET_ID, (server, player, handler, buf, sender) -> {
 			UUID targetID = buf.readUuid();
