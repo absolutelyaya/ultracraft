@@ -223,10 +223,9 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			if(wasDashing() && !isDashing())
 			{
 				if(isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.1f, 0f)))))
-					setVelocity(Vec3d.ZERO);
-				else
 					setVelocity(dashDir.multiply(0.3));
-				dashDir = Vec3d.ZERO;
+				else
+					setVelocity(Vec3d.ZERO);
 				ci.cancel();
 			}
 			//stop ignoring slowdown when not sliding/dashing and on ground
