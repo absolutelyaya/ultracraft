@@ -330,4 +330,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	{
 		this.ignoreSlowdown = ignoreSlowdown;
 	}
+	
+	@Override
+	public boolean canBreatheInWater()
+	{
+		return isWingsActive() && !world.getGameRules().getBoolean(GameruleRegistry.HIVEL_DROWNING);
+	}
 }

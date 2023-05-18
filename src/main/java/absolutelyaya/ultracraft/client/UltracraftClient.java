@@ -56,6 +56,7 @@ import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import software.bernie.geckolib.network.GeckoLibNetwork;
@@ -74,7 +75,7 @@ public class UltracraftClient implements ClientModInitializer
 	static boolean HiVelMode = false;
 	static GameruleRegistry.Option HiVelOption = GameruleRegistry.Option.FREE;
 	static GameruleRegistry.Option TimeFreezeOption = GameruleRegistry.Option.FORCE_ON;
-	static boolean disableHandswap = false, slamStorage = true, fallDamage = false;
+	static boolean disableHandswap = false, slamStorage = true, fallDamage = false, drowning = false;
 	public static int jumpBoost;
 	static float screenblood;
 	
@@ -239,7 +240,8 @@ public class UltracraftClient implements ClientModInitializer
 	public static boolean isFreezeEnabled()
 	{
 		GameruleRegistry.Option option = TimeFreezeOption;
-		if(option.equals(GameruleRegistry.Option.FREE))
+		MinecraftServer server = MinecraftClient.getInstance().getServer();
+		if(server == null || !server.isRemote())
 			return config.get().freezeVFX;
 		else
 			return option.equals(GameruleRegistry.Option.FORCE_ON);
@@ -317,6 +319,7 @@ public class UltracraftClient implements ClientModInitializer
 			case 3 -> disableHandswap = value == 1;
 			case 5 -> slamStorage = value == 1;
 			case 6 -> fallDamage = value == 1;
+			case 7 -> drowning = value == 1;
 			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncB] -> " + data);
 		}
 	}

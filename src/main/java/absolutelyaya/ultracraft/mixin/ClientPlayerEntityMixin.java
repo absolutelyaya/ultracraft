@@ -78,8 +78,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Inject(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/packet/Packet;)V", ordinal = 0), cancellable = true)
 	public void onSendSneakChangedPacket(CallbackInfo ci)
 	{
-		WingedPlayerEntity winged = this;
-		if(tryDash(winged))
+		if(tryDash(this))
 		{
 			lastSneaking = isSneaking();
 			ci.cancel();
@@ -119,7 +118,6 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Inject(method = "sendMovementPackets", at = @At(value = "HEAD"), cancellable = true)
 	public void onSendMovementPackets(CallbackInfo ci)
 	{
-		WingedPlayerEntity winged = this;
 		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying)
 		{
 			if(wasHiVel != UltracraftClient.isHiVelEnabled() && lastSprintPressed)
@@ -207,22 +205,22 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				ci.cancel();
 			}
 			//dash velocity
-			if(winged.isDashing())
+			if(isDashing())
 			{
 				setVelocity(dashDir);
 				ci.cancel();
 			}
 			//dash jump (preserves velocity)
-			if(winged.wasDashing() && jumping && !lastJumping && !isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.49f, 0f)))))
+			if(wasDashing() && jumping && !lastJumping && !isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.49f, 0f)))))
 			{
-				winged.onDashJump();
-				if(!winged.consumeStamina())
+				onDashJump();
+				if(!consumeStamina())
 					setVelocity(dashDir.multiply(0.3));
 				addVelocity(0f, baseJumpVel, 0f);
 				setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
 			}
 			//stop dashing
-			if(winged.wasDashing() && !isDashing())
+			if(wasDashing() && !isDashing())
 			{
 				if(isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.1f, 0f)))))
 					setVelocity(Vec3d.ZERO);
