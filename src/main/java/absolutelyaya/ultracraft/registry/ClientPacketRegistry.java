@@ -146,6 +146,7 @@ public class ClientPacketRegistry
 				return;
 			BlockPos pos = buf.readBlockPos();
 			BlockState state = client.player.world.getBlockState(pos);
+			boolean strong = buf.readBoolean();
 			MinecraftClient.getInstance().execute(() -> {
 				Random random = client.player.getRandom();
 				for (int i = 0; i < 32; i++)
@@ -155,6 +156,9 @@ public class ClientPacketRegistry
 					client.player.world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), true,
 							x, pos.up().getY() + 0.1, z, 0f, 1f, 0f);
 				}
+				if(strong)
+					client.player.world.addParticle(ParticleTypes.EXPLOSION, true,
+							player.getX(), pos.up().getY() - 0.2, player.getZ(), 0f, 0f, 0f);
 			});
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.EXPLOSION_PACKET_ID, (((client, handler, buf, responseSender) -> {

@@ -191,6 +191,7 @@ public class PacketRegistry
 				PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
 				cbuf.writeUuid(player.getUuid());
 				cbuf.writeBlockPos(player.getSteppingPos());
+				cbuf.writeBoolean(strong);
 				for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
 					ServerPlayNetworking.send(p, GROUND_POUND_S2C_PACKET_ID, cbuf);
 			});
