@@ -249,12 +249,14 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		groundPounding = false;
 		world.playSound(null, getBlockPos(), SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.PLAYERS,
 				strong ? 1f : 0.75f, strong ? 0.75f : 1.25f);
+		world.getOtherEntities(this, getBoundingBox().expand(0f, 1f, 0f).offset(0f, -0.5f, 0f)).forEach(e ->
+				e.damage(DamageSources.get(world, DamageSources.POUND, this), 6));
+		if(!strong)
+			return;
 		world.getOtherEntities(this, getBoundingBox().expand(3f, 0.5f, 3f)).forEach(e -> {
 			if((e instanceof LivingEntityAccessor l) && l.takePunchKnockback())
 				e.addVelocity(0f, 1f, 0f);
 		});
-		world.getOtherEntities(this, getBoundingBox().expand(0f, 1f, 0f).offset(0f, -0.5f, 0f)).forEach(e ->
-				e.damage(DamageSources.get(world, DamageSources.POUND, this), 6));
 	}
 	
 	@Override
