@@ -145,7 +145,7 @@ public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Inter
 	@Override
 	public Vec3d getChargeOffset()
 	{
-		return (dataTracker.get(ANIMATION).equals(ANIMATION_ATTACK_VERTICAL) ? new Vec3d(-0.4f, 2f, 0.5f) : new Vec3d(-1f, 1.25f, 0.5f))
+		return (dataTracker.get(ANIMATION).equals(ANIMATION_ATTACK_VERTICAL) ? new Vec3d(-0.4f, 2.4f, 0.5f) : new Vec3d(-1f, 1.65f, 0.5f))
 					   .rotateY((float)Math.toRadians(-bodyYaw));
 	}
 	
