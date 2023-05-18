@@ -8,6 +8,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.item.Item;
@@ -62,6 +63,15 @@ public class HellBulletEntity extends ThrownItemEntity
 		Entity entity = entityHitResult.getEntity();
 		if(!entity.getClass().equals(ignore) && !((ProjectileEntityAccessor)this).isParried())
 			entity.damage(getDamageSources().thrown(this, this.getOwner()), 6f);
+	}
+	
+	@Override
+	public void setVelocity(Vec3d velocity)
+	{
+		if(getOwner() instanceof PlayerEntity)
+			super.setVelocity(velocity);
+		else
+			super.setVelocity(velocity.multiply(1f + Math.max(world.getDifficulty().getId() - 1, 0) * 0.1f));
 	}
 	
 	@Override

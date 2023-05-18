@@ -1,8 +1,11 @@
 package absolutelyaya.ultracraft.item;
 
+import absolutelyaya.ultracraft.entity.projectile.CerberusBallEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.entity.player.ItemCooldownManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -28,19 +31,22 @@ public class HellBulletItem extends Item
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
 	{
 		ItemStack itemStack = user.getStackInHand(hand);
+		if (user.getItemCooldownManager().isCoolingDown(this))
+			return TypedActionResult.fail(itemStack);
 		world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ENTITY_SNOWBALL_THROW, SoundCategory.NEUTRAL, 0.5f, 0.4f / (world.getRandom().nextFloat() * 0.4f + 0.8f));
-		if (!world.isClient) {
-			HellBulletEntity hellBullet = HellBulletEntity.spawn(user, world);
+		if (!world.isClient)
+		{
+			boolean cerb = itemStack.isOf(ItemRegistry.CERBERUS_BALL);
+			HellBulletEntity hellBullet = cerb ? CerberusBallEntity.spawn(user, world) : HellBulletEntity.spawn(user, world);
 			hellBullet.setItem(itemStack);
-			hellBullet.setVelocity(user, user.getPitch(), user.getYaw(), 0f, 1f, 0f);
+			hellBullet.setVelocity(user, user.getPitch(), user.getYaw(), 0f, cerb ? 2.5f : 1.5f, 0f);
 			world.spawnEntity(hellBullet);
 		}
-		
 		user.incrementStat(Stats.USED.getOrCreateStat(this));
-		if (!user.getAbilities().creativeMode) {
+		if (!user.getAbilities().creativeMode)
 			itemStack.decrement(1);
-		}
-		
+		if(itemStack.isOf(ItemRegistry.CERBERUS_BALL))
+			user.getItemCooldownManager().set(this, 40);
 		return TypedActionResult.success(itemStack, world.isClient());
 	}
 	
