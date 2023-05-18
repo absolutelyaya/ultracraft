@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.CoreEjectShotgunRenderer;
 import absolutelyaya.ultracraft.entity.projectile.EjectedCoreEntity;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
+import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
@@ -87,6 +88,9 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 						dir.y * 0.5 + (rand.nextFloat() - 0.5f) * 0.2,
 						dir.z * 0.5 + (rand.nextFloat() - 0.5f) * 0.2);
 			}
+			
+			Vec3d pos = eyePos.add(dir.multiply(0.2f).add(new Vec3d(-0.3f, -0.3f, 0.4f).rotateY(-(float)Math.toRadians(user.getYaw()))));
+			world.addParticle(new ParryIndicatorParticleEffect(false), pos.x, pos.y, pos.z, 0f, 0f, 0f);
 		}
 		return true;
 	}

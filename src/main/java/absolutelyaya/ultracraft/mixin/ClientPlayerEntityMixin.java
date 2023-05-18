@@ -294,7 +294,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				lastTouchedWater = world.getBlockState(posToBlock(getPos().subtract(0f, 0.1, 0f))).getBlock() instanceof FluidBlock;
 				if(lastGroundPounding != groundPounding)
 				{
-					boolean strong = client.options.sprintKey.isPressed() && consumeStamina();
+					boolean strong = client.options.sprintKey.isPressed() && !groundPounding && consumeStamina();
 					PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 					buf.writeBoolean(groundPounding);
 					buf.writeBoolean(strong);

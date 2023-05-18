@@ -82,7 +82,7 @@ public class GunCooldownManager
 	public boolean isUsable(Item item, int idx)
 	{
 		if(cooldowns.containsKey(item) && idx < cooldowns.get(item).length)
-			return cooldowns.get(item)[idx].get() <= 0;
+			return cooldowns.get(item)[idx].get() - (owner.world.isClient ? 2 : 0) <= 0;
 		else
 			return true;
 	}
