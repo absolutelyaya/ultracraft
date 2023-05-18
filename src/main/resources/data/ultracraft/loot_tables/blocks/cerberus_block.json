@@ -2,17 +2,38 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "rolls": 1.0,
-      "bonus_rolls": 0.0,
+      "rolls": 1,
       "entries": [
         {
           "type": "minecraft:item",
-          "functions": [
-            {
-              "function": "minecraft:explosion_decay"
-            }
-          ],
           "name": "ultracraft:cerberus_block"
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:block_state_property",
+          "block": "ultracraft:cerberus_block",
+          "properties": {
+            "empty": "false"
+          }
+        }
+      ]
+    },
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cobblestone",
+          "conditions": [
+            {
+              "condition": "minecraft:block_state_property",
+              "block": "ultracraft:cerberus_block",
+              "properties": {
+                "empty": "true"
+              }
+            }
+          ]
         }
       ]
     }

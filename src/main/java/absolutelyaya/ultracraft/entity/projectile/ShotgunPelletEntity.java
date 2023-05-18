@@ -19,6 +19,7 @@ import net.minecraft.util.Pair;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.joml.Vector3f;
@@ -27,6 +28,7 @@ import org.joml.Vector4f;
 public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileEntityAccessor
 {
 	PlayerEntity parrier;
+	BlockPos hitPos = null;
 	
 	public ShotgunPelletEntity(EntityType<? extends ThrownItemEntity> entityType, World world)
 	{
@@ -86,8 +88,17 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	protected void onBlockHit(BlockHitResult blockHitResult)
 	{
 		super.onBlockHit(blockHitResult);
-		world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, world.getBlockState(blockHitResult.getBlockPos())),
-				getX(), getY(), getZ(), 0, 0, 0);
+		hitPos = blockHitResult.getBlockPos();
+	}
+	
+	public void handleStatus(byte status)
+	{
+		if (status == 3)
+		{
+			if(hitPos != null)
+				world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, world.getBlockState(hitPos)), true,
+						getX(), getY(), getZ(), 0, 0, 0);
+		}
 	}
 	
 	@Override

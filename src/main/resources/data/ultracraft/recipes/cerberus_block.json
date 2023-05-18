@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " #",
+    "G#",
+    " #"
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:stone"
+    },
+    "G": {
+      "item": "ultracraft:cerberus_ball"
+    }
+  },
+  "result": {
+    "item": "ultracraft:cerberus_block",
+    "count": 1
+  }
+}

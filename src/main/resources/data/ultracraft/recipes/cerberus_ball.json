@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "gU"
+  ],
+  "key": {
+    "g": {
+      "item": "minecraft:gold_ingot"
+    },
+    "U": {
+      "item": "ultracraft:hell_bullet"
+    }
+  },
+  "result": {
+    "item": "ultracraft:cerberus_ball",
+    "count": 2
+  }
+}
