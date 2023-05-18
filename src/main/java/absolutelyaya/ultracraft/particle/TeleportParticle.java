@@ -6,16 +6,15 @@ import net.minecraft.client.particle.ParticleFactory;
 import net.minecraft.client.particle.ParticleTextureSheet;
 import net.minecraft.client.particle.SpriteProvider;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particle.DefaultParticleType;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.Nullable;
 
 public class TeleportParticle extends SpriteAAParticle
 {
-	protected TeleportParticle(ClientWorld world, double x, double y, double z, SpriteProvider spriteProvider)
+	protected TeleportParticle(ClientWorld world, double x, double y, double z, SpriteProvider spriteProvider, double size)
 	{
-		super(world, x, y + 1, z, spriteProvider);
-		scale = new Vec3d(1, 1, 1);
+		super(world, x, y + 1f + size / 2f, z, spriteProvider);
+		scale = new Vec3d(1f, 1f, 1f).multiply(size);
 		maxAge = 8;
 		setSprite(spriteProvider.getSprite(age, maxAge));
 	}
@@ -39,20 +38,15 @@ public class TeleportParticle extends SpriteAAParticle
 		setSpriteForAge(spriteProvider);
 	}
 	
-	public static class TeleportParticleFactory implements ParticleFactory<DefaultParticleType>
+	public record TeleportParticleFactory(SpriteProvider sprite) implements ParticleFactory<TeleportParticleEffect>
 	{
-		protected final SpriteProvider spriteProvider;
-		
-		public TeleportParticleFactory(SpriteProvider spriteProvider)
-		{
-			this.spriteProvider = spriteProvider;
-		}
-		
 		@Nullable
 		@Override
-		public Particle createParticle(DefaultParticleType parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ)
+		public Particle createParticle(TeleportParticleEffect parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ)
 		{
-			return new TeleportParticle(world, x, y, z, spriteProvider);
+			TeleportParticle p = new TeleportParticle(world, x, y, z, sprite, parameters.size);
+			p.setSprite(sprite);
+			return p;
 		}
 	}
 }

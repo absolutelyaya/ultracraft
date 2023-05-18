@@ -1,7 +1,7 @@
 package absolutelyaya.ultracraft.entity;
 
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
-import absolutelyaya.ultracraft.registry.ParticleRegistry;
+import absolutelyaya.ultracraft.particle.TeleportParticleEffect;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
@@ -47,14 +47,19 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	public void onSpawnPacket(EntitySpawnS2CPacket packet)
 	{
 		super.onSpawnPacket(packet);
-		world.addParticle(ParticleRegistry.TELEPORT, packet.getX(), packet.getY(), packet.getZ(), 0f, 0f, 0f);
+		world.addParticle(new TeleportParticleEffect(getTeleportParticleSize()), packet.getX(), packet.getY(), packet.getZ(), 0f, 0f, 0f);
 	}
 	
 	@Override
 	public boolean teleport(double x, double y, double z, boolean particleEffects)
 	{
-		world.addParticle(ParticleRegistry.TELEPORT, x, y, z, 0f, 0f, 0f);
+		world.addParticle(new TeleportParticleEffect(getTeleportParticleSize()), x, y, z, 0f, 0f, 0f);
 		return super.teleport(x, y, z, particleEffects);
+	}
+	
+	protected double getTeleportParticleSize()
+	{
+		return 1.0;
 	}
 	
 	public void addParryIndicatorParticle(Vec3d offset, boolean useYaw, boolean unparriable)

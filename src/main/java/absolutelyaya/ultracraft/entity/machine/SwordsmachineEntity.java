@@ -281,6 +281,12 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	}
 	
 	@Override
+	protected double getTeleportParticleSize()
+	{
+		return 1.25;
+	}
+	
+	@Override
 	public void setCustomName(@Nullable Text name)
 	{
 		super.setCustomName(name);

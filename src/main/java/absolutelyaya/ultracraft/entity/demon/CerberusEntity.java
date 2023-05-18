@@ -126,6 +126,12 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 		dataTracker.set(ANIMATION, id);
 	}
 	
+	@Override
+	protected double getTeleportParticleSize()
+	{
+		return 2.5;
+	}
+	
 	public void enrage()
 	{
 		dataTracker.set(ENRAGED, true);

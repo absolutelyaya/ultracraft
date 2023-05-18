@@ -151,6 +151,12 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	}
 	
 	@Override
+	protected double getTeleportParticleSize()
+	{
+		return 1.5;
+	}
+	
+	@Override
 	public void writeCustomDataToNbt(NbtCompound nbt)
 	{
 		super.writeCustomDataToNbt(nbt);
