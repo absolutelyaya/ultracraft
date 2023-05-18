@@ -9,6 +9,7 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
+import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -70,6 +71,12 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	@Override
 	protected boolean shouldSwimInFluids()
 	{
-		return false;
+		return !world.getFluidState(getBlockPos()).isIn(FluidTags.WATER);
+	}
+	
+	@Override
+	public int getAir()
+	{
+		return getMaxAir();
 	}
 }

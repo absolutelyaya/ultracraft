@@ -208,7 +208,7 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 			if (this.target == null || mob.dataTracker.get(ATTACK_COOLDOWN) > 0)
 				return false;
 			
-			double d = mob.squaredDistanceTo(this.target);
+			double d = mob.squaredDistanceTo(target);
 			if (d > 16.0 * 16.0)
 				return false;
 			
@@ -233,10 +233,10 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 		{
 			this.mob.getLookControl().lookAt(target);
 			
-			double d = mob.squaredDistanceTo(this.target);
+			double d = mob.squaredDistanceTo(target);
 			if (d > 3.0 * 3.0 && mob.getAnimation() != ANIMATION_ATTACK)
 			{
-				mob.getNavigation().startMovingTo(this.target, 1.0);
+				mob.getNavigation().startMovingTo(target, 1.0);
 				return;
 			}
 			mob.getNavigation().stop();
@@ -249,12 +249,12 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 			{
 				if(target != null)
 				{
-					Vec3d vec3d = this.mob.getVelocity();
-					Vec3d vec3d2 = new Vec3d(this.target.getX() - this.mob.getX(), 0.0, this.target.getZ() - this.mob.getZ());
+					Vec3d vec3d = mob.getVelocity();
+					Vec3d vec3d2 = new Vec3d(target.getX() - mob.getX(), 0.0, target.getZ() - mob.getZ());
 					if (vec3d2.lengthSquared() > 1.0E-7)
 						vec3d2 = vec3d2.normalize().multiply(0.8).add(vec3d.multiply(0.2));
 					
-					this.mob.setVelocity(vec3d2.x, this.velocity, vec3d2.z);
+					mob.setVelocity(vec3d2.x, velocity, vec3d2.z);
 				}
 			}
 			

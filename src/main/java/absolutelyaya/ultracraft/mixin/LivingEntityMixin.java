@@ -62,8 +62,6 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	
 	@Shadow public abstract void updateLimbs(boolean flutter);
 	
-	@Shadow protected float lastDamageTaken;
-	
 	@Shadow protected abstract void applyDamage(DamageSource source, float amount);
 	
 	final int punchDuration = 6;

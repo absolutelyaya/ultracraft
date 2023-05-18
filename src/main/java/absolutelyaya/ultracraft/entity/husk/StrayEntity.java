@@ -14,12 +14,12 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -80,10 +80,8 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
-		if(getVelocity().y < 0f)
+		if(fallDistance > 0f && !source.isOf(DamageTypes.FALL))
 			amount *= 1.5;
-		if(source.isIn(DamageTypeTags.IS_FIRE))
-			amount *= 0.5;
 		return super.damage(source, amount);
 	}
 	
