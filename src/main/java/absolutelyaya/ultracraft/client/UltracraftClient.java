@@ -230,6 +230,11 @@ public class UltracraftClient implements ClientModInitializer
 		screenblood = Math.min(3.5f, screenblood + f);
 	}
 	
+	public static void clearBlood()
+	{
+		screenblood = 0f;
+	}
+	
 	//if no Server override, return client setting
 	public static boolean isFreezeEnabled()
 	{

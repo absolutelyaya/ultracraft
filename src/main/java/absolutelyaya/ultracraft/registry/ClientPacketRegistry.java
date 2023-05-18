@@ -12,16 +12,20 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.FluidBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.particle.BlockStateParticleEffect;
+import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
+import org.joml.Vector3f;
 
 @SuppressWarnings("CodeBlock2Expr")
 @Environment(EnvType.CLIENT)
@@ -68,14 +72,24 @@ public class ClientPacketRegistry
 				return;
 			double halfheight = buf.readDouble();
 			boolean shotgun = buf.readBoolean();
+			boolean water = client.player.world.getFluidState(new BlockPos((int)pos.x, (int)pos.y, (int)pos.z)).isIn(FluidTags.WATER);
 			MinecraftClient.getInstance().execute(() -> {
 				Random rand = client.player.getRandom();
 				for (int i = 0; i < Math.min(3 * amount, 32); i++)
-					client.player.world.addParticle(new GoopDropParticleEffect(
-									UltracraftClient.getConfigHolder().get().danganronpa ? new Vec3d(1.0, 0.32, 0.83) : new Vec3d(0.56, 0.09, 0.01),
-									0.6f + rand.nextFloat() * 0.4f * (amount / 10f)), pos.x, pos.y + halfheight, pos.z,
-							rand.nextDouble() - 0.5, rand.nextDouble() - 0.5, rand.nextDouble() - 0.5);
-				if(client.player.squaredDistanceTo(pos) < 10)
+				{
+					if(!water)
+						client.player.world.addParticle(new GoopDropParticleEffect(
+										UltracraftClient.getConfigHolder().get().danganronpa ? new Vec3d(1.0, 0.32, 0.83) : new Vec3d(0.56, 0.09, 0.01),
+										0.6f + rand.nextFloat() * 0.4f * (amount / 10f)), pos.x, pos.y + halfheight, pos.z,
+								rand.nextDouble() - 0.5, rand.nextDouble() - 0.5, rand.nextDouble() - 0.5);
+					else
+						client.player.world.addParticle(new DustParticleEffect(
+										UltracraftClient.getConfigHolder().get().danganronpa ? new Vector3f(1.0f, 0.32f, 0.83f) : new Vector3f(0.56f, 0.09f, 0.01f),
+										3.6f + rand.nextFloat() * 0.4f * (amount / 10f)),
+								pos.x + (rand.nextDouble() - 0.5) * 0.5, pos.y + halfheight + (rand.nextDouble() - 0.5) * halfheight * 1.5, pos.z + (rand.nextDouble() - 0.5) * 0.5,
+								(rand.nextDouble() - 0.5) * 0.05, (rand.nextDouble() - 0.5) * 0.05, (rand.nextDouble() - 0.5) * 0.05);
+				}
+				if(client.player.squaredDistanceTo(pos) < 10 && !water)
 					UltracraftClient.addBlood(amount / (shotgun ? 10f : 30f));
 			});
 		})));
