@@ -51,6 +51,10 @@ public class GameruleRegistry
 			GameRuleRegistry.register("ultra-hivelDrowning", GameRules.Category.PLAYER,
 					GameRuleFactory.createBooleanRule(false,
 							(server, rule) -> OnChanged(server, (byte) ((byte)70 + (rule.get() ? 1 : 0)))));
+	public static final GameRules.Key<EnumRule<RegenOption>> BLOODHEAL =
+			GameRuleRegistry.register("ultra-bloodHealing", GameRules.Category.PLAYER,
+					GameRuleFactory.createEnumRule(RegenOption.ALWAYS,
+							(server, rule) -> OnChanged(server, (byte)((byte)70 + (rule.get().ordinal())))));
 	
 	public static void OnChanged(MinecraftServer server, byte b)
 	{
@@ -95,6 +99,7 @@ public class GameruleRegistry
 		OnChanged(player, (byte)(50 + (player.server.getGameRules().getBoolean(SLAM_STORAGE) ? 1 : 0)));
 		OnChanged(player, (byte)(60 + (player.server.getGameRules().getBoolean(HIVEL_FALLDAMAGE) ? 1 : 0)));
 		OnChanged(player, (byte)(70 + (player.server.getGameRules().getBoolean(HIVEL_DROWNING) ? 1 : 0)));
+		OnChanged(player, (byte)(80 + player.server.getGameRules().get(BLOODHEAL).get().ordinal()));
 	}
 	
 	public static void register()
@@ -107,5 +112,12 @@ public class GameruleRegistry
 		FORCE_ON,
 		FORCE_OFF,
 		FREE
+	}
+	
+	public enum RegenOption
+	{
+		ALWAYS,
+		ONLY_HIVEL,
+		NEVER
 	}
 }

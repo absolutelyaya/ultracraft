@@ -75,6 +75,7 @@ public class UltracraftClient implements ClientModInitializer
 	static boolean HiVelMode = false;
 	static GameruleRegistry.Option HiVelOption = GameruleRegistry.Option.FREE;
 	static GameruleRegistry.Option TimeFreezeOption = GameruleRegistry.Option.FORCE_ON;
+	static GameruleRegistry.RegenOption BloodRegen = GameruleRegistry.RegenOption.ALWAYS;
 	static boolean disableHandswap = false, slamStorage = true, fallDamage = false, drowning = false;
 	public static int jumpBoost;
 	static float screenblood;
@@ -320,6 +321,7 @@ public class UltracraftClient implements ClientModInitializer
 			case 5 -> slamStorage = value == 1;
 			case 6 -> fallDamage = value == 1;
 			case 7 -> drowning = value == 1;
+			case 8 -> BloodRegen = GameruleRegistry.RegenOption.values()[value];
 			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncB] -> " + data);
 		}
 	}

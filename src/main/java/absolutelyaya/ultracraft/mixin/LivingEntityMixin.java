@@ -90,7 +90,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	{
 		DamageSource source = args.get(0);
 		float amount = args.get(1);
-		if(source.isIn(DamageTypeTags.ULTRACRAFT) && !((Object)this instanceof AbstractUltraHostileEntity))
+		if(source.isIn(DamageTypeTags.ULTRACRAFT) && !source.isOf(DamageSources.SWORDSMACHINE) && !((Object)this instanceof AbstractUltraHostileEntity))
 			args.set(1, amount * 2.5f);
 	}
 	
@@ -113,11 +113,17 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			buf.writeBoolean(source.isOf(DamageSources.SHOTGUN));
 			ServerPlayNetworking.send((ServerPlayerEntity)player, PacketRegistry.BLEED_PACKET_ID, buf);
 		}
-		for (PlayerEntity player : heal)
+		GameruleRegistry.RegenOption healRule = world.getGameRules().get(GameruleRegistry.BLOODHEAL).get();
+		if(!healRule.equals(GameruleRegistry.RegenOption.NEVER))
 		{
-			float healing = amount * (source.isOf(DamageSources.SHOTGUN) ? 1f : 2.5f);
-			player.heal(healing);
-			player.getHungerManager().add((int)(healing / 1.5f), 5f);
+			for (PlayerEntity player : heal)
+			{
+				if(healRule.equals(GameruleRegistry.RegenOption.ONLY_HIVEL) && (!(player instanceof WingedPlayerEntity winged) || !winged.isWingsActive()))
+					continue;
+				float healing = amount * (source.isOf(DamageSources.SHOTGUN) ? 1f : 2.5f);
+				player.heal(healing);
+				player.getHungerManager().add((int)(healing / 1.5f), 5f);
+			}
 		}
 		if(source.isIn(DamageTypeTags.IS_PER_TICK))
 			return;
