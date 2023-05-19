@@ -445,9 +445,9 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 				float angle = fTime * 135;
 				Vector3f rot = new Vector3f((float)Math.toRadians(angle), -(float)Math.toRadians(yaw), 0f);
 				Vector3f left =
-						getPos().toVector3f().add(new Vector3f(0f, 3f, 0f).rotateX(rot.x).rotateY(rot.y));
+						getPos().add(0f, 1f, 0f).toVector3f().add(new Vector3f(0f, 3f, 0f).rotateX(rot.x).rotateY(rot.y));
 				Vector3f right =
-						getPos().toVector3f().add(new Vector3f(0f, 3.5f, 0f).rotateX(rot.x).rotateY(rot.y));
+						getPos().add(0f, 1f, 0f).toVector3f().add(new Vector3f(0f, 3.5f, 0f).rotateX(rot.x).rotateY(rot.y));
 				yield new Pair<>(left, right);
 			}
 			//SPIN
@@ -854,7 +854,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 						damaged.add(e);
 				});
 			}
-			if(timer == 26 && sm.dataTracker.get(CURRENT_ATTACK) == 1)
+			if(timer == 28 && sm.dataTracker.get(CURRENT_ATTACK) == 1)
 				sm.setCurrentAttackTrail((byte)0);
 		}
 		

@@ -47,9 +47,9 @@ public class TrailRenderer
 			List<Pair<Long, Pair<Vector3f, Vector3f>>> trailCopy = trail.points.stream().toList();
 			if(config.trailLines)
 				renderAsLines(id, trailCopy, matrix, immediate);
-			else if(!config.trailParticles)
+			if(!config.trailParticles)
 				renderAsQuads(trailCopy, trail.color, trail.lifetime, matrix, immediate);
-			else
+			else if(trail.lastRendered % 3 == 0 && !client.isPaused())
 				renderAsParticles(trailCopy, trail.color, trail.lifetime);
 			trail.lastRendered = time;
 		}
@@ -135,13 +135,16 @@ public class TrailRenderer
 		if(trail.size() <= 1)
 			return;
 		float f = Math.max(lifetime / 20f, 0.5f);
-		Pair<Vector3f, Vector3f> pa = trail.get(trail.size() - 1).getRight();
-		Pair<Vector3f, Vector3f> pb = trail.get(trail.size() - 2).getRight();
-		Vector3f va = new Vector3f(pa.getLeft()).lerp(pb.getLeft(), rand.nextFloat());
-		Vector3f vb = new Vector3f(pa.getRight()).lerp(pb.getRight(), rand.nextFloat());
-		Vector3f result = va.lerp(vb, rand.nextFloat());
-		MinecraftClient.getInstance().world.addParticle(new DustParticleEffect(new Vector3f(col.x, col.y, col.z), f),
-				result.x, result.y, result.z, 0f, 0f, 0f);
+		for (int i = 1; i < trail.size(); i++)
+		{
+			Pair<Vector3f, Vector3f> pa = trail.get(i).getRight();
+			Pair<Vector3f, Vector3f> pb = trail.get(i - 1).getRight();
+			Vector3f va = new Vector3f(pa.getLeft()).lerp(pb.getLeft(), rand.nextFloat());
+			Vector3f vb = new Vector3f(pa.getRight()).lerp(pb.getRight(), rand.nextFloat());
+			Vector3f result = va.lerp(vb, rand.nextFloat());
+			MinecraftClient.getInstance().world.addParticle(new DustParticleEffect(new Vector3f(col.x, col.y, col.z), f),
+					result.x, result.y, result.z, 0f, 0f, 0f);
+		}
 	}
 	
 	public void createTrail(UUID id, Supplier<Pair<Vector3f, Vector3f>> nextPointFunc, Vector4f color, int lifetime)
