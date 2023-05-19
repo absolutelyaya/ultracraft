@@ -22,6 +22,10 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "cerberus_ball"), new HellBulletItem(new FabricItemSettings().fireproof().maxCount(21)));
 	public static final Item EJECTED_CORE = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "ejected_core"), new HellBulletItem(new FabricItemSettings().maxCount(0)));
+	public static final Item FAKE_SHIELD = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "fake_shield"), new Item(new FabricItemSettings().maxCount(0)));
+	public static final Item FAKE_BANNER = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "fake_banner"), new Item(new FabricItemSettings().maxCount(0)));
 	public static final Item BLOOD_BUCKET = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "blood_bucket"), new BucketItem(FluidRegistry.STILL_BLOOD,
 					new FabricItemSettings().maxCount(1).recipeRemainder(Items.BUCKET)));

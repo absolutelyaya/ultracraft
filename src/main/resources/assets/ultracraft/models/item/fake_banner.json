@@ -1,0 +1,75 @@
+{
+	"texture_size": [64, 64],
+	"gui_light": "front",
+	"textures": {
+		"0": "ultracraft:item/banner_base"
+	},
+	"elements": [
+		{
+			"name": "top",
+			"from": [-2, 30, 7],
+			"to": [18, 32, 9],
+			"faces": {
+				"north": {"uv": [0.5, 11, 5.5, 11.5], "texture": "#0"},
+				"east": {"uv": [0, 11, 0.5, 11.5], "texture": "#0"},
+				"south": {"uv": [6, 11, 11, 11.5], "texture": "#0"},
+				"west": {"uv": [5.5, 11, 6, 11.5], "texture": "#0"},
+				"up": {"uv": [5.5, 11, 0.5, 10.5], "texture": "#0"},
+				"down": {"uv": [10.5, 10.5, 5.5, 11], "texture": "#0"}
+			}
+		},
+		{
+			"name": "slate",
+			"from": [-2, -8, 6],
+			"to": [18, 32, 7],
+			"faces": {
+				"north": {"uv": [0.25, 0.25, 5.25, 10.25], "texture": "#0"},
+				"east": {"uv": [0, 0.25, 0.25, 10.25], "texture": "#0"},
+				"south": {"uv": [5.5, 0.25, 10.5, 10.25], "texture": "#0"},
+				"west": {"uv": [5.25, 0.25, 5.5, 10.25], "texture": "#0"},
+				"up": {"uv": [5.25, 0.25, 0.25, 0], "texture": "#0"},
+				"down": {"uv": [10.25, 0, 5.25, 0.25], "texture": "#0"}
+			}
+		},
+		{
+			"name": "stand",
+			"from": [7, -10, 7],
+			"to": [9, 32, 9],
+			"faces": {
+				"north": {"uv": [11.5, 0.5, 12, 11], "texture": "#0"},
+				"east": {"uv": [11, 0.5, 11.5, 11], "texture": "#0"},
+				"south": {"uv": [12.5, 0.5, 13, 11], "texture": "#0"},
+				"west": {"uv": [12, 0.5, 12.5, 11], "texture": "#0"},
+				"up": {"uv": [12, 0.5, 11.5, 0], "texture": "#0"},
+				"down": {"uv": [12.5, 0, 12, 0.5], "texture": "#0"}
+			}
+		}
+	],
+	"display": {
+		"gui": {
+			"rotation": [ 25, 200, 0 ],
+			"translation": [ 0, -2, 0 ],
+			"scale": [ 0.35, 0.35, 0.35 ]
+		}
+	},
+	"groups": [
+		{
+			"name": "top",
+			"origin": [0, 12, 0],
+			"color": 0,
+			"children": [0]
+		},
+		{
+			"name": "slate",
+			"origin": [0, 44, 0],
+			"color": 0,
+			"children": [1]
+		},
+		{
+			"name": "stand",
+			"origin": [0, 12, 0],
+			"color": 0,
+			"children": [2]
+		}
+	]
+}

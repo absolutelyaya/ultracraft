@@ -17,8 +17,10 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.BannerItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
@@ -94,11 +96,14 @@ public class UltraHudRenderer extends DrawableHelper
 			matrices.translate(0f, 0f, 3f);
 			matrices.multiply(new Quaternionf(new AxisAngle4f(-fishTimer / 0.75f, 0f, 1f, 0f)));
 			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(-45.0), 0f, 0f, 1f)));
-			drawItem(matrices, new Matrix4f(matrices.peek().getPositionMatrix()), client, client.getBufferBuilders().getEntityVertexConsumers(), lastCatch, false);
+			VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
+			drawItem(matrices, new Matrix4f(matrices.peek().getPositionMatrix()), client, immediate, lastCatch, false);
+			immediate.draw();
 			matrices.pop();
 			fishTimer -= tickDelta / 20;
 			matrices.pop();
 		}
+		RenderSystem.enableBlend();
 		
 		healthPercent = MathHelper.lerp(tickDelta, healthPercent, player.getHealth() / player.getMaxHealth());
 		staminaPercent = MathHelper.lerp(tickDelta, staminaPercent, ((WingedPlayerEntity)player).getStamina() / 90f);
@@ -228,8 +233,15 @@ public class UltraHudRenderer extends DrawableHelper
 					new Vec2f(192, 192), new Vector4f(uv.x * 48f, uv.y * 32f, 48f, 32f), 0.75f);
 		}
 		else
+		{
+			//This HUD is *terribly* made, and entity item models don't render correctly. To hide this, I did the following :D
+			if(item.equals(Items.SHIELD))
+				stack = ItemRegistry.FAKE_SHIELD.getDefaultStack();
+			else if(item instanceof BannerItem)
+				stack = ItemRegistry.FAKE_BANNER.getDefaultStack();
 			client.getItemRenderer().renderItem(stack, ModelTransformationMode.GUI,
 					15728880, OverlayTexture.DEFAULT_UV, matrices, immediate, client.world, 1);
+		}
 	}
 	
 	void drawText(MatrixStack matrices, Text text, float x, float y, float alpha)
