@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.entity.projectile;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
+import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.block.BlockState;
@@ -58,11 +59,15 @@ public class HellBulletEntity extends ThrownItemEntity
 	}
 	
 	@Override
-	protected void onEntityHit(EntityHitResult entityHitResult) {
+	protected void onEntityHit(EntityHitResult entityHitResult)
+	{
 		super.onEntityHit(entityHitResult);
 		Entity entity = entityHitResult.getEntity();
+		float amount = 6f;
+		if(entity instanceof AbstractUltraHostileEntity)
+			amount *= 0.25f;
 		if(!entity.getClass().equals(ignore) && !((ProjectileEntityAccessor)this).isParried())
-			entity.damage(getDamageSources().thrown(this, this.getOwner()), 6f);
+			entity.damage(getDamageSources().thrown(this, this.getOwner()), amount);
 	}
 	
 	@Override

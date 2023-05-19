@@ -3,7 +3,6 @@ package absolutelyaya.ultracraft.entity;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.particle.TeleportParticleEffect;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -33,14 +32,6 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	{
 		super.initDataTracker();
 		dataTracker.startTracking(ANIMATION, (byte)0);
-	}
-	
-	@Override
-	public boolean damage(DamageSource source, float amount)
-	{
-		boolean b = super.damage(source, amount);
-		timeUntilRegen = 9;
-		return b;
 	}
 	
 	@Override

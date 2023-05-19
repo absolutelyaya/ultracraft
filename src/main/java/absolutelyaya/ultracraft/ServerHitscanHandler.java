@@ -86,7 +86,7 @@ public class ServerHitscanHandler
 				entities.add(eHit.getEntity());
 			}
 		}
-		entities.forEach((e) -> e.damage(DamageSources.get(world, DamageSources.GUN, user), damage));
+		entities.forEach(e -> e.damage(DamageSources.get(world, DamageSources.GUN, user), damage));
 		if(explosion != null)
 			ExplosionHandler.explosion(null, world, new Vec3d(modifiedTo.x, modifiedTo.y, modifiedTo.z), world.getDamageSources().explosion(null, user),
 					explosion.damage, explosion.falloff, explosion.radius);

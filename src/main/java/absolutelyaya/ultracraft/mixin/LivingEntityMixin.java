@@ -31,6 +31,7 @@ import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -62,8 +63,6 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	
 	@Shadow public abstract void updateLimbs(boolean flutter);
 	
-	@Shadow protected abstract void applyDamage(DamageSource source, float amount);
-	
 	final int punchDuration = 6;
 	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
 	int punchTicks;
@@ -86,14 +85,21 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		recoil = MathHelper.lerp(0.3f, recoil, 0f);
 	}
 	
+	@ModifyArgs(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;applyDamage(Lnet/minecraft/entity/damage/DamageSource;F)V"))
+	void modifyAppliedDamage(Args args)
+	{
+		DamageSource source = args.get(0);
+		float amount = args.get(1);
+		if(source.isIn(DamageTypeTags.ULTRACRAFT) && !((Object)this instanceof AbstractUltraHostileEntity))
+			args.set(1, amount * 2.5f);
+	}
+	
 	@SuppressWarnings("EqualsBetweenInconvertibleTypes")
 	@Inject(method = "damage", at = @At("RETURN"))
 	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
 	{
 		if(!cir.getReturnValue() || world.isClient || !IsCanBleed())
 			return;
-		if(source.isIn(DamageTypeTags.ULTRACRAFT) && !((Object)this instanceof AbstractUltraHostileEntity) && !((Object)this instanceof PlayerEntity))
-			applyDamage(source, amount * 1.5f); //mod damage x2.5 (x1 + x1.5) if done to a non-mod entity
 		List<PlayerEntity> nearby = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(32), e -> true);
 		List<PlayerEntity> heal = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(2), e -> !e.equals(this));
 		for (PlayerEntity player : nearby)
@@ -194,7 +200,8 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	@Inject(method = "shouldSwimInFluids", at = @At("HEAD"), cancellable = true)
 	void onShouldSwimInFluids(CallbackInfoReturnable<Boolean> cir)
 	{
-		if(this instanceof WingedPlayerEntity winged && winged.isWingsActive())
+		if(this instanceof WingedPlayerEntity winged && winged.isWingsActive() &&
+				   world.getFluidState(((PlayerEntity)winged).getBlockPos()).isIn(FluidTags.WATER))
 			cir.setReturnValue(false);
 	}
 	

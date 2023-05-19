@@ -92,8 +92,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	{
 		if(isDashing())
 			cir.setReturnValue(false);
-		if(wingsActive && source.isOf(DamageTypes.FALL) && (!world.isClient && !world.getGameRules().get(GameruleRegistry.HIVEL_FALLDAMAGE).get()) ||
-				   getSteppingBlockState().getBlock() instanceof FluidBlock)
+		if(wingsActive && source.isOf(DamageTypes.FALL) && ((!world.isClient && !world.getGameRules().get(GameruleRegistry.HIVEL_FALLDAMAGE).get()) ||
+				   getSteppingBlockState().getBlock() instanceof FluidBlock))
 			cir.setReturnValue(false);
 	}
 	
