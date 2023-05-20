@@ -51,6 +51,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.TypeFilter;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -109,6 +110,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	private static final byte ANIMATION_SPIN = 7;
 	private final Multimap<EntityAttribute, EntityAttributeModifier> enragedModifiers;
 	int lastTrailStart = -1;
+	float swordVolume = 0f, swordPitch = 1f;
 	
 	public SwordsmachineEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -396,6 +398,8 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		dataTracker.set(LAST_TRAIL_ID, Optional.of(uuid));
 		lastTrailStart = data == (byte)0 ? -1 : age;
 		UltracraftClient.TRAIL_RENDERER.createTrail(uuid, () -> nextAttackTrailVertex(data, lastTrailStart), trailColor, trailLifetime);
+		swordVolume = data == 5 ? 4f : 1f;
+		swordPitch = 1.6f;
 	}
 	
 	@Override
@@ -562,6 +566,30 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		super.onRemoved();
 		if(world.isClient)
 			setCurrentAttackTrail((byte)0); //remove attack Trail in case there is one
+	}
+	
+	@Override
+	public void tickMovement()
+	{
+		super.tickMovement();
+		if(swordVolume > 0.5f)
+			swordVolume -= 1f / 20f;
+		else if(swordVolume > 0f)
+		{
+			swordVolume -= 1f / 200f;
+			if(swordPitch > 0.5f)
+				swordPitch -= 1 / 2f;
+		}
+	}
+	
+	public float getMachineSwordVolume()
+	{
+		return MathHelper.clamp(swordVolume, 0f, 1f);
+	}
+	
+	public float getMachineSwordPitch()
+	{
+		return MathHelper.clamp(swordPitch, 0.5f, 2f);
 	}
 	
 	static class TargetHuskGoal extends ActiveTargetGoal<LivingEntity>
@@ -1010,7 +1038,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		@Override
 		public boolean canStart()
 		{
-			if(sm.random.nextBetween(0, 4) != 0)
+			if(sm.random.nextBetween(0, 2) != 0)
 				return false;
 			target = sm.getTarget();
 			return target != null && sm.isIdle() && sm.dataTracker.get(HAS_SWORD) && !sm.dataTracker.get(HAS_SHOTGUN) &&

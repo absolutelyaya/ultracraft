@@ -15,6 +15,7 @@ import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -40,6 +41,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Shadow @Final @Mutable private static Map<EntityPose, EntityDimensions> POSE_DIMENSIONS;
 	
 	@Shadow @Final private PlayerAbilities abilities;
+	
+	@Shadow public abstract void playSound(SoundEvent sound, float volume, float pitch);
+	
+	@Shadow public abstract void playSound(SoundEvent event, SoundCategory category, float volume, float pitch);
 	
 	boolean wingsActive, groundPounding, ignoreSlowdown;
 	byte wingState, lastState;
@@ -222,6 +227,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			stamina = Math.max(stamina - 30, 0);
 			return true;
 		}
+		else
+			playSound(SoundEvents.BLOCK_ANVIL_LAND, 0.75f, 1.8f);
 		return false;
 	}
 	
@@ -304,7 +311,11 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			fallDistance = 0f;
 		}
 		if(stamina < 90)
+		{
 			stamina++;
+			if(stamina % 30 == 0)
+				playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 0.2f, 1f + stamina / 30f * 0.1f);
+		}
 	}
 	
 	@Inject(method = "adjustMovementForSneaking", at = @At("HEAD"), cancellable = true)

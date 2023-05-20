@@ -19,6 +19,8 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -109,6 +111,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				setVelocity(dir);
 				dashDir = dir;
 				winged.onDash();
+				playSound(SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.5f, 1.6f);
 				return true;
 			}
 		}
@@ -155,7 +158,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					addVelocity(0, baseJumpVel, 0);
 					setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
 				}
-				setSprinting(client.options.sprintKey.isPressed() && !groundPounding && !horizontalCollision && !jumping);
+				boolean moved = new Vec3d(lastX, lastBaseY, lastZ).distanceTo(getPos()) > slideVelocity / 2f;
+				setSprinting(client.options.sprintKey.isPressed() && !groundPounding && moved && !jumping);
 				slideTicks++;
 				if(isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.25f, 0f)))))
 					slideTicks = 0;
@@ -218,6 +222,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					setVelocity(dashDir.multiply(0.3));
 				addVelocity(0f, baseJumpVel, 0f);
 				setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
+				playSound(SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.5f, 1.8f);
 			}
 			//stop dashing
 			if(wasDashing() && !isDashing())

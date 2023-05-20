@@ -23,8 +23,10 @@ import absolutelyaya.ultracraft.client.rendering.entity.other.ShockwaveRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.*;
 import absolutelyaya.ultracraft.client.sound.MovingMachineSwordSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingSlideSoundInstance;
+import absolutelyaya.ultracraft.client.sound.MovingSwordsmachineSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingWindSoundInstance;
 import absolutelyaya.ultracraft.entity.husk.FilthEntity;
+import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import absolutelyaya.ultracraft.particle.*;
 import absolutelyaya.ultracraft.particle.goop.GoopDropParticle;
@@ -175,6 +177,8 @@ public class UltracraftClient implements ClientModInitializer
 			}
 			else if (entity instanceof ThrownMachineSwordEntity sword)
 				MinecraftClient.getInstance().getSoundManager().play(new MovingMachineSwordSoundInstance(sword));
+			else if (entity instanceof SwordsmachineEntity sm)
+				MinecraftClient.getInstance().getSoundManager().play(new MovingSwordsmachineSoundInstance(sm));
 		});
 		
 		LivingEntityFeatureRendererRegistrationCallback.EVENT.register((type, renderer, helper, context) -> {
