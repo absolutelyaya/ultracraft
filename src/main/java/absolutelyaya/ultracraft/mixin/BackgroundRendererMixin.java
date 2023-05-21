@@ -6,6 +6,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.BackgroundRenderer;
 import net.minecraft.client.render.Camera;
+import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,7 +27,7 @@ public class BackgroundRendererMixin
 			RenderSystem.setShaderFogEnd(RenderSystem.getShaderFogEnd() / 16f);
 			UltracraftClient.addBlood(tickDelta / 2f);
 		}
-		else
+		else if(world.getFluidState(camera.getBlockPos()).isIn(FluidTags.WATER))
 			UltracraftClient.clearBlood();
 	}
 }

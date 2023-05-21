@@ -92,8 +92,8 @@ public class ClientPacketRegistry
 				}
 				if(client.player.squaredDistanceTo(pos) < 10 && !water)
 				{
-					client.player.playSound(SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.PLAYERS, shotgun ? 0.2f : 0.8f, 1.7f);
 					UltracraftClient.addBlood(amount / (shotgun ? 10f : 30f));
+					client.player.playSound(SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.PLAYERS, shotgun ? 0.2f : 0.8f, 1.7f);
 				}
 			});
 		})));
