@@ -228,7 +228,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			return true;
 		}
 		else
-			playSound(SoundEvents.BLOCK_ANVIL_LAND, 0.75f, 1.8f);
+			playSound(SoundEvents.BLOCK_ANVIL_LAND, 0.5f, 1.8f);
 		return false;
 	}
 	

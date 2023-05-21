@@ -43,7 +43,7 @@ public class ElevatorBlock extends Block
 	
 	BlockState getStateForPos(BlockState state, BlockPos pos, WorldAccess world)
 	{
-		state = state.with(LAYER, 3 - (pos.getY() % 3));
+		state = state.with(LAYER, pos.getY() < 0 ? -pos.getY() % 3 + 1: 3 - pos.getY() % 3);
 		state = state.with(SIDE, getSide(pos, world));
 		return state;
 	}
