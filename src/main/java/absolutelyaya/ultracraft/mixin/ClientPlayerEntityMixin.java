@@ -131,7 +131,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			if(client.options.sprintKey.isPressed() && !lastSprintPressed && !groundPounding)
 			{
 				//start ground pound
-				if(isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.99f, 0f)))) && !verticalCollision)
+				if(isUnSolid(posToBlock(getPos().subtract(0f, 0.99f, 0f))) && !verticalCollision)
 				{
 					groundPoundTicks = 0;
 					groundPounding = true;
@@ -141,7 +141,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				else if(!horizontalCollision && !jumping && !isDashing() && !wasDashing(2))
 				{
 					BlockPos pos = posToBlock(getPos().add(Vec3d.fromPolar(0f, getYaw()).normalize()));
-					setSliding((!isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.79f, 0f)))) || verticalCollision) &&
+					setSliding((!isUnSolid(posToBlock(getPos().subtract(0f, 0.79f, 0f))) || verticalCollision) &&
 										 !world.getBlockState(pos).isSolidBlock(world, pos), lastSprintPressed);
 				}
 				//cancel slide because it shouldn't be possible rn anyways
@@ -161,7 +161,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				boolean moved = new Vec3d(lastX, lastBaseY, lastZ).distanceTo(getPos()) > slideVelocity / 2f;
 				setSprinting(client.options.sprintKey.isPressed() && !groundPounding && moved && !jumping);
 				slideTicks++;
-				if(isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.25f, 0f)))))
+				if(isUnSolid(posToBlock(getPos().subtract(0f, 0.25f, 0f))))
 					slideTicks = 0;
 				ci.cancel();
 			}
@@ -215,7 +215,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				ci.cancel();
 			}
 			//dash jump (preserves velocity)
-			if(wasDashing() && jumping && !lastJumping && !isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.49f, 0f)))))
+			if(wasDashing() && jumping && !lastJumping && !isUnSolid(posToBlock(getPos().subtract(0f, 0.49f, 0f))))
 			{
 				onDashJump();
 				if(!consumeStamina())
@@ -227,14 +227,14 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			//stop dashing
 			if(wasDashing() && !isDashing())
 			{
-				if(isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.1f, 0f)))))
+				if(isUnSolid(posToBlock(getPos().subtract(0f, 0.1f, 0f))))
 					setVelocity(dashDir.multiply(0.3));
 				else
 					setVelocity(Vec3d.ZERO);
 				ci.cancel();
 			}
 			//stop ignoring slowdown when not sliding/dashing and on ground
-			if((verticalCollision && !isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.1f, 0f))))) &&
+			if((verticalCollision && !isUnSolid(posToBlock(getPos().subtract(0f, 0.1f, 0f)))) &&
 					   !isSprinting() && shouldIgnoreSlowdown() && !isDashing())
 				setIgnoreSlowdown(false);
 			//reset walljumps upon landing
@@ -245,14 +245,14 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			ArrayList<VoxelShape> touchingWalls = new ArrayList<>(StreamSupport.stream(temp.spliterator(), false).toList());
 			temp = world.getBlockCollisions(this, getBoundingBox().expand(0f, 0, 0.1f));
 			touchingWalls.addAll(StreamSupport.stream(temp.spliterator(), false).toList());
-			if(!groundPounding && !isSprinting() && touchingWalls.size() > 0 && isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.2f, 0f)))))
+			if(!groundPounding && !isSprinting() && touchingWalls.size() > 0 && isUnSolid(posToBlock(getPos().subtract(0f, 0.2f, 0f))))
 			{
 				Vec3d vel = getVelocity();
 				setVelocity(new Vec3d(vel.x, Math.max(vel.y, -0.2), vel.z));
 				ci.cancel();
 			}
 			//wall jump
-			if(wallJumps > 0 && isUnSolid(world.getBlockState(posToBlock(getPos().subtract(0f, 0.5f, 0f)))) &&
+			if(wallJumps > 0 && isUnSolid(posToBlock(getPos().subtract(0f, 0.5f, 0f))) &&
 					   jumping && !lastJumping && !lastOnGround && touchingWalls.size() > 0 && (UltracraftClient.isSlamStorageEnabled() || !groundPounding) &&
 					   !isSprinting())
 			{
@@ -338,9 +338,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		slideTicks = 0;
 	}
 	
-	boolean isUnSolid(BlockState state)
+	boolean isUnSolid(BlockPos pos)
 	{
-		return state.isAir() || state.getBlock() instanceof FluidBlock;
+		BlockState state = world.getBlockState(pos);
+		return !state.hasSolidTopSurface(world, pos, this);
 	}
 	
 	@Redirect(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;hasForwardMovement()Z"))
