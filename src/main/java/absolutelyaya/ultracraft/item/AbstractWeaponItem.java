@@ -53,6 +53,13 @@ public abstract class AbstractWeaponItem extends Item
 	}
 	
 	@Override
+	public int getItemBarStep(ItemStack stack)
+	{
+		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
+		return (int)(cdm.getCooldownPercent(stack.getItem(), GunCooldownManager.PRIMARY) * 14);
+	}
+	
+	@Override
 	public int getItemBarColor(ItemStack stack)
 	{
 		return 0x28ccdf;

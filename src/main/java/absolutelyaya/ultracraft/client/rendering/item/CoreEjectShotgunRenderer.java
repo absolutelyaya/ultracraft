@@ -41,12 +41,12 @@ public class CoreEjectShotgunRenderer extends GeoItemRenderer<CoreEjectShotgunIt
 			return new Identifier(Ultracraft.MOD_ID, "textures/item/core_shotgun3.png");
 		
 		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
-		int primaryCD = cdm.getCooldown(animatable, 0);
-		if(primaryCD < 32)
+		float primaryCD = cdm.getCooldownPercent(animatable, 0);
+		if(primaryCD < 0.45f)
 			return new Identifier(Ultracraft.MOD_ID, "textures/item/core_shotgun2.png");
-		else if(primaryCD < 37)
+		else if(primaryCD < 0.55f)
 			return new Identifier(Ultracraft.MOD_ID, "textures/item/core_shotgun1.png");
-		else if(primaryCD < 45)
+		else if(primaryCD < 0.65f)
 			return new Identifier(Ultracraft.MOD_ID, "textures/item/core_shotgun0.png");
 		
 		return new Identifier(Ultracraft.MOD_ID, "textures/item/core_shotgun.png");

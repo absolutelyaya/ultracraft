@@ -19,7 +19,7 @@ public class GunCooldownManager
 	public static final int SECONDARY = 1;
 	
 	final PlayerEntity owner;
-	final HashMap<Item, AtomicInteger[]> cooldowns = new HashMap<>();
+	final HashMap<Item, Entry[]> cooldowns = new HashMap<>();
 	
 	public GunCooldownManager(PlayerEntity owner)
 	{
@@ -33,14 +33,18 @@ public class GunCooldownManager
 		for (int i = 0; i < cooldowns.size(); i++)
 		{
 			Item key = (Item)keys[i];
+			boolean r = true;
 			for (int j = 0; j < cooldowns.get(key).length; j++)
 			{
-				AtomicInteger cd = cooldowns.get(key)[i];
+				Entry cd = cooldowns.get(key)[j];
 				if(cd.get() > 0)
-					cd.getAndDecrement();
-				if(cd.get() <= 0)
-					remove.add(key);
+				{
+					cd.decrement();
+					r = false;
+				}
 			}
+			if(r)
+				remove.add(key);
 		}
 		remove.forEach(cooldowns::remove);
 	}
@@ -57,18 +61,18 @@ public class GunCooldownManager
 		}
 		if(!cooldowns.containsKey(item))
 		{
-			List<AtomicInteger> list = new ArrayList<>();
+			List<Entry> list = new ArrayList<>();
 			for (int i = 0; i < 2; i++)
 			{
 				if(i == idx)
-					list.add(new AtomicInteger(ticks));
+					list.add(new Entry(ticks, new AtomicInteger(ticks)));
 				else
-					list.add(new AtomicInteger(0));
+					list.add(new Entry(0, new AtomicInteger(0)));
 			}
-			cooldowns.put(item, list.toArray(new AtomicInteger[2]));
+			cooldowns.put(item, list.toArray(new Entry[2]));
 		}
 		else
-			cooldowns.get(item)[idx].set(ticks);
+			cooldowns.get(item)[idx].set(ticks, ticks);
 	}
 	
 	public int getCooldown(Item item, int idx)
@@ -82,8 +86,54 @@ public class GunCooldownManager
 	public boolean isUsable(Item item, int idx)
 	{
 		if(cooldowns.containsKey(item) && idx < cooldowns.get(item).length)
-			return cooldowns.get(item)[idx].get() - (owner.world.isClient ? 2 : 0) <= 0;
+			return cooldowns.get(item)[idx].get() - (owner.world.isClient ? 1 : 0) <= 0;
 		else
 			return true;
+	}
+	
+	public float getCooldownPercent(Item item, int idx)
+	{
+		if(!cooldowns.containsKey(item) || idx > cooldowns.get(item).length)
+			return 0f;
+		Entry e = cooldowns.get(item)[idx];
+		return e.percent();
+	}
+	
+	public static class Entry
+	{
+		public int duration;
+		final AtomicInteger remaining;
+		
+		public Entry(int duration, AtomicInteger remaining)
+		{
+			this.duration = duration;
+			this.remaining = remaining;
+		}
+		
+		public int get()
+		{
+			return remaining.get();
+		}
+		
+		public void set(int val)
+		{
+			remaining.set(val);
+		}
+		
+		public void set(int duration, int val)
+		{
+			this.duration = duration;
+			remaining.set(val);
+		}
+		
+		public void decrement()
+		{
+			remaining.getAndDecrement();
+		}
+		
+		public float percent()
+		{
+			return (float)remaining.get() / (float)duration;
+		}
 	}
 }

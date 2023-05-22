@@ -111,19 +111,12 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 					0.9f + (user.getRandom().nextFloat() - 0.5f) * 0.2f);
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), controllerName, b ? "shot" : "shot2");
 			ServerHitscanHandler.performHitscan(user, (byte)0, 1f);
-			cdm.setCooldown(this, 10, GunCooldownManager.PRIMARY);
+			cdm.setCooldown(this, 6, GunCooldownManager.PRIMARY);
 			b = !b;
 			return true;
 		}
 		else
 			return false;
-	}
-	
-	@Override
-	public int getItemBarStep(ItemStack stack)
-	{
-		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
-		return (int)((float)(10 - cdm.getCooldown(stack.getItem(), GunCooldownManager.PRIMARY)) / 10f * 14f);
 	}
 	
 	@Override

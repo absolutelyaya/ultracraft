@@ -66,7 +66,7 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 		if(!world.isClient)
 		{
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), controllerName, "shot");
-			cdm.setCooldown(this, 70, GunCooldownManager.PRIMARY);
+			cdm.setCooldown(this, 35, GunCooldownManager.PRIMARY);
 			for (int i = 0; i < 12; i++)
 			{
 				ShotgunPelletEntity bullet = ShotgunPelletEntity.spawn(user, world);
@@ -157,13 +157,6 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 	public int getMaxUseTime(ItemStack stack)
 	{
 		return 30;
-	}
-	
-	@Override
-	public int getItemBarStep(ItemStack stack)
-	{
-		GunCooldownManager cdm = ((WingedPlayerEntity) MinecraftClient.getInstance().player).getGunCooldownManager();
-		return (int)((float)(70 - cdm.getCooldown(stack.getItem(), GunCooldownManager.PRIMARY)) / 70f * 14f);
 	}
 	
 	@Override
