@@ -50,7 +50,9 @@ public class IntroScreen extends Screen
 		closeButton = addDrawableChild(new ButtonWidget.Builder(Text.translatable("message.ultracraft.consent"), (button) -> {
 			config.lastVersion = Ultracraft.VERSION;
 			waitingForButton = false;
+			button.active = false;
 		}).dimensions(width / 2 - 49, height - 36, 98, 20).build());
+		closeButton.active = false;
 		GameOptions options = MinecraftClient.getInstance().options;
 		if(!config.startedBefore && options.swapHandsKey.isDefault())
 		{
@@ -75,6 +77,8 @@ public class IntroScreen extends Screen
 			retryButton.render(matrices, mouseX, mouseY, delta);
 			curText = Text.translatable("message.ultracraft.intro-error").getString();
 		}
+		else if(retryButton != null)
+			remove(retryButton);
 		
 		if(step == 1 && closeButtonAlpha < 1f)
 		{
@@ -82,8 +86,6 @@ public class IntroScreen extends Screen
 			closeButtonAlpha = Math.min(closeButtonAlpha, 1f);
 			closeButton.active = true;
 		}
-		else if(closeButton.active && closeButtonAlpha < 1f)
-			closeButton.active = false;
 		closeButton.setAlpha(closeButtonAlpha);
 		List<OrderedText> lines = textRenderer.wrapLines(StringVisitable.plain(curText), width);
 		for (int i = 0; i < lines.size(); i++)
@@ -194,7 +196,6 @@ public class IntroScreen extends Screen
 		curText = "";
 		goalText = Text.translatable("intro.ultracraft.calibration", Ultracraft.VERSION).getString();
 		timer = 40;
-		retryButton.active = false;
-		retryButton.visible = false;
+		remove(retryButton);
 	}
 }
