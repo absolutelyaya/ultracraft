@@ -65,21 +65,19 @@ public class KeybindRegistry
 					{
 						BlockHitResult hit = ((BlockHitResult)crosshairTarget);
 						BlockState state = player.world.getBlockState(hit.getBlockPos());
-						if(state.getBlock() instanceof IPunchableBlock punchable)
+						if(state.getBlock() instanceof IPunchableBlock || state.isIn(BlockTagRegistry.FRAGILE))
 						{
 							PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 							buf.writeBlockPos(hit.getBlockPos());
 							buf.writeBoolean(false);
 							ClientPlayNetworking.send(PacketRegistry.PUNCH_BLOCK_PACKET_ID, buf);
-							if (punchable.onPunch(player, hit.getBlockPos(), false))
+							if (state.getBlock() instanceof IPunchableBlock punchable && punchable.onPunch(player, hit.getBlockPos(), false))
 								return; //if punch interaction was successful, don't display break particles and stuff
 						}
 						Vec3d pos = hit.getPos();
 						for (int i = 0; i < 6; i++)
 							player.world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), pos.x, pos.y, pos.z, 0f, 0f, 0f);
 						player.playSound(state.getSoundGroup().getHitSound(), 1f, 1f);
-						if(state.isIn(BlockTagRegistry.PUNCH_BREAKABLE))
-							player.world.breakBlock(hit.getBlockPos(), true, player);
 					}
 				}
 				boolean b = entity != null && !(entity instanceof ProjectileEntity);

@@ -65,7 +65,7 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 		
 		if (!world.isClient)
 		{
-			ExplosionHandler.explosion(null, world, hitResult.getPos(), getDamageSources().explosion(getOwner(), getOwner()), 3.5f, 2.5f, 2f);
+			ExplosionHandler.explosion(null, world, hitResult.getPos(), getDamageSources().explosion(getOwner(), getOwner()), 3.5f, 2.5f, 2f, true);
 			world.sendEntityStatus(this, (byte)3);
 			discard();
 		}
@@ -76,7 +76,7 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 	{
 		if(source.isIn(DamageTypeTags.HITSCAN))
 		{
-			ExplosionHandler.explosion(null, world, getPos(), getDamageSources().explosion(getOwner(), getOwner()), 7f, 4.6f, 2f);
+			ExplosionHandler.explosion(null, world, getPos(), getDamageSources().explosion(getOwner(), getOwner()), 7f, 4.6f, 2f, true);
 			world.sendEntityStatus(this, (byte)3);
 			this.kill();
 		}

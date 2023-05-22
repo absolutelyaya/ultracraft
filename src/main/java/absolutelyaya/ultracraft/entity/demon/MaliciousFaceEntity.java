@@ -435,7 +435,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	{
 		if(!world.isClient && getServer() != null)
 			getServer().execute(() -> ExplosionHandler.explosion(parrier, world, new Vec3d(getX(), getY(), getZ()),
-					getDamageSources().explosion(parrier, parrier), 10f, 0f, 5.5f));
+					getDamageSources().explosion(parrier, parrier), 10f, 0f, 5.5f, true));
 		damage(getDamageSources().mobAttack(parrier), 10);
 		dataTracker.set(WAS_INTERRUPTED, true);
 	}
@@ -751,7 +751,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 			}
 			if(timer <= 0)
 			{
-				ServerHitscanHandler.performHitscan(face, (byte)5, 0, new ServerHitscanHandler.HitscanExplosionData(5.5f, 10f, 0f));
+				ServerHitscanHandler.performHitscan(face, (byte)5, 0, new ServerHitscanHandler.HitscanExplosionData(5.5f, 10f, 0f, true));
 				if(repeat)
 				{
 					timer = 22;

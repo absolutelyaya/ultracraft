@@ -1,9 +1,11 @@
 package absolutelyaya.ultracraft;
 
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
+import absolutelyaya.ultracraft.registry.BlockTagRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
@@ -15,9 +17,11 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 
 import java.util.Random;
@@ -26,13 +30,15 @@ public class ExplosionHandler
 {
 	static final Random random = new java.util.Random();
 	
-	public static void explosion(Entity ignored, World world, Vec3d pos, DamageSource source, float damage, float falloff, float radius)
+	public static void explosion(Entity ignored, World world, Vec3d pos, DamageSource source, float damage, float falloff, float radius, boolean breakBlocks)
 	{
-		if(world.isClient)
+		if(world.isClient && damage > 0f)
 			explosionClient((ClientWorld)world, pos, radius);
 		else
 		{
-			explosionServer(ignored, (ServerWorld)world, pos, source, damage, falloff, radius);
+			explosionServer(ignored, (ServerWorld)world, pos, source, damage, falloff, radius, breakBlocks);
+			if(damage <= 0f)
+				return;
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeDouble(pos.x);
 			buf.writeDouble(pos.y);
@@ -62,7 +68,7 @@ public class ExplosionHandler
 		}
 	}
 	
-	private static void explosionServer(Entity ignored, ServerWorld world, Vec3d pos, DamageSource source, float damage, float falloff, float radius)
+	private static void explosionServer(Entity ignored, ServerWorld world, Vec3d pos, DamageSource source, float damage, float falloff, float radius, boolean breakBlocks)
 	{
 		Box box = new Box(pos.subtract(radius, radius, radius), pos.add(radius, radius, radius));
 		world.getOtherEntities(ignored, box, Entity::isLiving).forEach(e -> {
@@ -74,5 +80,24 @@ public class ExplosionHandler
 			if(!(e instanceof PlayerEntity))
 				e.setOnFireFor(10);
 		});
+		Entity exploder = source.getSource();
+		if(breakBlocks && (exploder instanceof PlayerEntity || world.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)))
+		{
+			BlockPos center = new BlockPos((int)Math.floor(pos.x), (int)Math.floor(pos.y), (int)Math.floor(pos.z));
+			for (int y = (int)(-radius); y <= radius; y++)
+			{
+				for (int x = (int)Math.ceil(-radius); x <= Math.ceil(radius); x++)
+				{
+					for (int z = (int)Math.ceil(-radius); z <= Math.ceil(radius); z++)
+					{
+						if(new Vec3d(pos.x + x, pos.y + y, pos.z + z).distanceTo(pos) > radius)
+							continue;
+						BlockPos pos1 = new BlockPos(center.getX() + x, center.getY() + y, center.getZ() + z);
+						if(world.getBlockState(pos1).isIn(BlockTagRegistry.FRAGILE))
+							world.breakBlock(pos1, true, exploder);
+					}
+				}
+			}
+		}
 	}
 }

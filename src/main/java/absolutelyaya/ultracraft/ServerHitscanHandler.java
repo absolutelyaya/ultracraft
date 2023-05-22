@@ -55,6 +55,11 @@ public class ServerHitscanHandler
 		performHitscan(user, type, damage, 1, explosion);
 	}
 	
+	public static void performHitscan(LivingEntity user, byte type, int damage, int maxHits, boolean breakBlocks)
+	{
+		performHitscan(user, type, damage, maxHits, new HitscanExplosionData(2f, 0f, 0f, breakBlocks));
+	}
+	
 	public static void performHitscan(LivingEntity user, byte type, float damage, int maxHits, @Nullable HitscanExplosionData explosion)
 	{
 		World world = user.getWorld();
@@ -89,9 +94,9 @@ public class ServerHitscanHandler
 		entities.forEach(e -> e.damage(DamageSources.get(world, DamageSources.GUN, user), damage));
 		if(explosion != null)
 			ExplosionHandler.explosion(null, world, new Vec3d(modifiedTo.x, modifiedTo.y, modifiedTo.z), world.getDamageSources().explosion(null, user),
-					explosion.damage, explosion.falloff, explosion.radius);
+					explosion.damage, explosion.falloff, explosion.radius, explosion.breakBlocks);
 		sendPacket((ServerWorld)user.world, origin.add(new Vec3d(-0.5f, -0.3f, 0f).rotateY(-(float)Math.toRadians(user.getYaw()))), modifiedTo, type);
 	}
 	
-	public record HitscanExplosionData(float radius, float damage, float falloff) {}
+	public record HitscanExplosionData(float radius, float damage, float falloff, boolean breakBlocks) {}
 }
