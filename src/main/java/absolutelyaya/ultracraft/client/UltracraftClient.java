@@ -244,12 +244,10 @@ public class UltracraftClient implements ClientModInitializer
 	//if no Server override, return client setting
 	public static boolean isFreezeEnabled()
 	{
-		GameruleRegistry.Option option = TimeFreezeOption;
-		MinecraftServer server = MinecraftClient.getInstance().getServer();
-		if(server == null || !server.isRemote())
+		if(MinecraftClient.getInstance().isInSingleplayer())
 			return config.get().freezeVFX;
 		else
-			return option.equals(GameruleRegistry.Option.FORCE_ON);
+			return TimeFreezeOption.equals(GameruleRegistry.Option.FORCE_ON);
 	}
 	
 	public static boolean isHiVelEnabled()

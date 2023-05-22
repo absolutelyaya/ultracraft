@@ -64,7 +64,7 @@ public class Ultracraft implements ModInitializer
     {
         if(world != null)
         {
-            if(world.getGameRules().get(GameruleRegistry.TIME_STOP).get().equals(GameruleRegistry.Option.FORCE_OFF))
+            if(world.getServer().isRemote() && world.getGameRules().get(GameruleRegistry.TIME_STOP).get().equals(GameruleRegistry.Option.FORCE_OFF))
                 return;
             for (ServerPlayerEntity player : world.getPlayers())
             {
