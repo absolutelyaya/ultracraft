@@ -133,7 +133,7 @@ public class PacketRegistry
 					BlockState state = world.getBlockState(target);
 					if(state.getBlock() instanceof IPunchableBlock punchable)
 						punchable.onPunch(player, target, mainHand);
-					if(state.isIn(BlockTagRegistry.FRAGILE))
+					if(state.isIn(BlockTagRegistry.PUNCH_BREAKABLE))
 						player.world.breakBlock(target, true, player);
 				}
 			});

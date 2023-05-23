@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.registry.BlockTagRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -93,7 +94,9 @@ public class ExplosionHandler
 						if(new Vec3d(pos.x + x, pos.y + y, pos.z + z).distanceTo(pos) > radius)
 							continue;
 						BlockPos pos1 = new BlockPos(center.getX() + x, center.getY() + y, center.getZ() + z);
-						if(world.getBlockState(pos1).isIn(BlockTagRegistry.FRAGILE))
+						//explosions with 0 damage can only break fragile blocks, as they don't actually count as explosions
+						//and are used for misc block breaking like the piercer revolvers alt fire
+						if(world.getBlockState(pos1).isIn(damage > 0f ? BlockTagRegistry.EXPLOSION_BREAKABLE : BlockTagRegistry.FRAGILE))
 							world.breakBlock(pos1, true, exploder);
 					}
 				}
