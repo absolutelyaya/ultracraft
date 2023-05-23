@@ -1,0 +1,22 @@
+{
+  "variants": {
+    "layer=1,side=false": {
+      "model": "ultracraft:block/elevator/elevator_wall1"
+    },
+    "layer=1,side=true": {
+      "model": "ultracraft:block/elevator/elevator_wall2"
+    },
+    "layer=2,side=false": {
+      "model": "ultracraft:block/elevator/elevator_wall3"
+    },
+    "layer=2,side=true": {
+      "model": "ultracraft:block/elevator/elevator_wall4"
+    },
+    "layer=3,side=false": {
+      "model": "ultracraft:block/elevator/elevator_wall5"
+    },
+    "layer=3,side=true": {
+      "model": "ultracraft:block/elevator/elevator_wall6"
+    }
+  }
+}

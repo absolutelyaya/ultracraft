@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.registry;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.block.CerberusBlock;
 import absolutelyaya.ultracraft.block.ElevatorBlock;
+import absolutelyaya.ultracraft.block.ElevatorFloorBlock;
 import absolutelyaya.ultracraft.block.PedestalBlock;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -17,6 +18,12 @@ public class BlockRegistry
 {
 	public static final Block ELEVATOR = register("elevator",
 			new ElevatorBlock(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK).mapColor(MapColor.DULL_RED).requiresTool()),
+			true);
+	public static final Block ELEVATOR_WALL = register("elevator_wall",
+			new ElevatorBlock(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK).mapColor(MapColor.DULL_RED).requiresTool()),
+			true);
+	public static final Block ELEVATOR_FLOOR = register("elevator_floor",
+			new ElevatorFloorBlock(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK).mapColor(MapColor.DULL_RED).requiresTool()),
 			true);
 	public static final Block PEDESTAL = register("pedestal",
 			new PedestalBlock(AbstractBlock.Settings.copy(Blocks.COBBLESTONE).mapColor(MapColor.GRAY).nonOpaque().requiresTool()),

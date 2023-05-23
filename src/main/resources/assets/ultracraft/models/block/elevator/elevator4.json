@@ -1,9 +1,8 @@
 {
 	"credit": "Made by Absolutelyaya",
-	"texture_size": [32, 48],
+	"texture_size": [64, 64],
 	"textures": {
 		"0": "ultracraft:block/elevator",
-		"1": "ultracraft:block/elevator_top",
 		"particle": "ultracraft:block/elevator"
 	},
 	"elements": [
@@ -11,12 +10,12 @@
 			"from": [0, 0, 0],
 			"to": [16, 16, 16],
 			"faces": {
-				"north": {"uv": [8, 5.33333, 16, 10.66667], "texture": "#0"},
-				"east": {"uv": [16, 5.33333, 8, 10.66667], "texture": "#0"},
-				"south": {"uv": [16, 5.33333, 8, 10.66667], "texture": "#0"},
-				"west": {"uv": [8, 5.33333, 16, 10.66667], "texture": "#0"},
-				"up": {"uv": [0, 0, 16, 16], "texture": "#1"},
-				"down": {"uv": [0, 0, 16, 16], "texture": "#1"}
+				"north": {"uv": [4, 4, 8, 8], "texture": "#0"},
+				"east": {"uv": [8, 4, 4, 8], "texture": "#0"},
+				"south": {"uv": [8, 4, 4, 8], "texture": "#0"},
+				"west": {"uv": [4, 4, 8, 8], "texture": "#0"},
+				"up": {"uv": [4, 12, 8, 16], "texture": "#0"},
+				"down": {"uv": [12, 12, 16, 16], "texture": "#0"}
 			}
 		}
 	]

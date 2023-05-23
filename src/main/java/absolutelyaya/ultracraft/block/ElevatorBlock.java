@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.block;
 
+import absolutelyaya.ultracraft.registry.BlockRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemPlacementContext;
@@ -43,9 +44,19 @@ public class ElevatorBlock extends Block
 	
 	BlockState getStateForPos(BlockState state, BlockPos pos, WorldAccess world)
 	{
-		state = state.with(LAYER, pos.getY() < 0 ? -pos.getY() % 3 + 1: 3 - pos.getY() % 3);
-		state = state.with(SIDE, getSide(pos, world));
+		state = state.with(LAYER, state.isOf(BlockRegistry.ELEVATOR_FLOOR) ? 0 : getLayer(pos, world))
+						.with(SIDE, getSide(pos, world));
 		return state;
+	}
+	
+	int getLayer(BlockPos pos, WorldAccess world)
+	{
+		if(world.getBlockState(pos.down()).isOf(this))
+		{
+			int i = world.getBlockState(pos.down()).get(LAYER) - 1;
+			return i == 0 ? 3 : i;
+		}
+		return 3;
 	}
 	
 	boolean getSide(BlockPos pos, WorldAccess world)

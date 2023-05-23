@@ -74,6 +74,8 @@ public class ItemRegistry
 			content.add(HELL_BULLET);
 			content.add(CERBERUS_BALL);
 			content.add(BlockRegistry.ELEVATOR.asItem());
+			content.add(BlockRegistry.ELEVATOR_WALL.asItem());
+			content.add(BlockRegistry.ELEVATOR_FLOOR.asItem());
 			content.add(BlockRegistry.PEDESTAL.asItem());
 			content.add(BlockRegistry.CERBERUS.asItem());
 			content.add(BLOOD_BUCKET);
