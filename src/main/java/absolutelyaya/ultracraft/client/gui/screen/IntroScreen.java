@@ -52,7 +52,7 @@ public class IntroScreen extends Screen
 			waitingForButton = false;
 			button.active = false;
 		}).dimensions(width / 2 - 49, height - 36, 98, 20).build());
-		closeButton.active = false;
+		closeButton.active = waitingForButton;
 		GameOptions options = MinecraftClient.getInstance().options;
 		if(!config.startedBefore && options.swapHandsKey.isDefault())
 		{
