@@ -5,8 +5,6 @@ import absolutelyaya.ultracraft.registry.BlockTagRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
@@ -72,15 +70,18 @@ public class ExplosionHandler
 	private static void explosionServer(Entity ignored, ServerWorld world, Vec3d pos, DamageSource source, float damage, float falloff, float radius, boolean breakBlocks)
 	{
 		Box box = new Box(pos.subtract(radius, radius, radius), pos.add(radius, radius, radius));
-		world.getOtherEntities(ignored, box, Entity::isLiving).forEach(e -> {
-			float normalizedDistance = (float)e.getPos().distanceTo(pos) / radius;
-			if((e instanceof LivingEntityAccessor living && living.takePunchKnockback()) || e instanceof ProjectileEntity)
-				e.addVelocity(e.getPos().subtract(pos).add(0.0, 1f - normalizedDistance, 0.0).normalize()
-									  .multiply(Math.min(radius * 0.75, 1.75f) * (normalizedDistance == 0f ? 0.75f : Math.min(1.5f - normalizedDistance, 1f))));
-			e.damage(source, MathHelper.lerp(normalizedDistance, damage, Math.max(damage - falloff, 0f)));
-			if(!(e instanceof PlayerEntity))
-				e.setOnFireFor(10);
-		});
+		if(damage > 0f)
+		{
+			world.getOtherEntities(ignored, box, Entity::isLiving).forEach(e -> {
+				float normalizedDistance = (float)e.getPos().distanceTo(pos) / radius;
+				if((e instanceof LivingEntityAccessor living && living.takePunchKnockback()) || e instanceof ProjectileEntity)
+					e.addVelocity(e.getPos().subtract(pos).add(0.0, 1f - normalizedDistance, 0.0).normalize()
+										  .multiply(Math.min(radius * 0.75, 1.75f) * (normalizedDistance == 0f ? 0.75f : Math.min(1.5f - normalizedDistance, 1f))));
+				e.damage(source, MathHelper.lerp(normalizedDistance, damage, Math.max(damage - falloff, 0f)));
+				if(!(e instanceof PlayerEntity))
+					e.setOnFireFor(10);
+			});
+		}
 		Entity exploder = source.getSource();
 		if(breakBlocks && (exploder instanceof PlayerEntity || world.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)))
 		{
