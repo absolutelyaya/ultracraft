@@ -6,6 +6,7 @@ import net.minecraft.client.particle.SpriteBillboardParticle;
 import net.minecraft.client.particle.SpriteProvider;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
@@ -47,6 +48,8 @@ public abstract class SurfaceAlignedParticle extends SpriteBillboardParticle
 		setColor((float)color.getX(), (float)color.getY(), (float)color.getZ());
 		
 		isFancy = config.fancyGoop;
+		
+		//System.out.println(dir);
 		
 		this.dir = new Vec3d((float)Math.round(dir.x), (float)Math.round(dir.y), (float)Math.round(dir.z));
 		boolean b = dir.x != 0;
@@ -170,16 +173,17 @@ public abstract class SurfaceAlignedParticle extends SpriteBillboardParticle
 				
 				if(render)
 				{
+					boolean up = this.y < 0;
 					//top
-					vertexConsumer.vertex(modVerts[0].getX(), modVerts[0].getY(), modVerts[0].getZ()).texture(uvs.get(vi).x, uvs.get(vi).y).color(this.red, this.green, this.blue, this.alpha).light(n).next();
-					vertexConsumer.vertex(modVerts[1].getX(), modVerts[1].getY(), modVerts[1].getZ()).texture(uvs.get((int)(vi + ts + 1)).x, uvs.get((int)(vi + ts + 1)).y).color(this.red, this.green, this.blue, this.alpha).light(n).next();
-					vertexConsumer.vertex(modVerts[2].getX(), modVerts[2].getY(), modVerts[2].getZ()).texture(uvs.get((int)(vi + ts + 2)).x, uvs.get((int)(vi + ts + 2)).y).color(this.red, this.green, this.blue, this.alpha).light(n).next();
-					vertexConsumer.vertex(modVerts[3].getX(), modVerts[3].getY(), modVerts[3].getZ()).texture(uvs.get(vi + 1).x, uvs.get(vi + 1).y).color(this.red, this.green, this.blue, this.alpha).light(n).next();
+					vertexConsumer.vertex(modVerts[0].getX(), modVerts[0].getY() + (up ? 1.01 : 0), modVerts[0].getZ()).texture(uvs.get(vi).x, uvs.get(vi).y).color(this.red, this.green, this.blue, this.alpha).light(n).next();
+					vertexConsumer.vertex(modVerts[1].getX(), modVerts[1].getY() + (up ? 1.01 : 0), modVerts[1].getZ()).texture(uvs.get((int)(vi + ts + 1)).x, uvs.get((int)(vi + ts + 1)).y).color(this.red, this.green, this.blue, this.alpha).light(n).next();
+					vertexConsumer.vertex(modVerts[2].getX(), modVerts[2].getY() + (up ? 1.01 : 0), modVerts[2].getZ()).texture(uvs.get((int)(vi + ts + 2)).x, uvs.get((int)(vi + ts + 2)).y).color(this.red, this.green, this.blue, this.alpha).light(n).next();
+					vertexConsumer.vertex(modVerts[3].getX(), modVerts[3].getY() + (up ? 1.01 : 0), modVerts[3].getZ()).texture(uvs.get(vi + 1).x, uvs.get(vi + 1).y).color(this.red, this.green, this.blue, this.alpha).light(n).next();
 					//bottom
-					vertexConsumer.vertex(modVerts[3].getX(), modVerts[3].getY(), modVerts[3].getZ()).texture(uvs.get(vi + 1).x, uvs.get(vi + 1).y).color(this.red, this.green, this.blue, this.alpha).light(n).next();
-					vertexConsumer.vertex(modVerts[2].getX(), modVerts[2].getY(), modVerts[2].getZ()).texture(uvs.get((int)(vi + ts + 2)).x, uvs.get((int)(vi + ts + 2)).y).color(this.red, this.green, this.blue, this.alpha).light(n).next();
-					vertexConsumer.vertex(modVerts[1].getX(), modVerts[1].getY(), modVerts[1].getZ()).texture(uvs.get((int)(vi + ts + 1)).x, uvs.get((int)(vi + ts + 1)).y).color(this.red, this.green, this.blue, this.alpha).light(n).next();
-					vertexConsumer.vertex(modVerts[0].getX(), modVerts[0].getY(), modVerts[0].getZ()).texture(uvs.get(vi).x, uvs.get(vi).y).color(this.red, this.green, this.blue, this.alpha).light(n).next();
+					vertexConsumer.vertex(modVerts[3].getX(), modVerts[3].getY() + (up ? 1.01 : 0), modVerts[3].getZ()).texture(uvs.get(vi + 1).x, uvs.get(vi + 1).y).color(this.red, this.green, this.blue, this.alpha).light(n).next();
+					vertexConsumer.vertex(modVerts[2].getX(), modVerts[2].getY() + (up ? 1.01 : 0), modVerts[2].getZ()).texture(uvs.get((int)(vi + ts + 2)).x, uvs.get((int)(vi + ts + 2)).y).color(this.red, this.green, this.blue, this.alpha).light(n).next();
+					vertexConsumer.vertex(modVerts[1].getX(), modVerts[1].getY() + (up ? 1.01 : 0), modVerts[1].getZ()).texture(uvs.get((int)(vi + ts + 1)).x, uvs.get((int)(vi + ts + 1)).y).color(this.red, this.green, this.blue, this.alpha).light(n).next();
+					vertexConsumer.vertex(modVerts[0].getX(), modVerts[0].getY() + (up ? 1.01 : 0), modVerts[0].getZ()).texture(uvs.get(vi).x, uvs.get(vi).y).color(this.red, this.green, this.blue, this.alpha).light(n).next();
 				}
 				
 				verts.set(vi, modVerts[0]);
@@ -214,8 +218,8 @@ public abstract class SurfaceAlignedParticle extends SpriteBillboardParticle
 	public void tick()
 	{
 		super.tick();
-		if(world.getBlockState(new BlockPos((int)(x - dir.getX()), (int)(y - dir.getY()), (int)(z - dir.getZ()))).isAir() ||
-				   !world.getBlockState(new BlockPos((int)x, (int)y, (int)z)).isAir())
+		if(world.getBlockState(new BlockPos((int)(x - dir.getX() + (x < 0 ? -1 : 0)), (int)(y - dir.getY()), (int)(z - dir.getZ() + (z < 0 ? -1 : 0)))).isAir() ||
+				   !world.getBlockState(new BlockPos((int)x + (x < 0 ? -1 : 0), (int)y, (int)z + (z < 0 ? -1 : 0))).isAir())
 			markDead();
 		deformation = (float)age / maxAge;
 	}
@@ -226,6 +230,13 @@ public abstract class SurfaceAlignedParticle extends SpriteBillboardParticle
 			return vert;
 		Vec3d dir = vert.subtract(x, y, z).normalize().multiply(0.33);
 		return new Vec3d(Math.round(vert.getX() - dir.x), vert.getY(), Math.round(vert.getZ() - dir.z));
+	}
+	
+	@Override
+	protected int getBrightness(float tint)
+	{
+		BlockPos blockPos = BlockPos.ofFloored(this.x, this.y, this.z);
+		return WorldRenderer.getLightmapCoordinates(this.world, blockPos.add(0, (this.y < 0 && dir.y > 0) ? 1 : 0, 0));
 	}
 	
 	static {

@@ -49,7 +49,7 @@ public class GoopParticle extends SurfaceAlignedParticle
 		
 		if(dir.getY() < 0 && random.nextInt(120) == 0)
 			world.addParticle(new GoopStringParticleEffect(color, 0.25f),
-					x + random.nextFloat() * scale - scale / 2f, y, z + random.nextFloat() * scale - scale / 2f,
+					x + random.nextFloat() * scale - scale / 2f, y + (y < 0 ? 1 : 0), z + random.nextFloat() * scale - scale / 2f,
 					0, 0, 0);
 	}
 	

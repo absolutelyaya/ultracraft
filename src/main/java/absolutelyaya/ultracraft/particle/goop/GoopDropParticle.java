@@ -6,6 +6,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.shape.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,14 +56,13 @@ public class GoopDropParticle extends SpriteBillboardParticle
 	
 	void nextParticle(BlockPos pos, Vec3d dir)
 	{
-		if(!world.getBlockState(pos).isAir())
+		if(!world.getBlockState(pos.subtract(new Vec3i(0, dir.y < 0 && y < 0 ? 2 : 0, 0))).isAir())
 		{
-			//Vec3d dir = new Vec3d(x, y, z).subtract(new Vec3d(pos.getX(), pos.getY(), pos.getZ()));
-			
 			dir = dir.normalize();
 			
 			Vec3d offset = new Vec3d(1, 1, 1).multiply(Math.max(random.nextFloat() * 0.02f, 0.01f));
-			offset = offset.add(dir.x < 0 ? 0 : 1, dir.y < 0 ? 0 : 1, dir.z < 0 ? 0 : 1);
+			offset = offset.add(dir.x < 0 ? 0 : 1, dir.y < 0 ? (y < 0 ? 4 : 0) : 1, dir.z < 0 ? 0 : 1)
+							 .subtract(0, y < 0 ? 1 : 0, 0);
 			
 			if(dir.y != 0)
 				world.addParticle(new GoopParticleEffect(color, totalScale * 2.5f, dir),
@@ -90,9 +90,10 @@ public class GoopDropParticle extends SpriteBillboardParticle
 				VoxelShape shape = it.next();
 				Vec3d point = shape.getBoundingBox().getCenter();
 				Vec3d vec3d = Entity.adjustMovementForCollisions(null, new Vec3d(dx, dy, dz), this.getBoundingBox(), this.world, List.of());
-				Vec3d diff = vec3d.subtract(new Vec3d(dx, dy, dz));
+				Vec3d diff = vec3d.subtract(new Vec3d(dx, dy, dz)).normalize();
 				
-				nextParticle(new BlockPos((int)point.x, (int)point.y, (int)point.z), diff);
+				nextParticle(new BlockPos((int)point.x + (x < 0 ? -1 : 0),
+						((int)point.y + (y < 0 ? (diff.y < 0 ? 1 : -1) : 0)), (int)point.z + (z < 0 ? -1 : 0)), diff);
 				markDead();
 			}
 		}
