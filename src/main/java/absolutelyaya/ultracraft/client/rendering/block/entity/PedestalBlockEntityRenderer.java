@@ -53,6 +53,7 @@ public class PedestalBlockEntityRenderer implements BlockEntityRenderer<Pedestal
 			matrices.scale(scaleInverse, scaleInverse, scaleInverse);
 			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(90), 1f, 0f, 0f)));
 			matrices.translate(0f, 0.2f, 0.4f);
+			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(180), 0f, 0f, 1f)));
 		}
 		else if (item instanceof AbstractWeaponItem)
 		{
@@ -81,6 +82,8 @@ public class PedestalBlockEntityRenderer implements BlockEntityRenderer<Pedestal
 			else
 				matrices.translate(0f, 0.1f, 0f);
 		}
+		else
+			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(180), 0f, 1f, 0f)));
 	}
 	
 	void applyFloatTransformation(MatrixStack matrices)
