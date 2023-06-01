@@ -73,7 +73,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	Vec3d dashDir = Vec3d.ZERO;
 	Vec3d slideDir = Vec3d.ZERO;
 	boolean groundPounding, lastGroundPounding, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored;
-	int groundPoundTicks, ticksSinceLastGroundPound = -1, slideTicks, wallJumps = 3;
+	int groundPoundTicks, ticksSinceLastGroundPound = -1, slideTicks, wallJumps = 3, coyote;
 	float slideVelocity;
 	final float baseJumpVel = 0.42f;
 	
@@ -215,7 +215,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				ci.cancel();
 			}
 			//dash jump (preserves velocity)
-			if(wasDashing() && jumping && !lastJumping && !isUnSolid(posToBlock(getPos().subtract(0f, 0.49f, 0f))))
+			if(wasDashing() && input.jumping && !lastJumping && (!isUnSolid(posToBlock(getPos().subtract(0f, 0.49f, 0f))) || coyote > 0))
 			{
 				onDashJump();
 				if(!consumeStamina())
@@ -239,7 +239,12 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				setIgnoreSlowdown(false);
 			//reset walljumps upon landing
 			if(!lastOnGround && onGround)
+			{
+				coyote = 4;
 				wallJumps = 3;
+			}
+			if(!onGround && coyote > 0)
+				coyote--;
 			//wall sliding / fall slow-down
 			Iterable<VoxelShape> temp = world.getBlockCollisions(this, getBoundingBox().expand(0.1f, 0, 0f));
 			ArrayList<VoxelShape> touchingWalls = new ArrayList<>(StreamSupport.stream(temp.spliterator(), false).toList());
