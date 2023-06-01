@@ -8,8 +8,13 @@ import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import com.chocohead.mm.api.ClassTinkerers;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import net.minecraft.block.FluidBlock;
 import net.minecraft.entity.*;
+import net.minecraft.entity.attribute.EntityAttribute;
+import net.minecraft.entity.attribute.EntityAttributeModifier;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.player.PlayerAbilities;
@@ -32,6 +37,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Mixin(PlayerEntity.class)
 public abstract class PlayerEntityMixin extends LivingEntity implements WingedPlayerEntity
@@ -51,6 +57,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	float wingAnimTime;
 	int dashingTicks = -2, stamina, wingHintDisplayTicks;
 	GunCooldownManager gunCDM;
+	Multimap<EntityAttribute, EntityAttributeModifier> curSpeedMod;
 	
 	protected PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world)
 	{
@@ -203,6 +210,35 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		wingsActive = b;
 		setWingState((byte)(b ? 1 : 0));
 		wingHintDisplayTicks = 60;
+		if(b)
+		{
+			curSpeedMod = getSpeedMod();
+			getAttributes().addTemporaryModifiers(curSpeedMod);
+		}
+		else if(curSpeedMod != null)
+		{
+			getAttributes().removeModifiers(curSpeedMod);
+			curSpeedMod = null;
+		}
+	}
+	
+	Multimap<EntityAttribute, EntityAttributeModifier> getSpeedMod()
+	{
+		Multimap<EntityAttribute, EntityAttributeModifier> speedMod = HashMultimap.create();
+		speedMod.put(EntityAttributes.GENERIC_MOVEMENT_SPEED, new EntityAttributeModifier(UUID.fromString("9c92fac8-0018-11ee-be56-0242ac120002"), "spd_up",
+				0.2f * world.getGameRules().getInt(GameruleRegistry.HIVEL_SPEED), EntityAttributeModifier.Operation.MULTIPLY_TOTAL));
+		return speedMod;
+	}
+	
+	@Override
+	public void updateSpeedGamerule()
+	{
+		if(isWingsActive() && curSpeedMod != null)
+		{
+			getAttributes().removeModifiers(curSpeedMod);
+			curSpeedMod = getSpeedMod();
+			getAttributes().addTemporaryModifiers(curSpeedMod);
+		}
 	}
 	
 	@Override

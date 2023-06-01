@@ -58,7 +58,6 @@ import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import software.bernie.geckolib.network.GeckoLibNetwork;
@@ -79,7 +78,7 @@ public class UltracraftClient implements ClientModInitializer
 	static GameruleRegistry.Option TimeFreezeOption = GameruleRegistry.Option.FORCE_ON;
 	static GameruleRegistry.RegenOption BloodRegen = GameruleRegistry.RegenOption.ALWAYS;
 	static boolean disableHandswap = false, slamStorage = true, fallDamage = false, drowning = false;
-	public static int jumpBoost;
+	public static int jumpBoost, speed;
 	static float screenblood;
 	
 	static UltraHudRenderer hudRenderer;
@@ -334,6 +333,7 @@ public class UltracraftClient implements ClientModInitializer
 		switch (rule)
 		{
 			case 4 -> jumpBoost = value;
+			case 9 -> speed = value;
 			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncI] -> " + data);
 		}
 	}

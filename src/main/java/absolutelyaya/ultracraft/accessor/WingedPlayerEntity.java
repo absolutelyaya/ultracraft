@@ -50,4 +50,6 @@ public interface WingedPlayerEntity
 	void setIgnoreSlowdown(boolean b);
 	
 	Vec3d getSlideDir();
+	
+	void updateSpeedGamerule();
 }

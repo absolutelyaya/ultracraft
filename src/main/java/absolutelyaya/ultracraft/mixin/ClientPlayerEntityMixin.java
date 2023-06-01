@@ -152,9 +152,9 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			//stop sliding once conditions aren't met anymore
 			else if(isSprinting())
 			{
-				if(jumping)
+				if(jumping && (!isUnSolid(posToBlock(getPos().subtract(0f, 0.1f, 0f))) || coyote > 0))
 				{
-					setVelocity(slideDir.multiply(slideVelocity * 1.5));
+					setVelocity(slideDir.multiply(1f + 0.05 * UltracraftClient.speed).multiply(slideVelocity * 1.5));
 					addVelocity(0, baseJumpVel, 0);
 					setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
 				}
@@ -170,7 +170,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			{
 				if(isSprinting() != lastSprinting)
 					sendSprintingPacket();
-				setVelocity(slideDir.multiply(slideVelocity).add(0f, getVelocity().y, 0f));
+				setVelocity(slideDir.multiply(1f + 0.2 * UltracraftClient.speed).multiply(slideVelocity / 1.5f).add(0f, getVelocity().y, 0f));
 				ci.cancel();
 			}
 			//skip on liquids
@@ -211,7 +211,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			//dash velocity
 			if(isDashing())
 			{
-				setVelocity(dashDir);
+				setVelocity(dashDir.multiply(1f + 0.2 * UltracraftClient.speed));
 				ci.cancel();
 			}
 			//dash jump (preserves velocity)
@@ -227,8 +227,11 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			//stop dashing
 			if(wasDashing() && !isDashing())
 			{
+				float slipandslide = getSteppingBlockState().getBlock().getSlipperiness();
 				if(isUnSolid(posToBlock(getPos().subtract(0f, 0.1f, 0f))))
 					setVelocity(dashDir.multiply(0.3));
+				else if(slipandslide > 0.6)
+					setVelocity(dashDir.multiply(Math.min(slipandslide - 0.5, 0.6)));
 				else
 					setVelocity(Vec3d.ZERO);
 				ci.cancel();
@@ -240,10 +243,11 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			//reset walljumps upon landing
 			if(!lastOnGround && onGround)
 			{
-				coyote = 4;
+				if(!isUnSolid(posToBlock(getPos().subtract(0f, 0.1f, 0f))))
+					coyote = 4;
 				wallJumps = 3;
 			}
-			if(!onGround && coyote > 0)
+			if((!onGround || isUnSolid(posToBlock(getPos().subtract(0f, 0.1f, 0f)))) && coyote > 0)
 				coyote--;
 			//wall sliding / fall slow-down
 			Iterable<VoxelShape> temp = world.getBlockCollisions(this, getBoundingBox().expand(0.1f, 0, 0f));

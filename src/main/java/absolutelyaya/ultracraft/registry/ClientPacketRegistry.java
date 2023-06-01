@@ -122,7 +122,7 @@ public class ClientPacketRegistry
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SYNC_RULE, ((client, handler, buf, sender) -> {
 			byte b = buf.readByte();
-			if(b == 40)
+			if(b == 40 || b == 90)
 				UltracraftClient.syncGameRule(b, buf.readInt());
 			else
 				UltracraftClient.syncGameRule(b);

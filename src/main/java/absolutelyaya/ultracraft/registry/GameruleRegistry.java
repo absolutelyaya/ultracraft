@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.registry;
 
+import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
@@ -54,7 +55,16 @@ public class GameruleRegistry
 	public static final GameRules.Key<EnumRule<RegenOption>> BLOODHEAL =
 			GameRuleRegistry.register("ultra-bloodHealing", GameRules.Category.PLAYER,
 					GameRuleFactory.createEnumRule(RegenOption.ALWAYS,
-							(server, rule) -> OnChanged(server, (byte)((byte)70 + (rule.get().ordinal())))));
+							(server, rule) -> OnChanged(server, (byte)((byte)80 + (rule.get().ordinal())))));
+	public static final GameRules.Key<GameRules.IntRule> HIVEL_SPEED =
+			GameRuleRegistry.register("ultra-speed", GameRules.Category.PLAYER,
+					GameRuleFactory.createIntRule(2,
+							(server, rule) -> {
+						OnChanged(server, (byte)90, rule.get());
+						server.getPlayerManager().getPlayerList().forEach(p -> {
+							((WingedPlayerEntity)p).updateSpeedGamerule();
+						});
+					}));
 	
 	public static void OnChanged(MinecraftServer server, byte b)
 	{
@@ -100,6 +110,7 @@ public class GameruleRegistry
 		OnChanged(player, (byte)(60 + (player.server.getGameRules().getBoolean(HIVEL_FALLDAMAGE) ? 1 : 0)));
 		OnChanged(player, (byte)(70 + (player.server.getGameRules().getBoolean(HIVEL_DROWNING) ? 1 : 0)));
 		OnChanged(player, (byte)(80 + player.server.getGameRules().get(BLOODHEAL).get().ordinal()));
+		OnChanged(player, (byte)90, player.server.getGameRules().get(HIVEL_SPEED).get());
 	}
 	
 	public static void register()
