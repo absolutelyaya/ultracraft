@@ -109,16 +109,16 @@
   "narrator.button.background.vanilla": "Vanilla BG",
   "narrator.button.background.ultracraft": "Ultracraft BG",
 
-  "modmenu.descriptionTranslation.ultracraft": "Ultrakill moment\n\nNach einem Spiel von §6Arsi \"Hakita\" Patala§r\nBitte spiel das Original, es ist so viel besser als diese mod lol",
+  "modmenu.descriptionTranslation.ultracraft": "Ultrakill moment\n\nNach einem Spiel von §6Arsi \"Hakita\" Patala§r\nBitte spiel das Original, es ist um einiges besser als diese mod lul",
   "ultrakill.game": "ULTRAKILL (real)",
   "yaya.support.kofi": "Unterstütze Yayas Schabernack",
 
   "text.autoconfig.ultracraft.category.default": "Ultracraft",
-  "text.autoconfig.ultracraft.category.goop": "Goop / Blut",
+  "text.autoconfig.ultracraft.category.blood": "Goop / Blut",
   "text.autoconfig.ultracraft.category.debug": "Debug",
 
   "text.autoconfig.ultracraft.option.fancyGoop": "Hübsches Goop",
-  "text.autoconfig.ultracraft.option.fancyGoop.@Tooltip": "Aus für bessere Perfomance, An für besseres goop!",
+  "text.autoconfig.ultracraft.option.fancyGoop.@Tooltip": "Aus für bessere Perfomance, An für besseres goop! (momentan Fehlerhaft, fix kommt in v1.1)",
 
   "text.autoconfig.ultracraft.option.wrapToEdges": "Kanten-angleich",
   "text.autoconfig.ultracraft.option.wrapToEdges.@Tooltip": "Ob Goop sich Block Kanten anpassen sollte",

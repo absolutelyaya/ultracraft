@@ -114,11 +114,11 @@
   "yaya.support.kofi": "Support yayas endeavours",
 
   "text.autoconfig.ultracraft.category.default": "Ultracraft",
-  "text.autoconfig.ultracraft.category.goop": "Goop / Blood",
+  "text.autoconfig.ultracraft.category.blood": "Goop / Blood",
   "text.autoconfig.ultracraft.category.debug": "Debug",
 
   "text.autoconfig.ultracraft.option.fancyGoop": "Fancy Goop",
-  "text.autoconfig.ultracraft.option.fancyGoop.@Tooltip": "Disable for better performance, enable for better goop!",
+  "text.autoconfig.ultracraft.option.fancyGoop.@Tooltip": "Disable for better performance, enable for better goop! (currently broken, will fix in v1.1)",
 
   "text.autoconfig.ultracraft.option.wrapToEdges": "Wrap to Edges",
   "text.autoconfig.ultracraft.option.wrapToEdges.@Tooltip": "Whether Goop should wrap to block edges",

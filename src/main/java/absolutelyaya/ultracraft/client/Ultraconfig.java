@@ -24,8 +24,6 @@ public class Ultraconfig implements ConfigData
 	@ConfigEntry.Gui.Tooltip
 	public boolean moveUltrahud = true;
 	@ConfigEntry.Gui.Tooltip
-	public boolean bloodOverlay = true;
-	@ConfigEntry.Gui.Tooltip
 	@ConfigEntry.BoundedDiscrete(min = 16, max = 128)
 	public int maxTrails = 64;
 	@ConfigEntry.Gui.Tooltip(count = 2)
@@ -33,14 +31,18 @@ public class Ultraconfig implements ConfigData
 	@ConfigEntry.Gui.Tooltip
 	@ConfigEntry.BoundedDiscrete(min = 0, max = 100)
 	public int slideCamOffset = 100;
-	@ConfigEntry.Gui.Tooltip
-	public boolean danganronpa = true;
-	@ConfigEntry.Category("goop")
+	@ConfigEntry.Category("blood")
 	@ConfigEntry.Gui.Tooltip
 	public boolean fancyGoop = false;
-	@ConfigEntry.Category("goop")
+	@ConfigEntry.Category("blood")
 	@ConfigEntry.Gui.Tooltip
 	public boolean wrapToEdges = false;
+	@ConfigEntry.Category("blood")
+	@ConfigEntry.Gui.Tooltip
+	public boolean bloodOverlay = true;
+	@ConfigEntry.Category("blood")
+	@ConfigEntry.Gui.Tooltip
+	public boolean danganronpa = true;
 	@ConfigEntry.Gui.Excluded
 	public String BGID = "ultracraft";
 	@ConfigEntry.Category("debug")

@@ -89,8 +89,9 @@ public class UltraHudRenderer extends DrawableHelper
 					-render.getWidth(t) / 2f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f, 32f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f,
 					MathHelper.clamp(0.5f * fishManiaLevel, 0.05f, 1f));
 			matrices.scale(0.5f, 0.5f, 0.5f);
-			drawText(matrices, t = Text.translatable("message.ultracraft.fish.disable"),
-					-render.getWidth(t) / 2f, 128f, 0.5f);
+			if(fishCaught < 5)
+				drawText(matrices, t = Text.translatable("message.ultracraft.fish.disable"),
+						-render.getWidth(t) / 2f, 128f, 0.5f);
 			matrices.pop();
 			matrices.push();
 			matrices.translate(0f, 0f, 3f);

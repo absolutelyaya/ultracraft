@@ -120,7 +120,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 			dataTracker.set(SWORD_STACK, ItemRegistry.MACHINE_SWORD.getSwordInstance((ServerWorld)world));
 		
 		enragedModifiers = HashMultimap.create();
-		enragedModifiers.put(EntityAttributes.GENERIC_ATTACK_DAMAGE, new EntityAttributeModifier("atk_up", 1.5f, EntityAttributeModifier.Operation.MULTIPLY_BASE));
+		enragedModifiers.put(EntityAttributes.GENERIC_ATTACK_DAMAGE, new EntityAttributeModifier("atk_up", 0.5f, EntityAttributeModifier.Operation.MULTIPLY_TOTAL));
 		enragedModifiers.put(EntityAttributes.GENERIC_MOVEMENT_SPEED, new EntityAttributeModifier("spd_up", 0.15f, EntityAttributeModifier.Operation.ADDITION));
 	}
 	
@@ -352,6 +352,12 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 			}
 		}
 		return b;
+	}
+	
+	@Override
+	public boolean doesRenderOnFire()
+	{
+		return isInLava();
 	}
 	
 	@Override

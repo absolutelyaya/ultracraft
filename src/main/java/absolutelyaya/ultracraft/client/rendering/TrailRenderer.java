@@ -134,7 +134,7 @@ public class TrailRenderer
 	{
 		if(trail.size() <= 1)
 			return;
-		float f = Math.max(lifetime / 20f, 0.5f);
+		float f = Math.max(lifetime / 30f, 0.5f);
 		for (int i = 1; i < trail.size(); i++)
 		{
 			Pair<Vector3f, Vector3f> pa = trail.get(i).getRight();
