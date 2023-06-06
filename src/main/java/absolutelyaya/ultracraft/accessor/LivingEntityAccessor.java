@@ -4,7 +4,7 @@ import java.util.function.Supplier;
 
 public interface LivingEntityAccessor
 {
-	boolean Punch();
+	boolean punch();
 	
 	float GetPunchProgress(float tickDelta);
 	
@@ -21,4 +21,6 @@ public interface LivingEntityAccessor
 	void addRecoil(float recoil);
 	
 	float getRecoil();
+	
+	int getGravityReduction();
 }

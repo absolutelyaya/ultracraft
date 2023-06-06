@@ -78,7 +78,7 @@ public class UltracraftClient implements ClientModInitializer
 	static GameruleRegistry.Option TimeFreezeOption = GameruleRegistry.Option.FORCE_ON;
 	static GameruleRegistry.RegenOption BloodRegen = GameruleRegistry.RegenOption.ALWAYS;
 	static boolean disableHandswap = false, slamStorage = true, fallDamage = false, drowning = false;
-	public static int jumpBoost, speed;
+	public static int jumpBoost, speed, gravityReduction;
 	static float screenblood;
 	
 	static UltraHudRenderer hudRenderer;
@@ -337,6 +337,7 @@ public class UltracraftClient implements ClientModInitializer
 		{
 			case 4 -> jumpBoost = value;
 			case 9 -> speed = value;
+			case 10 -> gravityReduction = value;
 			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncI] -> " + data);
 		}
 	}

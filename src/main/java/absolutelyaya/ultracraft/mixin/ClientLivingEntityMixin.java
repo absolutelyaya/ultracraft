@@ -41,10 +41,16 @@ public abstract class ClientLivingEntityMixin implements LivingEntityAccessor
 	}
 	
 	@Override
-	public boolean Punch()
+	public boolean punch()
 	{
 		if((Object)this instanceof OtherClientPlayerEntity || MinecraftClient.getInstance().gameRenderer.getCamera().isThirdPerson())
 			swingHand(Hand.OFF_HAND);
 		return false;
+	}
+	
+	@Override
+	public int getGravityReduction()
+	{
+		return UltracraftClient.gravityReduction;
 	}
 }

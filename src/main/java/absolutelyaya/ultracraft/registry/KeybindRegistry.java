@@ -52,7 +52,7 @@ public class KeybindRegistry
 			{
 				ClientPlayerEntity player = client.player;
 				
-				if(player == null || !((LivingEntityAccessor)player).Punch())
+				if(player == null || !((LivingEntityAccessor)player).punch())
 					return;
 				
 				HitResult crosshairTarget = client.crosshairTarget;

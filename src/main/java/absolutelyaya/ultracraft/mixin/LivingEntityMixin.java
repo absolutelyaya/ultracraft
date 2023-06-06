@@ -193,6 +193,15 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		ci.cancel();
 	}
 	
+	@ModifyVariable(method = "travel", name = "d", at = @At(value = "STORE"))
+	private double modifyGravity(double x)
+	{
+		if(!(this instanceof WingedPlayerEntity winged && winged.isWingsActive()) || ((PlayerEntity)winged).getAbilities().flying || touchingWater)
+			return x;
+		int val = (world.isClient ? getGravityReduction() : world.getGameRules().get(GameruleRegistry.HIVEL_SLOWFALL).get());
+		return Math.max(x * (1f - 0.1f * val), 0.01f);
+	}
+	
 	@Inject(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;shouldSwimInFluids()Z"))
 	void onTickMovement(CallbackInfo ci)
 	{
@@ -242,7 +251,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	}
 	
 	@Override
-	public boolean Punch()
+	public boolean punch()
 	{
 		if(!punching)
 		{

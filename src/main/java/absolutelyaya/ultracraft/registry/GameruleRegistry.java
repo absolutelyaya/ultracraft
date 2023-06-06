@@ -65,6 +65,10 @@ public class GameruleRegistry
 							((WingedPlayerEntity)p).updateSpeedGamerule();
 						});
 					}));
+	public static final GameRules.Key<GameRules.IntRule> HIVEL_SLOWFALL =
+			GameRuleRegistry.register("ultra-gravityReduction", GameRules.Category.PLAYER,
+					GameRuleFactory.createIntRule(5, 0, 10,
+							(server, rule) -> OnChanged(server, (byte)100, rule.get())));
 	
 	public static void OnChanged(MinecraftServer server, byte b)
 	{
@@ -111,6 +115,7 @@ public class GameruleRegistry
 		OnChanged(player, (byte)(70 + (player.server.getGameRules().getBoolean(HIVEL_DROWNING) ? 1 : 0)));
 		OnChanged(player, (byte)(80 + player.server.getGameRules().get(BLOODHEAL).get().ordinal()));
 		OnChanged(player, (byte)90, player.server.getGameRules().get(HIVEL_SPEED).get());
+		OnChanged(player, (byte)100, player.server.getGameRules().get(HIVEL_SLOWFALL).get());
 	}
 	
 	public static void register()
