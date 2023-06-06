@@ -21,10 +21,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShape;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -72,7 +69,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	
 	Vec3d dashDir = Vec3d.ZERO;
 	Vec3d slideDir = Vec3d.ZERO;
-	boolean groundPounding, lastGroundPounding, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored;
+	boolean groundPounding, lastGroundPounding, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored, slideStartedSideways;
 	int groundPoundTicks, ticksSinceLastGroundPound = -1, slideTicks, wallJumps = 3, coyote;
 	float slideVelocity;
 	final float baseJumpVel = 0.42f;
@@ -342,7 +339,14 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	{
 		this.setFlag(3, sliding); //sprinting flag
 		if(sliding && !last)
-			slideDir = Vec3d.fromPolar(0f, getYaw()).normalize();
+		{
+			Vec2f movementDir = input.getMovementInput();
+			slideStartedSideways = movementDir.x != 0f;
+			if(movementDir.lengthSquared() == 0)
+				slideDir = Vec3d.fromPolar(0f, getYaw()).normalize();
+			else
+				slideDir = new Vec3d(movementDir.x, 0, movementDir.y).rotateY((float)Math.toRadians(-getRotationClient().y)).normalize();
+		}
 		slideVelocity = Math.max(0.33f, (float)getVelocity().multiply(1.2f, 0f, 1.2f).length());
 		slideTicks = 0;
 	}

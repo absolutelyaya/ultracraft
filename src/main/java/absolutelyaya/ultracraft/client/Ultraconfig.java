@@ -31,6 +31,9 @@ public class Ultraconfig implements ConfigData
 	@ConfigEntry.Gui.Tooltip
 	@ConfigEntry.BoundedDiscrete(min = 0, max = 100)
 	public int slideCamOffset = 100;
+	@ConfigEntry.Gui.Tooltip
+	@ConfigEntry.BoundedDiscrete(min = 0, max = 45)
+	public int slideTilt = 4;
 	@ConfigEntry.Category("blood")
 	@ConfigEntry.Gui.Tooltip
 	public boolean fancyGoop = false;

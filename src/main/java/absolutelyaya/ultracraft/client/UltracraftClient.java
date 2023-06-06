@@ -72,7 +72,7 @@ public class UltracraftClient implements ClientModInitializer
 	public static final EntityModelLayer INTERRUPTABLE_CHARGE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "interruptable_charge"), "main");
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	public static TrailRenderer TRAIL_RENDERER;
-	public static boolean REPLACE_MENU_MUSIC = true;
+	public static boolean REPLACE_MENU_MUSIC = true, applyEntityPoses;
 	static boolean HiVelMode = false;
 	static GameruleRegistry.Option HiVelOption = GameruleRegistry.Option.FREE;
 	static GameruleRegistry.Option TimeFreezeOption = GameruleRegistry.Option.FORCE_ON;
@@ -187,9 +187,12 @@ public class UltracraftClient implements ClientModInitializer
 				helper.register(new WingsFeature<>(context.getModelLoader()));
 		});
 		
+		WorldRenderEvents.BEFORE_ENTITIES.register((ctx) -> applyEntityPoses = true);
+		
 		WorldRenderEvents.AFTER_ENTITIES.register((ctx) -> {
 			UltracraftClient.HITSCAN_HANDLER.render(ctx.matrixStack(), ctx.camera());
 			UltracraftClient.TRAIL_RENDERER.render(ctx.matrixStack(), ctx.camera());
+			applyEntityPoses = false;
 		});
 		
 		HudRenderCallback.EVENT.register((matrices, delta) -> {

@@ -1,8 +1,10 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import com.chocohead.mm.api.ClassTinkerers;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.AnimalModel;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
@@ -34,8 +36,12 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AnimalMode
 	@Inject(method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At("HEAD"), cancellable = true)
 	void onSetAngles(T livingEntity, float f, float g, float h, float i, float j, CallbackInfo ci)
 	{
+		if(!UltracraftClient.applyEntityPoses)
+			return;
 		if(livingEntity.getPose().equals(ClassTinkerers.getEnum(EntityPose.class, "SLIDE")))
 		{
+			if(livingEntity.equals(MinecraftClient.getInstance().getCameraEntity()) && !MinecraftClient.getInstance().gameRenderer.getCamera().isThirdPerson())
+				return; //prevent arms from getting fucked up by not applying the pose in first person
 			head.resetTransform();
 			body.resetTransform();
 			leftLeg.resetTransform();
@@ -87,6 +93,8 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AnimalMode
 	@Inject(method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At("TAIL"))
 	void onSetArmAngle(T livingEntity, float f, float g, float h, float i, float j, CallbackInfo ci)
 	{
+		if(!UltracraftClient.applyEntityPoses)
+			return;
 		if(livingEntity.getMainHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldAim())
 		{
 			if(livingEntity.getMainArm().equals(Arm.LEFT))

@@ -22,11 +22,12 @@ public abstract class CameraMixin
 	@Inject(method = "update", at = @At("TAIL"))
 	void onUpdate(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci)
 	{
+		if(!(focusedEntity instanceof WingedPlayerEntity winged))
+			return;
 		float f = UltracraftClient.getConfigHolder().get().slideCamOffset / 100f;
-		if(thirdPerson && focusedEntity instanceof PlayerEntity player && f > 0f)
+		if(thirdPerson && f > 0f)
 		{
-			WingedPlayerEntity winged = (WingedPlayerEntity)player;
-			if(winged.isWingsActive() && player.isSprinting())
+			if(winged.isWingsActive() && ((PlayerEntity)winged).isSprinting())
 				moveBy(clipToSpace(1.5f * f), f, -1.5f * f);
 		}
 	}
