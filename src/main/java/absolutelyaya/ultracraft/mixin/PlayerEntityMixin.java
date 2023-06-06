@@ -112,7 +112,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Inject(method = "damage", at = @At("TAIL"))
 	void afterDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
 	{
-		if(wingsActive && !source.isIn(DamageTypeTags.IS_PER_TICK))
+		if(wingsActive && !source.isIn(DamageTypeTags.IS_PER_TICK) && !source.isOf(DamageTypes.OUT_OF_WORLD))
 		{
 			if(source.isOf(DamageSources.GUN) || source.isOf(DamageSources.SHOTGUN))
 				timeUntilRegen = 9;

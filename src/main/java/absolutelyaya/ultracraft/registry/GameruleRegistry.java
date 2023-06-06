@@ -67,7 +67,7 @@ public class GameruleRegistry
 					}));
 	public static final GameRules.Key<GameRules.IntRule> HIVEL_SLOWFALL =
 			GameRuleRegistry.register("ultra-gravityReduction", GameRules.Category.PLAYER,
-					GameRuleFactory.createIntRule(5, 0, 10,
+					GameRuleFactory.createIntRule(4, 0, 10,
 							(server, rule) -> OnChanged(server, (byte)100, rule.get())));
 	
 	public static void OnChanged(MinecraftServer server, byte b)
