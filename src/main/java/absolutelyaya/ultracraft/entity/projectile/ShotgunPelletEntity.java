@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
+import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
@@ -118,6 +119,18 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	public boolean isParriable()
 	{
 		return age < 4;
+	}
+	
+	@Override
+	public boolean isBoostable()
+	{
+		return switch(world.getGameRules().get(GameruleRegistry.PROJ_BOOST).get())
+		{
+			case ALLOW_ALL -> true;
+			case ENTITY_TAG -> getType().isIn(EntityRegistry.PROJBOOSTABLE);
+			case LIMITED -> (Object) this instanceof ShotgunPelletEntity;
+			case DISALLOW -> false;
+		} && age < 4;
 	}
 	
 	@Override

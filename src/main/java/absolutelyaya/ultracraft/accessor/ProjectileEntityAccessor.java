@@ -14,4 +14,6 @@ public interface ProjectileEntityAccessor
 	void onParriedCollision(HitResult hitResult);
 	
 	boolean isHitscanHittable();
+	
+	boolean isBoostable();
 }

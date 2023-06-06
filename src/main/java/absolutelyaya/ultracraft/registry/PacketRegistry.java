@@ -7,7 +7,6 @@ import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.damage.DamageSources;
-import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -16,7 +15,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -107,10 +105,10 @@ public class PacketRegistry
 					return;
 				if(!((ProjectileEntityAccessor)p).isParriable())
 					return;
-				if(player.equals(p.getOwner()) && p instanceof ThrownItemEntity thrown)
+				if(player.equals(p.getOwner()))
 				{
-					if(player.world.getGameRules().getBoolean(GameruleRegistry.ALLOW_PROJ_BOOST_THROWABLE) || thrown instanceof ShotgunPelletEntity)
-						Ultracraft.freeze((ServerWorld) player.world, 5);
+					if(((ProjectileEntityAccessor)p).isBoostable())
+						Ultracraft.freeze((ServerWorld) player.world, 5); //ProjBoost freezes are shorter
 					else
 						return;
 				}

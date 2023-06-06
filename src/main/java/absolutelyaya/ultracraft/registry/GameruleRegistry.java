@@ -14,8 +14,22 @@ import net.minecraft.world.GameRules;
 
 public class GameruleRegistry
 {
-	public static final GameRules.Key<GameRules.BooleanRule> ALLOW_PROJ_BOOST_THROWABLE =
-			GameRuleRegistry.register("ultra-projBoostThrowable", GameRules.Category.PLAYER, GameRuleFactory.createBooleanRule(false));
+	public static final GameRules.Key<EnumRule<ProjectileBoostSetting>> PROJ_BOOST =
+			GameRuleRegistry.register("ultra-projBoost", GameRules.Category.PLAYER, GameRuleFactory.createEnumRule(ProjectileBoostSetting.LIMITED,
+				(server, rule) -> {
+					server.getPlayerManager().getPlayerList().forEach(p -> {
+						if(p.hasPermissionLevel(2))
+						{
+							switch(rule.get())
+							{
+								case ALLOW_ALL -> p.sendMessage(Text.translatable("message.ultracraft.server.projboost-all"));
+								case LIMITED -> p.sendMessage(Text.translatable("message.ultracraft.server.projboost-limited"));
+								case ENTITY_TAG -> p.sendMessage(Text.translatable("message.ultracraft.server.projboost-tag"));
+								case DISALLOW -> p.sendMessage(Text.translatable("message.ultracraft.server.projboost-disable"));
+							}
+						}
+					});
+				}));
 	public static final GameRules.Key<EnumRule<Option>> HI_VEL_MODE =
 			GameRuleRegistry.register("ultra-hiVelMode", GameRules.Category.PLAYER, GameRuleFactory.createEnumRule(Option.FREE,
 					(server, rule) -> {
@@ -135,5 +149,13 @@ public class GameruleRegistry
 		ALWAYS,
 		ONLY_HIVEL,
 		NEVER
+	}
+	
+	public enum ProjectileBoostSetting
+	{
+		ALLOW_ALL,
+		LIMITED,
+		ENTITY_TAG,
+		DISALLOW
 	}
 }

@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
+import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import net.minecraft.entity.EntityType;
@@ -110,6 +111,18 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 	public boolean isParriable()
 	{
 		return false;
+	}
+	
+	@Override
+	public boolean isBoostable()
+	{
+		return switch(world.getGameRules().get(GameruleRegistry.PROJ_BOOST).get())
+		{
+			case ALLOW_ALL -> true;
+			case ENTITY_TAG -> getType().isIn(EntityRegistry.PROJBOOSTABLE);
+			case LIMITED -> (Object) this instanceof ShotgunPelletEntity;
+			case DISALLOW -> false;
+		} && age < 4;
 	}
 	
 	@Override

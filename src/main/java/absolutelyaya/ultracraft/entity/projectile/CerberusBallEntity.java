@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.entity.projectile;
 import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
+import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -58,6 +59,18 @@ public class CerberusBallEntity extends HellBulletEntity implements ProjectileEn
 	public boolean isParriable()
 	{
 		return false;
+	}
+	
+	@Override
+	public boolean isBoostable()
+	{
+		return switch(world.getGameRules().get(GameruleRegistry.PROJ_BOOST).get())
+		{
+			case ALLOW_ALL -> true;
+			case ENTITY_TAG -> getType().isIn(EntityRegistry.PROJBOOSTABLE);
+			case LIMITED -> (Object) this instanceof ShotgunPelletEntity;
+			case DISALLOW -> false;
+		} && age < 4;
 	}
 	
 	@Override
