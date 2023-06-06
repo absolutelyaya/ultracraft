@@ -152,6 +152,9 @@
   "text.autoconfig.ultracraft.option.slideCamOffset": "Rutsch-Kamera-Offset Prozent",
   "text.autoconfig.ultracraft.option.slideCamOffset.@Tooltip": "Wie sehr die third person Kamera verschoben wird beim rutschen.",
 
+  "text.autoconfig.ultracraft.option.slideTilt": "Rutsch-Kamera-Neigungs Winkel",
+  "text.autoconfig.ultracraft.option.slideTilt.@Tooltip": "Um wie viel grad die Kamera sich Neigen sollte beim Lenken der Rutsch-Richtung",
+
   "text.autoconfig.ultracraft.option.trailParticles": "Spuren als Partikel",
   "text.autoconfig.ultracraft.option.trailParticles.@Tooltip[0]": "Rendert Spuren als Partikel anstelle von dem Spur-renderer.",
   "text.autoconfig.ultracraft.option.trailParticles.@Tooltip[1]": "Ausschalten führt zu Transparenz Überlagerungs Fehlern!",
