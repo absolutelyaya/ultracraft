@@ -96,6 +96,11 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	public void onParriedCollision(HitResult hitResult)
 	{
 		Vec3d pos = hitResult.getPos();
+		if(owner == null)
+		{
+			ExplosionHandler.explosion(null, world, pos, DamageSources.get(world, DamageSources.PARRYAOE, parrier), 5f, 1f, 3f, true);
+			return;
+		}
 		Entity hit = null;
 		if(hitResult.getType().equals(HitResult.Type.ENTITY))
 			hit = ((EntityHitResult)hitResult).getEntity();
