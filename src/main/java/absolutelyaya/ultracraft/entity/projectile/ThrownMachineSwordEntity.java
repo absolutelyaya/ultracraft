@@ -125,16 +125,10 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 	}
 	
 	@Override
-	protected void onBlockCollision(BlockState state)
-	{
-		if(!state.isAir() && !dataTracker.get(RETURNING))
-			dataTracker.set(DISTANCE, 0f);
-	}
-	
-	@Override
 	protected void onBlockHit(BlockHitResult blockHitResult)
 	{
-	
+		if(!dataTracker.get(RETURNING))
+			dataTracker.set(DISTANCE, 0f);
 	}
 	
 	@Override
