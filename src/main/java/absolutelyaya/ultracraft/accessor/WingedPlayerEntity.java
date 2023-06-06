@@ -20,6 +20,8 @@ public interface WingedPlayerEntity
 	
 	void onDash();
 	
+	void cancelDash();
+	
 	void onDashJump();
 	
 	boolean isDashing();

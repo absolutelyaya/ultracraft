@@ -163,6 +163,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	}
 	
 	@Override
+	public void cancelDash()
+	{
+		dashingTicks = -2;
+	}
+	
+	@Override
 	public void onDashJump()
 	{
 		dashingTicks = -2;

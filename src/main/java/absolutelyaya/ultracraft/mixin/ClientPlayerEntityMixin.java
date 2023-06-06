@@ -74,24 +74,14 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	float slideVelocity;
 	final float baseJumpVel = 0.42f;
 	
-	@Inject(method = "sendMovementPackets", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/packet/Packet;)V", ordinal = 0), cancellable = true)
-	public void onSendSneakChangedPacket(CallbackInfo ci)
-	{
-		if(tryDash(this))
-		{
-			lastSneaking = isSneaking();
-			ci.cancel();
-		}
-	}
-	
-	boolean tryDash(WingedPlayerEntity winged)
+	void tryDash()
 	{
 		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying)
 		{
-			if(isSneaking() && !lastSneaking && !winged.isDashing())
+			if(isSneaking() && !lastSneaking)
 			{
-				if(!winged.consumeStamina())
-					return true;
+				if(!consumeStamina())
+					return;
 				if(groundPounding)
 					groundPounding = false;
 				if(slamStored)
@@ -107,12 +97,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				ClientPlayNetworking.send(PacketRegistry.DASH_C2S_PACKET_ID, buf);
 				setVelocity(dir);
 				dashDir = dir;
-				winged.onDash();
+				onDash();
 				playSound(SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.5f, 1.6f);
-				return true;
 			}
 		}
-		return false;
 	}
 	
 	@Inject(method = "sendMovementPackets", at = @At(value = "HEAD"), cancellable = true)
@@ -130,6 +118,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				//start ground pound
 				if(isUnSolid(posToBlock(getPos().subtract(0f, 0.99f, 0f))) && !verticalCollision)
 				{
+					cancelDash();
 					groundPoundTicks = 0;
 					groundPounding = true;
 					setSprinting(false);
@@ -203,6 +192,12 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					setVelocity(0, groundPoundTicks / 20f + getJumpVelocity() * 1.5f + (slamStored ? 3f : 0f), 0);
 				slamStored = false;
 				groundPoundTicks = 0;
+				ci.cancel();
+			}
+			//start dash
+			if(isSneaking() && !lastSneaking)
+			{
+				tryDash();
 				ci.cancel();
 			}
 			//dash velocity
@@ -319,6 +314,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			lastSprintPressed = client.options.sprintKey.isPressed() && !isDashing() && !wasDashing(2);
 			lastJumping = jumping;
 			lastOnGround = onGround;
+			lastSneaking = isSneaking();
 		}
 		else
 		{
