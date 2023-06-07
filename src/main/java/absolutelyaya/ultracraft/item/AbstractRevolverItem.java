@@ -9,10 +9,17 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.core.animation.Animation;
+import software.bernie.geckolib.core.animation.RawAnimation;
 
 public abstract class AbstractRevolverItem extends AbstractWeaponItem implements GeoItem
 {
 	boolean b; //toggled on every shot; decides purely which shot animation should be used to allow for rapid firing
+	final RawAnimation AnimationStop = RawAnimation.begin().then("nothing", Animation.LoopType.LOOP);
+	final RawAnimation AnimationCharge = RawAnimation.begin().thenPlay("charging").thenLoop("charged");
+	final RawAnimation AnimationDischarge = RawAnimation.begin().thenPlay("discharge");
+	final RawAnimation AnimationShot = RawAnimation.begin().thenPlay("shot");
+	final RawAnimation AnimationShot2 = RawAnimation.begin().thenPlay("shot2");
 	
 	public AbstractRevolverItem(Settings settings, float recoil, float altRecoil)
 	{

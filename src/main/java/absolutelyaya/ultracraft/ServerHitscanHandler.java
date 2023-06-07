@@ -69,7 +69,7 @@ public class ServerHitscanHandler
 		World world = user.getWorld();
 		Vec3d origin = user.getEyePos();
 		Vec3d from = origin;
-		Vec3d origunalTo = user.getPos().add(0f, user.getStandingEyeHeight(), 0f).add(user.getRotationVec(0.5f).multiply(64.0));
+		Vec3d origunalTo = user.getEyePos().add(user.getRotationVec(0.5f).multiply(64.0));
 		Vec3d modifiedTo;
 		BlockHitResult bHit = world.raycast(new RaycastContext(from, origunalTo, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, user));
 		origunalTo = bHit.getPos();

@@ -36,11 +36,6 @@ public class PierceRevolverItem extends AbstractRevolverItem
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 	protected int approxUseTime = -1;
-	final RawAnimation AnimationStop = RawAnimation.begin().then("nothing", Animation.LoopType.LOOP);
-	final RawAnimation AnimationCharge = RawAnimation.begin().thenPlay("charging").thenLoop("charged");
-	final RawAnimation AnimationDischarge = RawAnimation.begin().thenPlay("discharge");
-	final RawAnimation AnimationShot = RawAnimation.begin().thenPlay("shot");
-	final RawAnimation AnimationShot2 = RawAnimation.begin().thenPlay("shot2");
 	
 	public PierceRevolverItem(Settings settings)
 	{

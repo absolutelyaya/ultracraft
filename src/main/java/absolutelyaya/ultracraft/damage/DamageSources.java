@@ -21,6 +21,7 @@ public class DamageSources
 	public static final RegistryKey<DamageType> PARRYAOE = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "parry_collateral"));
 	public static final RegistryKey<DamageType> INTERRUPT = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "interrupt"));
 	public static final RegistryKey<DamageType> PROJBOOST = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "projectile_boost"));
+	public static final RegistryKey<DamageType> RICOCHET = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "ricochet"));
 	
 	public static DamageSource get(World world, RegistryKey<DamageType> type)
 	{

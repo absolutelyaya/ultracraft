@@ -56,7 +56,7 @@ public abstract class AbstractWeaponItem extends Item
 	public boolean isItemBarVisible(ItemStack stack)
 	{
 		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
-		return cdm.getCooldown(stack.getItem(), GunCooldownManager.PRIMARY) > 0;
+		return !cdm.isUsable(stack.getItem(), GunCooldownManager.PRIMARY);
 	}
 	
 	@Override

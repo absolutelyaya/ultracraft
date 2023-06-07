@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "ultracraft:gun"
+    "ultracraft:gun",
+    "ultracraft:ricochet"
   ]
 }

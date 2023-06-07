@@ -1,37 +1,40 @@
 package absolutelyaya.ultracraft.client;
 
 import absolutelyaya.ultracraft.client.rendering.HitscanRenderer;
-import com.google.common.collect.Queues;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ClientHitscanHandler
 {
 	final HitscanRenderer renderer = new HitscanRenderer();
 	final Set<Hitscan> hitscans = new HashSet<>();
-	final Queue<Hitscan> added = Queues.newArrayDeque();
 	
 	public void addEntry(Vec3d from, Vec3d to, byte type)
 	{
-		added.add(new Hitscan(from, to, type));
+		hitscans.add(new Hitscan(from, to, type));
 	}
 	
 	public void tick()
 	{
-		if(hitscans.size() == 0 && added.size() == 0)
+		if(hitscans.size() == 0)
 			return;
-		hitscans.removeIf(hitscan -> !hitscan.tick());
-		while(added.size() > 0)
-			hitscans.add(added.remove());
+		for (Object o : hitscans.toArray())
+		{
+			Hitscan hitscan = (Hitscan)o;
+			if(!hitscan.tick())
+				hitscans.remove(hitscan);
+		}
 	}
 	
 	public void render(MatrixStack matrices, Camera camera)
 	{
-		hitscans.iterator().forEachRemaining((shot) -> renderer.render(shot, matrices, camera));
+		new ArrayList<>(hitscans).iterator().forEachRemaining((shot) -> renderer.render(shot, matrices, camera));
 	}
 	
 	public static class Hitscan
@@ -64,7 +67,8 @@ public class ClientHitscanHandler
 			RAILGUN_ELEC(0x2ee9ff, 60, 0.3f),
 			RAILGUN_DRILL(0x30ff72, 60, 0.3f),
 			RAILGUN_MALICIOUS(0xff4530, 60, 0.3f),
-			MALICIOUS(0xf4d81b, 60, 0.3f);
+			MALICIOUS(0xf4d81b, 60, 0.3f),
+			RICOCHET(0xf4d81b, 5, 0.1f);
 			
 			public final int color, maxAge;
 			public final float startGirth;
