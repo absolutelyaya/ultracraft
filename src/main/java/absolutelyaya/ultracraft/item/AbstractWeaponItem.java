@@ -14,18 +14,24 @@ import org.joml.Vector2i;
 
 public abstract class AbstractWeaponItem extends Item
 {
-	protected final float recoil;
+	protected final float recoil, altRecoil;
 	
-	public AbstractWeaponItem(Settings settings, float recoil)
+	public AbstractWeaponItem(Settings settings, float recoil, float altRecoil)
 	{
 		super(settings);
 		this.recoil = recoil;
+		this.altRecoil = altRecoil;
 	}
 	
 	public boolean onPrimaryFire(World world, PlayerEntity user, Vec3d userVelocity)
 	{
 		((LivingEntityAccessor)user).addRecoil(recoil);
 		return true;
+	}
+	
+	public void onAltFire(World world, PlayerEntity user)
+	{
+		((LivingEntityAccessor)user).addRecoil(altRecoil);
 	}
 	
 	@Override
@@ -41,7 +47,7 @@ public abstract class AbstractWeaponItem extends Item
 		return true;
 	}
 	
-	public boolean shouldCancelHits()
+	public boolean shouldCancelPunching()
 	{
 		return true;
 	}
@@ -65,4 +71,6 @@ public abstract class AbstractWeaponItem extends Item
 	{
 		return 0x28ccdf;
 	}
+	
+	abstract String getControllerName();
 }

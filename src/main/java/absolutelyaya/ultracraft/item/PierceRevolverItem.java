@@ -18,7 +18,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.joml.Vector2i;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -32,9 +31,8 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
+public class PierceRevolverItem extends AbstractRevolverItem
 {
-	private static final String controllerName = "pierceRevolverController";
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 	protected int approxUseTime = -1;
@@ -43,11 +41,10 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 	final RawAnimation AnimationDischarge = RawAnimation.begin().thenPlay("discharge");
 	final RawAnimation AnimationShot = RawAnimation.begin().thenPlay("shot");
 	final RawAnimation AnimationShot2 = RawAnimation.begin().thenPlay("shot2");
-	boolean b;
 	
 	public PierceRevolverItem(Settings settings)
 	{
-		super(settings, 15f);
+		super(settings, 15f, 25f);
 		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 	
@@ -55,11 +52,11 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
 	{
 		ItemStack itemStack = user.getStackInHand(hand);
-		if(hand.equals(Hand.OFF_HAND))
-			return TypedActionResult.fail(itemStack);
 		user.setCurrentHand(hand);
 		if(!world.isClient)
+		{
 			itemStack.getOrCreateNbt().putBoolean("charging", true);
+		}
 		return TypedActionResult.consume(itemStack);
 	}
 	
@@ -73,7 +70,7 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 			{
 				stack.getNbt().remove("charging");
 				if(!world.isClient)
-					triggerAnim(entity, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "stop");
+					triggerAnim(entity, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "stop");
 				if(world.isClient && entity instanceof ClientPlayerEntity player && player.equals(MinecraftClient.getInstance().player))
 					approxUseTime = -1;
 				return;
@@ -81,7 +78,7 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 			if(world.isClient && entity instanceof ClientPlayerEntity player && player.equals(MinecraftClient.getInstance().player))
 				approxUseTime++;
 			else if(entity instanceof PlayerEntity player)
-				triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "charging");
+				triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "charging");
 		}
 	}
 	
@@ -92,32 +89,15 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 	}
 	
 	@Override
-	public UseAction getUseAction(ItemStack stack)
+	String getControllerName()
 	{
-		return UseAction.NONE;
+		return "pierceRevolverController";
 	}
 	
 	@Override
-	public boolean onPrimaryFire(World world, PlayerEntity user, Vec3d userVelocity)
+	public UseAction getUseAction(ItemStack stack)
 	{
-		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
-		if(cdm.isUsable(this, 0))
-		{
-			if(world.isClient)
-			{
-				super.onPrimaryFire(world, user, userVelocity);
-				return true;
-			}
-			world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_BLAST, SoundCategory.PLAYERS, 0.75f,
-					0.9f + (user.getRandom().nextFloat() - 0.5f) * 0.2f);
-			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), controllerName, b ? "shot" : "shot2");
-			ServerHitscanHandler.performHitscan(user, (byte)0, 1f);
-			cdm.setCooldown(this, 6, GunCooldownManager.PRIMARY);
-			b = !b;
-			return true;
-		}
-		else
-			return false;
+		return UseAction.NONE;
 	}
 	
 	@Override
@@ -132,17 +112,18 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 				if(!world.isClient)
 				{
 					cdm.setCooldown(this, 50, GunCooldownManager.SECONDARY);
-					triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "discharge");
+					triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "discharge");
 					world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, SoundCategory.PLAYERS, 1f,
 							0.85f + (user.getRandom().nextFloat() - 0.5f) * 0.2f);
 				}
 				player.getItemCooldownManager().set(this, 50);
+				onAltFire(world, player);
 			}
 			if(!world.isClient)
-				ServerHitscanHandler.performHitscan(user, (byte)1, 3, 3, true);
+				ServerHitscanHandler.performHitscan(user, (byte)1, 1, 3, true);
 		}
 		else if(!world.isClient && user instanceof PlayerEntity)
-			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "stop");
+			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "stop");
 		if(nbt != null)
 			nbt.remove("charging");
 		approxUseTime = -1;
@@ -163,7 +144,7 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
 	{
-		controllerRegistrar.add(new AnimationController<>(this, controllerName, 1, state -> PlayState.STOP)
+		controllerRegistrar.add(new AnimationController<>(this, getControllerName(), 1, state -> PlayState.STOP)
 										.triggerableAnim("charging", AnimationCharge)
 										.triggerableAnim("discharge", AnimationDischarge)
 										.triggerableAnim("shot", AnimationShot)
