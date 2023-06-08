@@ -16,7 +16,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.hit.HitResult;
@@ -27,18 +26,21 @@ import java.util.List;
 
 public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEntityAccessor
 {
+	final float flashRotSpeed;
 	byte state;
 	int damage;
 	
 	public ThrownCoinEntity(EntityType<? extends ThrownItemEntity> entityType, World world)
 	{
 		super(entityType, world);
+		flashRotSpeed = random.nextFloat() - 0.5f;
 	}
 	
 	private ThrownCoinEntity(LivingEntity owner, World world)
 	{
 		super(EntityRegistry.THROWN_COIN, world);
 		setOwner(owner);
+		flashRotSpeed = random.nextFloat();
 	}
 	
 	@Override
@@ -73,6 +75,8 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	@Override
 	protected void onCollision(HitResult hitResult)
 	{
+		if(hitResult.getType().equals(HitResult.Type.ENTITY))
+			return;
 		super.onCollision(hitResult);
 		if (!world.isClient)
 		{
@@ -89,11 +93,12 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			boolean isDamageRicochet = source.isOf(DamageSources.RICOCHET);
 			if(world.isClient)
 			{
-				world.playSound(getX(), getY(), getZ(), SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), SoundCategory.PLAYERS, 0.25f, 1.2f + (isDamageRicochet ? 0.5f * amount : 0f), false);
 				world.sendEntityStatus(this, (byte)3);
 				kill();
 				return true;
 			}
+			else
+				playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 0.1f, 1.2f + (isDamageRicochet ? 0.05f * amount : 0f));
 			List<ThrownCoinEntity> list = world.getEntitiesByType(TypeFilter.instanceOf(ThrownCoinEntity.class), getBoundingBox().expand(16f),
 					e -> !e.equals(this) && e.isUnused());
 			if(list.size() > 0)
@@ -126,7 +131,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			else
 			{
 				List<Entity> potentialTargets = world.getOtherEntities(attacker, getBoundingBox().expand(32f),
-						e -> !e.equals(this) && e.isAlive() && !e.isTeammate(attacker) && !(e instanceof ThrownCoinEntity));
+						e -> !e.equals(this) && e.isAlive() && !e.isTeammate(attacker) && (e instanceof LivingEntity));
 				if(potentialTargets.size() > 0)
 				{
 					Entity closest = null;
@@ -144,6 +149,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 					{
 						ServerHitscanHandler.sendPacket((ServerWorld)world, getPos(), closest.getEyePos(), (byte)6);
 						closest.damage(DamageSources.get(world, DamageSources.RICOCHET, attacker), isDamageRicochet ? 5 * amount : 5);
+						//world.getPlayers().forEach(p -> p.sendMessage(Text.of("CHAIN END! final damage: " + (isDamageRicochet ? 5 * amount : 5))));
 					}
 				}
 				else
@@ -222,5 +228,10 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	public boolean isUnused()
 	{
 		return state != 1;
+	}
+	
+	public float getFlashRotSpeed()
+	{
+		return flashRotSpeed;
 	}
 }

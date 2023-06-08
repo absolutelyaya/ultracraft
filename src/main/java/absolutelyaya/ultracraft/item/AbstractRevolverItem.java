@@ -7,6 +7,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoItem;
 import software.bernie.geckolib.core.animation.Animation;
@@ -27,14 +28,14 @@ public abstract class AbstractRevolverItem extends AbstractWeaponItem implements
 	}
 	
 	@Override
-	public boolean onPrimaryFire(World world, PlayerEntity user)
+	public boolean onPrimaryFire(World world, PlayerEntity user, Vec3d userVelocity)
 	{
 		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
 		if(cdm.isUsable(this, 0))
 		{
 			if(world.isClient)
 			{
-				super.onPrimaryFire(world, user);
+				super.onPrimaryFire(world, user, userVelocity);
 				return true;
 			}
 			world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_BLAST, SoundCategory.PLAYERS, 0.75f,

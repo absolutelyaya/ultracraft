@@ -9,8 +9,10 @@ import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import org.joml.AxisAngle4f;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 
 public class ThrownCoinRenderer extends EntityRenderer<ThrownCoinEntity>
 {
@@ -41,24 +43,27 @@ public class ThrownCoinRenderer extends EntityRenderer<ThrownCoinEntity>
 				.overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normalMatrix, 0f, 1f, 0f).next();
 		consumer.vertex(matrix, -0.1f, 0.1f, 0f).color(255, 255, 255, 255).texture(0f, 1f)
 				.overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normalMatrix, 0f, 1f, 0f).next();
-		matrices.push();
-		consumer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(FLASH_TEXTURE));
-		float scale = (float)Math.max(1f - Math.abs(entity.getVelocity().y * 6.5f), 0f) * 2f;
-		matrices.scale(scale, scale, scale);
-		matrix = matrices.peek().getPositionMatrix();
-		consumer.vertex(matrix, -0.25f, -0.25f, 0f).color(255, 255, 255, 255).texture(0f, 0f)
-				.overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normalMatrix, 0f, 1f, 0f).next();
-		consumer.vertex(matrix, 0.25f, -0.25f, 0f).color(255, 255, 255, 255).texture(1f, 0f)
-				.overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normalMatrix, 0f, 1f, 0f).next();
-		consumer.vertex(matrix, 0.25f, 0.25f, 0f).color(255, 255, 255, 255).texture(1f, 1f)
-				.overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normalMatrix, 0f, 1f, 0f).next();
-		consumer.vertex(matrix, -0.25f, 0.25f, 0f).color(255, 255, 255, 255).texture(0f, 1f)
-				.overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normalMatrix, 0f, 1f, 0f).next();
-		matrices.pop();
+		if(entity.getVelocity().length() > 0f)
+		{
+			matrices.push();
+			consumer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(FLASH_TEXTURE));
+			float scale = (float)Math.max(1f - Math.abs(entity.getVelocity().y * 6.5f), 0f) * 2f;
+			matrices.scale(scale, scale, scale);
+			matrices.multiply(new Quaternionf(new AxisAngle4f((entity.age + tickDelta) * entity.getFlashRotSpeed(), 0f, 0f, 1f)));
+			matrix = matrices.peek().getPositionMatrix();
+			consumer.vertex(matrix, -0.25f, -0.25f, 0f).color(255, 255, 255, 255).texture(0f, 0f)
+					.overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normalMatrix, 0f, 1f, 0f).next();
+			consumer.vertex(matrix, 0.25f, -0.25f, 0f).color(255, 255, 255, 255).texture(1f, 0f)
+					.overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normalMatrix, 0f, 1f, 0f).next();
+			consumer.vertex(matrix, 0.25f, 0.25f, 0f).color(255, 255, 255, 255).texture(1f, 1f)
+					.overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normalMatrix, 0f, 1f, 0f).next();
+			consumer.vertex(matrix, -0.25f, 0.25f, 0f).color(255, 255, 255, 255).texture(0f, 1f)
+					.overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normalMatrix, 0f, 1f, 0f).next();
+			matrices.pop();
+		}
 		matrices.pop();
 	}
 	
-	//TODO: rotate flash randomly
 	//TODO: figure out and fix rendering issues making things like particles flicker when many coins are present
 	
 	@Override
