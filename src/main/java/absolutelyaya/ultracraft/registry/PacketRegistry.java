@@ -10,6 +10,7 @@ import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.block.BellBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
@@ -65,10 +66,11 @@ public class PacketRegistry
 			
 			server.execute(() -> {
 				ProjectileEntity p;
-				Vec3d forward = player.getRotationVector();
-				Vec3d pos = player.getCameraPosVec(0f).add(forward.normalize());
+				Vec3d forward = player.getRotationVector().normalize();
+				Vec3d pos = player.getEyePos().add(forward);
 				List<ProjectileEntity> projectiles = player.world.getEntitiesByClass(ProjectileEntity.class,
-						new Box(pos.x - 0.75f, pos.y - 0.75f, pos.z - 0.75f, pos.x + 0.75f, pos.y + 0.75f, pos.z + 0.75f),
+						new Box(pos.x - 0.3f + 0.9f * forward.x, pos.y - 0.3f + 0.9f * forward.y, pos.z - 0.3f + 0.9f * forward.z,
+								pos.x + 0.3f + 0.9f * forward.x, pos.y + 0.3f + 0.9f * forward.y, pos.z + 0.3f + 0.9f * forward.z),
 						(e) -> !((ProjectileEntityAccessor)e).isParried());
 				
 				player.swingHand(Hand.OFF_HAND, true);
@@ -124,13 +126,14 @@ public class PacketRegistry
 			World world = player.getWorld();
 			BlockPos target = buf.readBlockPos();
 			boolean mainHand = buf.readBoolean();
-			
 			server.execute(() -> {
 				if(target != null)
 				{
 					BlockState state = world.getBlockState(target);
 					if(state.getBlock() instanceof IPunchableBlock punchable)
 						punchable.onPunch(player, target, mainHand);
+					if(state.getBlock() instanceof BellBlock bell)
+						bell.ring(player, player.world, target, player.getHorizontalFacing());
 					if(state.isIn(BlockTagRegistry.PUNCH_BREAKABLE))
 						player.world.breakBlock(target, true, player);
 				}

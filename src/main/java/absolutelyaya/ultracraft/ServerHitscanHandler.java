@@ -5,8 +5,11 @@ import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.block.BellBlock;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.network.PacketByteBuf;
@@ -95,6 +98,13 @@ public class ServerHitscanHandler
 		if(explosion != null)
 			ExplosionHandler.explosion(null, world, new Vec3d(modifiedTo.x, modifiedTo.y, modifiedTo.z), world.getDamageSources().explosion(null, user),
 					explosion.damage, explosion.falloff, explosion.radius, explosion.breakBlocks);
+		if(entities.size() == 0 && user instanceof PlayerEntity p)
+		{
+			BlockState state = world.getBlockState(bHit.getBlockPos());
+			if(state.getBlock() instanceof BellBlock bell)
+				bell.ring(world, state, bHit, p, false);
+			
+		}
 		sendPacket((ServerWorld)user.world, origin.add(new Vec3d(-0.5f, -0.3f, 0f).rotateY(-(float)Math.toRadians(user.getYaw()))), modifiedTo, type);
 	}
 	

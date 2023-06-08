@@ -10,6 +10,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.block.BellBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.KeyBinding;
@@ -65,7 +66,7 @@ public class KeybindRegistry
 					{
 						BlockHitResult hit = ((BlockHitResult)crosshairTarget);
 						BlockState state = player.world.getBlockState(hit.getBlockPos());
-						if(state.getBlock() instanceof IPunchableBlock || state.isIn(BlockTagRegistry.FRAGILE))
+						if(state.getBlock() instanceof IPunchableBlock || state.isIn(BlockTagRegistry.FRAGILE) || state.getBlock() instanceof BellBlock)
 						{
 							PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 							buf.writeBlockPos(hit.getBlockPos());

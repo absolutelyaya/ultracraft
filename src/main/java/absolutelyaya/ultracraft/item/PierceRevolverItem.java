@@ -138,7 +138,7 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 				player.getItemCooldownManager().set(this, 50);
 			}
 			if(!world.isClient)
-				ServerHitscanHandler.performHitscan(user, (byte)1, 1, 3, true);
+				ServerHitscanHandler.performHitscan(user, (byte)1, 3, 3, true);
 		}
 		else if(!world.isClient && user instanceof PlayerEntity)
 			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), controllerName, "stop");
