@@ -54,11 +54,11 @@ public class PierceRevolverItem extends AbstractWeaponItem implements GeoItem
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
 	{
 		ItemStack itemStack = user.getStackInHand(hand);
+		if(hand.equals(Hand.OFF_HAND))
+			return TypedActionResult.fail(itemStack);
 		user.setCurrentHand(hand);
 		if(!world.isClient)
-		{
 			itemStack.getOrCreateNbt().putBoolean("charging", true);
-		}
 		return TypedActionResult.consume(itemStack);
 	}
 	

@@ -100,6 +100,8 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 	{
 		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
 		ItemStack itemStack = user.getStackInHand(hand);
+		if(hand.equals(Hand.OFF_HAND))
+			return TypedActionResult.fail(itemStack);
 		if(!cdm.isUsable(this, 0))
 			return TypedActionResult.fail(itemStack);
 		user.setCurrentHand(hand);
