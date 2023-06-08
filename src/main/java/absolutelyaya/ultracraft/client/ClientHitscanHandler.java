@@ -1,34 +1,32 @@
 package absolutelyaya.ultracraft.client;
 
 import absolutelyaya.ultracraft.client.rendering.HitscanRenderer;
+import com.google.common.collect.Queues;
 import net.minecraft.client.render.Camera;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class ClientHitscanHandler
 {
 	final HitscanRenderer renderer = new HitscanRenderer();
 	final Set<Hitscan> hitscans = new HashSet<>();
+	final Queue<Hitscan> added = Queues.newArrayDeque();
 	
 	public void addEntry(Vec3d from, Vec3d to, byte type)
 	{
-		hitscans.add(new Hitscan(from, to, type));
+		added.add(new Hitscan(from, to, type));
 	}
 	
 	public void tick()
 	{
-		if(hitscans.size() == 0)
+		if(hitscans.size() == 0 && added.size() == 0)
 			return;
-		for (Object o : hitscans.toArray())
-		{
-			Hitscan hitscan = (Hitscan)o;
-			if(!hitscan.tick())
-				hitscans.remove(hitscan);
-		}
+		hitscans.removeIf(hitscan -> !hitscan.tick());
+		while(added.size() > 0)
+			hitscans.add(added.remove());
 	}
 	
 	public void render(MatrixStack matrices, Camera camera)
