@@ -95,7 +95,7 @@
   "message.ultracraft.fish.mania4": "DIE GRÖßE 2 IST REAL!!",
   "message.ultracraft.fish.mania5": "...der... \nder ist größer als sonst! \nIch muss nah dran sein!!",
   "message.ultracraft.handswap-disabled": "[§4Ultracraft§r] Dieser Server hat Hand-Quickswapping deaktiviert.",
-  "message.ultracraft.content": "Wilkommen zu Ultracraft!\nDiese Mod soll das Spiel Ultrakill (by §6Arsi \"Hakita\" Patala§f) und dessen Mechaniken in Minecraft nachmachen. Momentaner Inhalt:\n- Alle Prolog Gegner\n- 2 Weapons\n- Ein paar Blöcke und Items\n- Ein paar Geheimnisse/Witze\n\nFalls Leuten die Mod gefällt, werde ich weiter an ihr arbeiten. Das nächste größere Feature das ich implementieren möchte, ist §6Style Punkte§f.\nBitte melde Probleme/Bugs und schicke mir jegliches Feedback das du hast!\nRelevante Links sind in der Modbeschreibung.\n\n✦ Absolutelyaya ✦",
+  "message.ultracraft.content": "Wilkommen zu Ultracraft!\nDiese Mod soll das Spiel Ultrakill (by §6Arsi \"Hakita\" Patala§f) und dessen Mechaniken in Minecraft nachmachen. Momentaner Inhalt:\n- Alle Prolog Gegner\n- 2 Weapons\n- Ein paar Blöcke und Items\n- Ein paar Geheimnisse/Witze\n\nFalls Leuten die Mod gefällt, werde ich weiter an ihr arbeiten. Das nächste nennenswerte Update enthält §6Waffen Varianten§f.\nBitte melde Probleme/Bugs und schicke mir jegliches Feedback das du hast!\nRelevante Links sind in der Modbeschreibung.\n\n✦ Absolutelyaya ✦",
   "message.ultracraft.consent": "Verstanden",
   "message.ultracraft.intro-error": "Es ist etwas mit der Ultracraft Intro Sequenz Falsch gelaufen.\nDas Problem: Manchmal wird der Abschluss des Asset-Reloads nicht richtig kommuniziert.\nZum Glück haben wir einen Knopf der alle Probleme lösen kann!",
   "message.ultracraft.fixer-button": "Problem lösen",
