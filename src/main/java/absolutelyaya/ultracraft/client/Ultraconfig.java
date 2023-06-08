@@ -45,7 +45,7 @@ public class Ultraconfig implements ConfigData
 	public boolean bloodOverlay = true;
 	@ConfigEntry.Category("blood")
 	@ConfigEntry.Gui.Tooltip
-	public boolean danganronpa = true;
+	public boolean danganronpa = false;
 	@ConfigEntry.Gui.Excluded
 	public String BGID = "ultracraft";
 	@ConfigEntry.Category("debug")
