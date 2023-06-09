@@ -15,7 +15,6 @@ import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.Difficulty;
 import org.jetbrains.annotations.Nullable;
 
 public class MaliciousFaceRenderer extends MobEntityRenderer<MaliciousFaceEntity, MaliciousFaceModel<MaliciousFaceEntity>>
@@ -59,8 +58,8 @@ public class MaliciousFaceRenderer extends MobEntityRenderer<MaliciousFaceEntity
 		@Override
 		public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch)
 		{
-			VertexConsumer vertexConsumer = vertexConsumers.getBuffer(getContextModel().cracked && entity.world.getDifficulty() == Difficulty.HARD ? ENRAGED : NORMAL);
-			matrices.scale(1.001f, 1.004f, 1.001f);
+			VertexConsumer vertexConsumer = vertexConsumers.getBuffer(getContextModel().cracked && UltracraftClient.isViolentFeaturesEnabled(entity.world) ? ENRAGED : NORMAL);
+			matrices.scale(1.005f, 1.005f, 1.005f);
 			((Model)this.getContextModel()).render(matrices, vertexConsumer, 15728880, OverlayTexture.DEFAULT_UV, 0.0f, 1.0f, 1.0f, 1.0f);
 		}
 	}

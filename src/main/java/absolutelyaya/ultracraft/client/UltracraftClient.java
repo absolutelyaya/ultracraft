@@ -60,6 +60,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.World;
 import software.bernie.geckolib.network.GeckoLibNetwork;
 
 @Environment(EnvType.CLIENT)
@@ -77,7 +79,7 @@ public class UltracraftClient implements ClientModInitializer
 	static GameruleRegistry.Option HiVelOption = GameruleRegistry.Option.FREE;
 	static GameruleRegistry.Option TimeFreezeOption = GameruleRegistry.Option.FORCE_ON;
 	static GameruleRegistry.RegenOption BloodRegen = GameruleRegistry.RegenOption.ALWAYS;
-	static boolean disableHandswap = false, slamStorage = true, fallDamage = false, drowning = false;
+	static boolean disableHandswap = false, slamStorage = true, fallDamage = false, drowning = false, effectivelyViolent = false;
 	public static int jumpBoost, speed, gravityReduction;
 	static float screenblood;
 	
@@ -291,6 +293,11 @@ public class UltracraftClient implements ClientModInitializer
 		return slamStorage;
 	}
 	
+	public static boolean isViolentFeaturesEnabled(World world)
+	{
+		return world.getDifficulty() == Difficulty.HARD || effectivelyViolent;
+	}
+	
 	public static void setHighVel(boolean b, boolean fromServer)
 	{
 		PlayerEntity player = MinecraftClient.getInstance().player;
@@ -326,6 +333,7 @@ public class UltracraftClient implements ClientModInitializer
 			case 6 -> fallDamage = value == 1;
 			case 7 -> drowning = value == 1;
 			case 8 -> BloodRegen = GameruleRegistry.RegenOption.values()[value];
+			case 11 -> effectivelyViolent = value == 1;
 			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncB] -> " + data);
 		}
 	}

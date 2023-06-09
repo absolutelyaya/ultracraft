@@ -17,29 +17,19 @@ public class GameruleRegistry
 	public static final GameRules.Key<EnumRule<ProjectileBoostSetting>> PROJ_BOOST =
 			GameRuleRegistry.register("ultra-projBoost", GameRules.Category.PLAYER, GameRuleFactory.createEnumRule(ProjectileBoostSetting.LIMITED,
 				(server, rule) -> {
-					server.getPlayerManager().getPlayerList().forEach(p -> {
-						if(p.hasPermissionLevel(2))
-						{
-							switch(rule.get())
-							{
-								case ALLOW_ALL -> p.sendMessage(Text.translatable("message.ultracraft.server.projboost-all"));
-								case LIMITED -> p.sendMessage(Text.translatable("message.ultracraft.server.projboost-limited"));
-								case ENTITY_TAG -> p.sendMessage(Text.translatable("message.ultracraft.server.projboost-tag"));
-								case DISALLOW -> p.sendMessage(Text.translatable("message.ultracraft.server.projboost-disable"));
-							}
-						}
-					});
+					switch(rule.get())
+					{
+						case ALLOW_ALL -> sendAdminMessage(server, Text.translatable("message.ultracraft.server.projboost-all"));
+						case LIMITED -> sendAdminMessage(server, Text.translatable("message.ultracraft.server.projboost-limited"));
+						case ENTITY_TAG -> sendAdminMessage(server, Text.translatable("message.ultracraft.server.projboost-tag"));
+						case DISALLOW -> sendAdminMessage(server, Text.translatable("message.ultracraft.server.projboost-disable"));
+					}
 				}));
 	public static final GameRules.Key<EnumRule<Option>> HI_VEL_MODE =
 			GameRuleRegistry.register("ultra-hiVelMode", GameRules.Category.PLAYER, GameRuleFactory.createEnumRule(Option.FREE,
 					(server, rule) -> {
 						if(server.isRemote() && rule.get().equals(Option.FORCE_ON))
-						{
-							server.getPlayerManager().getPlayerList().forEach(p -> {
-								if(p.hasPermissionLevel(2))
-									p.sendMessage(Text.translatable("message.ultracraft.server.freeze-enable-warning"));
-							});
-						}
+							sendAdminMessage(server, Text.translatable("message.ultracraft.server.freeze-enable-warning"));
 						OnChanged(server, (byte)(10 + rule.get().ordinal()));
 					}));
 	public static final GameRules.Key<EnumRule<Option>> TIME_STOP =
@@ -83,6 +73,10 @@ public class GameruleRegistry
 			GameRuleRegistry.register("ultra-gravityReduction", GameRules.Category.PLAYER,
 					GameRuleFactory.createIntRule(4, 0, 10,
 							(server, rule) -> OnChanged(server, (byte)100, rule.get())));
+	public static final GameRules.Key<GameRules.BooleanRule> EFFECTIVELY_VIOLENT =
+			GameRuleRegistry.register("ultra-effectivelyViolent", GameRules.Category.PLAYER,
+					GameRuleFactory.createBooleanRule(false,
+							(server, rule) -> OnChanged(server, (byte) ((byte)110 + (rule.get() ? 1 : 0)))));
 	
 	public static void OnChanged(MinecraftServer server, byte b)
 	{
@@ -130,6 +124,15 @@ public class GameruleRegistry
 		OnChanged(player, (byte)(80 + player.server.getGameRules().get(BLOODHEAL).get().ordinal()));
 		OnChanged(player, (byte)90, player.server.getGameRules().get(HIVEL_SPEED).get());
 		OnChanged(player, (byte)100, player.server.getGameRules().get(HIVEL_SLOWFALL).get());
+		OnChanged(player, (byte)110, player.server.getGameRules().getBoolean(EFFECTIVELY_VIOLENT) ? 1 : 0);
+	}
+	
+	static void sendAdminMessage(MinecraftServer server, Text message)
+	{
+		server.getPlayerManager().getPlayerList().forEach(p -> {
+			if(p.hasPermissionLevel(2))
+				p.sendMessage(message);
+		});
 	}
 	
 	public static void register()
