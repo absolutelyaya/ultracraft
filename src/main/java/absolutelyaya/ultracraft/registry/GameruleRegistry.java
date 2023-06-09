@@ -77,6 +77,9 @@ public class GameruleRegistry
 			GameRuleRegistry.register("ultra-effectivelyViolent", GameRules.Category.PLAYER,
 					GameRuleFactory.createBooleanRule(false,
 							(server, rule) -> OnChanged(server, (byte) ((byte)110 + (rule.get() ? 1 : 0)))));
+	public static final GameRules.Key<GameRules.BooleanRule> EXPLOSION_DAMAGE =
+			GameRuleRegistry.register("ultra-explosionBlockBreaking", GameRules.Category.PLAYER,
+					GameRuleFactory.createBooleanRule(true));
 	
 	public static void OnChanged(MinecraftServer server, byte b)
 	{

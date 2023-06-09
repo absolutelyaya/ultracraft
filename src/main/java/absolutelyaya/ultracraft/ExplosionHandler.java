@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft;
 
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.registry.BlockTagRegistry;
+import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -83,7 +84,8 @@ public class ExplosionHandler
 			});
 		}
 		Entity exploder = source.getSource();
-		if(breakBlocks && (exploder instanceof PlayerEntity || world.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)))
+		GameRules rules = world.getGameRules();
+		if(breakBlocks && rules.getBoolean(GameruleRegistry.EXPLOSION_DAMAGE) && (exploder instanceof PlayerEntity || rules.getBoolean(GameRules.DO_MOB_GRIEFING)))
 		{
 			BlockPos center = new BlockPos((int)Math.floor(pos.x), (int)Math.floor(pos.y), (int)Math.floor(pos.z));
 			for (int y = (int)(-radius); y <= radius; y++)
