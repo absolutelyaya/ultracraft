@@ -25,7 +25,7 @@ public class MixinFluidBlock
 	@Inject(method = "getCollisionShape", at = @At("HEAD"), cancellable = true)
 	void onCollisionShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context, CallbackInfoReturnable<VoxelShape> cir)
 	{
-		if(state.getFluidState().isIn(BlockTagRegistry.UNSKIPPABLE_FLUIDS))
+		if(state.getFluidState().isIn(BlockTagRegistry.UNSKIMMABLE_FLUIDS))
 			return;
 		VoxelShape collisionShape = Block.createCuboidShape(0.0, 0.0, 0.0, 16.0, 14.5, 16.0);
 		cir.setReturnValue(context.isAbove(collisionShape, pos, true) && state.get(LEVEL) == 0 &&

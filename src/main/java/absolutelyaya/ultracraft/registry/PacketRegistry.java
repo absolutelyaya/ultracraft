@@ -188,7 +188,7 @@ public class PacketRegistry
 				if(start)
 					winged.startGroundPound();
 				else
-					winged.completeGroundPound(strong);
+					winged.endGroundPound(strong);
 				if(start)
 					return;
 				PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());

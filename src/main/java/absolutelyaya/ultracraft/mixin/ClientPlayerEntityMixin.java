@@ -69,8 +69,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	
 	Vec3d dashDir = Vec3d.ZERO;
 	Vec3d slideDir = Vec3d.ZERO;
-	boolean groundPounding, lastGroundPounding, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored, slideStartedSideways;
-	int groundPoundTicks, ticksSinceLastGroundPound = -1, slideTicks, wallJumps = 3, coyote;
+	boolean groundPounding, lastGroundPounding, strongGroundPound, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored, slideStartedSideways;
+	int groundPoundTicks, groundPoundCooldown, slamJumpTimer = -1, slideTicks, wallJumps = 3, coyote;
 	float slideVelocity;
 	final float baseJumpVel = 0.42f;
 	
@@ -106,21 +106,24 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Inject(method = "sendMovementPackets", at = @At(value = "HEAD"), cancellable = true)
 	public void onSendMovementPackets(CallbackInfo ci)
 	{
-		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying)
+		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying && !isSpectator())
 		{
+			if(groundPoundCooldown > 0)
+				groundPoundCooldown--;
 			if(wasHiVel != UltracraftClient.isHiVelEnabled() && lastSprintPressed)
 				setSliding(true, false); //when switching into HiVelMode while sprinting, reinitiate sliding
-			if(ticksSinceLastGroundPound > -1 && ticksSinceLastGroundPound < 4)
-				ticksSinceLastGroundPound++;
+			if(slamJumpTimer > -1 && slamJumpTimer < 4)
+				slamJumpTimer++;
 			//start slide or groundpound
 			if(client.options.sprintKey.isPressed() && !lastSprintPressed && !groundPounding)
 			{
 				//start ground pound
-				if(isUnSolid(posToBlock(getPos().subtract(0f, 0.99f, 0f))) && !verticalCollision)
+				if(isUnSolid(posToBlock(getPos().subtract(0f, 0.99f, 0f))) && !verticalCollision && groundPoundCooldown == 0)
 				{
 					cancelDash();
 					groundPoundTicks = 0;
 					groundPounding = true;
+					strongGroundPound = true;
 					setSprinting(false);
 				}
 				//start slide
@@ -135,6 +138,9 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					setSprinting(false);
 				ci.cancel();
 			}
+			//cancel strong groundpound if key is let go during it
+			if(strongGroundPound && !client.options.sprintKey.isPressed())
+				strongGroundPound = false;
 			//stop sliding once conditions aren't met anymore
 			else if(isSprinting())
 			{
@@ -159,10 +165,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				setVelocity(slideDir.multiply(1f + 0.2 * UltracraftClient.speed).multiply(slideVelocity / 1.5f).add(0f, getVelocity().y, 0f));
 				ci.cancel();
 			}
-			//skip on liquids
+			//skim on liquids
 			BlockPos belowPos = posToBlock(getPos().subtract(0f, 0.1f, 0f));
 			FluidState fluidBelow = world.getBlockState(belowPos).getFluidState();
-			if(isSprinting() && !fluidBelow.getFluid().equals(Fluids.EMPTY) && !fluidBelow.isIn(BlockTagRegistry.UNSKIPPABLE_FLUIDS)
+			if(isSprinting() && !fluidBelow.getFluid().equals(Fluids.EMPTY) && !fluidBelow.isIn(BlockTagRegistry.UNSKIMMABLE_FLUIDS)
 					   && world.getFluidState(belowPos.up()).getFluid().equals(Fluids.EMPTY))
 			{
 				Vec3d vel = getVelocity();
@@ -178,14 +184,15 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				if(verticalCollision && getVelocity().y < 0f)
 				{
 					groundPounding = false;
-					ticksSinceLastGroundPound = 0;
+					slamJumpTimer = 0;
+					groundPoundCooldown = 5;
 				}
 				ci.cancel();
 			}
 			//high jump after ground pound
-			if(ticksSinceLastGroundPound > -1 && ticksSinceLastGroundPound < 4 && jumping && !lastJumping)
+			if(slamJumpTimer > -1 && slamJumpTimer < 4 && jumping && !lastJumping)
 			{
-				ticksSinceLastGroundPound = -1;
+				slamJumpTimer = -1;
 				if(client.options.sprintKey.isPressed() && slamStored) //Ultradive
 					setVelocity(Vec3d.fromPolar(0, getYaw()).multiply(3f).add(0, getJumpVelocity(), 0));
 				else
@@ -297,7 +304,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				lastTouchedWater = world.getBlockState(posToBlock(getPos().subtract(0f, 0.1, 0f))).getBlock() instanceof FluidBlock;
 				if(lastGroundPounding != groundPounding)
 				{
-					boolean strong = client.options.sprintKey.isPressed() && !groundPounding && consumeStamina();
+					boolean strong = strongGroundPound && !groundPounding && consumeStamina();
 					PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 					buf.writeBoolean(groundPounding);
 					buf.writeBoolean(strong);
@@ -305,7 +312,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					if(groundPounding)
 						startGroundPound();
 					else
-						completeGroundPound(strong);
+						endGroundPound(strong);
 				}
 				lastGroundPounding = groundPounding;
 			}
@@ -320,8 +327,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		{
 			if (shouldIgnoreSlowdown())
 				setIgnoreSlowdown(false);
-			if(!wasHiVel && UltracraftClient.isHiVelEnabled() && getAbilities().flying && isSprinting())
+			if((!wasHiVel && UltracraftClient.isHiVelEnabled() || (getAbilities().flying || isSpectator())) && isSprinting())
 				setSliding(false, true);
+			if(groundPounding)
+				cancelGroundPound();
 		}
 		wasHiVel = UltracraftClient.isHiVelEnabled();
 	}
@@ -329,6 +338,16 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	Vec3d unhorizontalize(Vec3d in)
 	{
 		return Math.abs(in.x) > Math.abs(in.z) ? new Vec3d(in.x > 0f ? 1f : -1f, 0f, 0f) : new Vec3d(0f, 0f, in.z > 0f ? 1f : -1f);
+	}
+	
+	void cancelGroundPound()
+	{
+		groundPounding = lastGroundPounding = false;
+		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+		buf.writeBoolean(groundPounding);
+		buf.writeBoolean(false);
+		ClientPlayNetworking.send(PacketRegistry.GROUND_POUND_C2S_PACKET_ID, buf);
+		endGroundPound(false);
 	}
 	
 	void setSliding(boolean sliding, boolean last)

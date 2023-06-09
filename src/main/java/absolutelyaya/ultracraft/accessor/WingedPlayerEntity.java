@@ -43,7 +43,7 @@ public interface WingedPlayerEntity
 	
 	void startGroundPound();
 	
-	void completeGroundPound(boolean strong);
+	void endGroundPound(boolean strong);
 	
 	boolean isGroundPounding();
 	
