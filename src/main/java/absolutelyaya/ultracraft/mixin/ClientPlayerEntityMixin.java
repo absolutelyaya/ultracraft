@@ -193,8 +193,11 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			if(slamJumpTimer > -1 && slamJumpTimer < 4 && jumping && !lastJumping)
 			{
 				slamJumpTimer = -1;
-				if(client.options.sprintKey.isPressed() && slamStored) //Ultradive
-					setVelocity(Vec3d.fromPolar(0, getYaw()).multiply(3f).add(0, getJumpVelocity(), 0));
+				if(client.options.sprintKey.isPressed() && !strongGroundPound) //Dive / Ultradive
+				{
+					setIgnoreSlowdown(true);
+					setVelocity(Vec3d.fromPolar(0, getYaw()).multiply(slamStored ? 4f : 1.5f).add(0, getJumpVelocity(), 0));
+				}
 				else
 					setVelocity(0, groundPoundTicks / 20f + getJumpVelocity() * 1.5f + (slamStored ? 3f : 0f), 0);
 				slamStored = false;
