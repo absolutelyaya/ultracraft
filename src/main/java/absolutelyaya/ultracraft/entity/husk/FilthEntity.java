@@ -47,13 +47,15 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 	{
 		super(entityType, world);
 		this.setPathfindingPenalty(PathNodeType.DANGER_FIRE, -1.0f);
+		if(!world.isClient)
+			dataTracker.set(RARE, random.nextInt(10000) == 0);
 	}
 	
 	@Override
 	protected void initDataTracker()
 	{
 		super.initDataTracker();
-		dataTracker.startTracking(RARE, random.nextInt(5000) == 0);
+		dataTracker.startTracking(RARE, false);
 		dataTracker.startTracking(ATTACK_COOLDOWN, 0);
 	}
 	
@@ -147,7 +149,8 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 	}
 	
 	@Override
-	public void onInterrupt(PlayerEntity parrier) {
+	public void onInterrupt(PlayerEntity parrier)
+	{
 	
 	}
 	
@@ -184,6 +187,12 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 		super.readCustomDataFromNbt(nbt);
 		if(nbt.contains("oddValue"))
 			dataTracker.set(RARE, nbt.getBoolean("oddValue"));
+	}
+	
+	@Override
+	public boolean cannotDespawn()
+	{
+		return super.cannotDespawn() || isRare();
 	}
 	
 	static class FilthLungeAttackGoal extends Goal
