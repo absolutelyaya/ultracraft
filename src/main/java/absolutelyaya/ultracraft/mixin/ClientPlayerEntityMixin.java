@@ -138,10 +138,18 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					setSprinting(false);
 				ci.cancel();
 			}
+			//slide velocity
+			if(isSprinting())
+			{
+				if(isSprinting() != lastSprinting)
+					sendSprintingPacket();
+				setVelocity(slideDir.multiply(1f + 0.2 * UltracraftClient.speed).multiply(slideVelocity / 1.5f).add(0f, getVelocity().y, 0f));
+				ci.cancel();
+			}
 			//cancel strong groundpound if key is let go during it
 			if(strongGroundPound && !client.options.sprintKey.isPressed())
 				strongGroundPound = false;
-			//stop sliding once conditions aren't met anymore
+				//stop sliding once conditions aren't met anymore
 			else if(isSprinting())
 			{
 				if(jumping && (!isUnSolid(posToBlock(getPos().subtract(0f, 0.1f, 0f))) || coyote > 0))
@@ -155,14 +163,6 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				slideTicks++;
 				if(isUnSolid(posToBlock(getPos().subtract(0f, 0.25f, 0f))))
 					slideTicks = 0;
-				ci.cancel();
-			}
-			//slide velocity
-			if(isSprinting())
-			{
-				if(isSprinting() != lastSprinting)
-					sendSprintingPacket();
-				setVelocity(slideDir.multiply(1f + 0.2 * UltracraftClient.speed).multiply(slideVelocity / 1.5f).add(0f, getVelocity().y, 0f));
 				ci.cancel();
 			}
 			//skim on liquids
