@@ -36,25 +36,29 @@ public class KeybindRegistry
 			new KeyBinding("key.ultracraft.hivel_toggle", InputUtil.Type.KEYSYM,
 			GLFW.GLFW_KEY_V, "category.ultracraft"));
 	
+	static boolean hivelPressed = false, punchPressed = false;
+	
 	public static void register()
 	{
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			while(HIGH_VELOCITY_TOGGLE.wasPressed())
+			while(HIGH_VELOCITY_TOGGLE.wasPressed() && !hivelPressed)
 			{
 				UltracraftClient.toggleHiVelEnabled();
 				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 				buf.writeBoolean(UltracraftClient.isHiVelEnabled());
 				ClientPlayNetworking.send(PacketRegistry.SET_HIGH_VELOCITY_C2S_PACKET_ID, buf);
 				((WingedPlayerEntity)client.player).setWingsVisible(UltracraftClient.isHiVelEnabled());
+				hivelPressed = true;
 			}
+			while(HIGH_VELOCITY_TOGGLE.wasPressed()); //remove stored hivel toggle presses
+			hivelPressed = HIGH_VELOCITY_TOGGLE.isPressed();
 		});
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
-			while(PUNCH.wasPressed())
+			while(PUNCH.wasPressed() && !punchPressed)
 			{
 				ClientPlayerEntity player = client.player;
-				
 				if(player == null || !((LivingEntityAccessor)player).punch())
-					return;
+					continue;
 				
 				HitResult crosshairTarget = client.crosshairTarget;
 				Entity entity = null;
@@ -87,7 +91,10 @@ public class KeybindRegistry
 				if(b)
 					buf.writeInt(entity.getId());
 				ClientPlayNetworking.send(PacketRegistry.PUNCH_PACKET_ID, buf);
+				punchPressed = true;
 			}
+			while(PUNCH.wasPressed()); //remove stored punch presses
+			punchPressed = PUNCH.isPressed();
 		});
 	}
 }
