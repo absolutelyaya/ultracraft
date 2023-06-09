@@ -118,6 +118,7 @@
   "yaya.support.kofi": "Support yayas endeavours",
 
   "text.autoconfig.ultracraft.category.default": "Ultracraft",
+  "text.autoconfig.ultracraft.category.ultra-hud": "UltraHUD",
   "text.autoconfig.ultracraft.category.blood": "Goop / Blood",
   "text.autoconfig.ultracraft.category.debug": "Debug",
 
@@ -141,11 +142,14 @@
   "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[0]": "Whether the UltraHUD should be rendered.",
   "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[1]": "LIMITED = only show when in Hi-Velocity Mode",
 
-  "text.autoconfig.ultracraft.option.ultraHudCrosshair": "UltraHUD Crosshair meters",
+  "text.autoconfig.ultracraft.option.ultraHudCrosshair": "Crosshair meters",
   "text.autoconfig.ultracraft.option.ultraHudCrosshair.@Tooltip": "Adds Health and Energy bars around your Crosshair.",
 
-  "text.autoconfig.ultracraft.option.moveUltrahud": "Move Ultrahud",
-  "text.autoconfig.ultracraft.option.moveUltrahud.@Tooltip": "Moves the UltraHUD up when holding an item in your offhand.",
+  "text.autoconfig.ultracraft.option.moveUltrahud": "Move",
+  "text.autoconfig.ultracraft.option.moveUltrahud.@Tooltip": "Moves the UltraHUD up when holding an item that would cover it.",
+
+  "text.autoconfig.ultracraft.option.switchSides": "Flip Sides",
+  "text.autoconfig.ultracraft.option.switchSides.@Tooltip": "Moves the UltraHUD to the other side of the screen.",
 
   "text.autoconfig.ultracraft.option.maxTrails": "Maximum Trails",
   "text.autoconfig.ultracraft.option.maxTrails.@Tooltip": "Caps the amount of Trails at this amount.",

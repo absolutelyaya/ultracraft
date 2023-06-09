@@ -22,6 +22,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
+import net.minecraft.util.Arm;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
@@ -69,7 +71,6 @@ public class UltraHudRenderer extends DrawableHelper
 		RenderSystem.setProjectionMatrix(matrices.peek().getPositionMatrix());
 		RenderSystem.enableBlend();
 		
-		//TODO: holding nothing inverts the fish... for whatever reason.
 		//Fishing Joke
 		if(fishTimer > 0f && lastCatch != null && config.fishingJoke)
 		{
@@ -127,12 +128,20 @@ public class UltraHudRenderer extends DrawableHelper
 		
 		float h = MathHelper.lerp(tickDelta, player.lastRenderPitch, player.renderPitch);
 		float i = MathHelper.lerp(tickDelta, player.lastRenderYaw, player.renderYaw);
+		boolean flip = player.getMainArm().equals(Arm.LEFT) ^ config.switchSides;
 		matrices.multiply(new Quaternionf().rotateX((float)Math.toRadians((player.getPitch(tickDelta) - h) * 0.15f)));
 		matrices.multiply(new Quaternionf().rotateY((float)Math.toRadians((player.getYaw(tickDelta) - i) * -0.05f)));
-		matrices.multiply(new Quaternionf(new AxisAngle4f(-0.6f, 0f, 1f, 0f)));
-		matrices.translate(-15, 0, 150);
+		matrices.multiply(new Quaternionf(new AxisAngle4f(-0.6f * (flip ? -1 : 1), 0f, 1f, 0f)));
+		matrices.translate(-15 * (flip ? -4 : 1), 0, 150);
+		if(config.switchSides)
+			matrices.translate(0, -30, 0);
 		if(config.moveUltrahud)
-			matrices.translate(0f, yOffset = MathHelper.lerp(tickDelta, yOffset, player.getOffHandStack().isEmpty() ? 0f : -64f), 0f);
+		{
+			Hand leftHand = player.getMainArm().equals(Arm.LEFT) ? Hand.MAIN_HAND : Hand.OFF_HAND;
+			Hand rightHand = leftHand.equals(Hand.OFF_HAND) ? Hand.MAIN_HAND : Hand.OFF_HAND;
+			boolean covered = (!(player.getStackInHand(leftHand).isEmpty()) && !flip) || (!player.getStackInHand(rightHand).isEmpty() && flip);
+			matrices.translate(0f, yOffset = MathHelper.lerp(tickDelta, yOffset, covered ? -64f + (config.switchSides ? 30 : 0) : 0f), 0f);
+		}
 		
 		matrices.push();
 		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
@@ -162,37 +171,39 @@ public class UltraHudRenderer extends DrawableHelper
 		}
 		
 		if(config.moveUltrahud)
-			matrices.translate(0f, yOffset / 7f, 0f);
+			matrices.translate(0f, yOffset / 7f - (config.switchSides ? 7 : 0), 0f);
 		//UltraHotbar
 		matrices.push();
 		matrices.scale(30, 30, -30);
 		matrices.translate(-0.025, 0.425, 0);
+		if(flip)
+			matrices.translate(-1.75, 0, 0);
 		if(cam.getSubmersionType().equals(CameraSubmersionType.WATER))
 		{
 			matrices.translate(0.45, 0.025, -0.5);
 			matrices.scale(1.05f, 1f, 1f);
 		}
-		matrices.multiply(new Quaternionf(new AxisAngle4f(0.12f, -1f, 1f, 0f)));
+		matrices.multiply(new Quaternionf(new AxisAngle4f(0.12f, -1f, 1f * (flip ? -1 : 1), 0f)));
 		VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
 		Matrix3f normal = matrices.peek().getNormalMatrix();
 		normal.set(new Quaternionf().rotateXYZ((float)Math.toRadians(cam.getPitch()), (float)Math.toRadians(cam.getYaw()), 0f));
 		matrices.push();
 		matrices.scale(0.5f, 0.5f, 0.5f);
-		matrices.multiply(new Quaternionf(new AxisAngle4f(-0.18f, 0f, 1f, 0f)));
+		matrices.multiply(new Quaternionf(new AxisAngle4f(-0.18f, 0f, 1f * (flip ? -1 : 1), 0f)));
 		matrices.translate(1.25, -0.25, 0);
 		
 		ItemStack mainHand = player.getMainHandStack();
 		ItemStack stack = player.getInventory().getStack((player.getInventory().selectedSlot + 1) % 9);
 		if(!shouldRenderSpriteInstead(mainHand.getItem()))
-			drawItem(matrices, textureMatrix, client, immediate, stack, false);
+			drawItem(matrices, textureMatrix, client, immediate, stack, false); // right
 		int lastSlot = (player.getInventory().selectedSlot - 1) % 9;
 		stack = player.getInventory().getStack(lastSlot == -1 ? 8 : lastSlot);
 		matrices.translate(-2.5, 0, 0);
-		matrices.multiply(new Quaternionf(new AxisAngle4f(0.18f, 0f, 1f, 0f)));
+		matrices.multiply(new Quaternionf(new AxisAngle4f(0.18f, 0f, 1f * (flip ? -1 : 1), 0f)));
 		if(!shouldRenderSpriteInstead(mainHand.getItem()))
-			drawItem(matrices, textureMatrix, client, immediate, stack, false);
+			drawItem(matrices, textureMatrix, client, immediate, stack, false); // middle
 		matrices.pop();
-		drawItem(matrices, textureMatrix, client, immediate, mainHand, true);
+		drawItem(matrices, textureMatrix, client, immediate, mainHand, true); // left
 		matrices.pop();
 		matrices.pop();
 		
@@ -200,11 +211,11 @@ public class UltraHudRenderer extends DrawableHelper
 		if(hdt > 0)
 		{
 			if(config.moveUltrahud)
-				matrices.translate(0f, yOffset * 0.7f, 0f);
+				matrices.translate(0f, yOffset * 0.7f - (config.switchSides ? 7 : 0), 0f);
 			matrices.translate(5, 0, 150);
 			drawText(matrices, Text.translatable(
 					UltracraftClient.isHiVelEnabled() ? "message.ultracraft.hi-vel.enable" : "message.ultracraft.hi-vel.disable"),
-					-80, -10, Math.min(hdt / 20f, 1f));
+					-80 + (flip ? -40 : 0), -10, Math.min(hdt / 20f, 1f));
 		}
 		matrices.pop();
 		RenderSystem.restoreProjectionMatrix();

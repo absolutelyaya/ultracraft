@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.item.PlushieItem;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
@@ -43,6 +44,7 @@ public abstract class HandRendererMixin
 		LivingEntityAccessor playerAccessor = ((LivingEntityAccessor)player);
 		if(hand == Hand.OFF_HAND && (playerAccessor.IsPunching() || !item.isEmpty()))
 		{
+			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 			float swing = playerAccessor.GetPunchProgress(Ultracraft.isTimeFrozen() ? 0f : tickDelta);
 			if(item.getItem() instanceof AbstractWeaponItem)
 				matrices.translate(0f, -0.2f, 0f);
@@ -57,31 +59,31 @@ public abstract class HandRendererMixin
 			float z = -0.2f * MathHelper.sin((float)(swing * Math.PI));
 			int o = right ? 1 : -1;
 			if(item.isOf(ItemRegistry.BLUE_SKULL) || item.isOf(ItemRegistry.RED_SKULL))
-				matrices.translate(((float)o * x) - 0.1, y + 0.4f, z - 0.4f);
+				matrices.translate(((float)o * x) - 0.1 * (right ? 1 : -1), y + 0.4f, z - 0.4f);
 			else if(item.getItem() instanceof AbstractWeaponItem)
 			{
-				matrices.translate(((float)o * x) - 0.1, y - 0.25, z - 0.5);
+				matrices.translate(((float)o * x) - 0.1 * (right ? 1 : -1), y - 0.25, z - 0.5);
 				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(25f), new Vector3f(1, 0, 0))));
 			}
 			else if (item.getItem() instanceof PlushieItem)
 			{
-				matrices.translate(((float)o * x - 0.05), y + 0.05, z - 0.15);
+				matrices.translate(((float)o * x - 0.05 * (right ? 1 : -1)), y + 0.05, z - 0.15);
 				return;
 			}
 			else if (item.getItem() instanceof BlockItem)
-				matrices.translate(((float)o * x) - 0.1, y + 0.15f, z - 0.2f);
+				matrices.translate(((float)o * x) - 0.1 * (right ? 1 : -1), y + 0.15f, z - 0.2f);
 			else if(item.getItem() instanceof ToolItem)
 			{
-				matrices.translate(((float)o * x - 1.15f), y - 1.75f, z - 1f);
+				matrices.translate(((float)o * x - 1.15f * (right ? 1 : -1)), y - 1.75f, z - 1f);
 				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(35f), new Vector3f(1, 0, 0))));
 				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(180f), new Vector3f(0, 0, 1))));
 			}
 			else
 			{
-				matrices.translate(((float)o * x) - 0.35f, y + 0.05f, z - 0.9f);
-				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(-20), new Vector3f(1, 0, 0))));
-				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(25), new Vector3f(0, 1, 0))));
-				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(15), new Vector3f(0, 0, 1))));
+				matrices.translate(((float)o * x) - 0.35f * (right ? 1 : -1) + (right ? 0 : 0.05), y + 0.05f + (right ? 0 : -0.05), z - 0.9f + (right ? 0 : 0.25));
+				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(-20), new Vector3f(right ? 1 : 0, 0, 0))));
+				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(25), new Vector3f(0, right ? 1 : 0, 0))));
+				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(15), new Vector3f(0, 0, right ? 1 : -0.5f))));
 				matrices.scale(0.35f, 0.35f, 0.35f);
 				transform = false;
 			}

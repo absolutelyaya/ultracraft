@@ -15,6 +15,7 @@ import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Arm;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -66,7 +67,7 @@ public class ServerHitscanHandler
 	public static void performHitscan(LivingEntity user, byte type, float damage, int maxHits, @Nullable HitscanExplosionData explosion)
 	{
 		World world = user.getWorld();
-		Vec3d origin = user.getPos().add(new Vec3d(0f, user.getStandingEyeHeight(), 0f));
+		Vec3d origin = user.getEyePos();
 		Vec3d from = origin;
 		Vec3d origunalTo = user.getPos().add(0f, user.getStandingEyeHeight(), 0f).add(user.getRotationVec(0.5f).multiply(64.0));
 		Vec3d modifiedTo;
@@ -105,7 +106,9 @@ public class ServerHitscanHandler
 				bell.ring(world, state, bHit, p, false);
 			
 		}
-		sendPacket((ServerWorld)user.world, origin.add(new Vec3d(-0.5f, -0.3f, 0f).rotateY(-(float)Math.toRadians(user.getYaw()))), modifiedTo, type);
+		sendPacket((ServerWorld)user.world, origin.add(
+				new Vec3d(-0.5f * (user instanceof PlayerEntity player && player.getMainArm().equals(Arm.LEFT) ? -1 : 1), -0.2f, 0.4f)
+						.rotateY(-(float)Math.toRadians(user.getYaw()))), modifiedTo, type);
 	}
 	
 	public record HitscanExplosionData(float radius, float damage, float falloff, boolean breakBlocks) {}

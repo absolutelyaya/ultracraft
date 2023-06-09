@@ -15,14 +15,21 @@ public class Ultraconfig implements ConfigData
 	public boolean serverJoinInfo = true;
 	@ConfigEntry.Gui.Tooltip(count = 2)
 	public boolean freezeVFX = true;
+	@ConfigEntry.Category("ultra-hud")
 	@ConfigEntry.Gui.Tooltip
 	public boolean fishingJoke = true;
+	@ConfigEntry.Category("ultra-hud")
 	@ConfigEntry.Gui.Tooltip(count = 2)
 	public UltraHudRenderer.UltraHudVisibility ultraHudVisibility = UltraHudRenderer.UltraHudVisibility.ALWAYS;
+	@ConfigEntry.Category("ultra-hud")
 	@ConfigEntry.Gui.Tooltip
 	public boolean ultraHudCrosshair = true;
+	@ConfigEntry.Category("ultra-hud")
 	@ConfigEntry.Gui.Tooltip
 	public boolean moveUltrahud = true;
+	@ConfigEntry.Category("ultra-hud")
+	@ConfigEntry.Gui.Tooltip
+	public boolean switchSides = false;
 	@ConfigEntry.Gui.Tooltip
 	@ConfigEntry.BoundedDiscrete(min = 16, max = 128)
 	public int maxTrails = 64;

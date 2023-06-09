@@ -141,11 +141,14 @@
   "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[0]": "Ob das UltraHUD gerendert werden sollte.",
   "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[1]": "LIMITED = nur im Hochgeschwindigkeits-Modus anzeigen",
 
-  "text.autoconfig.ultracraft.option.ultraHudCrosshair": "UltraHUD Fadenkreuz",
+  "text.autoconfig.ultracraft.option.ultraHudCrosshair": "Fadenkreuz",
   "text.autoconfig.ultracraft.option.ultraHudCrosshair.@Tooltip": "Fügt Lebens- und Energiebalken um dein Fadenkreuz hinzu.",
 
-  "text.autoconfig.ultracraft.option.moveUltrahud": "Ultrahud bewegen",
-  "text.autoconfig.ultracraft.option.moveUltrahud.@Tooltip": "Bewegt das UltraHUD nach oben wenn in der Nebenhand ein Item ist.",
+  "text.autoconfig.ultracraft.option.moveUltrahud": "Bewegen",
+  "text.autoconfig.ultracraft.option.moveUltrahud.@Tooltip": "Bewegt das UltraHUD nach oben wenn ein Item es verdecken würde.",
+
+  "text.autoconfig.ultracraft.option.switchSides": "Seite Wechseln",
+  "text.autoconfig.ultracraft.option.switchSides.@Tooltip": "Bewegt die UltraHUD auf die jeweils andere Seite.",
 
   "text.autoconfig.ultracraft.option.maxTrails": "Maximumale Spuren",
   "text.autoconfig.ultracraft.option.maxTrails.@Tooltip": "Begrenzt die menge an Spuren durch diesen Wert.",

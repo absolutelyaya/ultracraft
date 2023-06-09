@@ -18,6 +18,7 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.MathHelper;
@@ -91,7 +92,9 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 						dir.z * 0.5 + (rand.nextFloat() - 0.5f) * 0.2);
 			}
 			
-			Vec3d pos = eyePos.add(dir.multiply(0.2f).add(new Vec3d(-0.3f, -0.3f, 0.4f).rotateY(-(float)Math.toRadians(user.getYaw()))));
+			Vec3d pos = eyePos.add(
+					dir.multiply(0.2f).add(new Vec3d(-0.3f * (user.getMainArm().equals(Arm.LEFT) ? -1.5 : 1), -0.3f, 0.4f)
+												   .rotateY(-(float)Math.toRadians(user.getYaw()))));
 			world.addParticle(new ParryIndicatorParticleEffect(false), pos.x, pos.y, pos.z, 0f, 0f, 0f);
 		}
 		return true;
