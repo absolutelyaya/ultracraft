@@ -1,15 +1,19 @@
 package absolutelyaya.ultracraft.entity.projectile;
 
+import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
+import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.item.Item;
@@ -21,8 +25,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
-public class HellBulletEntity extends ThrownItemEntity
+public class HellBulletEntity extends ThrownItemEntity implements ProjectileEntityAccessor
 {
+	PlayerEntity parrier;
 	Class<? extends LivingEntity> ignore;
 	private boolean shot;
 	
@@ -82,14 +87,14 @@ public class HellBulletEntity extends ThrownItemEntity
 	@Override
 	protected void onCollision(HitResult hitResult)
 	{
-		super.onCollision(hitResult);
-		if(hitResult instanceof EntityHitResult hit && hit.getEntity().getClass().equals(ignore) && !((ProjectileEntityAccessor)this).isParried())
-			return;
+		if(parrier != null)
+			onParriedCollision(hitResult);
 		if (!world.isClient && !isRemoved())
 		{
 			world.sendEntityStatus(this, (byte)3);
 			discard();
 		}
+		super.onCollision(hitResult);
 	}
 	
 	public void setIgnored(Class<? extends LivingEntity> ignore)
@@ -142,7 +147,80 @@ public class HellBulletEntity extends ThrownItemEntity
 	
 	protected boolean canHit(Entity entity)
 	{
+		boolean parried = isParried();
+		if(entity.getClass().equals(ignore) && !parried)
+			return false;
 		boolean val = super.canHit(entity);
-		return val || (isOwner(entity) && ((ProjectileEntityAccessor)this).isParried());
+		return val || (isOwner(entity) && parried && !entity.equals(getParrier())) ||
+							   (!isOwner(entity) && !(entity instanceof ProjectileEntity));
+	}
+	
+	@Override
+	public void onParriedCollision(HitResult hitResult)
+	{
+		Vec3d pos = hitResult.getPos();
+		Entity owner = getOwner();
+		if(owner == null)
+		{
+			ExplosionHandler.explosion(null, world, pos, DamageSources.get(world, DamageSources.PARRYAOE, parrier), 5f, 1f, 3f, true);
+			return;
+		}
+		Entity hit = null;
+		if(hitResult.getType().equals(HitResult.Type.ENTITY))
+			hit = ((EntityHitResult)hitResult).getEntity();
+		if(owner.equals(hit))
+			owner.damage(DamageSources.get(world, DamageSources.PARRY, parrier), 15);
+		ExplosionHandler.explosion(owner.equals(hit) ? hit : null, world, pos, DamageSources.get(world, DamageSources.PARRYAOE, parrier), 5f, 1f, 3f, true);
+	}
+	
+	@Override
+	public boolean isHitscanHittable()
+	{
+		return false;
+	}
+	
+	@Override
+	public PlayerEntity getParrier()
+	{
+		return parrier;
+	}
+	
+	@Override
+	public void setParrier(PlayerEntity p)
+	{
+		parrier = p;
+	}
+	
+	@Override
+	public void setParried(boolean val, PlayerEntity parrier)
+	{
+		if(val)
+			this.parrier = parrier;
+		else
+			this.parrier = null;
+	}
+	
+	@Override
+	public boolean isParried()
+	{
+		return parrier != null;
+	}
+	
+	@Override
+	public boolean isParriable()
+	{
+		return true;
+	}
+	
+	@Override
+	public boolean isBoostable()
+	{
+		return switch(world.getGameRules().get(GameruleRegistry.PROJ_BOOST).get())
+		{
+			case ALLOW_ALL -> true;
+			case ENTITY_TAG -> getType().isIn(EntityRegistry.PROJBOOSTABLE);
+			case LIMITED -> this instanceof ShotgunPelletEntity;
+			case DISALLOW -> false;
+		} && age < 4;
 	}
 }

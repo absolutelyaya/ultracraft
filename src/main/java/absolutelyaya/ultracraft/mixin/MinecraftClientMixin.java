@@ -81,8 +81,9 @@ public abstract class MinecraftClientMixin
 				return;
 			}
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeVector3f(player.getVelocity().toVector3f());
 			ClientPlayNetworking.send(PacketRegistry.PRIMARY_SHOT_PACKET_ID_C2S, buf);
-			w.onPrimaryFire(world, player);
+			w.onPrimaryFire(world, player, player.getVelocity());
 			cir.setReturnValue(false);
 			return;
 		}

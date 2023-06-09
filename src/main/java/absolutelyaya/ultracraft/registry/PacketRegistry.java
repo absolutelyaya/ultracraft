@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import io.netty.buffer.Unpooled;
@@ -27,6 +28,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.joml.Vector3f;
 
 import java.util.List;
 import java.util.UUID;
@@ -53,6 +55,7 @@ public class PacketRegistry
 	public static final Identifier GROUND_POUND_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ground_pound_s2c");
 	public static final Identifier EXPLOSION_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "explosion");
 	public static final Identifier PRIMARY_SHOT_PACKET_ID_S2C = new Identifier(Ultracraft.MOD_ID, "primary_shot_s2c");
+	public static final Identifier DEBUG = new Identifier(Ultracraft.MOD_ID, "debug");
 	
 	public static void registerC2S()
 	{
@@ -63,15 +66,29 @@ public class PacketRegistry
 				target = world.getEntityById(buf.readInt());
 			else
 				target = null;
+			Vector3f clientVel = buf.readVector3f(); //velocity the player has on the client
 			
 			server.execute(() -> {
 				ProjectileEntity p;
 				Vec3d forward = player.getRotationVector().normalize();
-				Vec3d pos = player.getEyePos().add(forward);
-				List<ProjectileEntity> projectiles = player.world.getEntitiesByClass(ProjectileEntity.class,
-						new Box(pos.x - 0.3f + 0.9f * forward.x, pos.y - 0.3f + 0.9f * forward.y, pos.z - 0.3f + 0.9f * forward.z,
-								pos.x + 0.3f + 0.9f * forward.x, pos.y + 0.3f + 0.9f * forward.y, pos.z + 0.3f + 0.9f * forward.z),
+				Vec3d pos = player.getEyePos();
+				Box check = new Box(pos.x - 0.3f, pos.y - 0.3f, pos.z - 0.3f,
+						pos.x + 0.3f, pos.y + 0.3f, pos.z + 0.3f)
+									.stretch(forward.multiply(0.9)).offset(new Vec3d(clientVel.mul(-0.5f)))
+									.stretch(clientVel.x * 16, clientVel.y * 16, clientVel.z * 16);
+				List<ProjectileEntity> projectiles = player.world.getEntitiesByClass(ProjectileEntity.class, check,
 						(e) -> !((ProjectileEntityAccessor)e).isParried());
+				
+				if(UltracraftClient.getConfigHolder().get().showPunchArea) {
+					addDebugParticle(player, new Vec3d(check.minX, check.minY, check.minZ));
+					addDebugParticle(player, new Vec3d(check.maxX, check.minY, check.minZ));
+					addDebugParticle(player, new Vec3d(check.minX, check.minY, check.maxZ));
+					addDebugParticle(player, new Vec3d(check.maxX, check.minY, check.maxZ));
+					addDebugParticle(player, new Vec3d(check.minX, check.maxY, check.minZ));
+					addDebugParticle(player, new Vec3d(check.maxX, check.maxY, check.minZ));
+					addDebugParticle(player, new Vec3d(check.minX, check.maxY, check.maxZ));
+					addDebugParticle(player, new Vec3d(check.maxX, check.maxY, check.maxZ));
+				}
 				
 				player.swingHand(Hand.OFF_HAND, true);
 				
@@ -133,17 +150,18 @@ public class PacketRegistry
 					if(state.getBlock() instanceof IPunchableBlock punchable)
 						punchable.onPunch(player, target, mainHand);
 					if(state.getBlock() instanceof BellBlock bell)
-						bell.ring(player, player.world, target, player.getHorizontalFacing());
+						bell.ring(player, player.world, target, player.getHorizontalFacing().getOpposite());
 					if(state.isIn(BlockTagRegistry.PUNCH_BREAKABLE))
 						player.world.breakBlock(target, true, player);
 				}
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(PRIMARY_SHOT_PACKET_ID_C2S, (server, player, handler, buf, sender) -> {
+			Vec3d velocity = new Vec3d(buf.readVector3f());
 			server.execute(() -> {
 				if (player.getMainHandStack().getItem() instanceof AbstractWeaponItem gun)
 				{
-					if (!gun.onPrimaryFire(player.world, player))
+					if (!gun.onPrimaryFire(player.world, player, velocity))
 						return;
 					for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
 					{
@@ -226,5 +244,12 @@ public class PacketRegistry
 			}
 		}
 		return nearest;
+	}
+	
+	static void addDebugParticle(ServerPlayerEntity p, Vec3d pos)
+	{
+		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+		buf.writeVector3f(pos.toVector3f());
+		ServerPlayNetworking.send(p, DEBUG, buf);
 	}
 }

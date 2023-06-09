@@ -169,5 +169,8 @@
   "text.autoconfig.ultracraft.option.danganronpa": "Blut Zensieren",
   "text.autoconfig.ultracraft.option.danganronpa.@Tooltip": "Färbt alle Blut-Effekte Neon Pink.",
 
+  "text.autoconfig.ultracraft.option.showPunchArea": "Parrier-Box anzeigen",
+  "text.autoconfig.ultracraft.option.showPunchArea.@Tooltip": "Spawnt Partikel in den Ecken der Parrier Check Box.",
+
   "text.autoconfig.ultracraft.option.repeatIntro": "Intro wiederholen"
 }

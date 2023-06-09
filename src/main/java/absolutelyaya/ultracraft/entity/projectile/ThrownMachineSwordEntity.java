@@ -309,4 +309,16 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 		if(world.isClient)
 			UltracraftClient.TRAIL_RENDERER.removeTrail(uuid);
 	}
+	
+	@Override
+	public PlayerEntity getParrier()
+	{
+		return parrier;
+	}
+	
+	@Override
+	public void setParrier(PlayerEntity parrier)
+	{
+		this.parrier = parrier;
+	}
 }

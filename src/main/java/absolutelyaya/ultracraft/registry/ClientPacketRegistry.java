@@ -182,9 +182,18 @@ public class ClientPacketRegistry
 			PlayerEntity player = client.player.world.getPlayerByUuid(buf.readUuid());
 			if(player == null)
 				return;
+			Vec3d velocity = player.getVelocity();
 			MinecraftClient.getInstance().execute(() -> {
 				if(player.getMainHandStack().getItem() instanceof AbstractWeaponItem gun)
-					gun.onPrimaryFire(player.world, player);
+					gun.onPrimaryFire(player.world, player, velocity);
+			});
+		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.DEBUG, ((client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
+			Vector3f pos = buf.readVector3f();
+			MinecraftClient.getInstance().execute(() -> {
+				client.player.world.addParticle(ParticleTypes.FLAME, pos.x, pos.y, pos.z, 0f, 0f, 0f);;
 			});
 		}));
 	}

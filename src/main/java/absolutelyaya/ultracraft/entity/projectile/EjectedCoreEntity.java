@@ -126,6 +126,18 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 	}
 	
 	@Override
+	public PlayerEntity getParrier()
+	{
+		return null;
+	}
+	
+	@Override
+	public void setParrier(PlayerEntity p)
+	{
+	
+	}
+	
+	@Override
 	public void onParriedCollision(HitResult hitResult)
 	{
 	

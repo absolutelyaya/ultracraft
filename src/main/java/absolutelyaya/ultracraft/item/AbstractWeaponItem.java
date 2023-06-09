@@ -8,6 +8,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.joml.Vector2i;
 
@@ -21,7 +22,7 @@ public abstract class AbstractWeaponItem extends Item
 		this.recoil = recoil;
 	}
 	
-	public boolean onPrimaryFire(World world, PlayerEntity user)
+	public boolean onPrimaryFire(World world, PlayerEntity user, Vec3d userVelocity)
 	{
 		((LivingEntityAccessor)user).addRecoil(recoil);
 		return true;

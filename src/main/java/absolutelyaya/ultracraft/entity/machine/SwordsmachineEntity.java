@@ -481,7 +481,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		dir = dir.rotateY((float)Math.toRadians(-getBodyYaw()));
 		for (int i = 0; i < 16; i++)
 		{
-			ShotgunPelletEntity bullet = ShotgunPelletEntity.spawn(this, world);
+			ShotgunPelletEntity bullet = ShotgunPelletEntity.spawn(this, world, false);
 			bullet.setVelocity(dir.x, dir.y, dir.z, 1f, 20f);
 			Vec3d vel = bullet.getVelocity();
 			world.addParticle(ParticleTypes.SMOKE, bullet.getX(), bullet.getY(), bullet.getZ(), vel.x, vel.y, vel.z);

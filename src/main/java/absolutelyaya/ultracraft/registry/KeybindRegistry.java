@@ -90,6 +90,7 @@ public class KeybindRegistry
 				buf.writeBoolean(b);
 				if(b)
 					buf.writeInt(entity.getId());
+				buf.writeVector3f(player.getVelocity().toVector3f());
 				ClientPlayNetworking.send(PacketRegistry.PUNCH_PACKET_ID, buf);
 				punchPressed = true;
 			}

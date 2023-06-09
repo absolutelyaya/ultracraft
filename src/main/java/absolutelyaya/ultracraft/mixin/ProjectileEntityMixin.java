@@ -27,7 +27,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class ProjectileEntityMixin extends Entity implements ProjectileEntityAccessor
 {
 	@Shadow @Nullable private Entity owner;
-	PlayerEntity parrier;
+	protected PlayerEntity parrier;
 	boolean parried, frozen;
 	Vec3d preFreezeVel;
 	
@@ -131,6 +131,11 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 		return true;
 	}
 	
+	public PlayerEntity getParrier()
+	{
+		return parrier;
+	}
+	
 	@Override
 	public boolean isBoostable()
 	{
@@ -140,7 +145,7 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 			case ENTITY_TAG -> getType().isIn(EntityRegistry.PROJBOOSTABLE);
 			case LIMITED -> (Object) this instanceof ShotgunPelletEntity;
 			case DISALLOW -> false;
-		};
+		} && age < 4;
 	}
 	
 	@Override

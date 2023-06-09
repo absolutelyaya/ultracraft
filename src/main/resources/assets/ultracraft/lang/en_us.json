@@ -169,5 +169,8 @@
   "text.autoconfig.ultracraft.option.danganronpa": "Censor Blood",
   "text.autoconfig.ultracraft.option.danganronpa.@Tooltip": "Replaces Blood VFX colors with neon Pink.",
 
+  "text.autoconfig.ultracraft.option.showPunchArea": "Show Punch Area",
+  "text.autoconfig.ultracraft.option.showPunchArea.@Tooltip": "Spawns particles in the corners of the punch area.",
+
   "text.autoconfig.ultracraft.option.repeatIntro": "Repeat Intro"
 }

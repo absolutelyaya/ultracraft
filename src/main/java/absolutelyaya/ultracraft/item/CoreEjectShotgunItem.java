@@ -54,7 +54,7 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 	}
 	
 	@Override
-	public boolean onPrimaryFire(World world, PlayerEntity user)
+	public boolean onPrimaryFire(World world, PlayerEntity user, Vec3d userVelocity)
 	{
 		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
 		Vec3d dir = new Vec3d(0f, 0f, 1f);
@@ -62,15 +62,17 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 		dir = dir.rotateY((float)Math.toRadians(-user.getHeadYaw()));
 		if(!cdm.isUsable(this, 0) || user.getItemCooldownManager().isCoolingDown(this))
 			return false;
-		super.onPrimaryFire(world, user);
+		super.onPrimaryFire(world, user, userVelocity);
 		if(!world.isClient)
 		{
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), controllerName, "shot");
 			cdm.setCooldown(this, 35, GunCooldownManager.PRIMARY);
 			for (int i = 0; i < 12; i++)
 			{
-				ShotgunPelletEntity bullet = ShotgunPelletEntity.spawn(user, world);
-				bullet.setVelocity(dir.x, dir.y, dir.z, 1.5f, 15f);
+				//guarantees that the first bullet goes straight and only that one is actually boostable
+				ShotgunPelletEntity bullet = ShotgunPelletEntity.spawn(user, world, i == 0);
+				bullet.setVelocity(dir.x, dir.y, dir.z, i == 0 ? 1f : 1.5f, i == 0 ? 1f : 15f);
+				bullet.addVelocity(userVelocity);
 				bullet.setNoGravity(true);
 				world.spawnEntity(bullet);
 			}

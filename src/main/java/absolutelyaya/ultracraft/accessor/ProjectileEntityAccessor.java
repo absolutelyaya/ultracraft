@@ -16,4 +16,8 @@ public interface ProjectileEntityAccessor
 	boolean isHitscanHittable();
 	
 	boolean isBoostable();
+	
+	PlayerEntity getParrier();
+	
+	void setParrier(PlayerEntity p);
 }
