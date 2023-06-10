@@ -293,6 +293,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				if(groundPounding && UltracraftClient.isSlamStorageEnabled())
 					slamStored = true;
 				wallJumps--;
+				setIgnoreSlowdown(false);
 				ci.cancel();
 			}
 			//update movement data
