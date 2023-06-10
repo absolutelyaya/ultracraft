@@ -11,6 +11,7 @@ import absolutelyaya.ultracraft.entity.husk.AbstractHuskEntity;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import com.google.common.collect.HashMultimap;
@@ -21,6 +22,7 @@ import net.minecraft.advancement.Advancement;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.MovementType;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.RevengeGoal;
@@ -51,8 +53,11 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.TypeFilter;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -586,6 +591,29 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 			if(swordPitch > 0.5f)
 				swordPitch -= 1 / 2f;
 		}
+	}
+	
+	@Override
+	public void move(MovementType movementType, Vec3d movement)
+	{
+		BlockHitResult hit = world.raycast(new RaycastContext(getPos(), getPos().subtract(0, 2, 0), RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
+		if(world.getGameRules().getBoolean(GameruleRegistry.SM_SAFE_LEDGES) && !hit.getType().equals(HitResult.Type.MISS))
+		{
+			for (int x = -1; x <= 1; x++)
+			{
+				for (int z = -1; z <= 1; z++)
+				{
+					if(x == 0 && z == 0)
+						continue;
+					if(world.isSpaceEmpty(getBoundingBox().expand(0.1).offset(movement).offset(x * 0.4, -2, z * 0.4)))
+					{
+						movement = movement.multiply(1f - Math.abs(x), 1f, 1f - Math.abs(z));
+						setVelocity(getVelocity().multiply(1f - Math.abs(x), 1f, 1f - Math.abs(z)));
+					}
+				}
+			}
+		}
+		super.move(movementType, movement);
 	}
 	
 	public float getMachineSwordVolume()

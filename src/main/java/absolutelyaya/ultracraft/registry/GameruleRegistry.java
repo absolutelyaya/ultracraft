@@ -74,12 +74,15 @@ public class GameruleRegistry
 					GameRuleFactory.createIntRule(4, 0, 10,
 							(server, rule) -> OnChanged(server, (byte)100, rule.get())));
 	public static final GameRules.Key<GameRules.BooleanRule> EFFECTIVELY_VIOLENT =
-			GameRuleRegistry.register("ultra-effectivelyViolent", GameRules.Category.PLAYER,
+			GameRuleRegistry.register("ultra-effectivelyViolent", GameRules.Category.MOBS,
 					GameRuleFactory.createBooleanRule(false,
 							(server, rule) -> OnChanged(server, (byte) ((byte)110 + (rule.get() ? 1 : 0)))));
 	public static final GameRules.Key<GameRules.BooleanRule> EXPLOSION_DAMAGE =
 			GameRuleRegistry.register("ultra-explosionBlockBreaking", GameRules.Category.PLAYER,
 					GameRuleFactory.createBooleanRule(true));
+	public static final GameRules.Key<GameRules.BooleanRule> SM_SAFE_LEDGES =
+			GameRuleRegistry.register("ultra-swordsmachineSafeLedges", GameRules.Category.MOBS,
+					GameRuleFactory.createBooleanRule(false));
 	
 	public static void OnChanged(MinecraftServer server, byte b)
 	{
