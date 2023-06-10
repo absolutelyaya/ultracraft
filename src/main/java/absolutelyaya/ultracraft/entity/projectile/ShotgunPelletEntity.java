@@ -29,6 +29,7 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 {
 	BlockPos hitPos = null;
 	boolean chosenOne;
+	float damage = 0.5f;
 	
 	public ShotgunPelletEntity(EntityType<? extends ThrownItemEntity> entityType, World world)
 	{
@@ -80,12 +81,17 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 		return 200;
 	}
 	
+	public void increaseDamage(float val)
+	{
+		damage += val;
+	}
+	
 	@Override
 	protected void onEntityHit(EntityHitResult entityHitResult)
 	{
 		Entity entity = entityHitResult.getEntity();
 		if(!entity.getClass().equals(ignore) || ((ProjectileEntityAccessor)this).isParried())
-			entity.damage(DamageSources.get(world, DamageSources.SHOTGUN, getOwner()), 0.5f);
+			entity.damage(DamageSources.get(world, DamageSources.SHOTGUN, getOwner()), damage);
 	}
 	
 	@Override

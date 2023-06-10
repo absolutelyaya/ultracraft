@@ -23,10 +23,19 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.List;
+
 @Mixin(ProjectileEntity.class)
 public abstract class ProjectileEntityMixin extends Entity implements ProjectileEntityAccessor
 {
 	@Shadow @Nullable private Entity owner;
+	
+	@Shadow protected abstract boolean canHit(Entity entity);
+	
+	@Shadow private boolean leftOwner;
+	
+	@Shadow protected abstract void onEntityHit(EntityHitResult entityHitResult);
+	
 	protected PlayerEntity parrier;
 	boolean parried, frozen;
 	Vec3d preFreezeVel;
@@ -67,6 +76,13 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 		{
 			setVelocity(preFreezeVel);
 			frozen = false;
+		}
+		
+		if(!leftOwner)
+		{
+			List<Entity> entities = world.getOtherEntities(owner, getBoundingBox().stretch(this.getVelocity()), this::canHit);
+			if(entities.size() > 0)
+				onEntityHit(new EntityHitResult(entities.get(0)));
 		}
 	}
 	

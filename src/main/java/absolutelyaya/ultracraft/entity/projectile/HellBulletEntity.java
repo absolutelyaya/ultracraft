@@ -25,6 +25,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 
+import java.util.List;
+
 public class HellBulletEntity extends ThrownItemEntity implements ProjectileEntityAccessor
 {
 	PlayerEntity parrier;
@@ -137,6 +139,13 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 						getX(), getY(), getZ(), 0f, 0f, 0f);
 			if(!world.isClient())
 				discard();
+		}
+		
+		if(age == 1)
+		{
+			List<Entity> entities = world.getOtherEntities(getOwner(), getBoundingBox().stretch(this.getVelocity()), this::canHit);
+			if(entities.size() > 0)
+				onCollision(new EntityHitResult(entities.get(0)));
 		}
 	}
 	

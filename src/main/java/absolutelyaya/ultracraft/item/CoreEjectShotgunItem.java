@@ -1,8 +1,11 @@
 package absolutelyaya.ultracraft.item;
 
+import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.CoreEjectShotgunRenderer;
+import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.entity.projectile.EjectedCoreEntity;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
@@ -11,7 +14,9 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
@@ -21,6 +26,8 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
+import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
@@ -66,19 +73,40 @@ public class CoreEjectShotgunItem extends AbstractWeaponItem implements GeoItem
 		super.onPrimaryFire(world, user, userVelocity);
 		if(!world.isClient)
 		{
+			boolean parry = false, trueParry = false;
+			HitResult hit = ProjectileUtil.raycast(user, user.getEyePos(), user.getEyePos().add(user.getRotationVector().multiply(1.5f)),
+					user.getBoundingBox().expand(3f),
+					e -> e instanceof MaliciousFaceEntity || (e instanceof MeleeInterruptable mp && (!(mp instanceof MobEntity me) || me.isAttacking())),
+					1.5 * 1.5);
+			if(hit instanceof EntityHitResult eHit)
+			{
+				if(eHit.getEntity() instanceof MeleeInterruptable mp && mp instanceof MobEntity me && me.isAttacking())
+				{
+					mp.onInterrupt(user);
+					trueParry = true;
+				}
+				parry = true;
+			}
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), controllerName, "shot");
 			cdm.setCooldown(this, 35, GunCooldownManager.PRIMARY);
 			for (int i = 0; i < 12; i++)
 			{
-				//guarantees that the first bullet goes straight and only that one is actually boostable
-				ShotgunPelletEntity bullet = ShotgunPelletEntity.spawn(user, world, i == 0);
-				bullet.setVelocity(dir.x, dir.y, dir.z, i == 0 ? 1f : 1.5f, i == 0 ? 1f : 15f);
+				//guarantees that the first bullet goes straight and only that one is actually boostable (if this isn't a shotgun parry)
+				ShotgunPelletEntity bullet = ShotgunPelletEntity.spawn(user, world, i == 0 && !parry);
+				bullet.setVelocity(dir.x, dir.y, dir.z, i == 0 ? 1f : 1.5f, i == 0 && !parry ? 1f : 15f);
+				if(parry && i == 0)
+					bullet.increaseDamage(2f);
 				bullet.addVelocity(userVelocity);
 				bullet.setNoGravity(true);
 				world.spawnEntity(bullet);
 			}
 			world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, SoundCategory.PLAYERS,
 					1.0f, 0.2f / (user.getRandom().nextFloat() * 0.2f + 0.6f));
+			if(parry)
+				world.playSound(null, ((EntityHitResult)hit).getEntity().getBlockPos(), SoundEvents.ENTITY_ITEM_BREAK, SoundCategory.PLAYERS,
+						0.75f, 0.3f / (user.getRandom().nextFloat() * 0.2f + 0.6f));
+			if(trueParry)
+				Ultracraft.freeze((ServerWorld)world, 5);
 		}
 		if(world.isClient)
 		{
