@@ -55,6 +55,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
+import net.minecraft.client.sound.SoundManager;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
@@ -79,7 +80,7 @@ public class UltracraftClient implements ClientModInitializer
 	static GameruleRegistry.Option HiVelOption = GameruleRegistry.Option.FREE;
 	static GameruleRegistry.Option TimeFreezeOption = GameruleRegistry.Option.FORCE_ON;
 	static GameruleRegistry.RegenOption BloodRegen = GameruleRegistry.RegenOption.ALWAYS;
-	static boolean disableHandswap = false, slamStorage = true, fallDamage = false, drowning = false, effectivelyViolent = false;
+	static boolean disableHandswap = false, slamStorage = true, fallDamage = false, drowning = false, effectivelyViolent = false, wasMovementSoundsEnabled;
 	public static int jumpBoost, speed, gravityReduction;
 	static float screenblood;
 	
@@ -162,14 +163,17 @@ public class UltracraftClient implements ClientModInitializer
 				client.player.sendMessage(Text.translatable("message.ultracraft.join-info"));
 				client.player.sendMessage(Text.translatable("========================================="));
 			}
-			
-			client.getSoundManager().play(new MovingWindSoundInstance(client.player));
 		});
 		
 		ClientEntityEvents.ENTITY_LOAD.register((entity, clientWorld) -> {
 			if (entity instanceof PlayerEntity player)
 			{
-				MinecraftClient.getInstance().getSoundManager().play(new MovingSlideSoundInstance(player));
+				if(config.get().movementSounds)
+				{
+					SoundManager sound = MinecraftClient.getInstance().getSoundManager();
+					sound.play(new MovingSlideSoundInstance(player));
+					sound.play(new MovingWindSoundInstance(player));
+				}
 				if(player.getUuid().equals(MinecraftClient.getInstance().player.getUuid()))
 					return;
 				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
@@ -222,6 +226,16 @@ public class UltracraftClient implements ClientModInitializer
 		ClientTickEvents.END_WORLD_TICK.register(minecraft -> {
 			Ultracraft.tickFreeze();
 			UltracraftClient.TRAIL_RENDERER.tick();
+			if(!wasMovementSoundsEnabled && config.get().movementSounds)
+			{
+				PlayerEntity player = MinecraftClient.getInstance().player;
+				if(player == null)
+					return;
+				SoundManager sound = MinecraftClient.getInstance().getSoundManager();
+				sound.play(new MovingSlideSoundInstance(player));
+				sound.play(new MovingWindSoundInstance(player));
+			}
+			wasMovementSoundsEnabled = config.get().movementSounds;
 		});
 		ClientSendMessageEvents.CHAT.register(message -> {
 			PlayerEntity player = MinecraftClient.getInstance().player;

@@ -176,5 +176,8 @@
   "text.autoconfig.ultracraft.option.showPunchArea": "Show Punch Area",
   "text.autoconfig.ultracraft.option.showPunchArea.@Tooltip": "Spawns particles in the corners of the punch area.",
 
+  "text.autoconfig.ultracraft.option.movementSounds": "Movement Sounds",
+  "text.autoconfig.ultracraft.option.movementSounds.@Tooltip": "Whether Sliding and quick movement should play their sound loops.",
+
   "text.autoconfig.ultracraft.option.repeatIntro": "Repeat Intro"
 }

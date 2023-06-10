@@ -175,5 +175,8 @@
   "text.autoconfig.ultracraft.option.showPunchArea": "Parrier-Box anzeigen",
   "text.autoconfig.ultracraft.option.showPunchArea.@Tooltip": "Spawnt Partikel in den Ecken der Parrier Check Box.",
 
+  "text.autoconfig.ultracraft.option.movementSounds": "Bewegungs Geräusche",
+  "text.autoconfig.ultracraft.option.movementSounds.@Tooltip": "Ob Rutschen und sonstige schnelle Bewegungen ihren Sound Loop spielen sollten.",
+
   "text.autoconfig.ultracraft.option.repeatIntro": "Intro wiederholen"
 }

@@ -41,6 +41,8 @@ public class Ultraconfig implements ConfigData
 	@ConfigEntry.Gui.Tooltip
 	@ConfigEntry.BoundedDiscrete(min = 0, max = 45)
 	public int slideTilt = 4;
+	@ConfigEntry.Gui.Tooltip
+	public boolean movementSounds = true;
 	@ConfigEntry.Category("blood")
 	@ConfigEntry.Gui.Tooltip
 	public boolean fancyGoop = false;
