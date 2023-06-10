@@ -6,7 +6,6 @@ import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
-import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import io.netty.buffer.Unpooled;
@@ -67,6 +66,7 @@ public class PacketRegistry
 			else
 				target = null;
 			Vector3f clientVel = buf.readVector3f(); //velocity the player has on the client
+			boolean debug = buf.readBoolean();
 			
 			server.execute(() -> {
 				ProjectileEntity p;
@@ -79,7 +79,7 @@ public class PacketRegistry
 				List<ProjectileEntity> projectiles = player.world.getEntitiesByClass(ProjectileEntity.class, check,
 						(e) -> !((ProjectileEntityAccessor)e).isParried());
 				
-				if(UltracraftClient.getConfigHolder().get().showPunchArea) {
+				if(debug) {
 					addDebugParticle(player, new Vec3d(check.minX, check.minY, check.minZ));
 					addDebugParticle(player, new Vec3d(check.maxX, check.minY, check.minZ));
 					addDebugParticle(player, new Vec3d(check.minX, check.minY, check.maxZ));

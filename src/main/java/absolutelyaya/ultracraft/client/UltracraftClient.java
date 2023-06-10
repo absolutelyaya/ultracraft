@@ -54,6 +54,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.entity.EntityType;
@@ -190,7 +191,7 @@ public class UltracraftClient implements ClientModInitializer
 			if(type.equals(EntityRegistry.MALICIOUS_FACE))
 				helper.register(new EnragedFeature<>(context.getModelLoader()));
 			if(type.equals(EntityType.PLAYER))
-				helper.register(new WingsFeature<>(context.getModelLoader()));
+				helper.register(new WingsFeature<>((PlayerEntityRenderer)renderer, context.getModelLoader()));
 		});
 		
 		WorldRenderEvents.BEFORE_ENTITIES.register((ctx) -> applyEntityPoses = true);
