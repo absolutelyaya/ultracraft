@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.mixin;
 
+import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.registry.BlockTagRegistry;
@@ -158,7 +159,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					addVelocity(0, baseJumpVel, 0);
 					setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
 				}
-				boolean moved = new Vec3d(lastX, lastBaseY, lastZ).distanceTo(getPos()) > slideVelocity / 2f;
+				boolean moved = new Vec3d(lastX, lastBaseY, lastZ).distanceTo(getPos()) > slideVelocity / 2f || Ultracraft.isTimeFrozen();
 				setSprinting(client.options.sprintKey.isPressed() && !groundPounding && moved && !jumping);
 				slideTicks++;
 				if(isUnSolid(posToBlock(getPos().subtract(0f, 0.25f, 0f))))

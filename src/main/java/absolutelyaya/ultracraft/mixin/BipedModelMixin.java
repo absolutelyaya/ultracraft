@@ -88,6 +88,7 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AnimalMode
 			justSlid = false;
 		}
 		//TODO: add Dash Pose... pose.
+		//TODO: add Slam Pose..? could be epic
 	}
 	
 	@Inject(method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At("TAIL"))
