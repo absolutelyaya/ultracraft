@@ -90,16 +90,16 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 	@Override
 	public void tick()
 	{
+		if(world.isClient && age == 1)
+			UltracraftClient.TRAIL_RENDERER.createTrail(uuid,
+					() -> {
+						float deg = (float)Math.toRadians(getYaw() + 90);
+						Vector3f left =	getTrailPos(deg, 1.5f);
+						Vector3f right = getTrailPos(deg, 1f);
+						return new Pair<>(left, right);
+					}, new Vector4f(1f, 0.5f, 0f, 0.6f), 30);
 		if(world.isClient && Ultracraft.isTimeFrozen())
 			return;
-		if(world.isClient && age == 1)
-				UltracraftClient.TRAIL_RENDERER.createTrail(uuid,
-				() -> {
-					float deg = (float)Math.toRadians(getYaw() + 90);
-					Vector3f left =	getTrailPos(deg, 1.5f);
-					Vector3f right = getTrailPos(deg, 1f);
-					return new Pair<>(left, right);
-				}, new Vector4f(1f, 0.5f, 0f, 0.6f), 30);
 		move(MovementType.SELF, getVelocity());
 		
 		HitResult hitResult = ProjectileUtil.getCollision(this, this::canHit);
@@ -261,9 +261,12 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 	@Override
 	public void setParried(boolean val, PlayerEntity parrier)
 	{
-		dataTracker.set(RETURNING, true);
 		if(parrier != getOwner())
-			this.parrier = parrier;
+		{
+			dataTracker.set(RETURNING, true);
+			if(age > 4)
+				this.parrier = parrier;
+		}
 	}
 	
 	@Override
@@ -293,7 +296,7 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 	@Override
 	public void onParriedCollision(HitResult hitResult)
 	{
-		//since this entity is decarded upon reaching it's owner, the actual parry collision behavior is up in the move method
+		//since this entity is discarded upon reaching it's owner, the actual parry collision behavior is up in the move method
 	}
 	
 	@Override
