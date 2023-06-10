@@ -193,13 +193,37 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		ci.cancel();
 	}
 	
-	@ModifyVariable(method = "travel", ordinal = 0, at = @At(value = "STORE"))
+	@ModifyVariable(method = "travel", ordinal = 0, at = @At("STORE"))
 	private double modifyGravity(double value)
 	{
 		if(!(this instanceof WingedPlayerEntity winged && winged.isWingsActive()) || ((PlayerEntity)winged).getAbilities().flying || touchingWater)
 			return value;
 		int val = (world.isClient ? getGravityReduction() : world.getGameRules().get(GameruleRegistry.HIVEL_SLOWFALL).get());
 		return Math.max(value * (1f - 0.1f * val), 0.01f);
+	}
+	
+	@ModifyVariable(method = "computeFallDamage", ordinal = 2, at = @At("STORE"))
+	private float modifyFalldamageReduction(float value)
+	{
+		if(!(this instanceof WingedPlayerEntity winged && winged.isWingsActive()))
+			return value;
+		return value + ((world.getGameRules().get(GameruleRegistry.HIVEL_JUMP_BOOST).get() + 1) *
+								(1f + (world.getGameRules().get(GameruleRegistry.HIVEL_SLOWFALL).get() / 2f)));
+	}
+	
+	@ModifyVariable(method = "computeFallDamage", ordinal = 1, at = @At("LOAD"), argsOnly = true)
+	private float modifyFalldamageMultiplier(float value)
+	{
+		if(!(this instanceof WingedPlayerEntity winged && winged.isWingsActive()))
+			return value;
+		return 0.5f;
+	}
+	
+	@Inject(method = "computeFallDamage", at = @At("RETURN"), cancellable = true)
+	private void onComputeFallDamage(float fallDistance, float damageMultiplier, CallbackInfoReturnable<Integer> cir)
+	{
+		if(!(this instanceof WingedPlayerEntity winged && winged.isWingsActive()) && isSprinting())
+			cir.setReturnValue(0);
 	}
 	
 	@Inject(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;shouldSwimInFluids()Z"))
