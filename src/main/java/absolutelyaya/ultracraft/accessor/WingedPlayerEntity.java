@@ -14,6 +14,10 @@ public interface WingedPlayerEntity
 	
 	void setWingAnimTime(float f);
 	
+	Vec3d[] getWingPose();
+	
+	void setWingPose(Vec3d[] pose);
+	
 	void setWingsVisible(boolean b);
 	
 	boolean isWingsActive();

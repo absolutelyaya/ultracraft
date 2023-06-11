@@ -2,14 +2,17 @@ package absolutelyaya.ultracraft.client.rendering.entity.feature;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import net.minecraft.client.model.*;
+import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.entity.model.AnimalModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
+import java.util.function.Function;
 
 // Made with Blockbench 4.6.4
 // Exported for Minecraft version 1.17+ for Yarn
@@ -38,12 +41,9 @@ public class WingsModel<T extends LivingEntity> extends AnimalModel<T>
 	private final Vec3d[] RestPose = new Vec3d[] {new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f)};
 	private final Vec3d[] SlidePose = new Vec3d[] {new Vec3d(0.0f + 70, -27.5f, 0.0f - 12), new Vec3d(18.63f, -50.02f + 20, -23.75f + 22.5), new Vec3d(0.0f + 70, -25.0f, 0.0f - 18), new Vec3d(0.0f,  -40.0f + 10, 0.0f - 5), new Vec3d(0.0f + 70, -17.5f, 0.0f - 24), new Vec3d(-7.85f, -31.63f + 7.5, 14.72f - 10), new Vec3d(0.0f + 70, -10.0f, 0.0f - 32), new Vec3d(-15.0f, -32.0f + 5, 26.82f - 15)};
 	
-	private final Vec3d[] CurrentPose = new Vec3d[] {new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f)};
-	
-	private byte state;
-	
-	public WingsModel(ModelPart root)
+	public WingsModel(ModelPart root, Function<Identifier, RenderLayer> renderLayerFactory)
 	{
+		super(renderLayerFactory, true, 16.0F, 0.0F, 2.0F, 2.0F, 24.0F);
 		this.Root = root.getChild("Root");
 		LeftWing1Root = Root.getChild("LeftWing1Root");
 		LeftWing1 = LeftWing1Root.getChild("LeftWing1");
@@ -61,8 +61,6 @@ public class WingsModel<T extends LivingEntity> extends AnimalModel<T>
 		LeftWing4 = LeftWing4Root.getChild("LeftWing4");
 		RightWing4Root = Root.getChild("RightWing4Root");
 		RightWing4 = RightWing4Root.getChild("RightWing4");
-		
-		System.arraycopy(DashPose, 0, CurrentPose, 0, 8);
 	}
 	
 	public static TexturedModelData getTexturedModelData()
@@ -143,7 +141,7 @@ public class WingsModel<T extends LivingEntity> extends AnimalModel<T>
 	
 	public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch, WingedPlayerEntity winged)
 	{
-		state = winged.getWingState();
+		winged.getWingState();
 		setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
 	}
 	
@@ -168,31 +166,35 @@ public class WingsModel<T extends LivingEntity> extends AnimalModel<T>
 	@Override
 	public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch)
 	{
-		Vec3d[] desiredPose = getPoseFromIndex(state);
-		
-		for (int i = 0; i < 8; i++)
+		Vec3d[] curPose = getPoseFromIndex((byte)0);
+		if(entity instanceof WingedPlayerEntity winged)
 		{
-			CurrentPose[i] = CurrentPose[i].lerp(desiredPose[i], 1f / 60f / getAnimLength(state));
+			Vec3d[] lastPose = winged.getWingPose();
+			Vec3d[] desiredPose = getPoseFromIndex(winged.getWingState());
+			
+			for (int i = 0; i < 8; i++)
+				curPose[i] = lastPose[i].lerp(desiredPose[i], 1f / 60f / getAnimLength(winged.getWingState()));
+			winged.setWingPose(curPose);
 		}
 		
 		//Left
-		LeftWing1Root.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[0].x, MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[0].y, MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[0].z);
-		LeftWing1.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[1].x, MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[1].y, MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[1].z);
-		LeftWing2Root.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[2].x, MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[2].y, MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[2].z);
-		LeftWing2.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[3].x, MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[3].y, MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[3].z);
-		LeftWing3Root.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[4].x, MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[4].y, MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[4].z);
-		LeftWing3.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[5].x, MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[5].y, MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[5].z);
-		LeftWing4Root.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[6].x, MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[6].y, MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[6].z);
-		LeftWing4.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[7].x, MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[7].y, MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[7].z);
+		LeftWing1Root.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)curPose[0].x, MathHelper.RADIANS_PER_DEGREE * (float)curPose[0].y, MathHelper.RADIANS_PER_DEGREE * (float)curPose[0].z);
+		LeftWing1.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)curPose[1].x, MathHelper.RADIANS_PER_DEGREE * (float)curPose[1].y, MathHelper.RADIANS_PER_DEGREE * (float)curPose[1].z);
+		LeftWing2Root.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)curPose[2].x, MathHelper.RADIANS_PER_DEGREE * (float)curPose[2].y, MathHelper.RADIANS_PER_DEGREE * (float)curPose[2].z);
+		LeftWing2.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)curPose[3].x, MathHelper.RADIANS_PER_DEGREE * (float)curPose[3].y, MathHelper.RADIANS_PER_DEGREE * (float)curPose[3].z);
+		LeftWing3Root.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)curPose[4].x, MathHelper.RADIANS_PER_DEGREE * (float)curPose[4].y, MathHelper.RADIANS_PER_DEGREE * (float)curPose[4].z);
+		LeftWing3.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)curPose[5].x, MathHelper.RADIANS_PER_DEGREE * (float)curPose[5].y, MathHelper.RADIANS_PER_DEGREE * (float)curPose[5].z);
+		LeftWing4Root.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)curPose[6].x, MathHelper.RADIANS_PER_DEGREE * (float)curPose[6].y, MathHelper.RADIANS_PER_DEGREE * (float)curPose[6].z);
+		LeftWing4.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)curPose[7].x, MathHelper.RADIANS_PER_DEGREE * (float)curPose[7].y, MathHelper.RADIANS_PER_DEGREE * (float)curPose[7].z);
 		//Right (left but mirrored)
-		RightWing1Root.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[0].x, MathHelper.RADIANS_PER_DEGREE * (float)-CurrentPose[0].y, MathHelper.RADIANS_PER_DEGREE * (float)-CurrentPose[0].z);
-		RightWing1.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[1].x, MathHelper.RADIANS_PER_DEGREE * (float)-CurrentPose[1].y, MathHelper.RADIANS_PER_DEGREE * (float)-CurrentPose[1].z);
-		RightWing2Root.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[2].x, MathHelper.RADIANS_PER_DEGREE * (float)-CurrentPose[2].y, MathHelper.RADIANS_PER_DEGREE * (float)-CurrentPose[2].z);
-		RightWing2.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[3].x, MathHelper.RADIANS_PER_DEGREE * (float)-CurrentPose[3].y, MathHelper.RADIANS_PER_DEGREE * (float)-CurrentPose[3].z);
-		RightWing3Root.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[4].x, MathHelper.RADIANS_PER_DEGREE * (float)-CurrentPose[4].y, MathHelper.RADIANS_PER_DEGREE * (float)-CurrentPose[4].z);
-		RightWing3.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[5].x, MathHelper.RADIANS_PER_DEGREE * (float)-CurrentPose[5].y, MathHelper.RADIANS_PER_DEGREE * (float)-CurrentPose[5].z);
-		RightWing4Root.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[6].x, MathHelper.RADIANS_PER_DEGREE * (float)-CurrentPose[6].y, MathHelper.RADIANS_PER_DEGREE * (float)-CurrentPose[6].z);
-		RightWing4.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)CurrentPose[7].x, MathHelper.RADIANS_PER_DEGREE * (float)-CurrentPose[7].y, MathHelper.RADIANS_PER_DEGREE * (float)-CurrentPose[7].z);
+		RightWing1Root.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)curPose[0].x, MathHelper.RADIANS_PER_DEGREE * (float)-curPose[0].y, MathHelper.RADIANS_PER_DEGREE * (float)-curPose[0].z);
+		RightWing1.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)curPose[1].x, MathHelper.RADIANS_PER_DEGREE * (float)-curPose[1].y, MathHelper.RADIANS_PER_DEGREE * (float)-curPose[1].z);
+		RightWing2Root.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)curPose[2].x, MathHelper.RADIANS_PER_DEGREE * (float)-curPose[2].y, MathHelper.RADIANS_PER_DEGREE * (float)-curPose[2].z);
+		RightWing2.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)curPose[3].x, MathHelper.RADIANS_PER_DEGREE * (float)-curPose[3].y, MathHelper.RADIANS_PER_DEGREE * (float)-curPose[3].z);
+		RightWing3Root.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)curPose[4].x, MathHelper.RADIANS_PER_DEGREE * (float)-curPose[4].y, MathHelper.RADIANS_PER_DEGREE * (float)-curPose[4].z);
+		RightWing3.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)curPose[5].x, MathHelper.RADIANS_PER_DEGREE * (float)-curPose[5].y, MathHelper.RADIANS_PER_DEGREE * (float)-curPose[5].z);
+		RightWing4Root.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)curPose[6].x, MathHelper.RADIANS_PER_DEGREE * (float)-curPose[6].y, MathHelper.RADIANS_PER_DEGREE * (float)-curPose[6].z);
+		RightWing4.setAngles(MathHelper.RADIANS_PER_DEGREE * (float)curPose[7].x, MathHelper.RADIANS_PER_DEGREE * (float)-curPose[7].y, MathHelper.RADIANS_PER_DEGREE * (float)-curPose[7].z);
 	}
 	
 	@Override

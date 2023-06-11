@@ -193,15 +193,12 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		ci.cancel();
 	}
 	
-	@ModifyVariable(method = "travel", name = "f", at = @At(value = "STORE"))
+	@ModifyConstant(method = "travel", constant = @Constant(floatValue = 0.91f))
 	float modifyDrag(float val)
 	{
 		if(!(this instanceof WingedPlayerEntity winged && winged.isWingsActive()) || ((PlayerEntity)winged).getAbilities().flying || !winged.shouldIgnoreSlowdown())
 			return val;
-		if(val == 0.91f)
-			return 0.925f;
-		else
-			return val;
+		return 0.925f;
 	}
 	
 	@ModifyVariable(method = "travel", ordinal = 0, at = @At("STORE"))

@@ -139,18 +139,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					setSprinting(false);
 				ci.cancel();
 			}
-			//slide velocity
-			if(isSprinting())
-			{
-				if(isSprinting() != lastSprinting)
-					sendSprintingPacket();
-				setVelocity(slideDir.multiply(1f + 0.2 * UltracraftClient.speed).multiply(slideVelocity / 1.5f).add(0f, getVelocity().y, 0f));
-				ci.cancel();
-			}
 			//cancel strong groundpound if key is let go during it
 			if(strongGroundPound && !client.options.sprintKey.isPressed())
 				strongGroundPound = false;
-				//stop sliding once conditions aren't met anymore
+			//stop sliding once conditions aren't met anymore
 			else if(isSprinting())
 			{
 				if(jumping && (!isUnSolid(posToBlock(getPos().subtract(0f, 0.1f, 0f))) || coyote > 0))
@@ -159,11 +151,19 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					addVelocity(0, baseJumpVel, 0);
 					setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
 				}
-				boolean moved = new Vec3d(lastX, lastBaseY, lastZ).distanceTo(getPos()) > slideVelocity / 2f || Ultracraft.isTimeFrozen();
+				boolean moved = new Vec3d(lastX, lastBaseY, lastZ).distanceTo(getPos()) > slideVelocity / 2f || Ultracraft.isTimeFrozen() || slideTicks < 1;
 				setSprinting(client.options.sprintKey.isPressed() && !groundPounding && moved && !jumping);
 				slideTicks++;
 				if(isUnSolid(posToBlock(getPos().subtract(0f, 0.25f, 0f))))
 					slideTicks = 0;
+				ci.cancel();
+			}
+			//slide velocity
+			if(isSprinting())
+			{
+				if(isSprinting() != lastSprinting)
+					sendSprintingPacket();
+				setVelocity(slideDir.multiply(1f + 0.2 * UltracraftClient.speed).multiply(slideVelocity / 1.5f).add(0f, getVelocity().y, 0f));
 				ci.cancel();
 			}
 			//skim on liquids

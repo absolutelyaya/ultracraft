@@ -57,6 +57,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	GunCooldownManager gunCDM;
 	Multimap<EntityAttribute, EntityAttributeModifier> curSpeedMod;
 	
+	private final Vec3d[] curWingPose = new Vec3d[] {new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f)};
+	
 	protected PlayerEntityMixin(EntityType<? extends LivingEntity> entityType, World world)
 	{
 		super(entityType, world);
@@ -136,9 +138,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Override
 	public void setWingState(byte state)
 	{
-		lastState = wingState;
-		wingState = state;
-		setWingAnimTime(0);
+		if(wingState != state)
+		{
+			setWingAnimTime(0);
+			lastState = wingState;
+			wingState = state;
+		}
 	}
 	
 	@Override
@@ -151,6 +156,32 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		else if ((wingState == 0 && isOnGround()) || (wingState == 2 && !isSprinting()))
 			setWingState((byte)1);
 		return wingState;
+	}
+	
+	@Override
+	public float getWingAnimTime()
+	{
+		return wingAnimTime;
+	}
+	
+	@Override
+	public void setWingAnimTime(float f)
+	{
+		wingAnimTime = f;
+	}
+	
+	@Override
+	public Vec3d[] getWingPose()
+	{
+		Vec3d[] pose = new Vec3d[8];
+		System.arraycopy(curWingPose, 0, pose, 0, 8);
+		return pose;
+	}
+	
+	@Override
+	public void setWingPose(Vec3d[] pose)
+	{
+		System.arraycopy(pose, 0, curWingPose, 0, 8);
 	}
 	
 	@Override
@@ -194,18 +225,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public int getDashingTicks()
 	{
 		return dashingTicks;
-	}
-	
-	@Override
-	public float getWingAnimTime()
-	{
-		return wingAnimTime;
-	}
-	
-	@Override
-	public void setWingAnimTime(float f)
-	{
-		wingAnimTime = f;
 	}
 	
 	@Override

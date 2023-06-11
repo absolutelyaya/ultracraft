@@ -25,7 +25,7 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 	public WingsFeature(FeatureRendererContext<T, M> context,  EntityModelLoader loader)
 	{
 		super(context);
-		wings = new WingsModel<>(loader.getModelPart(UltracraftClient.WINGS_LAYER));
+		wings = new WingsModel<>(loader.getModelPart(UltracraftClient.WINGS_LAYER), RenderLayer::getEntityCutoutNoCull);
 	}
 	
 	@Override
@@ -34,8 +34,7 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 		WingedPlayerEntity winged = ((WingedPlayerEntity)entity);
 		if(winged.isWingsActive())
 		{
-			getContextModel().copyStateTo(this.wings);
-			wings.copyStateTo(this.wings);
+			matrices.push();
 			wings.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, winged);
 			VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE), false, false);
 			if(entity.isSneaking())
@@ -49,6 +48,7 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 				matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-45f));
 			}
 			wings.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
+			matrices.pop();
 		}
 	}
 }

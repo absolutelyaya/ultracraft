@@ -18,7 +18,7 @@ public class MovingWindSoundInstance extends MovingPlayerSoundInstance
 	@Override
 	public void tick()
 	{
-		if(owner.isRemoved() || !UltracraftClient.getConfigHolder().get().movementSounds)
+		if(owner == null || owner.isRemoved() || !UltracraftClient.getConfigHolder().get().movementSounds)
 			setDone();
 		WingedPlayerEntity winged = (WingedPlayerEntity)owner;
 		if(!winged.isWingsActive())
