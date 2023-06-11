@@ -191,19 +191,23 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				ci.cancel();
 			}
 			//high jump after ground pound
-			if(slamJumpTimer > -1 && slamJumpTimer < 4 && jumping && !lastJumping)
+			if(jumping && !lastJumping)
 			{
-				slamJumpTimer = -1;
-				if(client.options.sprintKey.isPressed() && !strongGroundPound) //Dive / Ultradive
+				if(slamJumpTimer > -1 && slamJumpTimer < 4)
 				{
-					setIgnoreSlowdown(true);
-					setVelocity(Vec3d.fromPolar(0, getYaw()).multiply(slamStored ? 4f : 1.5f).add(0, getJumpVelocity(), 0));
+					slamJumpTimer = -1;
+					if(client.options.sprintKey.isPressed() && !strongGroundPound) //Dive / Ultradive
+					{
+						setIgnoreSlowdown(true);
+						setVelocity(Vec3d.fromPolar(0, getYaw()).multiply(slamStored ? 4f : 1.5f).add(0, getJumpVelocity(), 0));
+					}
+					else
+						setVelocity(0, groundPoundTicks / 20f + getJumpVelocity() * 1.5f + (slamStored ? 3f : 0f), 0);
+					slamStored = false;
+					groundPoundTicks = 0;
+					ci.cancel();
 				}
-				else
-					setVelocity(0, groundPoundTicks / 20f + getJumpVelocity() * 1.5f + (slamStored ? 3f : 0f), 0);
 				slamStored = false;
-				groundPoundTicks = 0;
-				ci.cancel();
 			}
 			//start dash
 			if(isSneaking() && !lastSneaking)
@@ -249,6 +253,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				if(!isUnSolid(posToBlock(getPos().subtract(0f, 0.1f, 0f))))
 					coyote = 4;
 				wallJumps = 3;
+				if(groundPounding)
+					groundPounding = false;
 			}
 			if((!onGround || isUnSolid(posToBlock(getPos().subtract(0f, 0.1f, 0f)))) && coyote > 0)
 				coyote--;
