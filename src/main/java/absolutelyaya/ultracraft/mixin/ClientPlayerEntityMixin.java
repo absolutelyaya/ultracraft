@@ -19,6 +19,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -332,6 +333,9 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			lastSprintPressed = client.options.sprintKey.isPressed() && !isDashing() && !wasDashing(2);
 			lastJumping = jumping;
 			lastOnGround = onGround;
+			if(lastSneaking != isSneaking())
+				networkHandler.sendPacket(new ClientCommandC2SPacket(this,
+						isSneaking() ? ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY : ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY));
 			lastSneaking = isSneaking();
 		}
 		else
