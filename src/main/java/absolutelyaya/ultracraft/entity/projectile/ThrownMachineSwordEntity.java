@@ -170,7 +170,8 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 				}
 				if(getOwner() instanceof PlayerEntity p && tryPickup(p))
 				{
-					p.giveItemStack(dataTracker.get(SWORD));
+					if(!p.giveItemStack(dataTracker.get(SWORD)))
+						dropStack(asItemStack());
 					if(isParried())
 						p.damage(DamageSources.get(world, DamageSources.PARRY, parrier), 12);
 				}

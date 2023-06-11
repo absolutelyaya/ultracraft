@@ -61,6 +61,8 @@ public class MachineSwordItem extends SwordItem implements GeoItem
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
 	{
 		ItemStack itemStack = user.getStackInHand(hand);
+		if(hand.equals(Hand.OFF_HAND))
+			return TypedActionResult.pass(itemStack);
 		user.setCurrentHand(hand);
 		return TypedActionResult.consume(itemStack);
 	}
