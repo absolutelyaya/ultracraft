@@ -54,7 +54,10 @@ import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.particle.WaterBubbleParticle;
 import net.minecraft.client.particle.WaterSplashParticle;
+import net.minecraft.client.gl.GlUniform;
+import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
@@ -76,6 +79,7 @@ public class UltracraftClient implements ClientModInitializer
 	public static final EntityModelLayer ENRAGE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "enraged"), "main");
 	public static final EntityModelLayer SHOCKWAVE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "shockwave"), "main");
 	public static final EntityModelLayer INTERRUPTABLE_CHARGE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "interruptable_charge"), "main");
+	private static ShaderProgram wingsColoredProgram;
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	public static TrailRenderer TRAIL_RENDERER;
 	public static boolean REPLACE_MENU_MUSIC = true, applyEntityPoses;
@@ -226,6 +230,13 @@ public class UltracraftClient implements ClientModInitializer
 			}
 		});
 		
+		CoreShaderRegistrationCallback.EVENT.register((callback) -> {
+			callback.register(new Identifier(Ultracraft.MOD_ID, "rendertype_wings_colored"), VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL,
+					(program) -> {
+				wingsColoredProgram = program;
+			});
+		});
+		
 		ClientPacketRegistry.registerS2C();
 		GeckoLibNetwork.registerClientReceiverPackets();
 		
@@ -369,5 +380,10 @@ public class UltracraftClient implements ClientModInitializer
 			case 10 -> gravityReduction = value;
 			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncI] -> " + data);
 		}
+	}
+	
+	public static ShaderProgram getWingsColoredShaderProgram()
+	{
+		return wingsColoredProgram;
 	}
 }
