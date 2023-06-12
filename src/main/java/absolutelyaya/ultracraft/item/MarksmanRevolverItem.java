@@ -60,8 +60,8 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 			Vec3d pos = user.getEyePos().add(user.getRotationVector());
 			coin.setPos(pos.x, pos.y, pos.z);
 			coin.setVelocity(user, user.getPitch(), user.getYaw(), 0.0F, 0.5f, 0f);
-			coin.addVelocity(0f, 0.5f, 0f);
-			coin.addVelocity(user.getVelocity());
+			coin.setVelocity(coin.getVelocity().x, 0.5f, coin.getVelocity().z);
+			coin.addVelocity(user.getVelocity().multiply(1f, 0.25f, 1f));
 			world.spawnEntity(coin);
 		}
 		return TypedActionResult.pass(itemStack);
@@ -87,7 +87,7 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 			{
 				stack.getNbt().putInt("coins", coins + 1);
 				cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
-				player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.75f);
+				//player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.75f);
 			}
 		}
 	}

@@ -31,7 +31,7 @@ public class ThrownCoinRenderer extends EntityRenderer<ThrownCoinEntity>
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		RenderSystem.setShader(GameRenderer::getPositionTexProgram);
 		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(getTexture(entity)));
-		matrices.translate(0f, 0.25f, 0f);
+		matrices.translate(0f, 0.125f, 0f);
 		matrices.multiply(MinecraftClient.getInstance().gameRenderer.getCamera().getRotation().rotateY((float)Math.toRadians(180)));
 		Matrix4f matrix = matrices.peek().getPositionMatrix();
 		Matrix3f normalMatrix = matrices.peek().getNormalMatrix();
