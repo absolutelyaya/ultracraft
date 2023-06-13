@@ -9,7 +9,6 @@ import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
@@ -60,7 +59,7 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 			Vec3d pos = user.getEyePos().add(user.getRotationVector());
 			coin.setPos(pos.x, pos.y, pos.z);
 			coin.setVelocity(user, user.getPitch(), user.getYaw(), 0.0F, 0.5f, 0f);
-			coin.setVelocity(coin.getVelocity().x, 0.5f, coin.getVelocity().z);
+			coin.addVelocity(0f, 0.3f, 0f);
 			coin.addVelocity(user.getVelocity().multiply(1f, 0.25f, 1f));
 			world.spawnEntity(coin);
 		}

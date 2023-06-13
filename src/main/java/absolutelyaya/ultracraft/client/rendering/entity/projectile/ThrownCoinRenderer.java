@@ -28,7 +28,7 @@ public class ThrownCoinRenderer extends EntityRenderer<ThrownCoinEntity>
 	{
 		matrices.push();
 		RenderSystem.setShaderTexture(0, getTexture(entity));
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		RenderSystem.setShaderColor(1f, entity.isDeadCoined() ? 0f : 1f, entity.isDeadCoined() ? 0f : 1f, 1f);
 		RenderSystem.setShader(GameRenderer::getPositionTexProgram);
 		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(getTexture(entity)));
 		matrices.translate(0f, 0.125f, 0f);
@@ -43,7 +43,7 @@ public class ThrownCoinRenderer extends EntityRenderer<ThrownCoinEntity>
 				.overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normalMatrix, 0f, 1f, 0f).next();
 		consumer.vertex(matrix, -0.1f, 0.1f, 0f).color(255, 255, 255, 255).texture(0f, 1f)
 				.overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normalMatrix, 0f, 1f, 0f).next();
-		if(entity.getVelocity().length() > 0f)
+		if(entity.getVelocity().length() > 0f && entity.isSplittable())
 		{
 			matrices.push();
 			consumer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(FLASH_TEXTURE));

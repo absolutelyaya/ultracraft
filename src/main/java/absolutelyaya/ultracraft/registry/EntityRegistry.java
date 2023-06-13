@@ -62,8 +62,8 @@ public class EntityRegistry
 					.maxTrackingRange(4).trackingTickInterval(20).disableSummon().build("thrown_machinesword"));
 	public static final EntityType<ThrownCoinEntity> THROWN_COIN = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "thrown_coin"),
-			EntityType.Builder.create(ThrownCoinEntity::new, SpawnGroup.MISC).setDimensions(0.3f, 0.3f)
-					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("ejected_core"));
+			EntityType.Builder.create(ThrownCoinEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
+					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("thrown_coin"));
 	
 	public static final EntityType<ShockwaveEntity> SHOCKWAVE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "shockwave"),

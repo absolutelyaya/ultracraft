@@ -11,6 +11,7 @@
     "ultracraft:parry_collateral",
     "ultracraft:interrupt",
     "ultracraft:projectile_boost",
-    "ultracraft:ricochet"
+    "ultracraft:ricochet",
+    "ultracraft:coin_punch"
   ]
 }

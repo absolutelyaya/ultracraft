@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft;
 
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -24,12 +25,21 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ServerHitscanHandler
 {
+	public static final byte NORMAL = 0;
+	public static final byte REVOLVER_PIERCE = 1;
+	public static final byte RAILGUN_ELEC = 2;
+	public static final byte RAILGUN_DRILL = 3;
+	public static final byte RAILGUN_MALICIOUS = 4;
+	public static final byte MALICIOUS = 5;
+	public static final byte RICOCHET = 6;
+	
 	public static void sendPacket(ServerWorld world, Vec3d from, Vec3d to, byte type)
 	{
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
@@ -104,7 +114,6 @@ public class ServerHitscanHandler
 			BlockState state = world.getBlockState(bHit.getBlockPos());
 			if(state.getBlock() instanceof BellBlock bell)
 				bell.ring(world, state, bHit, p, false);
-			
 		}
 		sendPacket((ServerWorld)user.world, origin.add(
 				new Vec3d(-0.5f * (user instanceof PlayerEntity player && player.getMainArm().equals(Arm.LEFT) ? -1 : 1), -0.2f, 0.4f)

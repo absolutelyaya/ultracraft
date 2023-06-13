@@ -7,6 +7,7 @@ import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -126,14 +127,14 @@ public class PacketRegistry
 					return;
 				if(!((ProjectileEntityAccessor)p).isParriable())
 					return;
-				if(player.equals(p.getOwner()))
+				if(player.equals(p.getOwner()) && p.age < 4)
 				{
 					if(((ProjectileEntityAccessor)p).isBoostable())
 						Ultracraft.freeze((ServerWorld) player.world, 5); //ProjBoost freezes are shorter
 					else
 						return;
 				}
-				else
+				else if(!(p instanceof ThrownCoinEntity))
 					Ultracraft.freeze((ServerWorld) player.world, 10);
 				world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
 				ProjectileEntityAccessor pa = (ProjectileEntityAccessor)p;
