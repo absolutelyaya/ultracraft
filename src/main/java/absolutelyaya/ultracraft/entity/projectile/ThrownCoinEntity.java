@@ -183,7 +183,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			}
 			if (closestCoin != null && isUnused())
 			{
-				ServerHitscanHandler.sendPacket((ServerWorld) world, getPos(), closestCoin.getPos(), (byte) 6);
+				ServerHitscanHandler.sendPacket((ServerWorld) world, getPos(), closestCoin.getPos(), ServerHitscanHandler.RICOCHET);
 				closestCoin.damage(DamageSources.get(world, DamageSources.RICOCHET, attacker), isDamageRicochet ? amount + 1 : 1);
 			}
 		}

@@ -30,11 +30,12 @@ public class ThrownCoinRenderer extends EntityRenderer<ThrownCoinEntity>
 		RenderSystem.setShaderTexture(0, getTexture(entity));
 		RenderSystem.setShaderColor(1f, entity.isDeadCoined() ? 0f : 1f, entity.isDeadCoined() ? 0f : 1f, 1f);
 		RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(getTexture(entity)));
+		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(getTexture(entity)));
 		matrices.translate(0f, 0.125f, 0f);
-		matrices.multiply(MinecraftClient.getInstance().gameRenderer.getCamera().getRotation().rotateY((float)Math.toRadians(180)));
-		Matrix4f matrix = matrices.peek().getPositionMatrix();
-		Matrix3f normalMatrix = matrices.peek().getNormalMatrix();
+		Quaternionf camRot = new Quaternionf(MinecraftClient.getInstance().gameRenderer.getCamera().getRotation());
+		matrices.multiply(camRot.rotateY((float)Math.toRadians(180)));
+		Matrix4f matrix = new Matrix4f(matrices.peek().getPositionMatrix());
+		Matrix3f normalMatrix = new Matrix3f(matrices.peek().getNormalMatrix());
 		consumer.vertex(matrix, -0.1f, -0.1f, 0f).color(255, 255, 255, 255).texture(0f, 0f)
 				.overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normalMatrix, 0f, 1f, 0f).next();
 		consumer.vertex(matrix, 0.1f, -0.1f, 0f).color(255, 255, 255, 255).texture(1f, 0f)
@@ -46,7 +47,7 @@ public class ThrownCoinRenderer extends EntityRenderer<ThrownCoinEntity>
 		if(entity.getVelocity().length() > 0f && entity.isSplittable())
 		{
 			matrices.push();
-			consumer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(FLASH_TEXTURE));
+			consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(FLASH_TEXTURE));
 			float scale = (float)Math.max(1f - Math.abs(entity.getVelocity().y * 6.5f), 0f) * 2f;
 			matrices.scale(scale, scale, scale);
 			matrices.multiply(new Quaternionf(new AxisAngle4f((entity.age + tickDelta) * entity.getFlashRotSpeed(), 0f, 0f, 1f)));
@@ -62,9 +63,8 @@ public class ThrownCoinRenderer extends EntityRenderer<ThrownCoinEntity>
 			matrices.pop();
 		}
 		matrices.pop();
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 	}
-	
-	//TODO: figure out and fix rendering issues making things like particles flicker when many coins are present
 	
 	@Override
 	public Identifier getTexture(ThrownCoinEntity entity)
