@@ -153,7 +153,7 @@ public class PacketRegistry
 						punchable.onPunch(player, target, mainHand);
 					if(state.getBlock() instanceof BellBlock bell)
 						bell.ring(player, player.world, target, player.getHorizontalFacing().getOpposite());
-					if(state.isIn(TagRegistry.PUNCH_BREAKABLE))
+					if(state.isIn(TagRegistry.PUNCH_BREAKABLE) && player.canModifyAt(world, target))
 						player.world.breakBlock(target, true, player);
 				}
 			});

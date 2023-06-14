@@ -97,7 +97,7 @@ public class ServerHitscanHandler
 		}
 		entities.forEach(e -> e.damage(DamageSources.get(world, DamageSources.GUN, user), damage));
 		if(explosion != null)
-			ExplosionHandler.explosion(null, world, new Vec3d(modifiedTo.x, modifiedTo.y, modifiedTo.z), world.getDamageSources().explosion(null, user),
+			ExplosionHandler.explosion(null, world, new Vec3d(modifiedTo.x, modifiedTo.y, modifiedTo.z), world.getDamageSources().explosion(user, user),
 					explosion.damage, explosion.falloff, explosion.radius, explosion.breakBlocks);
 		if(entities.size() == 0 && user instanceof PlayerEntity p)
 		{
