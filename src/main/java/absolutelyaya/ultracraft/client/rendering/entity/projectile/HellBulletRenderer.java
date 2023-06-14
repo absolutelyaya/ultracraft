@@ -16,6 +16,9 @@ public class HellBulletRenderer extends FlyingItemEntityRenderer<HellBulletEntit
 	@Override
 	public void render(HellBulletEntity entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light)
 	{
+		matrices.push();
+		matrices.translate(0f, 0.1f, 0f);
 		super.render(entity, yaw, tickDelta, matrices, vertexConsumers, 15728880);
+		matrices.pop();
 	}
 }
