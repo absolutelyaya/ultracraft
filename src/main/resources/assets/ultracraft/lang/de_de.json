@@ -49,7 +49,7 @@
   "entity.ultracraft.shotgun_pellet": "Shotgun Pellet",
   "entity.ultracraft.ejected_core": "Ausgeworfener Kern",
 
-  "death.attack.shockwave": "%1$s wurde von %2$ss Schockwelle zerquetscht",
+  "death.attack.shockwave": "%s wurde von einer Schockwelle zerquetscht",
   "death.attack.shockwave.item": "%1$s wurde von %2$ss Schockwelle zerquetscht",
   "death.attack.maurice": "%1$s wurde Mauriced",
   "death.attack.maurice.player": "%1$s wurde während einer Ablenkung von %2$s Mauriced",
@@ -119,6 +119,7 @@
 
   "text.autoconfig.ultracraft.category.default": "Ultracraft",
   "text.autoconfig.ultracraft.category.blood": "Goop / Blut",
+  "text.autoconfig.ultracraft.category.ultra-hud": "UltraHUD",
   "text.autoconfig.ultracraft.category.debug": "Debug",
 
   "text.autoconfig.ultracraft.option.fancyGoop": "Hübsches Goop",
