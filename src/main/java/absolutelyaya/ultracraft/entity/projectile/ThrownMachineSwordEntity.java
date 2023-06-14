@@ -165,7 +165,7 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 					if(isParried())
 					{
 						sm.onInterrupt(parrier);
-						sm.damage(DamageSources.get(world, DamageSources.PARRY, parrier), 12);
+						sm.damage(DamageSources.get(world, DamageSources.PARRY, parrier), 30);
 					}
 				}
 				if(getOwner() instanceof PlayerEntity p && tryPickup(p))

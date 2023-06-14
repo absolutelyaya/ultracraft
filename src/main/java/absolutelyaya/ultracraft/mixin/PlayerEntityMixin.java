@@ -53,7 +53,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	boolean wingsActive, groundPounding, ignoreSlowdown;
 	byte wingState, lastState;
 	float wingAnimTime;
-	int dashingTicks = -2, stamina, wingHintDisplayTicks;
+	int dashingTicks = -2, slamDamageCooldown, stamina, wingHintDisplayTicks;
 	GunCooldownManager gunCDM;
 	Multimap<EntityAttribute, EntityAttributeModifier> curSpeedMod;
 	
@@ -304,13 +304,13 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	}
 	
 	@Override
-	public void startGroundPound()
+	public void startSlam()
 	{
 		groundPounding = true;
 	}
 	
 	@Override
-	public void endGroundPound(boolean strong)
+	public void endSlam(boolean strong)
 	{
 		groundPounding = false;
 		if(!onGround)
@@ -318,7 +318,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		world.playSound(null, getBlockPos(), SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.PLAYERS,
 				strong ? 1f : 0.75f, strong ? 0.75f : 1.25f);
 		world.getOtherEntities(this, getBoundingBox().expand(0f, 1f, 0f).offset(0f, -0.5f, 0f)).forEach(e ->
-				e.damage(DamageSources.get(world, DamageSources.POUND, this), 6));
+				e.damage(DamageSources.get(world, DamageSources.POUND, this), slamDamageCooldown > 0 ? 1 : 6));
+		slamDamageCooldown = 30;
 		if(!strong)
 			return;
 		world.getOtherEntities(this, getBoundingBox().expand(3f, 0.5f, 3f)).forEach(e -> {
@@ -341,6 +342,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			wingHintDisplayTicks--;
 		if(dashingTicks > -60)
 			dashingTicks--;
+		if(slamDamageCooldown > 0)
+			slamDamageCooldown--;
 	}
 	
 	@Inject(method = "tickMovement", at = @At("TAIL"))

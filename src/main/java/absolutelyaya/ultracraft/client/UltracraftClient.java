@@ -242,8 +242,9 @@ public class UltracraftClient implements ClientModInitializer
 			PlayerEntity player = MinecraftClient.getInstance().player;
 			if(player == null)
 				return;
-			player.world.getEntitiesByType(EntityRegistry.FILTH, player.getBoundingBox().expand(128.0), entity -> true)
-					.forEach(FilthEntity::throwback);
+			if(message.equals("Press alt to throw it back"))
+				player.world.getEntitiesByType(EntityRegistry.FILTH, player.getBoundingBox().expand(128.0), entity -> true)
+						.forEach(FilthEntity::throwback);
 		});
 		FluidRenderHandlerRegistry.INSTANCE.register(FluidRegistry.STILL_BLOOD, FluidRegistry.Flowing_BLOOD,
 				new SimpleFluidRenderHandler(new Identifier(Ultracraft.MOD_ID, "block/blood_still"), new Identifier(Ultracraft.MOD_ID, "block/blood_flow")));

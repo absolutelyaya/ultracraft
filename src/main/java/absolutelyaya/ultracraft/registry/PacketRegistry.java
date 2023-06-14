@@ -204,9 +204,9 @@ public class PacketRegistry
 			server.execute(() -> {
 				WingedPlayerEntity winged = (WingedPlayerEntity)player;
 				if(start)
-					winged.startGroundPound();
+					winged.startSlam();
 				else
-					winged.endGroundPound(strong);
+					winged.endSlam(strong);
 				if(start)
 					return;
 				PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());

@@ -45,9 +45,9 @@ public interface WingedPlayerEntity
 	@NotNull
 	GunCooldownManager getGunCooldownManager();
 	
-	void startGroundPound();
+	void startSlam();
 	
-	void endGroundPound(boolean strong);
+	void endSlam(boolean strong);
 	
 	boolean isGroundPounding();
 	
