@@ -41,6 +41,7 @@ public class PacketRegistry
 	public static final Identifier DASH_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_c2s");
 	public static final Identifier GROUND_POUND_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ground_pound_c2s");
 	public static final Identifier REQUEST_HIVEL_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "request_hivel");
+	public static final Identifier SKIM_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "skim_c2s");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
@@ -53,8 +54,9 @@ public class PacketRegistry
 	public static final Identifier ENTITY_TRAIL = new Identifier(Ultracraft.MOD_ID, "entity_trail");
 	public static final Identifier GROUND_POUND_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ground_pound_s2c");
 	public static final Identifier EXPLOSION_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "explosion");
-	public static final Identifier PRIMARY_SHOT_PACKET_ID_S2C = new Identifier(Ultracraft.MOD_ID, "primary_shot_s2c");
+	public static final Identifier PRIMARY_SHOT_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "primary_shot_s2c");
 	public static final Identifier DEBUG = new Identifier(Ultracraft.MOD_ID, "debug");
+	public static final Identifier SKIM_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "skim_s2c");
 	
 	public static void registerC2S()
 	{
@@ -167,7 +169,7 @@ public class PacketRegistry
 					{
 						PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
 						cbuf.writeUuid(player.getUuid());
-						ServerPlayNetworking.send(p, PRIMARY_SHOT_PACKET_ID_S2C, cbuf);
+						ServerPlayNetworking.send(p, PRIMARY_SHOT_S2C_PACKET_ID, cbuf);
 					}
 				}
 				else
@@ -226,6 +228,21 @@ public class PacketRegistry
 			buf.writeUuid(targetID);
 			buf.writeBoolean(((WingedPlayerEntity)target).isWingsActive());
 			ServerPlayNetworking.send(player, SET_HIGH_VELOCITY_S2C_PACKET_ID, buf);
+		});
+		ServerPlayNetworking.registerGlobalReceiver(SKIM_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
+			if(player == null)
+				return;
+			Vec3d pos = new Vec3d(buf.readVector3f());
+			PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
+			cbuf.writeVector3f(pos.toVector3f());
+			player.world.getPlayers().forEach(p -> {
+				if(player.squaredDistanceTo(p) < 32f * 32f)
+					ServerPlayNetworking.send((ServerPlayerEntity)p, SKIM_S2C_PACKET_ID, cbuf);
+			});
+			server.execute(() -> {
+				player.playSound(SoundEvents.ENTITY_SALMON_FLOP, SoundCategory.PLAYERS, 1f, 0.8f + player.getRandom().nextFloat() * 0.4f);
+				player.world.addParticle(ParticleRegistry.RIPPLE, pos.x, pos.y, pos.z, 0, 0, 0);
+			});
 		});
 	}
 	

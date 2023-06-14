@@ -176,7 +176,7 @@ public class ClientPacketRegistry
 						pos, radius);
 			});
 		})));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.PRIMARY_SHOT_PACKET_ID_S2C, ((client, handler, buf, sender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.PRIMARY_SHOT_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)
 				return;
 			PlayerEntity player = client.player.world.getPlayerByUuid(buf.readUuid());
@@ -195,6 +195,12 @@ public class ClientPacketRegistry
 			MinecraftClient.getInstance().execute(() -> {
 				client.player.world.addParticle(ParticleTypes.FLAME, pos.x, pos.y, pos.z, 0f, 0f, 0f);;
 			});
+		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SKIM_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
+			Vec3d pos = new Vec3d(buf.readVector3f());
+			MinecraftClient.getInstance().execute(() -> client.player.world.addParticle(ParticleRegistry.RIPPLE, pos.x, pos.y, pos.z, 0, 0, 0));
 		}));
 	}
 }

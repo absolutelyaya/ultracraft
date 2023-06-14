@@ -30,6 +30,8 @@ public class ParticleRegistry
 			new Identifier(Ultracraft.MOD_ID, "blood_splash"), FabricParticleTypes.simple());
 	public static final DefaultParticleType BLOOD_BUBBLE = Registry.register(Registries.PARTICLE_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "blood_bubble"), FabricParticleTypes.simple());
+	public static final DefaultParticleType RIPPLE = Registry.register(Registries.PARTICLE_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "ripple"), FabricParticleTypes.simple());
 	//complex
 	public static final ParticleType<ParryIndicatorParticleEffect> PARRY_INDICATOR = Registry.register(Registries.PARTICLE_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "parry_indicator"), FabricParticleTypes.complex(new ParryIndicatorParticleEffect.Factory()));

@@ -178,7 +178,9 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			{
 				Vec3d vel = getVelocity();
 				setVelocity(new Vec3d(vel.x, Math.max(baseJumpVel / 2f, vel.y * -0.75), vel.z));
-				playSound(SoundEvents.ENTITY_SALMON_FLOP, SoundCategory.PLAYERS, 1f, 0.8f + random.nextFloat() * 0.4f);
+				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+				buf.writeVector3f(getPos().toVector3f());
+				ClientPlayNetworking.send(PacketRegistry.SKIM_C2S_PACKET_ID, buf);
 			}
 			//ground pound velocity
 			if(slamming)
