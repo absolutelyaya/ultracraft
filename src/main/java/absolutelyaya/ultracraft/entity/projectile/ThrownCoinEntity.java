@@ -1,15 +1,18 @@
 package absolutelyaya.ultracraft.entity.projectile;
 
+import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
+import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -35,10 +38,11 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 {
 	protected static final TrackedData<Boolean> STOPPED = DataTracker.registerData(ThrownCoinEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> DEADCOINED = DataTracker.registerData(ThrownCoinEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Boolean> CHARGEBACK = DataTracker.registerData(ThrownCoinEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Integer> STOPPED_TICKS = DataTracker.registerData(ThrownCoinEntity.class, TrackedDataHandlerRegistry.INTEGER);
-	Entity lastTarget;
+	Entity lastTarget, chargebackCauser;
 	final float flashRotSpeed;
-	byte hitTicks;
+	byte hitTicks, hitscanType = ServerHitscanHandler.RICOCHET;
 	int damage = 0, nextHitDelay = 5, realAge;
 	boolean punched;
 	
@@ -88,6 +92,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		super.initDataTracker();
 		dataTracker.startTracking(STOPPED, false);
 		dataTracker.startTracking(DEADCOINED, false);
+		dataTracker.startTracking(CHARGEBACK, false);
 		dataTracker.startTracking(STOPPED_TICKS, 0);
 	}
 	
@@ -131,6 +136,14 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			return false;
 		if(!(source.getAttacker() instanceof LivingEntity attacker))
 			return false;
+		if(attacker instanceof MaliciousFaceEntity)
+		{
+			damage = (int)Math.ceil(amount);
+			dataTracker.set(CHARGEBACK, true);
+			chargebackCauser = attacker;
+			hitscanType = ServerHitscanHandler.MALICIOUS;
+			return hitNext(source, amount, attacker);
+		}
 		if(realAge <= 2) //deadcoin period
 		{
 			if(source.isOf(DamageSources.RICOCHET))
@@ -183,21 +196,28 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			}
 			if (closestCoin != null && isUnused())
 			{
-				ServerHitscanHandler.sendPacket((ServerWorld) world, getPos(), closestCoin.getPos(), ServerHitscanHandler.RICOCHET);
+				ServerHitscanHandler.sendPacket((ServerWorld) world, getPos(), closestCoin.getPos(), hitscanType);
 				closestCoin.damage(DamageSources.get(world, DamageSources.RICOCHET, attacker), isDamageRicochet ? amount + 1 : 1);
+				closestCoin.dataTracker.set(CHARGEBACK, dataTracker.get(CHARGEBACK));
 			}
 		}
 		else
 		{
-			List<Entity> potentialTargets = world.getOtherEntities(attacker, getBoundingBox().expand(32f),
-					e -> !e.equals(this) && e.isAlive() && !e.isTeammate(attacker) && (e instanceof LivingEntity));
+			List<Entity> potentialTargets;
+			if(dataTracker.get(CHARGEBACK))
+				potentialTargets = world.getOtherEntities(getOwner(), getBoundingBox().expand(32f),
+						e -> !e.equals(this) && e.isAlive() && !e.isTeammate(getOwner()) && (e instanceof LivingEntity));
+			else
+				potentialTargets = world.getOtherEntities(attacker, getBoundingBox().expand(32f),
+						e -> !e.equals(this) && e.isAlive() && !e.isTeammate(attacker) && (e instanceof LivingEntity));
 			if (potentialTargets.size() > 0)
 			{
 				if (hitTicks == 0)
 				{
 					nextHitDelay = 5;
 					hitTicks = 1;
-					setOwner(attacker);
+					if(!dataTracker.get(CHARGEBACK))
+						setOwner(attacker);
 					return false;
 				}
 				
@@ -214,16 +234,24 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 				}
 				if (closest != null)
 				{
-					ServerHitscanHandler.sendPacket((ServerWorld) world, getPos(), closest.getEyePos(), (byte) 6);
+					if(dataTracker.get(CHARGEBACK))
+					{
+						ServerHitscanHandler.sendPacket((ServerWorld) world, getPos(), closest.getEyePos(), hitscanType);
+						closest.damage(DamageSources.get(world, DamageSources.CHARGEBACK, chargebackCauser), chargebackCauser == closest ? Float.MAX_VALUE : damage);
+						ExplosionHandler.explosion(getOwner(), world, closest.getPos(),
+								DamageSources.get(world, DamageTypes.EXPLOSION), 10, 0f, 5.5f, true);
+						Ultracraft.freeze((ServerWorld)world, 5);
+						return true;
+					}
+					ServerHitscanHandler.sendPacket((ServerWorld) world, getPos(), closest.getEyePos(), hitscanType);
 					closest.damage(DamageSources.get(world, DamageSources.RICOCHET, attacker), isDamageRicochet ? 5 * amount : 5);
 					Ultracraft.freeze((ServerWorld)world, 3);
 					//world.getPlayers().forEach(p -> p.sendMessage(Text.of("CHAIN END! final damage: " + (isDamageRicochet ? 5 * amount : 5))));
 				}
-			} else
-			{
-				ServerHitscanHandler.sendPacket((ServerWorld) world, getPos(),
-						getPos().add(Vec3d.fromPolar(random.nextFloat() * 360, random.nextFloat() * 360 - 180).multiply(64)), (byte) 6);
 			}
+			else
+				ServerHitscanHandler.sendPacket((ServerWorld) world, getPos(),
+						getPos().add(Vec3d.fromPolar(random.nextFloat() * 360, random.nextFloat() * 360 - 180).multiply(64)), hitscanType);
 		}
 		return true;
 	}
@@ -259,8 +287,6 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	@Override
 	public void setParried(boolean val, PlayerEntity parrier)
 	{
-		if(realAge <= 2)
-			return;
 		if(world.isClient)
 		{
 			world.sendEntityStatus(this, (byte) 3);
@@ -372,6 +398,6 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	
 	public boolean isSplittable()
 	{
-		return !punched && Math.max(1f - Math.abs(getVelocity().y * 6.5f), 0f) > 0.3f || realAge > 80;
+		return !punched && !dataTracker.get(CHARGEBACK) && (Math.max(1f - Math.abs(getVelocity().y * 6.5f), 0f) > 0.3f || realAge > 80);
 	}
 }

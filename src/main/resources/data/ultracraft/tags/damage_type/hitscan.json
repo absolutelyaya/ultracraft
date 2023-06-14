@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "ultracraft:gun",
-    "ultracraft:ricochet"
+    "ultracraft:ricochet",
+    "ultracraft:coin_punch",
+    "ultracraft:chargeback"
   ]
 }

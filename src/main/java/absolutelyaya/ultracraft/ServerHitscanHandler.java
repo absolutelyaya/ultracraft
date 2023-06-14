@@ -25,10 +25,10 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ServerHitscanHandler
 {
@@ -106,7 +106,13 @@ public class ServerHitscanHandler
 			}
 		}
 		entities.forEach(e -> e.damage(DamageSources.get(world, DamageSources.GUN, user), damage));
-		if(explosion != null)
+		AtomicBoolean disableExplosion = new AtomicBoolean(false);
+		entities.forEach(e -> {
+			e.damage(DamageSources.get(world, DamageSources.GUN, user), damage);
+			if(e instanceof ThrownCoinEntity)
+				disableExplosion.set(true);
+		});
+		if(explosion != null && bHit != null && !bHit.getType().equals(HitResult.Type.MISS) && !disableExplosion.get())
 			ExplosionHandler.explosion(null, world, new Vec3d(modifiedTo.x, modifiedTo.y, modifiedTo.z), world.getDamageSources().explosion(user, user),
 					explosion.damage, explosion.falloff, explosion.radius, explosion.breakBlocks);
 		if(entities.size() == 0 && user instanceof PlayerEntity p)

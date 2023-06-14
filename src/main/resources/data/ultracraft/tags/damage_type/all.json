@@ -12,6 +12,7 @@
     "ultracraft:interrupt",
     "ultracraft:projectile_boost",
     "ultracraft:ricochet",
-    "ultracraft:coin_punch"
+    "ultracraft:coin_punch",
+    "ultracraft:chargeback"
   ]
 }
