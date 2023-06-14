@@ -136,6 +136,8 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	@Inject(method = "getJumpVelocity", at = @At("RETURN"), cancellable = true)
 	void onGetJumpVel(CallbackInfoReturnable<Float> cir)
 	{
+		
+		
 		if(this instanceof WingedPlayerEntity winged && winged.isWingsActive())
 		{
 			if(!world.isClient)

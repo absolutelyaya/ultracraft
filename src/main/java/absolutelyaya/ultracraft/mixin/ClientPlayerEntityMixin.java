@@ -75,7 +75,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	Vec3d dashDir = Vec3d.ZERO;
 	Vec3d slideDir = Vec3d.ZERO;
 	boolean slamming, lastSlamming, strongGroundPound, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored, slideStartedSideways;
-	int slamTicks, slamCooldown, slamJumpTimer = -1, slideTicks, wallJumps = 3, coyote;
+	int slamTicks, slamCooldown, slamJumpTimer = -1, slideTicks, wallJumps = 3, coyote, disableJumpTicks;
 	float slideVelocity;
 	final float baseJumpVel = 0.42f;
 	
@@ -193,6 +193,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					slamJumpTimer = 0;
 					slamCooldown = 5;
 				}
+				if(jumping && lastJumping)
+					disableJumpTicks = 8;
 				ci.cancel();
 			}
 			//high jump after ground pound
@@ -303,7 +305,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				addVelocity(0f, getJumpVelocity(), 0f);
 				if(slamming && UltracraftClient.isSlamStorageEnabled())
 					slamStored = true;
-				wallJumps--;
+				if(!isCreative())
+					wallJumps--;
 				setIgnoreSlowdown(false);
 				ci.cancel();
 			}
@@ -352,6 +355,14 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				cancelGroundPound();
 		}
 		wasHiVel = UltracraftClient.isHiVelEnabled();
+	}
+	
+	@Inject(method = "tickNewAi", at = @At("RETURN"))
+	void onTickAI(CallbackInfo ci)
+	{
+		jumping = jumping && disableJumpTicks == 0;
+		if(disableJumpTicks > 0)
+			disableJumpTicks--;
 	}
 	
 	Vec3d unhorizontalize(Vec3d in)
