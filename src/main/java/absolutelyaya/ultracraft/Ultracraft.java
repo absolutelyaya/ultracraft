@@ -33,7 +33,7 @@ public class Ultracraft implements ModInitializer
         BlockEntityRegistry.register();
         ItemRegistry.register();
         PacketRegistry.registerC2S();
-        BlockTagRegistry.register();
+        TagRegistry.register();
         SoundRegistry.register();
         GameruleRegistry.register();
         RecipeSerializers.register();

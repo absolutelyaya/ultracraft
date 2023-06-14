@@ -3,7 +3,7 @@ package absolutelyaya.ultracraft.mixin;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
-import absolutelyaya.ultracraft.registry.BlockTagRegistry;
+import absolutelyaya.ultracraft.registry.TagRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
@@ -173,7 +173,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			//skim on liquids
 			BlockPos belowPos = posToBlock(getPos().subtract(0f, 0.1f, 0f));
 			FluidState fluidBelow = world.getBlockState(belowPos).getFluidState();
-			if(isSprinting() && !fluidBelow.getFluid().equals(Fluids.EMPTY) && !fluidBelow.isIn(BlockTagRegistry.UNSKIMMABLE_FLUIDS)
+			if(isSprinting() && !fluidBelow.getFluid().equals(Fluids.EMPTY) && !fluidBelow.isIn(TagRegistry.UNSKIMMABLE_FLUIDS)
 					   && world.getFluidState(belowPos.up()).getFluid().equals(Fluids.EMPTY))
 			{
 				Vec3d vel = getVelocity();

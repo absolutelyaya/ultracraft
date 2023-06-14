@@ -57,7 +57,7 @@ public class KeybindRegistry
 			while(PUNCH.wasPressed() && !punchPressed)
 			{
 				ClientPlayerEntity player = client.player;
-				if(player == null || !((LivingEntityAccessor)player).punch())
+				if(player == null || !((LivingEntityAccessor)player).punch() || player.isSpectator())
 					continue;
 				
 				HitResult crosshairTarget = client.crosshairTarget;
@@ -70,7 +70,7 @@ public class KeybindRegistry
 					{
 						BlockHitResult hit = ((BlockHitResult)crosshairTarget);
 						BlockState state = player.world.getBlockState(hit.getBlockPos());
-						if(state.getBlock() instanceof IPunchableBlock || state.isIn(BlockTagRegistry.FRAGILE) || state.getBlock() instanceof BellBlock)
+						if(state.getBlock() instanceof IPunchableBlock || state.isIn(TagRegistry.FRAGILE) || state.getBlock() instanceof BellBlock)
 						{
 							PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 							buf.writeBlockPos(hit.getBlockPos());

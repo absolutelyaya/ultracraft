@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.item.*;
+import absolutelyaya.ultracraft.item.SkullItem;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -12,10 +13,10 @@ import net.minecraft.util.Identifier;
 
 public class ItemRegistry
 {
-	public static final Item BLUE_SKULL = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "blue_skull"), new Item(new FabricItemSettings()));
-	public static final Item RED_SKULL = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "red_skull"), new Item(new FabricItemSettings()));
+	public static final SkullItem BLUE_SKULL = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "blue_skull"), new SkullItem(new FabricItemSettings()));
+	public static final SkullItem RED_SKULL = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "red_skull"), new SkullItem(new FabricItemSettings()));
 	public static final Item HELL_BULLET = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "hell_bullet"), new HellBulletItem(new FabricItemSettings().fireproof().maxCount(25)));
 	public static final Item CERBERUS_BALL = Registry.register(Registries.ITEM,

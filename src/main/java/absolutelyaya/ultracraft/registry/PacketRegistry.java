@@ -95,7 +95,7 @@ public class PacketRegistry
 				//Punch Entity
 				if(target != null)
 				{
-					if(!player.getOffHandStack().isEmpty())
+					if(player.getOffHandStack().isIn(TagRegistry.PUNCH_FLAMES))
 						target.setFireTicks(100);
 					if (target instanceof MeleeInterruptable mp && (!(mp instanceof MobEntity) || ((MobEntity)mp).isAttacking()))
 					{
@@ -151,7 +151,7 @@ public class PacketRegistry
 						punchable.onPunch(player, target, mainHand);
 					if(state.getBlock() instanceof BellBlock bell)
 						bell.ring(player, player.world, target, player.getHorizontalFacing().getOpposite());
-					if(state.isIn(BlockTagRegistry.PUNCH_BREAKABLE))
+					if(state.isIn(TagRegistry.PUNCH_BREAKABLE))
 						player.world.breakBlock(target, true, player);
 				}
 			});

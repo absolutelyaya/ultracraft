@@ -2,7 +2,7 @@ package absolutelyaya.ultracraft;
 
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
-import absolutelyaya.ultracraft.registry.BlockTagRegistry;
+import absolutelyaya.ultracraft.registry.TagRegistry;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
@@ -101,7 +101,7 @@ public class ExplosionHandler
 						BlockPos pos1 = new BlockPos(center.getX() + x, center.getY() + y, center.getZ() + z);
 						//explosions with 0 damage can only break fragile blocks, as they don't actually count as explosions
 						//and are used for misc block breaking like the piercer revolvers alt fire
-						if(world.getBlockState(pos1).isIn(damage > 0f ? BlockTagRegistry.EXPLOSION_BREAKABLE : BlockTagRegistry.FRAGILE))
+						if(world.getBlockState(pos1).isIn(damage > 0f ? TagRegistry.EXPLOSION_BREAKABLE : TagRegistry.FRAGILE))
 							world.breakBlock(pos1, true, exploder);
 					}
 				}
