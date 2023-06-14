@@ -36,15 +36,15 @@ public class ThrownCoinRenderer extends EntityRenderer<ThrownCoinEntity>
 		Matrix4f matrix = new Matrix4f(matrices.peek().getPositionMatrix());
 		Matrix3f normalMatrix = new Matrix3f(matrices.peek().getNormalMatrix());
 		int c = entity.isDeadCoined() ? 0 : 255;
-		consumer.vertex(matrix, -0.1f, -0.1f, 0f).color(255, c, c, 255).texture(0f, 0f)
+		consumer.vertex(matrix, -0.1f, -0.1f, 0f).color(255, c, c, 255).texture(0f, 1f)
 				.overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normalMatrix, 0f, 1f, 0f).next();
-		consumer.vertex(matrix, 0.1f, -0.1f, 0f).color(255, c, c, 255).texture(1f, 0f)
+		consumer.vertex(matrix, 0.1f, -0.1f, 0f).color(255, c, c, 255).texture(1f, 1f)
 				.overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normalMatrix, 0f, 1f, 0f).next();
-		consumer.vertex(matrix, 0.1f, 0.1f, 0f).color(255, c, c, 255).texture(1f, 1f)
+		consumer.vertex(matrix, 0.1f, 0.1f, 0f).color(255, c, c, 255).texture(1f, 0f)
 				.overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normalMatrix, 0f, 1f, 0f).next();
-		consumer.vertex(matrix, -0.1f, 0.1f, 0f).color(255, c, c, 255).texture(0f, 1f)
+		consumer.vertex(matrix, -0.1f, 0.1f, 0f).color(255, c, c, 255).texture(0f, 0f)
 				.overlay(OverlayTexture.DEFAULT_UV).light(15728880).normal(normalMatrix, 0f, 1f, 0f).next();
-		if(entity.getVelocity().length() > 0f && entity.isSplittable())
+		if((entity.getVelocity().length() > 0f && entity.isSplittable()) || !entity.isUnused())
 		{
 			matrices.push();
 			consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(FLASH_TEXTURE));

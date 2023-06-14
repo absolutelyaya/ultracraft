@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.entity.projectile;
 import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
@@ -39,12 +40,12 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	protected static final TrackedData<Boolean> STOPPED = DataTracker.registerData(ThrownCoinEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> DEADCOINED = DataTracker.registerData(ThrownCoinEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> CHARGEBACK = DataTracker.registerData(ThrownCoinEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Boolean> PUNCHED = DataTracker.registerData(ThrownCoinEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Integer> STOPPED_TICKS = DataTracker.registerData(ThrownCoinEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	Entity lastTarget, chargebackCauser;
 	final float flashRotSpeed;
 	byte hitTicks, hitscanType = ServerHitscanHandler.RICOCHET;
-	int damage = 0, nextHitDelay = 5, realAge;
-	boolean punched;
+	int damage = 1, nextHitDelay = 5, realAge;
 	
 	public ThrownCoinEntity(EntityType<? extends ThrownItemEntity> entityType, World world)
 	{
@@ -93,6 +94,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		dataTracker.startTracking(STOPPED, false);
 		dataTracker.startTracking(DEADCOINED, false);
 		dataTracker.startTracking(CHARGEBACK, false);
+		dataTracker.startTracking(PUNCHED, false);
 		dataTracker.startTracking(STOPPED_TICKS, 0);
 	}
 	
@@ -122,7 +124,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		super.onCollision(hitResult);
 		if (!world.isClient)
 		{
-			if(damage > 0 && !isDeadCoined() && !punched)
+			if(damage > 0 && !isDeadCoined() && !dataTracker.get(PUNCHED))
 				hitNext(DamageSources.get(world, DamageSources.RICOCHET, getOwner()), damage, (LivingEntity)getOwner());
 			world.sendEntityStatus(this, (byte)3);
 			discard();
@@ -206,10 +208,10 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			List<Entity> potentialTargets;
 			if(dataTracker.get(CHARGEBACK))
 				potentialTargets = world.getOtherEntities(getOwner(), getBoundingBox().expand(32f),
-						e -> !e.equals(this) && e.isAlive() && !e.isTeammate(getOwner()) && (e instanceof LivingEntity));
+						e -> !e.equals(this) && (e instanceof LivingEntity) && ((LivingEntityAccessor)e).isRicochetHittable() && !e.isTeammate(getOwner()));
 			else
 				potentialTargets = world.getOtherEntities(attacker, getBoundingBox().expand(32f),
-						e -> !e.equals(this) && e.isAlive() && !e.isTeammate(attacker) && (e instanceof LivingEntity));
+						e -> !e.equals(this) && (e instanceof LivingEntity) && ((LivingEntityAccessor)e).isRicochetHittable() && !e.isTeammate(attacker));
 			if (potentialTargets.size() > 0)
 			{
 				if (hitTicks == 0)
@@ -334,7 +336,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			coin = ThrownCoinEntity.spawn(parrier, world, to.add(normal), damage);
 		}
 		if(coin != null)
-			coin.punched = true;
+			coin.dataTracker.set(PUNCHED, true);
 		world.sendEntityStatus(this, (byte) 3);
 		kill();
 	}
@@ -398,6 +400,6 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	
 	public boolean isSplittable()
 	{
-		return !punched && !dataTracker.get(CHARGEBACK) && (Math.max(1f - Math.abs(getVelocity().y * 6.5f), 0f) > 0.3f || realAge > 80);
+		return !dataTracker.get(PUNCHED) && !dataTracker.get(CHARGEBACK) && (Math.max(1f - Math.abs(getVelocity().y * 6.5f), 0f) > 0.3f || realAge > 80);
 	}
 }
