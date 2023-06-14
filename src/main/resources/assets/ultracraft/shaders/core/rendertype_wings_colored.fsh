@@ -4,6 +4,9 @@
 
 uniform sampler2D Sampler0;
 uniform float GameTime;
+uniform vec3 WingColor;
+uniform vec3 MetalColor;
+uniform int Pattern;
 
 uniform vec4 ColorModulator;
 uniform float FogStart;
@@ -28,18 +31,9 @@ vec3 hsv2rgb(vec3 c){
     return c.z*mix(K.xxx,saturate(abs(fract(c.x+K.xyz)*6.-K.w)-K.x),c.y);
 }
 
-vec3 rgb2hsv_2(vec3 c){
-    vec4 K=vec4(0.,-1./3.,2./3.,-1.),
-    p=mix(vec4(c.bg ,K.wz),vec4(c.gb,K.xy ),step(c.b,c.g)),
-    q=mix(vec4(p.xyw,c.r ),vec4(c.r ,p.yzx),step(p.x,c.r));
-    float d=q.x-min(q.w,q.y),
-    e=1e-10;
-    return vec3(abs(q.z+(q.w-q.y)/(6.*d+e)),d/(q.x+e),q.x);
-}
-
 vec3 getRed(float brightness)
 {
-    vec3 colA = vec3(64, 39, 100);
+    vec3 colA = WingColor;
     float step = brightness * 4;
     if(step >= 3)
         return colA;
@@ -53,7 +47,7 @@ vec3 getRed(float brightness)
 
 vec3 getBlue(float brightness)
 {
-    vec3 colB = vec3(223, 54, 100);
+    vec3 colB = MetalColor;
     float step = brightness * 4;
     if(step >= 3)
         return colB;
@@ -71,14 +65,13 @@ void main() {
     if (color.a < 0.1) {
         discard;
     }
-    int pattern = 1;
     float time;
-    if(pattern == 0)
+    if(Pattern == 1)
     {
         time = mod(abs(GameTime * 600) + (round((texCoord0.g + 1f / 64f) * 32f)) / 32f + (round((texCoord0.r + 1f / 64f) * 32f)) / 32f, 1f);
         color.rgb = mix(colorIn.rrr / 4, hsv2rgb(vec3(time, 1f, 1f)), colorIn.r > 0.5f);
     }
-    else if(pattern == 1)
+    else if(Pattern == 2)
     {
         time = sin(abs(GameTime * 600) + (round((texCoord0.g + 1f / 64f) * 32f)) / 32f + (round((texCoord0.r + 1f / 64f) * 32f)) / 32f * (sin(GameTime * 1800)) * 3) / 2f + 0.5f;
         color.rgb = mix(vec3(0f, 0f, 0f), mix(vec3(0.105f, 0.027f, 0.086f), hsv2rgb(getRed(0.5f) / vec3(360f, 100f, 100f))/*vec3(0.105f, 0.494f, 0.956f)*/, pow(time + (mod(round(texCoord0.g * 32f + 0.5f), 2) == 0 ? 0f : 0.5f), 4)), colorIn.r > 0f);

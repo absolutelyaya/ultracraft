@@ -233,6 +233,10 @@ public class UltracraftClient implements ClientModInitializer
 		CoreShaderRegistrationCallback.EVENT.register((callback) -> {
 			callback.register(new Identifier(Ultracraft.MOD_ID, "rendertype_wings_colored"), VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL,
 					(program) -> {
+				program.getUniform("MetalColor");
+				program.getUniform("WingColor");
+				program.getUniform("Pattern");
+				program.markUniformsDirty();
 				wingsColoredProgram = program;
 			});
 		});

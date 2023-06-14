@@ -4,6 +4,8 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.RenderLayers;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -15,6 +17,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
+import org.joml.Vector3f;
 
 public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>> extends FeatureRenderer<T, M>
 {
@@ -34,6 +37,11 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 		WingedPlayerEntity winged = ((WingedPlayerEntity)entity);
 		if(winged.isWingsActive())
 		{
+			ShaderProgram wingShader = UltracraftClient.getWingsColoredShaderProgram();
+			wingShader.getUniform("WingColor").set(new Vector3f(/*64f*/ (entity.age * 2) % 360, 39f, 100f));
+			wingShader.getUniform("MetalColor").set(new Vector3f(223f, 54f, 100f));
+			wingShader.getUniform("Pattern").set(1);
+			RenderSystem.setShader(UltracraftClient::getWingsColoredShaderProgram);
 			matrices.push();
 			wings.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, winged);
 			VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayers.getWingsColored(TEXTURE_CLR));
