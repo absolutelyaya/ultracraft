@@ -106,6 +106,8 @@
   "intro.ultracraft.calibration-complete": "  §aCALIBRATION COMPLETE§r",
   "intro.ultracraft.status": "STATUS UPDATE\n\nMACHINE ID:                %s\nLOCATION:                  MINECRAFT\nCURRENT OBJECTIVE:     FIND A WEAPON\n§4MANKIND IS DEAD.§r\n§4BLOOD IS FUEL.§r\n§4HELL IS FULL.§r",
 
+  "screen.ultracraft.wing-settings.title": "High Velocity Wings",
+
   "category.ultracraft": "Ultracraft",
   "key.ultracraft.hivel_toggle": "Toggle High Velocity Mode",
   "key.ultracraft.punch": "Punch",

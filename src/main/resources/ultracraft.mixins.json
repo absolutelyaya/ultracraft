@@ -25,6 +25,7 @@
     "LivingEntityRendererMixin",
     "MinecraftClientMixin",
     "OtherClientPlayerMixin",
+    "SkinOptionsScreenMixin",
     "TitleScreenMixin"
   ],
   "injectors": {

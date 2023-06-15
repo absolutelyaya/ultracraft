@@ -54,7 +54,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.particle.WaterBubbleParticle;
 import net.minecraft.client.particle.WaterSplashParticle;
-import net.minecraft.client.gl.GlUniform;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexFormats;
@@ -79,7 +78,7 @@ public class UltracraftClient implements ClientModInitializer
 	public static final EntityModelLayer ENRAGE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "enraged"), "main");
 	public static final EntityModelLayer SHOCKWAVE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "shockwave"), "main");
 	public static final EntityModelLayer INTERRUPTABLE_CHARGE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "interruptable_charge"), "main");
-	private static ShaderProgram wingsColoredProgram;
+	private static ShaderProgram wingsColoredProgram, texPosFade;
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	public static TrailRenderer TRAIL_RENDERER;
 	public static boolean REPLACE_MENU_MUSIC = true, applyEntityPoses;
@@ -231,13 +230,17 @@ public class UltracraftClient implements ClientModInitializer
 		});
 		
 		CoreShaderRegistrationCallback.EVENT.register((callback) -> {
-			callback.register(new Identifier(Ultracraft.MOD_ID, "rendertype_wings_colored"), VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL,
-					(program) -> {
+			callback.register(new Identifier(Ultracraft.MOD_ID, "rendertype_wings_colored"), VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, (program) -> {
 				program.getUniform("MetalColor");
 				program.getUniform("WingColor");
 				program.getUniform("Pattern");
 				program.markUniformsDirty();
 				wingsColoredProgram = program;
+			});
+			callback.register(new Identifier(Ultracraft.MOD_ID, "position_tex_fade"), VertexFormats.POSITION_TEXTURE_COLOR, (program) -> {
+				program.getUniform("TextureSize");
+				program.markUniformsDirty();
+				texPosFade = program;
 			});
 		});
 		
@@ -389,5 +392,10 @@ public class UltracraftClient implements ClientModInitializer
 	public static ShaderProgram getWingsColoredShaderProgram()
 	{
 		return wingsColoredProgram;
+	}
+	
+	public static ShaderProgram getTexPosFadeProgram()
+	{
+		return texPosFade;
 	}
 }
