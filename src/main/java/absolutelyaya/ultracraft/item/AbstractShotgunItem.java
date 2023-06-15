@@ -10,6 +10,7 @@ import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
+import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -55,9 +56,9 @@ public abstract class AbstractShotgunItem extends AbstractWeaponItem implements 
 				}
 				parry = true;
 			}
-			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), "shot");
+			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), getShotAnimationName());
 			cdm.setCooldown(this, 35, GunCooldownManager.PRIMARY);
-			for (int i = 0; i < 12; i++)
+			for (int i = 0; i < getPelletCount(user.getMainHandStack()); i++)
 			{
 				//guarantees that the first bullet goes straight and only that one is actually boostable (if this isn't a shotgun parry)
 				ShotgunPelletEntity bullet = ShotgunPelletEntity.spawn(user, world, i == 0 && !parry);
@@ -94,5 +95,15 @@ public abstract class AbstractShotgunItem extends AbstractWeaponItem implements 
 			world.addParticle(new ParryIndicatorParticleEffect(false), pos.x, pos.y, pos.z, 0f, 0f, 0f);
 		}
 		return true;
+	}
+	
+	public String getShotAnimationName()
+	{
+		return "shot";
+	}
+	
+	public int getPelletCount(ItemStack stack)
+	{
+		return 0;
 	}
 }

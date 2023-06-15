@@ -43,6 +43,8 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "marksman_revolver"), new MarksmanRevolverItem(new FabricItemSettings().maxCount(1)));
 	public static final CoreEjectShotgunItem CORE_SHOTGUN = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "core_shotgun"), new CoreEjectShotgunItem(new FabricItemSettings().maxCount(1)));
+	public static final PumpShotgunItem PUMP_SHOTGUN = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "pump_shotgun"), new PumpShotgunItem(new FabricItemSettings().maxCount(1)));
 	public static final MachineSwordItem MACHINE_SWORD = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "machinesword"), new MachineSwordItem(ToolMaterials.IRON, 4, -1.8f,
 					new FabricItemSettings().maxCount(1)));
@@ -85,6 +87,7 @@ public class ItemRegistry
 			content.add(PIERCE_REVOLVER);
 			content.add(MARKSMAN_REVOLVER);
 			content.add(CORE_SHOTGUN);
+			content.add(PUMP_SHOTGUN);
 			content.add(MACHINE_SWORD);
 			content.add(FILTH_SPAWN_EGG);
 			content.add(STRAY_SPAWN_EGG);

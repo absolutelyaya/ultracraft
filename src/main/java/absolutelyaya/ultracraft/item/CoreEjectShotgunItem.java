@@ -39,7 +39,7 @@ public class CoreEjectShotgunItem extends AbstractShotgunItem
 	protected int approxUseTime = -1;
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
-	final RawAnimation AnimationShot = RawAnimation.begin().thenPlay("shot");
+	final RawAnimation AnimationShot = RawAnimation.begin().thenPlay("shot_core");
 	final RawAnimation AnimationAltShot = RawAnimation.begin().thenPlay("altShot");
 	
 	public CoreEjectShotgunItem(Settings settings)
@@ -129,7 +129,7 @@ public class CoreEjectShotgunItem extends AbstractShotgunItem
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
 	{
 		controllerRegistrar.add(new AnimationController<>(this, getControllerName(), 1, state -> PlayState.STOP)
-										.triggerableAnim("shot", AnimationShot)
+										.triggerableAnim("shot_core", AnimationShot)
 										.triggerableAnim("altShot", AnimationAltShot));
 	}
 	
@@ -164,5 +164,17 @@ public class CoreEjectShotgunItem extends AbstractShotgunItem
 	public Supplier<Object> getRenderProvider()
 	{
 		return renderProvider;
+	}
+	
+	@Override
+	public String getShotAnimationName()
+	{
+		return "shot_core";
+	}
+	
+	@Override
+	public int getPelletCount(ItemStack stack)
+	{
+		return 12;
 	}
 }

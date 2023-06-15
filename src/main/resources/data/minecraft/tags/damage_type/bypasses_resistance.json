@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "ultracraft:maurice",
-    "ultracraft:interrupt"
+    "ultracraft:interrupt",
+    "ultracraft:overcharge_self"
   ]
 }

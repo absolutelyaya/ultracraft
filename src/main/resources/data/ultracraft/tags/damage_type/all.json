@@ -13,6 +13,8 @@
     "ultracraft:projectile_boost",
     "ultracraft:ricochet",
     "ultracraft:coin_punch",
-    "ultracraft:chargeback"
+    "ultracraft:chargeback",
+    "ultracraft:overcharge",
+    "ultracraft:overcharge_self"
   ]
 }
