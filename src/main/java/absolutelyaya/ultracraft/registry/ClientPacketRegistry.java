@@ -69,8 +69,6 @@ public class ClientPacketRegistry
 				return;
 			float amount = buf.readFloat();
 			Vec3d pos = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
-			if(client.player.getPos().squaredDistanceTo(pos) < 0.1)
-				return;
 			double halfheight = buf.readDouble();
 			boolean shotgun = buf.readBoolean();
 			boolean water = client.player.world.getFluidState(new BlockPos((int)pos.x, (int)pos.y, (int)pos.z)).isIn(FluidTags.WATER);

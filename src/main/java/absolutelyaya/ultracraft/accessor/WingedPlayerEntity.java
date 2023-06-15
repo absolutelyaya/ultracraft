@@ -58,4 +58,8 @@ public interface WingedPlayerEntity
 	Vec3d getSlideDir();
 	
 	void updateSpeedGamerule();
+	
+	void bloodHeal(float val);
+	
+	void blockBloodHeal(int ticks);
 }

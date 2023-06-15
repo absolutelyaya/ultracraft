@@ -106,12 +106,10 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			ricochetCooldown = 5; //after ricochet hit, cant ricochet to this enemy again for 3 seconds
 		if(!IsCanBleed())
 			return;
-		List<PlayerEntity> nearby = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(32), e -> true);
+		List<PlayerEntity> nearby = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(32), e -> !e.equals(this));
 		List<PlayerEntity> heal = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(2), e -> !e.equals(this));
 		for (PlayerEntity player : nearby)
 		{
-			if(((Object)this).equals(player))
-				continue;
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeFloat(amount);
 			buf.writeDouble(getPos().x);
@@ -126,10 +124,12 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		{
 			for (PlayerEntity player : heal)
 			{
-				if(healRule.equals(GameruleRegistry.RegenOption.ONLY_HIVEL) && (!(player instanceof WingedPlayerEntity winged) || !winged.isWingsActive()))
+				if(!(player instanceof WingedPlayerEntity winged))
+					continue;
+				if((healRule.equals(GameruleRegistry.RegenOption.ONLY_HIVEL) && !winged.isWingsActive()))
 					continue;
 				float healing = amount * (source.isOf(DamageSources.SHOTGUN) ? 1f : 2.5f);
-				player.heal(healing);
+				winged.bloodHeal(healing);
 				player.getHungerManager().add((int)(healing / 1.5f), 5f);
 			}
 		}
