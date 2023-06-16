@@ -1,2 +1,3 @@
 accessWidener   v2  named
 accessible method net/minecraft/client/gui/hud/InGameHud renderOverlay (Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/util/Identifier;F)V
+accessible method net/minecraft/client/render/GameRenderer loadPostProcessor (Lnet/minecraft/util/Identifier;)V

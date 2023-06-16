@@ -2,11 +2,13 @@ package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Arm;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.RaycastContext;
@@ -35,11 +37,32 @@ public abstract class CameraMixin
 	
 	@Shadow private Vec3d pos;
 	
+	@Shadow protected abstract void setRotation(float yaw, float pitch);
+	
+	@Shadow private float yaw;
+	
+	Vec3d curPos;
+	float curYaw;
+	boolean wasWingCustomizationOpen;
+	
 	@Inject(method = "update", at = @At("TAIL"))
 	void onUpdate(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci)
 	{
 		if(!(focusedEntity instanceof WingedPlayerEntity winged))
 			return;
+		
+		if(WingCustomizationScreen.MenuOpen)
+		{
+			wingCustomizationUpdate(area, focusedEntity, tickDelta);
+			return;
+		}
+		else
+		{
+			curPos = getPos();
+			curYaw = yaw;
+			wasWingCustomizationOpen = false;
+		}
+		
 		float f = UltracraftClient.getConfigHolder().get().slideCamOffset / 100f;
 		if(thirdPerson && f > 0f)
 		{
@@ -61,5 +84,25 @@ public abstract class CameraMixin
 		double y = horizontalPlane.y() * vec.x + verticalPlane.y() * vec.y + diagonalPlane.y() * vec.z;
 		double z = horizontalPlane.z() * vec.x + verticalPlane.z() * vec.y + diagonalPlane.z() * vec.z;
 		return new Vec3d(x, y, z);
+	}
+	
+	void wingCustomizationUpdate(BlockView area, Entity focusedEntity, float tickDelta)
+	{
+		Vec3d offset = rotationize(WingCustomizationScreen.Instance.getCameraOffset());
+		HitResult hitResult = area.raycast(new RaycastContext(getPos(), getPos().add(offset), RaycastContext.ShapeType.VISUAL, RaycastContext.FluidHandling.NONE, focusedEntity));
+		if(!hitResult.getType().equals(HitResult.Type.MISS))
+			offset = hitResult.getPos().subtract(getPos());
+		
+		if(!wasWingCustomizationOpen)
+		{
+			curPos = new Vec3d(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
+			curYaw = yaw + WingCustomizationScreen.Instance.getCameraRotation();
+			wasWingCustomizationOpen = true;
+		}
+		else
+		{
+			setRotation(curYaw = MathHelper.lerp(tickDelta / 10f, curYaw, yaw + WingCustomizationScreen.Instance.getCameraRotation()), 0f);
+			setPos(curPos = curPos.lerp(new Vec3d(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z), tickDelta / 10f));
+		}
 	}
 }
