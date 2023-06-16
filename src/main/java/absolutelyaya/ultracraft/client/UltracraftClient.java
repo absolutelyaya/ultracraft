@@ -51,6 +51,9 @@ import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 import net.fabricmc.fabric.api.client.rendering.v1.*;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.particle.WaterBubbleParticle;
 import net.minecraft.client.particle.WaterSplashParticle;
@@ -142,6 +145,10 @@ public class UltracraftClient implements ClientModInitializer
 		
 		HITSCAN_HANDLER = new ClientHitscanHandler();
 		TRAIL_RENDERER = new TrailRenderer();
+		
+		ResourceManagerHelper.registerBuiltinResourcePack(new Identifier("ultracraft_non_essential"),
+				FabricLoader.getInstance().getModContainer(Ultracraft.MOD_ID).orElseThrow(), Text.literal("ULTRACRAFT Non-Essential"),
+				ResourcePackActivationType.DEFAULT_ENABLED);
 		
 		ClientTickEvents.END_WORLD_TICK.register((client) -> HITSCAN_HANDLER.tick());
 		
