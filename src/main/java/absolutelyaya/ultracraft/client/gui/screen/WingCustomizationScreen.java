@@ -10,14 +10,20 @@ import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import org.joml.Matrix4f;
 
+import java.util.Random;
+
 public class WingCustomizationScreen extends Screen
 {
+	Random rand;
 	Screen parent;
+	float noise;
 	
 	public WingCustomizationScreen(Screen parent)
 	{
 		super(Text.translatable("screen.ultracraft.wing-settings.title"));
 		this.parent = parent;
+		rand = new Random();
+		noise = rand.nextFloat();
 	}
 	
 	@Override
@@ -28,6 +34,7 @@ public class WingCustomizationScreen extends Screen
 								 .dimensions(width - 160, height - 40, 150, 20).build());
 		addDrawableChild(ButtonWidget.builder(Text.of("Cycle Pose"), (button) -> client.setScreen(parent))
 								 .dimensions(width - 160, height - 65, 150, 20).build());
+		noise = rand.nextFloat();
 	}
 	
 	@Override
@@ -48,7 +55,7 @@ public class WingCustomizationScreen extends Screen
 		drawTexture(matrices, width -165, 0, 0, 0.0f, 0.0f, 165, height, 32, 32);
 		RenderSystem.setShaderColor(0.25f, 0.25f, 0.25f, 1.0f);
 		RenderSystem.setShader(UltracraftClient::getTexPosFadeProgram);
-		RenderSystem.getShader().getUniform("Tiling").set(1f, 16f);
+		RenderSystem.getShader().getUniform("Tiling").set(16f, 16f, noise);
 		drawTexture(matrices, width - 165 - 32, 0, 0, 0.0f, 0.0f, 32, height, 32, 32);
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
 	}
