@@ -42,9 +42,9 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 		height = 80;
 		this.type = type;
 		
-		red = new ChannelSlider(textRenderer, x + 2, y + 14, 108, 20, Text.of("Red"), 0.5, 0xffff0000);
-		green = new ChannelSlider(textRenderer, x + 2, y + 36, 108, 20, Text.of("Green"), 0.5, 0xff00ff00);
-		blue = new ChannelSlider(textRenderer, x + 2, y + 58, 108, 20, Text.of("Blue"), 0.5, 0xff0000ff);
+		red = new ChannelSlider(textRenderer, x + 2, y + 14, 108, 20, Text.of("Red"), 0.5, 0);
+		green = new ChannelSlider(textRenderer, x + 2, y + 36, 108, 20, Text.of("Green"), 0.5, 1);
+		blue = new ChannelSlider(textRenderer, x + 2, y + 58, 108, 20, Text.of("Blue"), 0.5, 2);
 		
 		hexField = new HexTextField(textRenderer, x + 112, y + 60, 80, 16, Text.of("HexField"));
 		hexField.setPlaceholder(Text.of("hex"));
@@ -88,6 +88,10 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 		c = (c << 8) + (int)(green.getValue() * 0xff);
 		c = (c << 8) + (int)(blue.getValue() * 0xff);
 		hexField.setText(Integer.toHexString(c));
+		
+		red.setFullColor(c);
+		green.setFullColor(c);
+		blue.setFullColor(c);
 	}
 	
 	@Override
@@ -198,12 +202,12 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 	static class ChannelSlider extends SliderWidget
 	{
 		TextRenderer textRenderer;
-		int color;
+		int colorIdx, fullColor = 0x000000;
 		
-		public ChannelSlider(TextRenderer textRenderer, int x, int y, int width, int height, Text text, double value, int color)
+		public ChannelSlider(TextRenderer textRenderer, int x, int y, int width, int height, Text text, double value, int colorIdx)
 		{
 			super(x, y, width, height, text, value);
-			this.color = color;
+			this.colorIdx = colorIdx;
 			this.textRenderer = textRenderer;
 		}
 		
@@ -225,7 +229,8 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 			super.renderButton(matrices, mouseX, mouseY, delta);
 			matrices.push();
 			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(90), 0, 0, 1)));
-			fillGradient(matrices, getY() + 1, -getX() - width + 1, getY() + height - 1, -getX() - 1, color, 0xff000000);
+			fillGradient(matrices, getY() + 1, -getX() - width + 1, getY() + height - 1, -getX() - 1,
+					getPreviewColor(true), getPreviewColor(false));
 			matrices.pop();
 			int i = (!hovered && !isFocused() ? 2 : 3) * 20;
 			RenderSystem.setShaderTexture(0, new Identifier("textures/gui/slider.png"));
@@ -234,9 +239,29 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 			drawScrollableText(matrices, textRenderer, 2, i | MathHelper.ceil(alpha * 255.0F) << 24);
 		}
 		
+		int getPreviewColor(boolean b)
+		{
+			int red = (fullColor >> 16) & 0xff;
+			int green = (fullColor >> 8 & 0xff);
+			int blue = fullColor & 0xff;
+			
+			//System.out.println(red + " | " + green + " | " + blue);
+			
+			int c = 0xff;
+			c = (c << 8) + (colorIdx == 0 && !b ? (colorIdx != 0 ? red : 0x00) : colorIdx == 0 ? 0xff : red);
+			c = (c << 8) + (colorIdx == 1 && !b ? (colorIdx != 1 ? green : 0x00) : colorIdx == 1 ? 0xff : green);
+			c = (c << 8) + (colorIdx == 2 && !b ? (colorIdx != 2 ? blue : 0x00) : colorIdx == 2 ? 0xff : blue);
+			return c;
+		}
+		
 		public double getValue()
 		{
 			return value;
+		}
+		
+		public void setFullColor(int v)
+		{
+			fullColor = v;
 		}
 	}
 	
