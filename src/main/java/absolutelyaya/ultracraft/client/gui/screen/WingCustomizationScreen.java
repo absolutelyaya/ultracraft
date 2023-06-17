@@ -1,29 +1,22 @@
 package absolutelyaya.ultracraft.client.gui.screen;
 
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.client.gui.widget.ColorSelectionWidget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.network.*;
+import net.minecraft.client.gui.widget.*;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.client.render.*;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.network.NetworkSide;
-import net.minecraft.registry.RegistryKeys;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionTypes;
 import org.joml.Matrix4f;
+import org.joml.Vector3i;
+import org.joml.Vector4i;
 
-import java.time.Duration;
 import java.util.Random;
 
 public class WingCustomizationScreen extends Screen
@@ -55,18 +48,18 @@ public class WingCustomizationScreen extends Screen
 		fovScale = client.options.getFovEffectScale().getValue();
 		if(client.player != null)
 			prevPitch = client.player.getPitch();
-		else
-		{
-			ClientPlayNetworkHandler handler = new ClientPlayNetworkHandler(client, client.currentScreen, new ClientConnection(NetworkSide.CLIENTBOUND),
-					new ServerInfo("mainMenu", "127.0.0.1", true), client.getSession().getProfile(),
-					client.getTelemetryManager().createWorldSession(false, Duration.ZERO));
-			fakePlayer = new OtherClientPlayerEntity(new ClientWorld(
-					handler, new ClientWorld.Properties(Difficulty.EASY, false, true), World.END,
-					ClientDynamicRegistryType.createCombinedDynamicRegistries().getCombinedRegistryManager().get(RegistryKeys.DIMENSION_TYPE).entryOf(DimensionTypes.THE_END),
-			0, 0, () -> null, client.worldRenderer, false, 0L), client.getSession().getProfile());
+		//else
+		//{
+			//ClientPlayNetworkHandler handler = new ClientPlayNetworkHandler(client, client.currentScreen, new ClientConnection(NetworkSide.CLIENTBOUND),
+			//		new ServerInfo("mainMenu", "127.0.0.1", true), client.getSession().getProfile(),
+			//		client.getTelemetryManager().createWorldSession(false, Duration.ZERO));
+			//fakePlayer = new OtherClientPlayerEntity(new ClientWorld(
+			//		handler, new ClientWorld.Properties(Difficulty.EASY, false, true), World.END,
+			//		ClientDynamicRegistryType.createCombinedDynamicRegistries().getCombinedRegistryManager().get(RegistryKeys.DIMENSION_TYPE).entryOf(DimensionTypes.THE_END),
+			//0, 0, () -> null, client.worldRenderer, false, 0L), client.getSession().getProfile());
 			
 			//this shit don't work /\
-		}
+		//}
 		client.options.hudHidden = true;
 		client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
 		client.options.getFovEffectScale().setValue(0.0);
@@ -82,6 +75,8 @@ public class WingCustomizationScreen extends Screen
 								 .dimensions(width - 160, height - 40, 150, 20).build());
 		addDrawableChild(ButtonWidget.builder(Text.of("Cycle View"), (button) -> viewMode = (viewMode + 1) % 3)
 								 .dimensions(width - 160, height - 65, 150, 20).build());
+		addDrawableChild(new ColorSelectionWidget(textRenderer, Text.of("Wing Color"), new Vector3i(width - 160, 31, 155), false));
+		addDrawableChild(new ColorSelectionWidget(textRenderer, Text.of("Metal Color"), new Vector3i(width - 160, 113, 155), true));
 		noise = rand.nextFloat();
 	}
 	
@@ -93,16 +88,16 @@ public class WingCustomizationScreen extends Screen
 			client.player.setBodyYaw(client.player.getHeadYaw());
 			client.player.setPitch(0f);
 		}
-		else
-		{
-			EntityRenderDispatcher entityRenderDispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
-			
-			entityRenderDispatcher.setRenderShadows(false);
-			VertexConsumerProvider.Immediate immediate = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
-			RenderSystem.runAsFancy(() -> entityRenderDispatcher.render(fakePlayer, 0.0, 0.0, 0.0, 0.0F, 1.0F, matrices, immediate, 15728880));
-			immediate.draw();
-			entityRenderDispatcher.setRenderShadows(true);
-		}
+		//else
+		//{
+		//	EntityRenderDispatcher entityRenderDispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
+		//
+		//	entityRenderDispatcher.setRenderShadows(false);
+		//	VertexConsumerProvider.Immediate immediate = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
+		//	RenderSystem.runAsFancy(() -> entityRenderDispatcher.render(fakePlayer, 0.0, 0.0, 0.0, 0.0F, 1.0F, matrices, immediate, 15728880));
+		//	immediate.draw();
+		//	entityRenderDispatcher.setRenderShadows(true);
+		//}
 		
 		renderBackground(matrices);
 		drawCenteredTextWithShadow(matrices, textRenderer, title, width - 80, 20, 16777215);

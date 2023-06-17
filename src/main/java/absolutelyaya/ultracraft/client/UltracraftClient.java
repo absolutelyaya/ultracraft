@@ -81,7 +81,7 @@ public class UltracraftClient implements ClientModInitializer
 	public static final EntityModelLayer ENRAGE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "enraged"), "main");
 	public static final EntityModelLayer SHOCKWAVE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "shockwave"), "main");
 	public static final EntityModelLayer INTERRUPTABLE_CHARGE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "interruptable_charge"), "main");
-	private static ShaderProgram wingsColoredProgram, texPosFade;
+	private static ShaderProgram wingsColoredProgram, wingsColoredUIProgram, texPosFade;
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	public static TrailRenderer TRAIL_RENDERER;
 	public static boolean REPLACE_MENU_MUSIC = true, applyEntityPoses;
@@ -244,6 +244,13 @@ public class UltracraftClient implements ClientModInitializer
 				program.markUniformsDirty();
 				wingsColoredProgram = program;
 			});
+			callback.register(new Identifier(Ultracraft.MOD_ID, "wings_colored_ui"), VertexFormats.POSITION_TEXTURE_COLOR, (program) -> {
+				program.getUniform("MetalColor");
+				program.getUniform("WingColor");
+				program.getUniform("Pattern");
+				program.markUniformsDirty();
+				wingsColoredUIProgram = program;
+			});
 			callback.register(new Identifier(Ultracraft.MOD_ID, "position_tex_fade"), VertexFormats.POSITION_TEXTURE_COLOR, (program) -> {
 				program.getUniform("TextureSize");
 				program.markUniformsDirty();
@@ -399,6 +406,11 @@ public class UltracraftClient implements ClientModInitializer
 	public static ShaderProgram getWingsColoredShaderProgram()
 	{
 		return wingsColoredProgram;
+	}
+	
+	public static ShaderProgram getWingsColoredUIShaderProgram()
+	{
+		return wingsColoredUIProgram;
 	}
 	
 	public static ShaderProgram getTexPosFadeProgram()
