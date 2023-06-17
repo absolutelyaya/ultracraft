@@ -5,14 +5,25 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.network.*;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.client.render.*;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
+import net.minecraft.network.ClientConnection;
+import net.minecraft.network.NetworkSide;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.World;
+import net.minecraft.world.dimension.DimensionTypes;
 import org.joml.Matrix4f;
 
+import java.time.Duration;
 import java.util.Random;
 
 public class WingCustomizationScreen extends Screen
@@ -21,7 +32,7 @@ public class WingCustomizationScreen extends Screen
 	public static boolean MenuOpen;
 	
 	final Text[] viewNames = new Text[] { Text.of("Close-up Back View"), Text.of("Full Back View"), Text.of("Full Front View") };
-	static final Vec3d[] viewTranslations = new Vec3d[] { new Vec3d(3.5, -0.3, 0.25f), new Vec3d(0, -0.3, 0f), new Vec3d(8.0, -0.3, 0f) };
+	static final Vec3d[] viewTranslations = new Vec3d[] { new Vec3d(2.9, -0.4, 0.5f), new Vec3d(1, -0.3, 0f), new Vec3d(6.0, -0.3, 0f) };
 	static int viewMode;
 	
 	Perspective oldPerspective;
@@ -30,6 +41,7 @@ public class WingCustomizationScreen extends Screen
 	Screen parent;
 	double fovScale;
 	float noise, prevPitch;
+	Entity fakePlayer;
 	
 	public WingCustomizationScreen(Screen parent)
 	{
@@ -41,13 +53,25 @@ public class WingCustomizationScreen extends Screen
 		wasHudHidden = client.options.hudHidden;
 		oldPerspective = client.options.getPerspective();
 		fovScale = client.options.getFovEffectScale().getValue();
-		prevPitch = client.player.getPitch();
+		if(client.player != null)
+			prevPitch = client.player.getPitch();
+		else
+		{
+			ClientPlayNetworkHandler handler = new ClientPlayNetworkHandler(client, client.currentScreen, new ClientConnection(NetworkSide.CLIENTBOUND),
+					new ServerInfo("mainMenu", "127.0.0.1", true), client.getSession().getProfile(),
+					client.getTelemetryManager().createWorldSession(false, Duration.ZERO));
+			fakePlayer = new OtherClientPlayerEntity(new ClientWorld(
+					handler, new ClientWorld.Properties(Difficulty.EASY, false, true), World.END,
+					ClientDynamicRegistryType.createCombinedDynamicRegistries().getCombinedRegistryManager().get(RegistryKeys.DIMENSION_TYPE).entryOf(DimensionTypes.THE_END),
+			0, 0, () -> null, client.worldRenderer, false, 0L), client.getSession().getProfile());
+			
+			//this shit don't work /\
+		}
 		client.options.hudHidden = true;
 		client.options.setPerspective(Perspective.THIRD_PERSON_BACK);
 		client.options.getFovEffectScale().setValue(0.0);
 		Instance = this;
 		MenuOpen = true;
-		client.worldRenderer.reloadTransparencyPostProcessor();
 	}
 	
 	@Override
@@ -64,12 +88,20 @@ public class WingCustomizationScreen extends Screen
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
 	{
-		//render Player
-		
 		if(client.player != null)
 		{
 			client.player.setBodyYaw(client.player.getHeadYaw());
 			client.player.setPitch(0f);
+		}
+		else
+		{
+			EntityRenderDispatcher entityRenderDispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
+			
+			entityRenderDispatcher.setRenderShadows(false);
+			VertexConsumerProvider.Immediate immediate = MinecraftClient.getInstance().getBufferBuilders().getEntityVertexConsumers();
+			RenderSystem.runAsFancy(() -> entityRenderDispatcher.render(fakePlayer, 0.0, 0.0, 0.0, 0.0F, 1.0F, matrices, immediate, 15728880));
+			immediate.draw();
+			entityRenderDispatcher.setRenderShadows(true);
 		}
 		
 		renderBackground(matrices);
@@ -84,7 +116,7 @@ public class WingCustomizationScreen extends Screen
 	
 	public Vec3d getCameraOffset()
 	{
-		Vec3d[] viewTranslations = new Vec3d[] { new Vec3d(2.9, -0.4, 0.5f), new Vec3d(1, -0.3, 0f), new Vec3d(6.0, -0.3, 0f) };
+		Vec3d[] viewTranslations = new Vec3d[] { new Vec3d(-1.2, -0.4, 0.5f), new Vec3d(-2, -0.3, 0f), new Vec3d(-2.5, -0.3, 0f) };
 		return viewTranslations[viewMode].multiply(1f, 1f, 0.275 / (165f / width));
 	}
 	
@@ -113,7 +145,8 @@ public class WingCustomizationScreen extends Screen
 		client.gameRenderer.disablePostProcessor();
 		client.options.hudHidden = wasHudHidden;
 		client.options.setPerspective(oldPerspective);
-		client.player.setPitch(prevPitch);
+		if(client.player != null)
+			client.player.setPitch(prevPitch);
 		MenuOpen = false;
 	}
 	

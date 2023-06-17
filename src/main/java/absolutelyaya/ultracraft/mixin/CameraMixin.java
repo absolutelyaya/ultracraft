@@ -41,28 +41,45 @@ public abstract class CameraMixin
 	
 	@Shadow private float yaw;
 	
-	Vec3d curPos;
-	float curYaw;
+	@Shadow private float cameraY;
+	@Shadow private float lastCameraY;
+	@Shadow private boolean ready;
+	@Shadow private BlockView area;
+	@Shadow private Entity focusedEntity;
+	@Shadow private boolean thirdPerson;
+	Vec3d curOffset;
+	float curYaw, baseYaw;
 	boolean wasWingCustomizationOpen;
+	
+	@Inject(method = "update", at = @At("HEAD"), cancellable = true)
+	void onBeforeUpdate(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci)
+	{
+		if(WingCustomizationScreen.MenuOpen)
+		{
+			this.ready = true;
+			this.area = area;
+			this.focusedEntity = focusedEntity;
+			this.thirdPerson = thirdPerson;
+			setRotation(focusedEntity.getYaw(tickDelta), focusedEntity.getPitch(tickDelta));
+			setPos(new Vec3d(MathHelper.lerp(tickDelta, focusedEntity.prevX, focusedEntity.getX()),
+					MathHelper.lerp(tickDelta, focusedEntity.prevY, focusedEntity.getY()) + (double)MathHelper.lerp(tickDelta, lastCameraY, cameraY),
+					MathHelper.lerp(tickDelta, focusedEntity.prevZ, focusedEntity.getZ())));
+			wingCustomizationUpdate(area, focusedEntity, tickDelta);
+			ci.cancel();
+		}
+		else
+		{
+			curOffset = getPos();
+			curYaw = yaw;
+			wasWingCustomizationOpen = false;
+		}
+	}
 	
 	@Inject(method = "update", at = @At("TAIL"))
 	void onUpdate(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci)
 	{
 		if(!(focusedEntity instanceof WingedPlayerEntity winged))
 			return;
-		
-		if(WingCustomizationScreen.MenuOpen)
-		{
-			wingCustomizationUpdate(area, focusedEntity, tickDelta);
-			return;
-		}
-		else
-		{
-			curPos = getPos();
-			curYaw = yaw;
-			wasWingCustomizationOpen = false;
-		}
-		
 		float f = UltracraftClient.getConfigHolder().get().slideCamOffset / 100f;
 		if(thirdPerson && f > 0f)
 		{
@@ -93,16 +110,19 @@ public abstract class CameraMixin
 		if(!hitResult.getType().equals(HitResult.Type.MISS))
 			offset = hitResult.getPos().subtract(getPos());
 		
-		if(!wasWingCustomizationOpen)
+		if(!wasWingCustomizationOpen) //set initial transform when opening Menu
 		{
-			curPos = new Vec3d(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z);
+			baseYaw = yaw;
 			curYaw = yaw + WingCustomizationScreen.Instance.getCameraRotation();
+			curOffset = new Vec3d(offset.x, offset.y, offset.z);
 			wasWingCustomizationOpen = true;
 		}
-		else
+		else //lerp towards target transform
 		{
 			setRotation(curYaw = MathHelper.lerp(tickDelta / 10f, curYaw, yaw + WingCustomizationScreen.Instance.getCameraRotation()), 0f);
-			setPos(curPos = curPos.lerp(new Vec3d(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z), tickDelta / 10f));
+			curOffset = curOffset.lerp(offset, tickDelta / 10);
+			offset = curOffset.rotateY((float)Math.toRadians(-(yaw - baseYaw)));
+			setPos(new Vec3d(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z));
 		}
 	}
 }
