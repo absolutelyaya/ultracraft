@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.client;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.rendering.TrailRenderer;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.client.rendering.block.entity.CerberusBlockRenderer;
@@ -69,6 +70,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.World;
 import software.bernie.geckolib.network.GeckoLibNetwork;
@@ -92,6 +94,7 @@ public class UltracraftClient implements ClientModInitializer
 	static boolean disableHandswap = false, slamStorage = true, fallDamage = false, drowning = false, effectivelyViolent = false, wasMovementSoundsEnabled;
 	public static int jumpBoost, speed, gravityReduction;
 	static float screenblood;
+	static Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f / 255f, 1f, 154f / 255f), new Vec3d(117f / 255f, 154f / 255f, 1f) };
 	
 	static UltraHudRenderer hudRenderer;
 	static ConfigHolder<Ultraconfig> config;
@@ -179,6 +182,10 @@ public class UltracraftClient implements ClientModInitializer
 				client.player.sendMessage(Text.translatable("message.ultracraft.join-info"));
 				client.player.sendMessage(Text.translatable("========================================="));
 			}
+			
+			WingedPlayerEntity winged = ((WingedPlayerEntity)client.player);
+			winged.setWingColor(wingColors[0], 0);
+			winged.setWingColor(wingColors[1], 1);
 		});
 		
 		ClientEntityEvents.ENTITY_LOAD.register((entity, clientWorld) -> {
@@ -286,6 +293,9 @@ public class UltracraftClient implements ClientModInitializer
 		FluidRenderHandlerRegistry.INSTANCE.register(FluidRegistry.STILL_BLOOD, FluidRegistry.Flowing_BLOOD,
 				new SimpleFluidRenderHandler(new Identifier(Ultracraft.MOD_ID, "block/blood_still"), new Identifier(Ultracraft.MOD_ID, "block/blood_flow")));
 		BlockRenderLayerMap.INSTANCE.putFluids(RenderLayer.getSolid(), FluidRegistry.STILL_BLOOD, FluidRegistry.Flowing_BLOOD);
+		
+		setWingColor(config.get().wingColors[0], 0);
+		setWingColor(config.get().wingColors[1], 1);
 	}
 	
 	public static void addBlood(float f)
@@ -416,5 +426,17 @@ public class UltracraftClient implements ClientModInitializer
 	public static ShaderProgram getTexPosFadeProgram()
 	{
 		return texPosFade;
+	}
+	
+	public static void setWingColor(Vec3d val, int idx)
+	{
+		wingColors[idx] = val;
+		if(MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player instanceof WingedPlayerEntity winged)
+			winged.setWingColor(val, idx);
+	}
+	
+	public static Vec3d[] getWingColors()
+	{
+		return wingColors;
 	}
 }

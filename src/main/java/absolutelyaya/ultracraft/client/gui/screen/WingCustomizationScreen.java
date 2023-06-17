@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.client.gui.screen;
 
+import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.widget.ColorSelectionWidget;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -143,6 +144,8 @@ public class WingCustomizationScreen extends Screen
 		if(client.player != null)
 			client.player.setPitch(prevPitch);
 		MenuOpen = false;
+		UltracraftClient.getConfigHolder().getConfig().wingColors = UltracraftClient.getWingColors();
+		UltracraftClient.getConfigHolder().save();
 	}
 	
 	@Override

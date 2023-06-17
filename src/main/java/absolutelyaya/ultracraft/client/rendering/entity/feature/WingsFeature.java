@@ -18,6 +18,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3f;
 
 public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>> extends FeatureRenderer<T, M>
@@ -37,10 +38,11 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 		WingedPlayerEntity winged = ((WingedPlayerEntity)entity);
 		if(winged.isWingsActive() || (entity.isMainPlayer() && WingCustomizationScreen.MenuOpen))
 		{
+			Vec3d[] clrs = winged.getWingColors();
 			ShaderProgram wingShader = UltracraftClient.getWingsColoredShaderProgram();
-			wingShader.getUniform("WingColor").set(new Vector3f(/*64f*/ (entity.age * 2) % 360, 39f, 100f));
-			wingShader.getUniform("MetalColor").set(new Vector3f(223f, 54f, 100f));
-			wingShader.getUniform("Pattern").set(1);
+			wingShader.getUniform("WingColor").set(clrs[0].toVector3f());
+			wingShader.getUniform("MetalColor").set(clrs[1].toVector3f());
+			wingShader.getUniform("Pattern").set(0);
 			RenderSystem.setShader(UltracraftClient::getWingsColoredShaderProgram);
 			matrices.push();
 			wings.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, winged);

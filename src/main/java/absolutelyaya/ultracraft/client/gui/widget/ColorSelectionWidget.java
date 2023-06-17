@@ -1,9 +1,11 @@
 package absolutelyaya.ultracraft.client.gui.widget;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.SharedConstants;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gui.Drawable;
@@ -19,6 +21,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
+import net.minecraft.util.math.Vec3d;
 import org.joml.*;
 
 import java.lang.Math;
@@ -46,9 +49,25 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 		green = new ChannelSlider(textRenderer, x + 2, y + 36, 108, 20, Text.of("Green"), 0.5, 1);
 		blue = new ChannelSlider(textRenderer, x + 2, y + 58, 108, 20, Text.of("Blue"), 0.5, 2);
 		
+		WingedPlayerEntity winged = (WingedPlayerEntity)MinecraftClient.getInstance().player;
+		Vec3d[] colors = winged.getWingColors();
+		if(type)
+		{
+			red.setValue(colors[1].x / 255f);
+			green.setValue(colors[1].y / 255f);
+			blue.setValue(colors[1].z / 255f);
+		}
+		else
+		{
+			red.setValue(colors[0].x / 255f);
+			green.setValue(colors[0].y / 255f);
+			blue.setValue(colors[0].z / 255f);
+		}
+		
 		hexField = new HexTextField(textRenderer, x + 112, y + 60, 80, 16, Text.of("HexField"));
 		hexField.setPlaceholder(Text.of("hex"));
 		hexField.setDrawsBackground(false);
+		updateHex();
 	}
 	
 	@Override
@@ -92,6 +111,8 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 		red.setFullColor(c);
 		green.setFullColor(c);
 		blue.setFullColor(c);
+		
+		UltracraftClient.setWingColor(new Vec3d(red.getValue() * 0xff, green.getValue() * 0xff, blue.getValue() * 0xff), type ? 1 : 0);
 	}
 	
 	@Override
@@ -262,6 +283,11 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 		public void setFullColor(int v)
 		{
 			fullColor = v;
+		}
+		
+		public void setValue(double d)
+		{
+			value = d;
 		}
 	}
 	

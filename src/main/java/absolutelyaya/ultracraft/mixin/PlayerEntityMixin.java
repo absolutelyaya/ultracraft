@@ -56,6 +56,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	int dashingTicks = -2, slamDamageCooldown, stamina, wingHintDisplayTicks;
 	GunCooldownManager gunCDM;
 	Multimap<EntityAttribute, EntityAttributeModifier> curSpeedMod;
+	Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f / 255f, 1f, 154f / 255f), new Vec3d(117f / 255f, 154f / 255f, 1f) };
 	
 	private final Vec3d[] curWingPose = new Vec3d[] {new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f)};
 	
@@ -412,5 +413,17 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public boolean canBreatheInWater()
 	{
 		return isWingsActive() && !world.getGameRules().getBoolean(GameruleRegistry.HIVEL_DROWNING);
+	}
+	
+	@Override
+	public Vec3d[] getWingColors()
+	{
+		return wingColors;
+	}
+	
+	@Override
+	public void setWingColor(Vec3d val, int idx)
+	{
+		wingColors[idx] = val;
 	}
 }

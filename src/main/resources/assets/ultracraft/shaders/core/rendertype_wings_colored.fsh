@@ -31,15 +31,26 @@ vec3 hsv2rgb(vec3 c){
     return c.z*mix(K.xxx,saturate(abs(fract(c.x+K.xyz)*6.-K.w)-K.x),c.y);
 }
 
+vec3 rgb2hsv(vec3 c)
+{
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
 vec3 getRed(float brightness)
 {
-    vec3 colA = WingColor;
-    float step = brightness * 4;
-    if(step >= 3)
+    vec3 colA = rgb2hsv(WingColor / vec3(255f, 255f, 255f)) * vec3(360, 100, 100);
+    float step = brightness * 4 - 0.1;
+    if(step > 3)
         return colA;
-    else if(step >= 2)
+    else if(step > 2)
         return colA + vec3(-11, 20, 0);
-    else if(step >= 1)
+    else if(step > 1)
         return colA + vec3(-22, 40, 0);
     else
         return colA + vec3(-30, 60, 0);
@@ -47,13 +58,13 @@ vec3 getRed(float brightness)
 
 vec3 getBlue(float brightness)
 {
-    vec3 colB = MetalColor;
-    float step = brightness * 4;
-    if(step >= 3)
+    vec3 colB = rgb2hsv(MetalColor / vec3(255f, 255f, 255f)) * vec3(360, 100, 100);
+    float step = brightness * 4 - 0.1;
+    if(step > 3)
         return colB;
-    else if(step >= 2)
+    else if(step > 2)
         return colB + vec3(9, 10, 0);
-    else if(step >= 1)
+    else if(step > 1)
         return colB + vec3(11, 14, -19);
     else
         return colB + vec3(12, 14, -46);
