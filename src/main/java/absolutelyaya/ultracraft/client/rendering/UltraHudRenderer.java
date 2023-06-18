@@ -8,6 +8,7 @@ import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.item.MachineSwordItem;
 import absolutelyaya.ultracraft.item.PlushieItem;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
+import absolutelyaya.ultracraft.util.RenderingUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
@@ -116,9 +117,9 @@ public class UltraHudRenderer extends DrawableHelper
 			matrices.scale(aspect, 1f, 1f);
 			matrices.translate(-0.75, -0.5, 0);
 			RenderSystem.setShaderTexture(0, CROSSHAIR_TEXTURE);
-			drawTexture(matrices.peek().getPositionMatrix(), new Vector4f(-6f, -5f, 5f, 11f * healthPercent), 100f,
+			RenderingUtil.drawTexture(matrices.peek().getPositionMatrix(), new Vector4f(-6f, -5f, 5f, 11f * healthPercent), 100f,
 					new Vec2f(32f, 32f), new Vector4f(0f, 11 - 11f * healthPercent, 5f, 11f * healthPercent), 0.75f);
-			drawTexture(matrices.peek().getPositionMatrix(), new Vector4f(2f, -5f, 5f, 11f * staminaPercent), 100f,
+			RenderingUtil.drawTexture(matrices.peek().getPositionMatrix(), new Vector4f(2f, -5f, 5f, 11f * staminaPercent), 100f,
 					new Vec2f(32f, 32f), new Vector4f(8f, 11 - 11f * staminaPercent, 5f, 11f * staminaPercent), 0.75f);
 			matrices.pop();
 		}
@@ -148,25 +149,25 @@ public class UltraHudRenderer extends DrawableHelper
 		matrices.translate(1f, 35f, 0f);
 		matrices.scale(1f, -1f, 1f);
 		Matrix4f textureMatrix = new Matrix4f(matrices.peek().getPositionMatrix());
-		drawTexture(textureMatrix, new Vector4f(-60f, -35f, 67.5f, 67.5f), 0f,
+		RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f, -35f, 67.5f, 67.5f), 0f,
 				new Vec2f(80f, 64f), new Vector4f(0f, 0f, 48f, 48f), 0.75f);
 		//bars
 		//health
-		drawTexture(textureMatrix, new Vector4f(-60f + 2.8125f, -35f + 11.250f, 61.875f * healthPercent, 5.625f), 0f,
+		RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 2.8125f, -35f + 11.250f, 61.875f * healthPercent, 5.625f), 0f,
 				new Vec2f(80f, 64f), new Vector4f(2f, 48f, 44f * healthPercent, 4f), 1f);
 		//stamina
-		drawTexture(textureMatrix, new Vector4f(-60f + 2.8125f, -35f + 2.8125f, 61.875f * staminaPercent, 5.625f), 0f,
+		RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 2.8125f, -35f + 2.8125f, 61.875f * staminaPercent, 5.625f), 0f,
 				new Vec2f(80f, 64f), new Vector4f(2f, 52f, 44f * staminaPercent, 4f), 1f);
 		//Railgun
 		if(false) //if hasRailgun
 		{
-			drawTexture(textureMatrix, new Vector4f(-60f + 68.90625f, -35 + 21.09f, 21.09f, 46.4062f), 0f,
+			RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 68.90625f, -35 + 21.09f, 21.09f, 46.4062f), 0f,
 					new Vec2f(80f, 64f), new Vector4f(49f, 0f, 15f, 33f), 0.75f);
 		}
 		//Fist
 		if(false) //if hasFist
 		{
-			drawTexture(textureMatrix, new Vector4f(-60f + 68.90625f, -35f, 21.09f, 19.68f), 0f,
+			RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 68.90625f, -35f, 21.09f, 19.68f), 0f,
 					new Vec2f(80f, 64f), new Vector4f(49f, 34f, 15f, 14f), 0.75f);
 		}
 		
@@ -241,7 +242,7 @@ public class UltraHudRenderer extends DrawableHelper
 			else if (item instanceof PlushieItem)
 				uv = new Vector2i(3, 0);
 			RenderSystem.setShaderTexture(0, WEAPONS_TEXTURE);
-			drawTexture(textureMatrix, new Vector4f(-60f, -35f + 22.5f, 67.5f, 45f), 0f,
+			RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f, -35f + 22.5f, 67.5f, 45f), 0f,
 					new Vec2f(192, 192), new Vector4f(uv.x * 48f, uv.y * 32f, 48f, 32f), 0.75f);
 		}
 		else
@@ -266,26 +267,6 @@ public class UltraHudRenderer extends DrawableHelper
 		matrix.translate(0f, 0f, -0.1f);
 		client.textRenderer.draw(text, x, y, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
 				matrix, immediate, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
-	}
-	
-	void drawTexture(Matrix4f matrix, Vector4f transform, float z, Vec2f textureSize, Vector4f uv, float alpha)
-	{
-		RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
-		RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-		BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
-		bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-		uv = new Vector4f(uv.x() / textureSize.x, uv.y() / textureSize.y,
-				uv.z() / textureSize.x, uv.w() / textureSize.y);
-		bufferBuilder.vertex(matrix, transform.x(), transform.y() + transform.w(), z)
-				.texture(uv.x(), uv.y()).next();
-		bufferBuilder.vertex(matrix, transform.x() + transform.z(), transform.y() + transform.w(), z)
-				.texture(uv.x() + uv.z(), uv.y()).next();
-		bufferBuilder.vertex(matrix, transform.x() + transform.z(), transform.y(), z)
-				.texture(uv.x() + uv.z(), uv.y() + uv.w()).next();
-		bufferBuilder.vertex(matrix, transform.x(), transform.y(), z)
-				.texture(uv.x(), uv.y() + uv.w()).next();
-		BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
-		BufferRenderer.resetCurrentVertexBuffer();
 	}
 	
 	public static void onCatchFish(ItemStack stack)

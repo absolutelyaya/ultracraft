@@ -1,11 +1,11 @@
 package absolutelyaya.ultracraft.client.gui.widget;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.accessor.WidgetAccessor;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.util.RenderingUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.SharedConstants;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gui.Drawable;
@@ -13,6 +13,8 @@ import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.render.*;
@@ -22,70 +24,81 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
+import org.apache.commons.lang3.StringUtils;
 import org.joml.*;
 
 import java.lang.Math;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ColorSelectionWidget extends DrawableHelper implements Element, Drawable, Selectable
+public class ColorSelectionWidget extends DrawableHelper implements Element, Drawable, Selectable, WidgetAccessor
 {
 	TextRenderer textRenderer;
 	Text title;
-	int x, y, width, height;
+	int x, y, width, height, offsetX, offsetY;
 	ChannelSlider red, green, blue;
 	TextFieldWidget hexField;
-	boolean type;
+	boolean type, showTypeSwitch;
+	ButtonWidget reset, pickSkin, typeSwitch;
+	List<Drawable> children = new ArrayList<>();
+	float alpha;
 	
-	public ColorSelectionWidget(TextRenderer textRenderer, Text title, Vector3i dimensions, boolean type)
+	public ColorSelectionWidget(TextRenderer textRenderer, Vector3i dimensions, boolean type)
 	{
 		this.textRenderer = textRenderer;
-		this.title = title;
 		x = dimensions.x;
 		y = dimensions.y;
 		width = dimensions.z;
-		height = 80;
-		this.type = type;
+		height = 102;
 		
 		red = new ChannelSlider(textRenderer, x + 2, y + 14, 108, 20, Text.of("Red"), 0.5, 0);
 		green = new ChannelSlider(textRenderer, x + 2, y + 36, 108, 20, Text.of("Green"), 0.5, 1);
 		blue = new ChannelSlider(textRenderer, x + 2, y + 58, 108, 20, Text.of("Blue"), 0.5, 2);
 		
-		WingedPlayerEntity winged = (WingedPlayerEntity)MinecraftClient.getInstance().player;
-		Vec3d[] colors = winged.getWingColors();
-		if(type)
-		{
-			red.setValue(colors[1].x / 255f);
-			green.setValue(colors[1].y / 255f);
-			blue.setValue(colors[1].z / 255f);
-		}
-		else
-		{
-			red.setValue(colors[0].x / 255f);
-			green.setValue(colors[0].y / 255f);
-			blue.setValue(colors[0].z / 255f);
-		}
-		
 		hexField = new HexTextField(textRenderer, x + 112, y + 60, 80, 16, Text.of("HexField"));
 		hexField.setPlaceholder(Text.of("hex"));
 		hexField.setDrawsBackground(false);
-		updateHex();
+		hexField.setChangedListener(this::updateSliders);
+		setType(type);
+		
+		reset = ButtonWidget.builder(Text.of("Reset"), button -> {}).dimensions(x + 2, y + 80, 155 / 2 - 2, 20).build();
+		pickSkin = ButtonWidget.builder(Text.of("Pick from Skin"), button -> {}).dimensions(x + 1 + 155 / 2, y + 80, 155 / 2 - 2, 20).build();
+		typeSwitch = ButtonWidget.builder(Text.of(">"), button -> setType(!getPickerType())).dimensions(x + width - 13, y, 13, 13).build();
+		
+		children.add(red);
+		children.add(green);
+		children.add(blue);
+		children.add(hexField);
+		children.add(reset);
+		children.add(pickSkin);
+		children.add(typeSwitch);
 	}
 	
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
 	{
+		int x = this.x;
+		int y = this.y;
+		x += offsetX;
+		y += offsetY;
+		
+		RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
 		fill(matrices, x, y, x + width, y + height, 0x66000000);
 		drawBorder(matrices, x, y, width, height, 0xff000000);
 		fill(matrices, x, y, x + width, y + 13, 0x88000000);
 		drawCenteredTextWithShadow(matrices, textRenderer, title, x + width / 2, y + 3, 0xffffffff);
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		
 		red.render(matrices, mouseX, mouseY, delta);
 		green.render(matrices, mouseX, mouseY, delta);
 		blue.render(matrices, mouseX, mouseY, delta);
 		
+		RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
 		fill(matrices, x + 111, y + 14 + 45, x + 111 + 42, y + 14 + 45 + 19, 0xff000000);
 		drawBorder(matrices, x + 111, y + 58, 42, 20, 0xff888888);
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		matrices.push();
-		matrices.translate(1, 4, 0);
+		matrices.translate(2, 4, 0);
 		hexField.render(matrices, mouseX, mouseY, delta);
 		matrices.pop();
 		
@@ -95,10 +108,17 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 		//RenderSystem.setShader(GameRenderer::getPositionTexProgram);
 		RenderSystem.setShader(UltracraftClient::getWingsColoredUIShaderProgram);
 		RenderSystem.setShaderTexture(0, new Identifier(Ultracraft.MOD_ID, "textures/gui/clr-preview.png"));
-		drawTexture(new Matrix4f(matrices.peek().getPositionMatrix()), new Vector4f(x + 112, y + 15, 40, 40), new Vec2f(32, 32),
+		RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
+		RenderingUtil.drawTexture(new Matrix4f(matrices.peek().getPositionMatrix()), new Vector4f(x + 112, y + 15, 40, 40), new Vec2f(32, 32),
 				new Vector4f(type ? 16f : 0f, 0f, 16f, 16f));
 		drawBorder(matrices, x + 111, y + 14, 42, 42, 0xff000000);
 		//fill(matrices, x + 111, y + 14, x + 111 + 42, y + 14 + 42, c);
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		
+		reset.render(matrices, mouseX, mouseY, delta);
+		pickSkin.render(matrices, mouseX, mouseY, delta);
+		typeSwitch.visible = typeSwitch.active = showTypeSwitch;
+		typeSwitch.render(matrices, mouseX, mouseY, delta);
 	}
 	
 	void updateHex()
@@ -106,7 +126,8 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 		int c = (int)(red.getValue() * 0xff);
 		c = (c << 8) + (int)(green.getValue() * 0xff);
 		c = (c << 8) + (int)(blue.getValue() * 0xff);
-		hexField.setText(Integer.toHexString(c));
+		String hex = Integer.toHexString(c);
+		hexField.setText((StringUtils.repeat('0', 6 - hex.length())) + hex);
 		
 		red.setFullColor(c);
 		green.setFullColor(c);
@@ -115,17 +136,38 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 		UltracraftClient.setWingColor(new Vec3d(red.getValue() * 0xff, green.getValue() * 0xff, blue.getValue() * 0xff), type ? 1 : 0);
 	}
 	
+	void updateSliders(String hex)
+	{
+		if(hex.length() < 6)
+			return;
+		int r = Integer.parseInt(hex.substring(0, 2), 16);
+		int g = Integer.parseInt(hex.substring(2, 4), 16);
+		int b = Integer.parseInt(hex.substring(4, 6), 16);
+		
+		red.setValue(r / 255f);
+		green.setValue(g / 255f);
+		blue.setValue(b / 255f);
+		
+		int c = (r << 8) + g;
+		c = (c << 8) + b;
+		red.setFullColor(c);
+		green.setFullColor(c);
+		blue.setFullColor(c);
+		
+		UltracraftClient.setWingColor(new Vec3d(r, g, b), type ? 1 : 0);
+	}
+	
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button)
 	{
 		updateHex();
-		if (red.mouseClicked(mouseX, mouseY, button))
-			return true;
-		if (green.mouseClicked(mouseX, mouseY, button))
-			return true;
-		if (blue.mouseClicked(mouseX, mouseY, button))
-			return true;
-		return hexField.mouseClicked(mouseX, mouseY, button);
+		for (Drawable c : children)
+		{
+			if(c instanceof ClickableWidget clickable)
+				if(clickable.mouseClicked(mouseX, mouseY, button))
+					return true;
+		}
+		return false;
 	}
 	
 	@Override
@@ -144,25 +186,25 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 	@Override
 	public boolean mouseReleased(double mouseX, double mouseY, int button)
 	{
-		if (red.mouseReleased(mouseX, mouseY, button))
-			return true;
-		if (green.mouseReleased(mouseX, mouseY, button))
-			return true;
-		if (blue.mouseReleased(mouseX, mouseY, button))
-			return true;
-		return hexField.mouseReleased(mouseX, mouseY, button);
+		for (Drawable c : children)
+		{
+			if(c instanceof ClickableWidget clickable)
+				if(clickable.mouseReleased(mouseX, mouseY, button))
+					return true;
+		}
+		return false;
 	}
 	
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double amount)
 	{
-		if (red.mouseScrolled(mouseX, mouseY, amount))
-			return true;
-		if (green.mouseScrolled(mouseX, mouseY, amount))
-			return true;
-		if (blue.mouseScrolled(mouseX, mouseY, amount))
-			return true;
-		return hexField.mouseScrolled(mouseX, mouseY, amount);
+		for (Drawable c : children)
+		{
+			if(c instanceof ClickableWidget clickable)
+				if(clickable.mouseScrolled(mouseX, mouseY, amount))
+					return true;
+		}
+		return false;
 	}
 	
 	@Override
@@ -201,23 +243,62 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 	
 	}
 	
-	void drawTexture(Matrix4f matrix, Vector4f transform, Vec2f textureSize, Vector4f uv)
+	@Override
+	public Vector2i getOffset()
 	{
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
-		bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-		uv = new Vector4f(uv.x() / textureSize.x, uv.y() / textureSize.y,
-				uv.z() / textureSize.x, uv.w() / textureSize.y);
-		bufferBuilder.vertex(matrix, transform.x(), transform.y() + transform.w(), 0)
-				.texture(uv.x(), uv.y()).next();
-		bufferBuilder.vertex(matrix, transform.x() + transform.z(), transform.y() + transform.w(), 0)
-				.texture(uv.x() + uv.z(), uv.y()).next();
-		bufferBuilder.vertex(matrix, transform.x() + transform.z(), transform.y(), 0)
-				.texture(uv.x() + uv.z(), uv.y() + uv.w()).next();
-		bufferBuilder.vertex(matrix, transform.x(), transform.y(), 0)
-				.texture(uv.x(), uv.y() + uv.w()).next();
-		BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
-		BufferRenderer.resetCurrentVertexBuffer();
+		return new Vector2i(offsetX, offsetY);
+	}
+	
+	@Override
+	public void setOffset(Vector2i offset)
+	{
+		offsetX = offset.x;
+		offsetY = offset.y;
+		children.forEach(w -> ((WidgetAccessor)w).setOffset(offset));
+	}
+	
+	@Override
+	public void setActive(boolean b)
+	{
+		children.forEach(w -> ((WidgetAccessor)w).setActive(b));
+	}
+	
+	@Override
+	public void setAlpha(float alpha)
+	{
+		this.alpha = alpha;
+		children.forEach(w -> ((WidgetAccessor)w).setAlpha(alpha));
+	}
+	
+	public void setType(boolean b)
+	{
+		type = b;
+		title = type ? Text.of("Metal Color") : Text.of("Wing Color");
+		
+		Vec3d[] colors = UltracraftClient.getWingColors();
+		if(type)
+		{
+			red.setValue(colors[1].x / 255f);
+			green.setValue(colors[1].y / 255f);
+			blue.setValue(colors[1].z / 255f);
+		}
+		else
+		{
+			red.setValue(colors[0].x / 255f);
+			green.setValue(colors[0].y / 255f);
+			blue.setValue(colors[0].z / 255f);
+		}
+		updateHex();
+	}
+	
+	public boolean getPickerType()
+	{
+		return type;
+	}
+	
+	public void setShowTypeSwitch(boolean b)
+	{
+		showTypeSwitch = b;
 	}
 	
 	static class ChannelSlider extends SliderWidget
@@ -250,20 +331,24 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 			super.renderButton(matrices, mouseX, mouseY, delta);
 			matrices.push();
 			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(90), 0, 0, 1)));
+			int start = getPreviewColor(true);
+			int end = getPreviewColor(false);
+			RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
 			fillGradient(matrices, getY() + 1, -getX() - width + 1, getY() + height - 1, -getX() - 1,
-					getPreviewColor(true), getPreviewColor(false));
+					start, end);
 			matrices.pop();
 			int i = (!hovered && !isFocused() ? 2 : 3) * 20;
 			RenderSystem.setShaderTexture(0, new Identifier("textures/gui/slider.png"));
 			drawNineSlicedTexture(matrices, getX() + (int)(value * (double)(width - 8)), getY(), 8, 20, 20, 4, 200, 20, 0, i);
 			i = active ? 16777215 : 10526880;
 			drawScrollableText(matrices, textRenderer, 2, i | MathHelper.ceil(alpha * 255.0F) << 24);
+			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		}
 		
 		int getPreviewColor(boolean b)
 		{
 			int red = (fullColor >> 16) & 0xff;
-			int green = (fullColor >> 8 & 0xff);
+			int green = (fullColor >> 8) & 0xff;
 			int blue = fullColor & 0xff;
 			
 			//System.out.println(red + " | " + green + " | " + blue);
@@ -293,8 +378,6 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 	
 	static class HexTextField extends TextFieldWidget
 	{
-		boolean editable;
-		
 		public HexTextField(TextRenderer textRenderer, int x, int y, int width, int height, Text text)
 		{
 			super(textRenderer, x, y, width, height, text);
@@ -307,7 +390,7 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 				return false;
 			else if (isValidChar(chr))
 			{
-				if (editable)
+				if (active)
 					write(Character.toString(chr));
 				return true;
 			}
@@ -317,18 +400,12 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 		
 		boolean isValidChar(char c)
 		{
-			if(getText().length() >= 7)
-			{
-				System.out.println("maxLength reached");
+			if(getText().length() >= 6)
 				return false;
-			}
 			if((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f'))
 				return SharedConstants.isValidChar(c);
 			else
-			{
-				System.out.println("char out of range");
 				return false;
-			}
 		}
 	}
 }

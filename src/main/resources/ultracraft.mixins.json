@@ -17,6 +17,7 @@
     "BackgroundRendererMixin",
     "BipedModelMixin",
     "CameraMixin",
+    "ClickableWidgetMixin",
     "ClientLivingEntityMixin",
     "ClientPlayerEntityMixin",
     "GameRendererMixin",
