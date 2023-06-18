@@ -83,6 +83,7 @@ public class UltracraftClient implements ClientModInitializer
 	public static final EntityModelLayer ENRAGE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "enraged"), "main");
 	public static final EntityModelLayer SHOCKWAVE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "shockwave"), "main");
 	public static final EntityModelLayer INTERRUPTABLE_CHARGE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "interruptable_charge"), "main");
+	public static String wingPreset = "";
 	private static ShaderProgram wingsColoredProgram, wingsColoredUIProgram, texPosFade;
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	public static TrailRenderer TRAIL_RENDERER;
@@ -146,6 +147,8 @@ public class UltracraftClient implements ClientModInitializer
 		BlockEntityRendererFactories.register(BlockEntityRegistry.CERBERUS, context -> new CerberusBlockRenderer());
 		
 		ModelPredicateRegistry.registerModels();
+		
+		WingColorPresetManager.restoreDefaults();
 		
 		HITSCAN_HANDLER = new ClientHitscanHandler();
 		TRAIL_RENDERER = new TrailRenderer();
