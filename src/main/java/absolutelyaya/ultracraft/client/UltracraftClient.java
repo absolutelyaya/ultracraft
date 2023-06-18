@@ -95,6 +95,7 @@ public class UltracraftClient implements ClientModInitializer
 	public static int jumpBoost, speed, gravityReduction;
 	static float screenblood;
 	static Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f / 255f, 1f, 154f / 255f), new Vec3d(117f / 255f, 154f / 255f, 1f) };
+	static final Vec3d[] defaultWingColors = new Vec3d[] { new Vec3d(247f / 255f, 1f, 154f / 255f), new Vec3d(117f / 255f, 154f / 255f, 1f) };
 	
 	static UltraHudRenderer hudRenderer;
 	static ConfigHolder<Ultraconfig> config;
@@ -438,5 +439,10 @@ public class UltracraftClient implements ClientModInitializer
 	public static Vec3d[] getWingColors()
 	{
 		return wingColors;
+	}
+	
+	public static Vec3d[] getDefaultWingColors()
+	{
+		return defaultWingColors;
 	}
 }

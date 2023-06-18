@@ -17,7 +17,6 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -61,7 +60,12 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 		hexField.setChangedListener(this::updateSliders);
 		setType(type);
 		
-		reset = ButtonWidget.builder(Text.of("Reset"), button -> {}).dimensions(x + 2, y + 80, 155 / 2 - 2, 20).build();
+		reset = ButtonWidget.builder(Text.of("Reset"), button -> {
+			int idx = getPickerType() ? 1 : 0;
+			UltracraftClient.setWingColor(UltracraftClient.getDefaultWingColors()[idx].multiply(0xff), idx);
+			System.out.println(UltracraftClient.getDefaultWingColors()[idx]);
+			setType(getPickerType());
+		}).dimensions(x + 2, y + 80, 155 / 2 - 2, 20).build();
 		pickSkin = ButtonWidget.builder(Text.of("Pick from Skin"), button -> {}).dimensions(x + 1 + 155 / 2, y + 80, 155 / 2 - 2, 20).build();
 		typeSwitch = ButtonWidget.builder(Text.of(">"), button -> setType(!getPickerType())).dimensions(x + width - 13, y, 13, 13).build();
 		
