@@ -13,6 +13,7 @@ import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.SliderWidget;
@@ -50,9 +51,9 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 		width = dimensions.z;
 		height = 102;
 		
-		red = new ChannelSlider(textRenderer, x + 2, y + 14, 108, 20, Text.of("Red"), 0.5, 0);
-		green = new ChannelSlider(textRenderer, x + 2, y + 36, 108, 20, Text.of("Green"), 0.5, 1);
-		blue = new ChannelSlider(textRenderer, x + 2, y + 58, 108, 20, Text.of("Blue"), 0.5, 2);
+		red = new ChannelSlider(textRenderer, x + 2, y + 14, 108, 20, Text.translatable("screen.ultracraft.wing-settings.red"), 0.5, 0);
+		green = new ChannelSlider(textRenderer, x + 2, y + 36, 108, 20, Text.translatable("screen.ultracraft.wing-settings.green"), 0.5, 1);
+		blue = new ChannelSlider(textRenderer, x + 2, y + 58, 108, 20, Text.translatable("screen.ultracraft.wing-settings.blue"), 0.5, 2);
 		
 		hexField = new HexTextField(textRenderer, x + 112, y + 60, 80, 16, Text.of("HexField"));
 		hexField.setPlaceholder(Text.of("hex"));
@@ -60,14 +61,16 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 		hexField.setChangedListener(this::updateSliders);
 		setType(type);
 		
-		reset = ButtonWidget.builder(Text.of("Reset"), button -> {
+		reset = ButtonWidget.builder(Text.translatable("screen.ultracraft.wing-settings.reset"), button -> {
 			int idx = getPickerType() ? 1 : 0;
 			UltracraftClient.setWingColor(UltracraftClient.getDefaultWingColors()[idx].multiply(0xff), idx);
 			setType(getPickerType());
 			UltracraftClient.wingPreset = "";
 		}).dimensions(x + 2, y + 80, 155 / 2 - 2, 20).build();
-		pickSkin = ButtonWidget.builder(Text.of("Pick from Skin"), button -> {}).dimensions(x + 1 + 155 / 2, y + 80, 155 / 2 - 2, 20).build();
-		typeSwitch = ButtonWidget.builder(Text.of(">"), button -> setType(!getPickerType())).dimensions(x + width - 13, y, 13, 13).build();
+		pickSkin = ButtonWidget.builder(Text.translatable("screen.ultracraft.wing-settings.pick-skin"), button -> {}).dimensions(x + 1 + 155 / 2, y + 80, 155 / 2 - 2, 20).build();
+		pickSkin.active = false;
+		pickSkin.setTooltip(Tooltip.of(Text.translatable("screen.ultracraft.wing-settings.soon")));
+		typeSwitch = ButtonWidget.builder(Text.translatable(">"), button -> setType(!getPickerType())).dimensions(x + width - 13, y, 13, 13).build();
 		
 		children.add(red);
 		children.add(green);
@@ -275,7 +278,10 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 	@Override
 	public void setActive(boolean b)
 	{
-		children.forEach(w -> ((WidgetAccessor)w).setActive(b));
+		children.forEach(w -> {
+			if(!w.equals(pickSkin))
+				((WidgetAccessor)w).setActive(b);
+		});
 	}
 	
 	@Override
@@ -288,7 +294,7 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 	public void setType(boolean b)
 	{
 		type = b;
-		title = type ? Text.of("Metal Color") : Text.of("Wing Color");
+		title = type ? Text.translatable("screen.ultracraft.wing-settings.metal") : Text.translatable("screen.ultracraft.wing-settings.wing");
 		
 		Vec3d[] colors = UltracraftClient.getWingColors();
 		if(type)

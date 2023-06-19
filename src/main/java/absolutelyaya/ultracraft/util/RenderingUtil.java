@@ -31,7 +31,6 @@ public class RenderingUtil
 	public static void drawTexture(Matrix4f matrix, Vector4f transform, float z, Vec2f textureSize, Vector4f uv, float alpha)
 	{
 		RenderSystem.enableBlend();
-		RenderSystem.enableDepthTest();
 		RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
 		RenderSystem.setShader(GameRenderer::getPositionTexProgram);
 		BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();

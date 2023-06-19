@@ -300,6 +300,7 @@ public class UltracraftClient implements ClientModInitializer
 		
 		setWingColor(config.get().wingColors[0], 0);
 		setWingColor(config.get().wingColors[1], 1);
+		wingPreset = config.get().wingPreset;
 	}
 	
 	public static void addBlood(float f)

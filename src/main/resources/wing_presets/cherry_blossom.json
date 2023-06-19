@@ -2,5 +2,6 @@
   "wings": [1.0, 1.0, 1.0],
   "metal": [0.6, 0.0, 0.0],
   "text": [1.0, 1.0, 1.0],
-  "name": "Cherry Blossom"
+  "name": "wing-preset.ultracraft.cherry-blossom",
+  "author": "yaya"
 }

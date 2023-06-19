@@ -1,6 +1,7 @@
 {
-  "wings": [201, 206, 144],
+  "wings": [238, 255, 189],
   "metal": [146, 121, 255],
-  "text": [1.0, 1.0, 1.0],
-  "name": "Dreamer"
+  "text": [0.3, 0.5, 1.0],
+  "name": "wing-preset.ultracraft.dreamy",
+  "author": "Marmalude"
 }

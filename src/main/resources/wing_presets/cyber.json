@@ -2,5 +2,6 @@
   "wings": [87, 173, 6],
   "metal": [68, 68, 68],
   "text": [1.0, 1.0, 1.0],
-  "name": "Cyber"
+  "name": "wing-preset.ultracraft.cyber",
+  "author": "Marmalude"
 }

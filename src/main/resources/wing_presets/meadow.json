@@ -2,5 +2,6 @@
   "wings": [212, 215, 255],
   "metal": [129, 255, 159],
   "text": [1.0, 1.0, 1.0],
-  "name": "Meadow"
+  "name": "wing-preset.ultracraft.meadow",
+  "author": "Marmalude"
 }
