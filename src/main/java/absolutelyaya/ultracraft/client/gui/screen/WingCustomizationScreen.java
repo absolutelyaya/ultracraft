@@ -2,12 +2,16 @@ package absolutelyaya.ultracraft.client.gui.screen;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WidgetAccessor;
+import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.widget.ColorSelectionWidget;
+import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.WingColorPresetManager;
 import absolutelyaya.ultracraft.registry.WingPatterns;
 import absolutelyaya.ultracraft.util.RenderingUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.gui.Drawable;
@@ -17,6 +21,7 @@ import net.minecraft.client.gui.widget.*;
 import net.minecraft.client.option.Perspective;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -294,6 +299,14 @@ public class WingCustomizationScreen extends Screen
 		UltracraftClient.getConfigHolder().save();
 		if(tab == Tab.PRESETS)
 			WingColorPresetManager.unloadPresets();
+		
+		WingedPlayerEntity winged = (WingedPlayerEntity)client.player;
+		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+		buf.writeBoolean(winged.isWingsActive());
+		buf.writeVector3f(winged.getWingColors()[0].toVector3f());
+		buf.writeVector3f(winged.getWingColors()[1].toVector3f());
+		buf.writeString(winged.getWingPattern());
+		ClientPlayNetworking.send(PacketRegistry.SEND_WINGED_DATA_C2S_PACKET_ID, buf);
 	}
 	
 	@Override

@@ -97,15 +97,21 @@ public class ClientPacketRegistry
 				}
 			});
 		})));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SET_HIGH_VELOCITY_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SEND_WINGED_DATA_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)
 				return;
 			PlayerEntity player = client.player.world.getPlayerByUuid(buf.readUuid());
 			if(player == null)
 				return;
 			boolean b = buf.readBoolean();
+			Vector3f wingColor = buf.readVector3f(), metalColor = buf.readVector3f();
+			String pattern = buf.readString();
 			MinecraftClient.getInstance().execute(() -> {
-				((WingedPlayerEntity)player).setWingsVisible(b);
+				WingedPlayerEntity winged = ((WingedPlayerEntity)player);
+				winged.setWingsVisible(b);
+				winged.setWingColor(new Vec3d(wingColor), 0);
+				winged.setWingColor(new Vec3d(metalColor), 1);
+				winged.setWingPattern(pattern);
 			});
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SET_GUNCD_PACKET_ID, ((client, handler, buf, sender) -> {

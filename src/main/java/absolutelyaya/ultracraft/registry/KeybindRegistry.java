@@ -46,7 +46,7 @@ public class KeybindRegistry
 				UltracraftClient.toggleHiVelEnabled();
 				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 				buf.writeBoolean(UltracraftClient.isHiVelEnabled());
-				ClientPlayNetworking.send(PacketRegistry.SET_HIGH_VELOCITY_C2S_PACKET_ID, buf);
+				ClientPlayNetworking.send(PacketRegistry.SEND_WINGED_DATA_C2S_PACKET_ID, buf);
 				((WingedPlayerEntity)client.player).setWingsVisible(UltracraftClient.isHiVelEnabled());
 				hivelPressed = true;
 			}

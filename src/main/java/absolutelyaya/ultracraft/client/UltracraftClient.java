@@ -165,7 +165,10 @@ public class UltracraftClient implements ClientModInitializer
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeBoolean(isHiVelEnabled());
-			ClientPlayNetworking.send(PacketRegistry.SET_HIGH_VELOCITY_C2S_PACKET_ID, buf);
+			buf.writeVector3f(getWingColors()[0].toVector3f());
+			buf.writeVector3f(getWingColors()[1].toVector3f());
+			buf.writeString(wingPattern);
+			ClientPlayNetworking.send(PacketRegistry.SEND_WINGED_DATA_C2S_PACKET_ID, buf);
 			
 			if(config.get().serverJoinInfo)
 			{
@@ -206,7 +209,7 @@ public class UltracraftClient implements ClientModInitializer
 					return;
 				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 				buf.writeUuid(player.getUuid());
-				ClientPlayNetworking.send(PacketRegistry.REQUEST_HIVEL_PACKET_ID, buf);
+				ClientPlayNetworking.send(PacketRegistry.REQUEST_WINGED_DATA_PACKET_ID, buf);
 			}
 			else if (entity instanceof ThrownMachineSwordEntity sword)
 				MinecraftClient.getInstance().getSoundManager().play(new MovingMachineSwordSoundInstance(sword));
@@ -351,7 +354,10 @@ public class UltracraftClient implements ClientModInitializer
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeUuid(player.getUuid());
 			buf.writeBoolean(HiVelMode);
-			ClientPlayNetworking.send(PacketRegistry.SET_HIGH_VELOCITY_C2S_PACKET_ID, buf);
+			buf.writeVector3f(getWingColors()[0].toVector3f());
+			buf.writeVector3f(getWingColors()[1].toVector3f());
+			buf.writeString(wingPattern);
+			ClientPlayNetworking.send(PacketRegistry.SEND_WINGED_DATA_C2S_PACKET_ID, buf);
 		}
 		else
 			player.sendMessage(
@@ -377,7 +383,10 @@ public class UltracraftClient implements ClientModInitializer
 		{
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeBoolean(HiVelMode);
-			ClientPlayNetworking.send(PacketRegistry.SET_HIGH_VELOCITY_C2S_PACKET_ID, buf);
+			buf.writeVector3f(getWingColors()[0].toVector3f());
+			buf.writeVector3f(getWingColors()[1].toVector3f());
+			buf.writeString(wingPattern);
+			ClientPlayNetworking.send(PacketRegistry.SEND_WINGED_DATA_C2S_PACKET_ID, buf);
 		}
 	}
 	
