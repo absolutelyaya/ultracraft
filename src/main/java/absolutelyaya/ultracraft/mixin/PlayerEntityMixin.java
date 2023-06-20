@@ -57,6 +57,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	GunCooldownManager gunCDM;
 	Multimap<EntityAttribute, EntityAttributeModifier> curSpeedMod;
 	Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f / 255f, 1f, 154f / 255f), new Vec3d(117f / 255f, 154f / 255f, 1f) };
+	String wingPattern = "";
 	
 	private final Vec3d[] curWingPose = new Vec3d[] {new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f)};
 	
@@ -425,5 +426,17 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public void setWingColor(Vec3d val, int idx)
 	{
 		wingColors[idx] = val;
+	}
+	
+	@Override
+	public String getWingPattern()
+	{
+		return wingPattern;
+	}
+	
+	@Override
+	public void setWingPattern(String id)
+	{
+		wingPattern = id;
 	}
 }

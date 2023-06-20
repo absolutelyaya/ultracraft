@@ -62,4 +62,8 @@ public interface WingedPlayerEntity
 	Vec3d[] getWingColors();
 	
 	void setWingColor(Vec3d val, int idx);
+	
+	String getWingPattern();
+	
+	void setWingPattern(String id);
 }

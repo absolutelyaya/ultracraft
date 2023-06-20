@@ -5,7 +5,7 @@
     "dstrgb": "1-srcalpha"
   },
   "vertex": "rendertype_entity_cutout_no_cull",
-  "fragment": "ultracraft:rendertype_wings_colored",
+  "fragment": "ultracraft:wing-patterns/monochrome",
   "attributes": [
     "Position",
     "Color",

@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.RenderLayers;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
+import absolutelyaya.ultracraft.registry.WingPatterns;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.render.OverlayTexture;
@@ -19,7 +20,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
-import org.joml.Vector3f;
 
 public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>> extends FeatureRenderer<T, M>
 {
@@ -29,7 +29,7 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 	public WingsFeature(FeatureRendererContext<T, M> context, EntityModelLoader loader)
 	{
 		super(context);
-		wings = new WingsModel<>(loader.getModelPart(UltracraftClient.WINGS_LAYER), RenderLayers::getWingsColored);
+		wings = new WingsModel<>(loader.getModelPart(UltracraftClient.WINGS_LAYER), (identifier) -> RenderLayers.getWingsPattern(identifier, UltracraftClient.wingPattern));
 	}
 	
 	@Override
@@ -39,14 +39,17 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 		if(winged.isWingsActive() || (entity.isMainPlayer() && WingCustomizationScreen.MenuOpen))
 		{
 			Vec3d[] clrs = winged.getWingColors();
-			ShaderProgram wingShader = UltracraftClient.getWingsColoredShaderProgram();
+			String patternID = winged.getWingPattern();
+			WingPatterns.WingPattern p = null;
+			if(patternID.length() > 0)
+				p = WingPatterns.getPattern(patternID);
+			ShaderProgram wingShader = p == null ? UltracraftClient.getWingsColoredShaderProgram() : p.program().get();
 			wingShader.getUniform("WingColor").set(clrs[0].toVector3f());
 			wingShader.getUniform("MetalColor").set(clrs[1].toVector3f());
-			wingShader.getUniform("Pattern").set(0);
-			RenderSystem.setShader(UltracraftClient::getWingsColoredShaderProgram);
+			RenderSystem.setShader(p == null ? UltracraftClient::getWingsColoredShaderProgram : p.program());
 			matrices.push();
 			wings.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, winged);
-			VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayers.getWingsColored(TEXTURE));
+			VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayers.getWingsPattern(TEXTURE, patternID));
 			if(entity.isSneaking())
 			{
 				matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(20f));

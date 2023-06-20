@@ -1,9 +1,11 @@
 package absolutelyaya.ultracraft.client;
 
+import absolutelyaya.ultracraft.registry.WingPatterns;
 import net.minecraft.client.render.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -20,9 +22,9 @@ public class RenderLayers extends RenderLayer
 	{
 		return SHOCKWAVE.apply(texture);
 	}
-	public static RenderLayer getWingsColored(Identifier tex)
+	public static RenderLayer getWingsPattern(Identifier tex, String id)
 	{
-		return WINGS_COLORED.apply(tex);
+		return WINGS_PATTERN.apply(tex, id);
 	}
 	
 	public static RenderLayer getLightTrail()
@@ -45,9 +47,9 @@ public class RenderLayers extends RenderLayer
 		return RenderLayer.of("light_trail", VertexFormats.POSITION_COLOR, VertexFormat.DrawMode.QUADS, 256, false, true, multiPhaseParameters);
 	});
 	
-	private static final Function<Identifier, RenderLayer> WINGS_COLORED = Util.memoize((texture) -> {
-		MultiPhaseParameters multiPhaseParameters =
-				RenderLayer.MultiPhaseParameters.builder().program(WINGS_COLORED_PROGRAM).texture(new Texture(texture, false, false))
+	private static final BiFunction<Identifier, String, RenderLayer> WINGS_PATTERN = Util.memoize((texture, id) -> {
+		RenderLayer.MultiPhaseParameters multiPhaseParameters =
+				RenderLayer.MultiPhaseParameters.builder().program(new ShaderProgram(WingPatterns.getProgram(id))).texture(new RenderPhase.Texture(texture, false, false))
 						.overlay(RenderPhase.DISABLE_OVERLAY_COLOR).transparency(NO_TRANSPARENCY).cull(DISABLE_CULLING).lightmap(ENABLE_LIGHTMAP)
 						.build(true);
 		return of("wings_colored", VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, VertexFormat.DrawMode.QUADS, 256, true, false, multiPhaseParameters);

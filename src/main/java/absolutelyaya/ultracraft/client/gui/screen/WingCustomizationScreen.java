@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.accessor.WidgetAccessor;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.widget.ColorSelectionWidget;
 import absolutelyaya.ultracraft.registry.WingColorPresetManager;
+import absolutelyaya.ultracraft.registry.WingPatterns;
 import absolutelyaya.ultracraft.util.RenderingUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
@@ -41,7 +42,7 @@ public class WingCustomizationScreen extends Screen
 	static final Vec3d[] viewTranslations = new Vec3d[] { new Vec3d(-1.2, -0.4, 0.5f), new Vec3d(-2, -0.3, 0f), new Vec3d(-2.5, -0.3, 0f) };
 	static int viewMode;
 	List<Drawable> mainWidgets = new ArrayList<>();
-	List<PresetButton> presetButtons = new ArrayList<>();
+	List<PreviewButton> previewButtons = new ArrayList<>();
 	ButtonWidget refreshPresetsButton;
 	
 	Text subTitle = Text.empty();
@@ -50,7 +51,7 @@ public class WingCustomizationScreen extends Screen
 	Random rand;
 	Screen parent;
 	double fovScale, mainOffsetX, offsetY;
-	float noise, prevPitch, patternsAnim, presetsAnim, curPresetButtonScroll, targetPresetButtonScroll, showScrollingHint;
+	float noise, prevPitch, patternsAnim, presetsAnim, curpreviewButtonscroll, targetScroll, showScrollingHint;
 	Tab tab = Tab.MAIN;
 	ButtonWidget closeButton;
 	ColorSelectionWidget top, bottom;
@@ -131,6 +132,8 @@ public class WingCustomizationScreen extends Screen
 		
 		if(tab == Tab.PRESETS)
 			openPresets();
+		if(tab == Tab.PATTERNS)
+			openPatterns();
 		
 		children().forEach(c -> ((WidgetAccessor)c).setOffset(new Vector2i(0, (int)offsetY)));
 	}
@@ -156,12 +159,12 @@ public class WingCustomizationScreen extends Screen
 		//	entityRenderDispatcher.setRenderShadows(true);
 		//}
 		
-		if(tab == Tab.PRESETS)
+		if(tab == Tab.PRESETS || tab == Tab.PATTERNS)
 		{
-			presetButtons.forEach(pb -> {
+			previewButtons.forEach(pb -> {
 				WidgetAccessor widget = ((WidgetAccessor)pb);
-				curPresetButtonScroll = MathHelper.lerp(delta / 10, curPresetButtonScroll, targetPresetButtonScroll);
-				widget.setOffset(new Vector2i(0, Math.round(WingCustomizationScreen.this.curPresetButtonScroll)));
+				curpreviewButtonscroll = MathHelper.lerp(delta / 10, curpreviewButtonscroll, targetScroll);
+				widget.setOffset(new Vector2i(0, Math.round(WingCustomizationScreen.this.curpreviewButtonscroll)));
 				int y = pb.getY();
 				pb.setAlphaCap(Math.min((y - 22) / 20f, 1f) - MathHelper.clamp(Math.max(y - height + 105, 0) / 20f, 0f, 1f));
 			});
@@ -185,9 +188,6 @@ public class WingCustomizationScreen extends Screen
 			RenderingUtil.drawTexture(matrices.peek().getPositionMatrix(),
 					new Vector4f((int)(width - 80 - 32 * scale), (int)(height / 2 - 24 * scale), (int)(32 * scale), (int)(24 * scale)),
 					new Vec2f(64f, 48f), new Vector4f(0f, 0f, 1f, 1f));
-			drawTexturedQuad(matrices.peek().getPositionMatrix(),
-					(int)(width - 80 - 32 * scale), (int)(width - 80 + 32 * scale), (int)(height / 2 - 24 * scale), (int)(height / 2 + 24 * scale), 1,
-					0f, 1f, 0f, 1f);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		}
 		matrices.push();
@@ -220,30 +220,36 @@ public class WingCustomizationScreen extends Screen
 			((WidgetAccessor)w).setAlpha((float) MathHelper.clamp(1 - (mainOffsetX / 150f), 0f, 1f));
 		});
 		
-		if(tab == Tab.PATTERNS && patternsAnim < 1f && mainOffsetX > 100f)
-			patternsAnim = MathHelper.clamp(patternsAnim + delta / 10, 0f, 1f);
-		else if(tab != Tab.PATTERNS && patternsAnim < 2f && patternsAnim != 0f)
-			patternsAnim = MathHelper.clamp(patternsAnim + delta / 5, 1f, 2f);
-		else if(tab != Tab.PATTERNS && patternsAnim == 2f)
-			patternsAnim = 0f;
-		
 		if(tab == Tab.PRESETS)
 		{
 			if(presetsAnim < 1f)
 				presetsAnim += delta / 10f;
 		}
-		else if(presetsAnim > 0f)
+		else if(presetsAnim > 0f && tab != Tab.PATTERNS)
 		{
 			presetsAnim -= delta / 5f;
-			for (PresetButton pb : presetButtons)
+			for (PreviewButton pb : previewButtons)
 				pb.setAlpha(presetsAnim);
 		}
-		else if(presetButtons.size() > 0)
+		if(tab == Tab.PATTERNS)
 		{
-			for (PresetButton pb : presetButtons)
+			if(patternsAnim < 1f)
+				patternsAnim += delta / 10f;
+		}
+		else if(patternsAnim > 0f && tab != Tab.PRESETS)
+		{
+			patternsAnim -= delta / 5f;
+			for (PreviewButton pb : previewButtons)
+				pb.setAlpha(patternsAnim);
+		}
+		
+		if(tab == Tab.MAIN && presetsAnim <= 0f && patternsAnim <= 0f && previewButtons.size() > 0)
+		{
+			for (PreviewButton pb : previewButtons)
 				remove(pb);
-			presetButtons.clear();
-			presetsAnim = - 0.5f;
+			previewButtons.clear();
+			presetsAnim = -0.5f;
+			patternsAnim = -0.5f;
 		}
 		refreshPresetsButton.setAlpha(MathHelper.clamp(presetsAnim, 0.02f, 1f));
 	}
@@ -284,6 +290,7 @@ public class WingCustomizationScreen extends Screen
 		MenuOpen = false;
 		UltracraftClient.getConfigHolder().getConfig().wingColors = UltracraftClient.getWingColors();
 		UltracraftClient.getConfigHolder().getConfig().wingPreset = UltracraftClient.wingPreset;
+		UltracraftClient.getConfigHolder().getConfig().wingPattern = UltracraftClient.wingPattern;
 		UltracraftClient.getConfigHolder().save();
 		if(tab == Tab.PRESETS)
 			WingColorPresetManager.unloadPresets();
@@ -298,10 +305,10 @@ public class WingCustomizationScreen extends Screen
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double amount)
 	{
-		if(tab == Tab.PRESETS)
+		if(tab == Tab.PRESETS || tab == Tab.PATTERNS)
 		{
-			targetPresetButtonScroll += amount * -10;
-			targetPresetButtonScroll = MathHelper.clamp(targetPresetButtonScroll, (presetButtons.size() / 2f - 1) * -24, 0);
+			targetScroll += amount * -10;
+			targetScroll = MathHelper.clamp(targetScroll, (previewButtons.size() / 2f - 1) * -24, 0);
 		}
 		return super.mouseScrolled(mouseX, mouseY, amount);
 	}
@@ -337,21 +344,21 @@ public class WingCustomizationScreen extends Screen
 	{
 		if(tab != Tab.PRESETS)
 			WingColorPresetManager.loadPresets();
-		curPresetButtonScroll = targetPresetButtonScroll = 0f;
+		curpreviewButtonscroll = targetScroll = 0f;
 		tab = Tab.PRESETS;
 		subTitle = Text.translatable("screen.ultracraft.wing-settings.presets.title");
 		setMainTabActive(false);
 		closeButton.setMessage(Text.translatable("screen.ultracraft.wing-settings.back"));
-		addPresetButtons();
+		populatePresetList();
 		refreshPresetsButton.active = true;
-		if((presetButtons.size() / 2) * 24 > height - 105)
+		if((previewButtons.size() / 2) * 24 > height - 105)
 			showScrollingHint = 6f;
 	}
 	
 	void applyPreset(ButtonWidget button)
 	{
-		PresetButton pb = ((PresetButton)button);
-		UltracraftClient.wingPreset = pb.presetID;
+		PreviewButton pb = ((PreviewButton)button);
+		UltracraftClient.wingPreset = pb.id;
 		UltracraftClient.setWingColor(pb.preset.wings().multiply(255), 0);
 		UltracraftClient.setWingColor(pb.preset.metal().multiply(255), 1);
 		top.setType(top.getPickerType());
@@ -361,26 +368,26 @@ public class WingCustomizationScreen extends Screen
 	
 	void refreshPresets(ButtonWidget button)
 	{
-		curPresetButtonScroll = targetPresetButtonScroll = 0f;
+		curpreviewButtonscroll = targetScroll = 0f;
 		WingColorPresetManager.loadPresets();
-		addPresetButtons();
+		populatePresetList();
 	}
 	
-	void addPresetButtons()
+	void populatePresetList()
 	{
-		if(presetButtons.size() > 0)
+		if(previewButtons.size() > 0)
 		{
-			presetButtons.forEach(this::remove);
-			presetButtons.clear();
+			previewButtons.forEach(this::remove);
+			previewButtons.clear();
 		}
 		List<String> ids = WingColorPresetManager.getAllIDs();
 		for (int i = 0; i < ids.size(); i++)
 		{
 			boolean b = i % 2 == 0;
 			WingColorPresetManager.WingColorPreset preset = WingColorPresetManager.getPreset(ids.get(i));
-			PresetButton pb = addDrawableChild(new PresetButton(width - ((b ? 160 : 80) + 4), 42 + 24 * (i / 2), 76, 20,
+			PreviewButton pb = addDrawableChild(new PreviewButton(width - ((b ? 160 : 80) + 4), 42 + 24 * (i / 2), 76, 20,
 					this::applyPreset, ids.get(i), preset, 0.5f + 0.1f * i));
-			presetButtons.add(pb);
+			previewButtons.add(pb);
 		}
 	}
 	
@@ -390,6 +397,33 @@ public class WingCustomizationScreen extends Screen
 		subTitle = Text.translatable("screen.ultracraft.wing-settings.patterns.title");
 		setMainTabActive(false);
 		closeButton.setMessage(Text.translatable("screen.ultracraft.wing-settings.back"));
+		populatePatternList();
+		if((previewButtons.size() / 2) * 24 > height - 105)
+			showScrollingHint = 6f;
+	}
+	
+	void populatePatternList()
+	{
+		if(previewButtons.size() > 0)
+		{
+			previewButtons.forEach(this::remove);
+			previewButtons.clear();
+		}
+		List<String> ids = WingPatterns.getAllIDs();
+		for (int i = 0; i < ids.size(); i++)
+		{
+			boolean b = i % 2 == 0;
+			WingPatterns.WingPattern pattern = WingPatterns.getPattern(ids.get(i));
+			PreviewButton pb = addDrawableChild(new PreviewButton(width - ((b ? 160 : 80) + 4), 42 + 24 * (i / 2), 76, 20,
+					this::applyPattern, ids.get(i), pattern, 0.5f + 0.1f * i));
+			previewButtons.add(pb);
+		}
+	}
+	
+	void applyPattern(ButtonWidget button)
+	{
+		PreviewButton pb = ((PreviewButton)button);
+		UltracraftClient.setWingPattern(pb.id.equals("none") ? "" : pb.id);
 	}
 	
 	void backToMain()
@@ -437,17 +471,23 @@ public class WingCustomizationScreen extends Screen
 		}
 	}
 	
-	static class PresetButton extends ButtonWidget
+	static class PreviewButton extends ButtonWidget
 	{
-		public WingColorPresetManager.WingColorPreset preset;
-		String presetID;
+		public final WingColorPresetManager.WingColorPreset preset;
+		public final WingPatterns.WingPattern pattern;
+		Vec3d wingColor, metalColor, textColor;
+		String id;
 		float appearTime, alphaCap, alphaUncapped;
 		
-		protected PresetButton(int x, int y, int width, int height, PressAction onPress, String id, WingColorPresetManager.WingColorPreset preset, float appearTime)
+		protected PreviewButton(int x, int y, int width, int height, PressAction onPress, String id, WingColorPresetManager.WingColorPreset preset, float appearTime)
 		{
 			super(x, y, width, height, Text.translatable(preset.name()), onPress, DEFAULT_NARRATION_SUPPLIER);
 			this.preset = preset;
-			presetID = id;
+			this.pattern = null;
+			wingColor = preset.wings();
+			metalColor = preset.metal();
+			textColor = preset.text();
+			this.id = id;
 			this.appearTime = appearTime;
 			alpha = 0;
 			MutableText tooltip = Text.empty();
@@ -456,6 +496,24 @@ public class WingCustomizationScreen extends Screen
 				tooltip.append(Text.translatable("screen.ultracraft.wing-settings.presets.author", preset.author()).append(source ? "\n" : ""));
 			if(source)
 				tooltip.append(Text.translatable("screen.ultracraft.wing-settings.presets.source", preset.source()));
+			if(!tooltip.equals(Text.empty()))
+				setTooltip(Tooltip.of(tooltip));
+		}
+		
+		protected PreviewButton(int x, int y, int width, int height, PressAction onPress, String id, WingPatterns.WingPattern pattern, float appearTime)
+		{
+			super(x, y, width, height, Text.translatable("pattern.ultracraft." + id), onPress, DEFAULT_NARRATION_SUPPLIER);
+			this.pattern = pattern;
+			this.preset = null;
+			wingColor = UltracraftClient.getWingColors()[0].multiply(id.equals("none") ? 1f / 255f : 1f);
+			metalColor = UltracraftClient.getWingColors()[1].multiply(id.equals("none") ? 1f / 255f : 1f);
+			textColor = pattern.textColor();
+			this.id = id;
+			this.appearTime = appearTime;
+			alpha = 0;
+			MutableText tooltip = Text.empty();
+			if(pattern.hasFlavor())
+				tooltip.append(Text.translatable("pattern.ultracraft." + id + ".flavor"));
 			if(!tooltip.equals(Text.empty()))
 				setTooltip(Tooltip.of(tooltip));
 		}
@@ -478,13 +536,13 @@ public class WingCustomizationScreen extends Screen
 				i = 0;
 			else if (isSelected())
 				i = 2;
-			if(presetID.equals(UltracraftClient.wingPreset))
+			if((preset != null && id.equals(UltracraftClient.wingPreset)) ||
+					   (pattern != null && (id.equals(UltracraftClient.wingPattern) || (id.equals("none") && UltracraftClient.wingPattern.equals("")))))
 				i = 3;
-			ShaderProgram wingShader = UltracraftClient.getWingsColoredUIShaderProgram();
-			Vec3d wingColor = preset.wings(), metalColor = preset.metal(), textColor = preset.text();
+			ShaderProgram wingShader = pattern == null ? UltracraftClient.getWingsColoredUIShaderProgram() : pattern.previewProgram().get();
 			wingShader.getUniform("WingColor").set((float)wingColor.x, (float)wingColor.y, (float)wingColor.z);
 			wingShader.getUniform("MetalColor").set((float)metalColor.x, (float)metalColor.y, (float)metalColor.z);
-			RenderSystem.setShader(UltracraftClient::getWingsColoredUIShaderProgram);
+			RenderSystem.setShader(pattern == null ? UltracraftClient::getWingsColoredUIShaderProgram : pattern.previewProgram());
 			RenderSystem.setShaderTexture(0, new Identifier(Ultracraft.MOD_ID, "textures/gui/preset_preview.png"));
 			RenderingUtil.drawTexture(matrices.peek().getPositionMatrix(), new Vector4f(getX() + 1, getY() + 1, width, height),
 					new Vec2f(76, 40), new Vector4f(0, 20, 76, -20));

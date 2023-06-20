@@ -3,13 +3,18 @@
 #moj_import <fog.glsl>
 
 uniform sampler2D Sampler0;
+uniform float GameTime;
 uniform vec3 WingColor;
 uniform vec3 MetalColor;
 
 uniform vec4 ColorModulator;
+uniform float FogStart;
+uniform float FogEnd;
+uniform vec4 FogColor;
 
 in float vertexDistance;
 in vec4 vertexColor;
+in vec4 lightMapColor;
 in vec4 overlayColor;
 in vec2 texCoord0;
 in vec4 normal;
@@ -38,7 +43,7 @@ vec3 rgb2hsv(vec3 c)
 
 vec3 getRed(float brightness)
 {
-    vec3 colA = rgb2hsv(WingColor) * vec3(360, 100, 100);
+    vec3 colA = rgb2hsv(WingColor / vec3(255f, 255f, 255f)) * vec3(360, 100, 100);
     float step = brightness * 4 - 0.1;
     if(step > 3)
         return colA;
@@ -52,7 +57,7 @@ vec3 getRed(float brightness)
 
 vec3 getBlue(float brightness)
 {
-    vec3 colB = rgb2hsv(MetalColor) * vec3(360, 100, 100);
+    vec3 colB = rgb2hsv(MetalColor / vec3(255f, 255f, 255f)) * vec3(360, 100, 100);
     float step = brightness * 4 - 0.1;
     if(step > 3)
         return colB;
@@ -64,16 +69,26 @@ vec3 getBlue(float brightness)
         return colB + vec3(12, 14, -46);
 }
 
-void main() {
+void main()
+{
     vec4 colorIn = texture(Sampler0, texCoord0);
     vec4 color = colorIn;
-    if (color.a < 0.1) {
+    if (color.a < 0.1)
         discard;
-    }
-    float time;
+    float time = sin(abs(GameTime * 600) + (round((texCoord0.g + 1f / 64f) * 32f)) / 32f + (round((texCoord0.r + 1f / 64f) * 32f)) / 32f * (sin(GameTime * 1800)) * 3) / 2f + 0.5f;
+    color.rgb = mix(vec3(0f, 0f, 0f), mix(vec3(0.105f, 0.027f, 0.086f), hsv2rgb(getRed(0.5f) / vec3(360f, 100f, 100f))/*vec3(0.105f, 0.494f, 0.956f)*/, pow(time + (mod(round(texCoord0.g * 32f + 0.5f), 2) == 0 ? 0f : 0.5f), 4)), colorIn.r > 0f);
+    color.rgb *= (mod(round(texCoord0.g * 32f + 0.5f), 2) == 0 ? 1f : 0.8f);
 
-    color.rgb = mix(vec3(0f, 0f, 0f), hsv2rgb(getRed(colorIn.r).rgb / vec3(360f, 100f, 100f)), colorIn.r > 0f);
     color.rgb = mix(color.rgb, hsv2rgb(getBlue(colorIn.b).rgb / vec3(360f, 100f, 100f)), colorIn.b > 0f);
     color.rgb = mix(color.rgb, vec3(colorIn.g, colorIn.g, colorIn.g), colorIn.g > 0f);
-    fragColor = color * ColorModulator;
+    vec4 v = vertexColor;
+    vec4 light = lightMapColor;
+    if(colorIn.r > 0f)
+    {
+        light = vec4(1f, 1f, 1f, 1f);
+        v = vec4(1f, 1f, 1f, 1f);
+    }
+    color *= v * ColorModulator;
+    color *= light;
+    fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }

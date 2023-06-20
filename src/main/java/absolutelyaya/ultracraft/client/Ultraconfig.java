@@ -5,7 +5,6 @@ import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
 @SuppressWarnings("CanBeFinal")
@@ -75,4 +74,8 @@ public class Ultraconfig implements ConfigData
 	public Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f / 255f, 1f, 154f / 255f), new Vec3d(117f / 255f, 154f / 255f, 1f) };
 	@ConfigEntry.Gui.Excluded
 	public String wingPreset = "";
+	@ConfigEntry.Gui.Excluded
+	public String wingPattern = "";
+	@ConfigEntry.Gui.Excluded
+	public boolean showPatternEpilepsyWarning = true;
 }

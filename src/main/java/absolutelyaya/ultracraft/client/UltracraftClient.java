@@ -83,7 +83,7 @@ public class UltracraftClient implements ClientModInitializer
 	public static final EntityModelLayer ENRAGE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "enraged"), "main");
 	public static final EntityModelLayer SHOCKWAVE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "shockwave"), "main");
 	public static final EntityModelLayer INTERRUPTABLE_CHARGE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "interruptable_charge"), "main");
-	public static String wingPreset = "";
+	public static String wingPreset = "", wingPattern = "";
 	private static ShaderProgram wingsColoredProgram, wingsColoredUIProgram, texPosFade;
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	public static TrailRenderer TRAIL_RENDERER;
@@ -190,6 +190,7 @@ public class UltracraftClient implements ClientModInitializer
 			WingedPlayerEntity winged = ((WingedPlayerEntity)client.player);
 			winged.setWingColor(wingColors[0], 0);
 			winged.setWingColor(wingColors[1], 1);
+			winged.setWingPattern(wingPattern);
 		});
 		
 		ClientEntityEvents.ENTITY_LOAD.register((entity, clientWorld) -> {
@@ -247,6 +248,7 @@ public class UltracraftClient implements ClientModInitializer
 			}
 		});
 		
+		WingPatterns.init();
 		CoreShaderRegistrationCallback.EVENT.register((callback) -> {
 			callback.register(new Identifier(Ultracraft.MOD_ID, "rendertype_wings_colored"), VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, (program) -> {
 				program.getUniform("MetalColor");
@@ -301,6 +303,7 @@ public class UltracraftClient implements ClientModInitializer
 		setWingColor(config.get().wingColors[0], 0);
 		setWingColor(config.get().wingColors[1], 1);
 		wingPreset = config.get().wingPreset;
+		setWingPattern(config.get().wingPattern);
 	}
 	
 	public static void addBlood(float f)
@@ -448,5 +451,12 @@ public class UltracraftClient implements ClientModInitializer
 	public static Vec3d[] getDefaultWingColors()
 	{
 		return defaultWingColors;
+	}
+	
+	public static void setWingPattern(String id)
+	{
+		wingPattern = id;
+		if(MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player instanceof WingedPlayerEntity winged)
+			winged.setWingPattern(id);
 	}
 }
