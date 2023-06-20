@@ -46,6 +46,9 @@ public class KeybindRegistry
 				UltracraftClient.toggleHiVelEnabled();
 				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 				buf.writeBoolean(UltracraftClient.isHiVelEnabled());
+				buf.writeVector3f(UltracraftClient.getWingColors()[0].toVector3f());
+				buf.writeVector3f(UltracraftClient.getWingColors()[1].toVector3f());
+				buf.writeString(UltracraftClient.wingPattern);
 				ClientPlayNetworking.send(PacketRegistry.SEND_WINGED_DATA_C2S_PACKET_ID, buf);
 				((WingedPlayerEntity)client.player).setWingsVisible(UltracraftClient.isHiVelEnabled());
 				hivelPressed = true;

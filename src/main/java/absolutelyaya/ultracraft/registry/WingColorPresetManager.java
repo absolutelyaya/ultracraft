@@ -103,7 +103,7 @@ public class WingColorPresetManager
 			Files.createDirectories(presetDir);
 			for (Path internalFile : files)
 			{
-				String[] s = internalFile.toString().split("\\\\");
+				String[] s = internalFile.toString().split("/");
 				String id = s[s.length - 1];
 				Path filePath = Path.of(presetDir.toString(), id);
 				if(Files.exists(filePath))
@@ -121,7 +121,7 @@ public class WingColorPresetManager
 			for (Path resourceFile : resourceFiles.keySet())
 			{
 				String source = resourceFiles.get(resourceFile);
-				String[] s = resourceFile.toString().split("\\\\");
+				String[] s = resourceFile.toString().split("/");
 				String id = s[s.length - 1];
 				Path filePath = Path.of(presetDir.toString(), source, id);
 				Files.createDirectories(Path.of(presetDir.toString(), source));
@@ -131,6 +131,7 @@ public class WingColorPresetManager
 				{
 					JsonObject json = JsonHelper.deserialize(Files.readString(resourceFile));
 					json.addProperty("resourcepack", source);
+					Files.createFile(filePath);
 					Files.writeString(filePath, JsonHelper.toSortedString(json));
 					resourcepackImports++;
 				}
@@ -142,7 +143,7 @@ public class WingColorPresetManager
 		}
 		catch (IOException e)
 		{
-			Ultracraft.LOGGER.error("Failed to save Wing Color Presets From Resourcepacks", e);
+			Ultracraft.LOGGER.error("Failed to save Wing Color Presets", e);
 			return;
 		}
 		Ultracraft.LOGGER.info("Loaded Default Wing Color Presets. ({} newly imported from resourcepacks)", resourcepackImports);

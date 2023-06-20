@@ -352,8 +352,7 @@ public class UltracraftClient implements ClientModInitializer
 		{
 			HiVelMode = !HiVelMode;
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-			buf.writeUuid(player.getUuid());
-			buf.writeBoolean(HiVelMode);
+			buf.writeBoolean(isHiVelEnabled());
 			buf.writeVector3f(getWingColors()[0].toVector3f());
 			buf.writeVector3f(getWingColors()[1].toVector3f());
 			buf.writeString(wingPattern);
@@ -382,7 +381,7 @@ public class UltracraftClient implements ClientModInitializer
 		if(!fromServer && player != null)
 		{
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-			buf.writeBoolean(HiVelMode);
+			buf.writeBoolean(isHiVelEnabled());
 			buf.writeVector3f(getWingColors()[0].toVector3f());
 			buf.writeVector3f(getWingColors()[1].toVector3f());
 			buf.writeString(wingPattern);
