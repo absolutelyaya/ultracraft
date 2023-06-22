@@ -78,7 +78,7 @@ public class WingColorPresetManager
 		while(paths.size() > 0)
 		{
 			Path p = paths.remove();
-			String[] pathSegments = p.toString().split("\\\\");
+			String[] pathSegments = p.toString().split("[\\\\/]");
 			String name = pathSegments[pathSegments.length - 1];
 			p = Path.of(p.toString(), "ultracraft", "wing_presets");
 			if(Files.notExists(p))
@@ -103,7 +103,7 @@ public class WingColorPresetManager
 			Files.createDirectories(presetDir);
 			for (Path internalFile : files)
 			{
-				String[] s = internalFile.toString().split("/");
+				String[] s = internalFile.toString().split("[/\\\\]");
 				String id = s[s.length - 1];
 				Path filePath = Path.of(presetDir.toString(), id);
 				if(Files.exists(filePath))
@@ -121,7 +121,7 @@ public class WingColorPresetManager
 			for (Path resourceFile : resourceFiles.keySet())
 			{
 				String source = resourceFiles.get(resourceFile);
-				String[] s = resourceFile.toString().split("/");
+				String[] s = resourceFile.toString().split("[\\\\/]");
 				String id = s[s.length - 1];
 				Path filePath = Path.of(presetDir.toString(), source, id);
 				Files.createDirectories(Path.of(presetDir.toString(), source));
@@ -171,7 +171,7 @@ public class WingColorPresetManager
 						paths.add(f);
 						continue;
 					}
-					String[] s = f.toString().split("\\\\");
+					String[] s = f.toString().split("[\\\\/]");
 					String id = s[s.length - 1];
 					Path filePath = Path.of(f.toString(), id);
 					if(Files.exists(filePath))

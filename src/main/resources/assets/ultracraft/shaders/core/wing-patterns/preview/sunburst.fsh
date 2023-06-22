@@ -71,9 +71,10 @@ void main()
     vec4 color = colorIn;
     if (color.a < 0.1)
         discard;
-    float time = sin(abs(GameTime * 600) + (round((texCoord0.g + 1f / 64f) * 32f)) / 32f + (round((texCoord0.r + 1f / 64f) * 32f)) / 32f * (sin(GameTime * 1800)) * 3) / 2f + 0.5f;
-    color.rgb = mix(vec3(0f, 0f, 0f), mix(vec3(0.105f, 0.027f, 0.086f), hsv2rgb(getRed(0.5f) / vec3(360f, 100f, 100f))/*vec3(0.105f, 0.494f, 0.956f)*/, pow(time + (mod(round(texCoord0.g * 32f + 0.5f), 2) == 0 ? 0f : 0.5f), 4)), colorIn.r > 0f);
-    color.rgb *= (mod(round(texCoord0.g * 32f + 0.5f), 2) == 0 ? 1f : 0.8f);
+    vec2 pixelUV = round((texCoord0 + vec2(1f / (76f * 2), 1f / (40f * 2))) * vec2(76f, 40f)) / vec2(76f, 40f) + vec2(1f / (76f * 2), 1f / (40f * 2));
+    float time = sin(abs(GameTime * 600) + pixelUV.x * 2 + pixelUV.y * (sin(GameTime * 1800)) * 3) / 2f + 0.5f;
+    color.rgb = mix(vec3(0f, 0f, 0f), mix(vec3(0.105f, 0.027f, 0.086f), hsv2rgb(getRed(0.5f) / vec3(360f, 100f, 100f)), pow(time + (mod(round(texCoord0.y * 32 + 0.5f), 2) == 0 ? 0f : 0.5f), 4)), colorIn.r > 0f);
+    color.rgb *= mod(round(texCoord0.y * 32f + 0.5f), 2) == 0 ? 1f : 0.8f;
 
     color.rgb = mix(color.rgb, hsv2rgb(getBlue(colorIn.b).rgb / vec3(360f, 100f, 100f)), colorIn.b > 0f);
     color.rgb = mix(color.rgb, vec3(colorIn.g, colorIn.g, colorIn.g), colorIn.g > 0f);

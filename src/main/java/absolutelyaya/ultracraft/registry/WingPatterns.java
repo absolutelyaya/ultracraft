@@ -18,8 +18,8 @@ import java.util.function.Supplier;
 @Environment(EnvType.CLIENT)
 public class WingPatterns
 {
-	private static ShaderProgram gamerProgram, sunburstProgram, monochromeProgram;
-	private static ShaderProgram gamerPreviewProgram, sunburstPreviewProgram, monochromePreviewProgram;
+	private static ShaderProgram gamerProgram, sunburstProgram, monochromeProgram, ripplesProgram;
+	private static ShaderProgram gamerPreviewProgram, sunburstPreviewProgram, monochromePreviewProgram, ripplesPreviewProgram;
 	private static final Map<String, WingPattern> patterns;
 	
 	public static void init()
@@ -43,6 +43,12 @@ public class WingPatterns
 				program.markUniformsDirty();
 				monochromeProgram = program;
 			});
+			callback.register(new Identifier(Ultracraft.MOD_ID, "wing-patterns/ripples"), VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, (program) -> {
+				program.getUniform("MetalColor");
+				program.getUniform("WingColor");
+				program.markUniformsDirty();
+				ripplesProgram = program;
+			});
 			callback.register(new Identifier(Ultracraft.MOD_ID, "wing-patterns/preview/gamer"), VertexFormats.POSITION_TEXTURE_COLOR, (program) -> {
 				program.getUniform("MetalColor");
 				program.getUniform("WingColor");
@@ -60,6 +66,12 @@ public class WingPatterns
 				program.getUniform("WingColor");
 				program.markUniformsDirty();
 				monochromePreviewProgram = program;
+			});
+			callback.register(new Identifier(Ultracraft.MOD_ID, "wing-patterns/preview/ripples"), VertexFormats.POSITION_TEXTURE_COLOR, (program) -> {
+				program.getUniform("MetalColor");
+				program.getUniform("WingColor");
+				program.markUniformsDirty();
+				ripplesPreviewProgram = program;
 			});
 		});
 	}
@@ -104,6 +116,16 @@ public class WingPatterns
 		return monochromePreviewProgram;
 	}
 	
+	public static ShaderProgram getRipplesShaderProgram()
+	{
+		return ripplesProgram;
+	}
+	
+	public static ShaderProgram getRipplesPreviewShaderProgram()
+	{
+		return ripplesPreviewProgram;
+	}
+	
 	public static Supplier<ShaderProgram> getProgram(String id)
 	{
 		if(!patterns.containsKey(id))
@@ -121,6 +143,8 @@ public class WingPatterns
 		builder.put("sunburst", new WingPattern(WingPatterns::getSunburstShaderProgram, WingPatterns::getSunburstPreviewShaderProgram,
 				new Vec3d(133, 36, 46).multiply(1f / 255f), true));
 		builder.put("monochrome", new WingPattern(WingPatterns::getMonochromeShaderProgram, WingPatterns::getMonochromePreviewShaderProgram,
+				new Vec3d(255, 255, 255).multiply(1f / 255f), true));
+		builder.put("ripples", new WingPattern(WingPatterns::getRipplesShaderProgram, WingPatterns::getRipplesPreviewShaderProgram,
 				new Vec3d(255, 255, 255).multiply(1f / 255f), true));
 		patterns = builder.build();
 	}

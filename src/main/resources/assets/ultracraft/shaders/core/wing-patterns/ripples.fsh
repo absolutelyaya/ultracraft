@@ -41,18 +41,28 @@ vec3 rgb2hsv(vec3 c)
     return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
 }
 
+float frac(float v)
+{
+    return v - floor(v);
+}
+
+float getRandom(vec2 v)
+{
+    return frac(sin(dot(v, vec2(12.9898, 78.233))) * 43758.5453);
+}
+
 vec3 getRed(float brightness)
 {
     vec3 colA = rgb2hsv(WingColor / vec3(255f, 255f, 255f)) * vec3(360, 100, 100);
     float step = brightness * 4 - 0.1;
     if(step > 3)
-        return colA;
+    return colA;
     else if(step > 2)
-        return colA + vec3(-11, 20, 0);
+    return colA + vec3(-11, 20, 0);
     else if(step > 1)
-        return colA + vec3(-22, 40, 0);
+    return colA + vec3(-22, 40, 0);
     else
-        return colA + vec3(-30, 60, 0);
+    return colA + vec3(-30, 60, 0);
 }
 
 vec3 getBlue(float brightness)
@@ -75,10 +85,15 @@ void main()
     vec4 color = colorIn;
     if (color.a < 0.1)
         discard;
-    float time = sin(abs(GameTime * 600) + (round((texCoord0.g + 1f / 64f) * 32f)) / 32f + (round((texCoord0.r + 1f / 64f) * 32f)) / 32f * (sin(GameTime * 1800)) * 3) / 2f + 0.5f;
-    color.rgb = mix(vec3(0f, 0f, 0f), mix(vec3(0.105f, 0.027f, 0.086f), hsv2rgb(getRed(0.5f) / vec3(360f, 100f, 100f)), pow(time + (mod(round(texCoord0.g * 32f + 0.5f), 2) == 0 ? 0f : 0.5f), 4)), colorIn.r > 0f);
-    color.rgb *= (mod(round(texCoord0.g * 32f + 0.5f), 2) == 0 ? 1f : 0.8f);
-
+    vec2 pixelUV = round((texCoord0 + 1f / 64f) * 32f) / 32f + 1f / 64f;
+    color.rgb = hsv2rgb(getRed(colorIn.r).rgb / vec3(360f, 100f, 100f));
+    for(int i = 0; i < 3; i++)
+    {
+        float time = mod(GameTime * -300 + distance(pixelUV, vec2(0.75, 0.25)), 2f);
+        color.rgb = mix(color.rgb, vec3(1, 1, 1), (time > 1.9 - 0.125 * i && time < 2 - 0.15 * i) ? 1 - distance(time, 1.975f - 0.125 * i) * 10: 0f);
+        time = mod(GameTime * -300 + distance(pixelUV, vec2(0, 0.25)), 2f);
+        color.rgb = mix(color.rgb, vec3(1, 1, 1), (time > 0.9 - 0.125 * i && time < 1 - 0.15 * i) ? 1 - distance(time, 0.975f - 0.125 * i) * 10: 0f);
+    }
     color.rgb = mix(color.rgb, hsv2rgb(getBlue(colorIn.b).rgb / vec3(360f, 100f, 100f)), colorIn.b > 0f);
     color.rgb = mix(color.rgb, vec3(colorIn.g, colorIn.g, colorIn.g), colorIn.g > 0f);
     vec4 v = vertexColor;

@@ -57,9 +57,10 @@ void main()
     vec4 color = colorIn;
     if (color.a < 0.1)
         discard;
+    vec2 pixelUV = round((texCoord0 + vec2(1f / (76f * 2), 1f / (40f * 2))) * vec2(76f, 40f)) / vec2(76f, 40f) + vec2(1f / (76f * 2), 1f / (40f * 2));
     if(color.a < 0.11)
         color.a = WingColor.r; //just so the compiler doesn't complain
-    float time = mod(abs(GameTime * 600) + (round((texCoord0.g + 1f / 64f) * 32f)) / 32f + (round((texCoord0.r + 1f / 64f) * 32f)) / 32f, 1f);
+    float time = mod(abs(GameTime * 600) + pixelUV.x * 2 + pixelUV.y, 1f);
     color.rgb = mix(colorIn.rrr / 4, hsv2rgb(vec3(time, 1f, 1f)), colorIn.r > 0.5f);
     color.rgb = mix(color.rgb, hsv2rgb(getBlue(colorIn.b).rgb / vec3(360f, 100f, 100f)), colorIn.b > 0f);
     color.rgb = mix(color.rgb, vec3(colorIn.g, colorIn.g, colorIn.g), colorIn.g > 0f);
