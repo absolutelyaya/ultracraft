@@ -64,7 +64,10 @@ public class Ultraconfig implements ConfigData
 	@ConfigEntry.Category("debug")
 	@ConfigEntry.Gui.Tooltip
 	public boolean showPunchArea = false;
+	@ConfigEntry.Gui.Tooltip
+	public boolean safeVFX = true;
 	public boolean repeatIntro = false;
+	public boolean neverIntro = false;
 	
 	@ConfigEntry.Gui.Excluded
 	public String lastVersion = "none";
@@ -77,5 +80,5 @@ public class Ultraconfig implements ConfigData
 	@ConfigEntry.Gui.Excluded
 	public String wingPattern = "";
 	@ConfigEntry.Gui.Excluded
-	public boolean showPatternEpilepsyWarning = true;
+	public boolean showEpilepsyWarning = true;
 }

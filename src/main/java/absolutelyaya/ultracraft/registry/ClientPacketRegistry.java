@@ -111,7 +111,7 @@ public class ClientPacketRegistry
 				winged.setWingsVisible(b);
 				winged.setWingColor(new Vec3d(wingColor), 0);
 				winged.setWingColor(new Vec3d(metalColor), 1);
-				winged.setWingPattern(pattern);
+				winged.setWingPattern(UltracraftClient.getConfigHolder().get().safeVFX ? "" : pattern);
 			});
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SET_GUNCD_PACKET_ID, ((client, handler, buf, sender) -> {

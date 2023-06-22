@@ -90,7 +90,7 @@ public class Ultracraft implements ModInitializer
             freezeTicks--;
     }
     
-    public static boolean checkSupporter(String uuid)
+    public static boolean checkSupporter(String uuid, boolean client)
     {
         boolean supporter = false;
         try
@@ -98,12 +98,12 @@ public class Ultracraft implements ModInitializer
             URL url = new URL(SUPPORTER_LIST);
             JsonObject json = JsonHelper.deserialize(new InputStreamReader(url.openStream()));
             supporter = JsonHelper.hasElement(json, uuid);
-            if(supporter)
-                Ultracraft.LOGGER.info("Support verified! Thank you for helping me make stuff :D");
+            if(supporter && client)
+                Ultracraft.LOGGER.info("[ULTRACRAFT] Support verified! Thank you for helping me make stuff :D");
         }
         catch (IOException e)
         {
-            Ultracraft.LOGGER.error("Failed to fetch Supporters.", e);
+            Ultracraft.LOGGER.error("[ULTRACRAFT] Failed to fetch Supporters.", e);
         }
         return supporter;
     }

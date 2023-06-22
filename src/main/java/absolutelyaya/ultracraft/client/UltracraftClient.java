@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.client;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.client.gui.screen.EpilepsyPopupScreen;
 import absolutelyaya.ultracraft.client.rendering.TrailRenderer;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.client.rendering.block.entity.CerberusBlockRenderer;
@@ -95,8 +96,8 @@ public class UltracraftClient implements ClientModInitializer
 	static boolean disableHandswap = false, slamStorage = true, fallDamage = false, drowning = false, effectivelyViolent = false, wasMovementSoundsEnabled, supporter = false;
 	public static int jumpBoost, speed, gravityReduction;
 	static float screenblood;
-	static Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f / 255f, 1f, 154f / 255f), new Vec3d(117f / 255f, 154f / 255f, 1f) };
-	static final Vec3d[] defaultWingColors = new Vec3d[] { new Vec3d(247f / 255f, 1f, 154f / 255f), new Vec3d(117f / 255f, 154f / 255f, 1f) };
+	static Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f, 255f, 154f), new Vec3d(117f, 154f, 255f) };
+	static final Vec3d[] defaultWingColors = new Vec3d[] { new Vec3d(247f, 255f, 154f), new Vec3d(117f, 154f, 255f) };
 	
 	static UltraHudRenderer hudRenderer;
 	static ConfigHolder<Ultraconfig> config;
@@ -195,6 +196,8 @@ public class UltracraftClient implements ClientModInitializer
 			winged.setWingColor(wingColors[0], 0);
 			winged.setWingColor(wingColors[1], 1);
 			winged.setWingPattern(wingPattern);
+			if(config.get().showEpilepsyWarning)
+				MinecraftClient.getInstance().setScreen(new EpilepsyPopupScreen(null));
 		});
 		
 		ClientEntityEvents.ENTITY_LOAD.register((entity, clientWorld) -> {
@@ -234,7 +237,9 @@ public class UltracraftClient implements ClientModInitializer
 		});
 		
 		HudRenderCallback.EVENT.register((matrices, delta) -> {
-			if(config.getConfig().bloodOverlay)
+			if(config.get().safeVFX)
+				return;
+			if(config.get().bloodOverlay)
 			{
 				RenderSystem.enableBlend();
 				String bloodName = config.get().danganronpa ? "textures/misc/blood_overlay_c" : "textures/misc/blood_overlay";
@@ -245,11 +250,10 @@ public class UltracraftClient implements ClientModInitializer
 				MinecraftClient.getInstance().inGameHud.renderOverlay(matrices, new Identifier(Ultracraft.MOD_ID, bloodName + "1.png"),
 						Math.min(screenblood - 0.75f, 0.6f));
 				screenblood = Math.max(0f, screenblood - delta / 120);
-				
-				if(Ultracraft.isTimeFrozen())
-					MinecraftClient.getInstance().inGameHud.renderOverlay(matrices, new Identifier(Ultracraft.MOD_ID, "textures/misc/time_freeze_overlay.png"),
-						0.25f);
 			}
+			if(Ultracraft.isTimeFrozen())
+				MinecraftClient.getInstance().inGameHud.renderOverlay(matrices, new Identifier(Ultracraft.MOD_ID, "textures/misc/time_freeze_overlay.png"),
+						0.25f);
 		});
 		
 		WingPatterns.init();
@@ -475,7 +479,7 @@ public class UltracraftClient implements ClientModInitializer
 	{
 		MinecraftClient client = MinecraftClient.getInstance();
 		String uuid = client.player != null ? client.player.getUuid().toString() : client.getSession().getUuid();
-		supporter = Ultracraft.checkSupporter(uuid);
+		supporter = Ultracraft.checkSupporter(uuid, true);
 	}
 	
 	public static boolean isSupporter()

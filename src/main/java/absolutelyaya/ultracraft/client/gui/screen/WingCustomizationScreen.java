@@ -48,11 +48,11 @@ public class WingCustomizationScreen extends Screen
 	static int viewMode;
 	List<Drawable> mainWidgets = new ArrayList<>();
 	List<PreviewButton> previewButtons = new ArrayList<>();
-	ButtonWidget refreshPresetsButton, supportButton, refreshSupportButton;
+	ButtonWidget refreshPresetsButton, supportButton, refreshSupportButton, patternTabButton;
 	
 	Text subTitle = Text.empty();
 	Perspective oldPerspective;
-	boolean wasHudHidden;
+	boolean wasHudHidden, safeVFX;
 	Random rand;
 	Screen parent;
 	double fovScale, mainOffsetX, offsetY;
@@ -90,6 +90,7 @@ public class WingCustomizationScreen extends Screen
 		client.options.getFovEffectScale().setValue(0.0);
 		Instance = this;
 		MenuOpen = true;
+		safeVFX = UltracraftClient.getConfigHolder().get().safeVFX;
 		WingColorPresetManager.restoreDefaults();
 	}
 	
@@ -111,8 +112,13 @@ public class WingCustomizationScreen extends Screen
 			bottom = null;
 			y += 4 + (height - (y + 105));
 		}
-		mainWidgets.add(addDrawableChild(new OtherButton(width - 160, y, 150, 20, Text.translatable("screen.ultracraft.wing-settings.patterns.title"),
+		mainWidgets.add(patternTabButton = addDrawableChild(new OtherButton(width - 160, y, 150, 20, Text.translatable("screen.ultracraft.wing-settings.patterns.title"),
 				(button) -> openPatterns())));
+		if(safeVFX)
+		{
+			patternTabButton.setTooltip(Tooltip.of(Text.translatable("screen.ultracraft.wing-settings.patterns.safe-vfx")));
+			patternTabButton.active = false;
+		}
 		y += 25;
 		mainWidgets.add(addDrawableChild(new OtherButton(width - 160, y, 150, 20, Text.translatable("screen.ultracraft.wing-settings.presets.title"),
 				(button) -> openPresets())));
@@ -121,7 +127,7 @@ public class WingCustomizationScreen extends Screen
 		refreshPresetsButton.active = false;
 		refreshPresetsButton.setAlpha(0f);
 		supportButton = ButtonWidget.builder(Text.translatable("screen.ultracraft.wing-settings.patterns.support"),
-						(b) -> client.setScreen(new InfoPopupScreen(Text.translatable("screen.ultracraft.wing-settings.patterns.support"), this)))
+						(b) -> client.setScreen(new SupporterPopupScreen(this)))
 									   .dimensions(width - 160, y, 130, 20).build();
 		supportButton.active = false;
 		supportButton.setAlpha(0f);
@@ -487,6 +493,8 @@ public class WingCustomizationScreen extends Screen
 		subTitle = Text.empty();
 		setMainTabActive(true);
 		closeButton.setMessage(ScreenTexts.DONE);
+		if(safeVFX)
+			patternTabButton.active = false;
 	}
 	
 	void setMainTabActive(boolean b)

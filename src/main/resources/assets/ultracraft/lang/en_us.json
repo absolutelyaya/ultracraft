@@ -128,14 +128,22 @@
   "screen.ultracraft.wing-settings.presets.author": "Made by §6%s",
   "screen.ultracraft.wing-settings.presets.source": "Added via Resourcepack '%s'",
   "screen.ultracraft.wing-settings.presets.scroll-hint": "Scroll for more Options!",
+  "screen.ultracraft.wing-settings.patterns.safe-vfx": "Disabled due to \"Disable Flashy VFX\" Setting.",
   "screen.ultracraft.wing-settings.patterns.support": "§6☆ Become a Supporter ☆",
   "screen.ultracraft.wing-settings.patterns.supported": "§6❤ Thank you!! ❤",
   "screen.ultracraft.wing-settings.patterns.non-supporter-hint": "Wing Patterns are reserved for Supporters.\nThank you for understanding!",
   "screen.ultracraft.wing-settings.patterns.refresh-supporter": "Refresh Supporter Status\n(NOTE: new Supporters are added to the list manually! It might take a bit until you receive your benefits.)",
-  "screen.ultracraft.info.supporter-text": "Wanna support my work and get something out of it too?\nBy becoming a Supporter, you get following benefits:\n+ Earlier Teasers of upcoming Features\n+ Access to Test Versions\n+ Access to Wing Patterns",
+  "screen.ultracraft.info.supporter.title": "§6§n☆ Become a Supporter ☆",
+  "screen.ultracraft.info.supporter.text": "Wanna support my work and get something out of it too?\nBy becoming a Supporter, you get following benefits:\n+ Earlier Teasers of upcoming Features\n+ Access to Test Versions\n+ Access to Wing Patterns",
   "screen.ultracraft.info.supporter.accept": "sure",
   "screen.ultracraft.info.supporter.accept.tooltip": "Opens yayas Ko-fi",
   "screen.ultracraft.info.supporter.decline": "nah",
+  "screen.ultracraft.info.epilepsy.title": "§4§n! Epilepsy Warning !",
+  "screen.ultracraft.info.epilepsy.text": "This mod contains fast movement and some flashing VFX.\nThe Potentially harmful VFX, like Wing Patterns,\ncan be disabled.\nIf this affects you negatively regardless,\nplease excercise caution and\nstop playing if you feel discomfort.\n\nSelecting \"I am affected\",\nwill automatically disable mentioned VFX.",
+  "screen.ultracraft.info.epilepsy.affected": "I am affected",
+  "screen.ultracraft.info.epilepsy.affected.tooltip": "Automatically disables said VFX. Please be mindful of your Health regardless.",
+  "screen.ultracraft.info.epilepsy.unaffected": "I am Not affected",
+  "screen.ultracraft.info.epilepsy.unaffected.tooltip": "Leaves everything as is.",
 
   "wing-preset.ultracraft.amethyst": "Amethyst",
   "wing-preset.ultracraft.cyber": "Cyber",
@@ -242,5 +250,9 @@
   "text.autoconfig.ultracraft.option.movementSounds": "Movement Sounds",
   "text.autoconfig.ultracraft.option.movementSounds.@Tooltip": "Whether Sliding and quick movement should play their sound loops.",
 
-  "text.autoconfig.ultracraft.option.repeatIntro": "Repeat Intro"
+  "text.autoconfig.ultracraft.option.safeVFX": "Disable Flashy VFX",
+  "text.autoconfig.ultracraft.option.safeVFX.@Tooltip": "Disable VFX that might affect photosensitive people negatively. (aka flashing)",
+
+  "text.autoconfig.ultracraft.option.repeatIntro": "Repeat Intro",
+  "text.autoconfig.ultracraft.option.neverIntro": "Don't show Intro after switching Versions"
 }
