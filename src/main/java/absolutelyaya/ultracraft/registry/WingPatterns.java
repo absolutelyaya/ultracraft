@@ -18,8 +18,8 @@ import java.util.function.Supplier;
 @Environment(EnvType.CLIENT)
 public class WingPatterns
 {
-	private static ShaderProgram gamerProgram, sunburstProgram, monochromeProgram, ripplesProgram;
-	private static ShaderProgram gamerPreviewProgram, sunburstPreviewProgram, monochromePreviewProgram, ripplesPreviewProgram;
+	private static ShaderProgram gamerProgram, sunburstProgram, monochromeProgram, ripplesProgram, ripplesClrProgram;
+	private static ShaderProgram gamerPreviewProgram, sunburstPreviewProgram, monochromePreviewProgram, ripplesPreviewProgram, ripplesClrPreviewProgram;
 	private static final Map<String, WingPattern> patterns;
 	
 	public static void init()
@@ -49,6 +49,12 @@ public class WingPatterns
 				program.markUniformsDirty();
 				ripplesProgram = program;
 			});
+			callback.register(new Identifier(Ultracraft.MOD_ID, "wing-patterns/ripples-clr"), VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, (program) -> {
+				program.getUniform("MetalColor");
+				program.getUniform("WingColor");
+				program.markUniformsDirty();
+				ripplesClrProgram = program;
+			});
 			callback.register(new Identifier(Ultracraft.MOD_ID, "wing-patterns/preview/gamer"), VertexFormats.POSITION_TEXTURE_COLOR, (program) -> {
 				program.getUniform("MetalColor");
 				program.getUniform("WingColor");
@@ -72,6 +78,12 @@ public class WingPatterns
 				program.getUniform("WingColor");
 				program.markUniformsDirty();
 				ripplesPreviewProgram = program;
+			});
+			callback.register(new Identifier(Ultracraft.MOD_ID, "wing-patterns/preview/ripples-clr"), VertexFormats.POSITION_TEXTURE_COLOR, (program) -> {
+				program.getUniform("MetalColor");
+				program.getUniform("WingColor");
+				program.markUniformsDirty();
+				ripplesClrPreviewProgram = program;
 			});
 		});
 	}
@@ -126,6 +138,16 @@ public class WingPatterns
 		return ripplesPreviewProgram;
 	}
 	
+	public static ShaderProgram getRipplesClrShaderProgram()
+	{
+		return ripplesClrProgram;
+	}
+	
+	public static ShaderProgram getRipplesClrPreviewShaderProgram()
+	{
+		return ripplesClrPreviewProgram;
+	}
+	
 	public static Supplier<ShaderProgram> getProgram(String id)
 	{
 		if(!patterns.containsKey(id))
@@ -145,6 +167,8 @@ public class WingPatterns
 		builder.put("monochrome", new WingPattern(WingPatterns::getMonochromeShaderProgram, WingPatterns::getMonochromePreviewShaderProgram,
 				new Vec3d(255, 255, 255).multiply(1f / 255f), true));
 		builder.put("ripples", new WingPattern(WingPatterns::getRipplesShaderProgram, WingPatterns::getRipplesPreviewShaderProgram,
+				new Vec3d(255, 255, 255).multiply(1f / 255f), true));
+		builder.put("ripples-clr", new WingPattern(WingPatterns::getRipplesClrShaderProgram, WingPatterns::getRipplesClrPreviewShaderProgram,
 				new Vec3d(255, 255, 255).multiply(1f / 255f), true));
 		patterns = builder.build();
 	}

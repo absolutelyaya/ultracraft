@@ -53,7 +53,7 @@ float getRandom(vec2 v)
 
 vec3 getRed(float brightness)
 {
-    vec3 colA = rgb2hsv(WingColor / vec3(255f, 255f, 255f)) * vec3(360, 100, 100);
+    vec3 colA = rgb2hsv(WingColor / 255f) * vec3(360, 100, 100);
     float step = brightness * 4 - 0.1;
     if(step > 3)
     return colA;
@@ -67,7 +67,7 @@ vec3 getRed(float brightness)
 
 vec3 getBlue(float brightness)
 {
-    vec3 colB = rgb2hsv(MetalColor / vec3(255f, 255f, 255f)) * vec3(360, 100, 100);
+    vec3 colB = rgb2hsv(MetalColor / 255f) * vec3(360, 100, 100);
     float step = brightness * 4 - 0.1;
     if(step > 3)
         return colB;

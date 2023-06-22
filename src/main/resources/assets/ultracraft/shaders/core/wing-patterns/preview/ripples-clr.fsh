@@ -86,9 +86,9 @@ void main()
     for(int i = 0; i < 3; i++)
     {
         float time = mod(GameTime * -300 + distance(pixelUV, vec2(-0.25, 0.25)), 2f);
-        color.rgb = mix(color.rgb, vec3(1, 1, 1), (time > 1.9 - 0.125 * i && time < 2 - 0.15 * i) ? 1 - distance(time, 1.975f - 0.125 * i) * 10: 0f);
+        color.rgb = mix(color.rgb, MetalColor / 255f, (time > 1.9 - 0.125 * i && time < 2 - 0.15 * i) ? 1 - distance(time, 1.975f - 0.125 * i) * 10: 0f);
         time = mod(GameTime * -300 + distance(pixelUV, vec2(0.75, 0.25)), 2f);
-        color.rgb = mix(color.rgb, vec3(1, 1, 1), (time > 0.9 - 0.125 * i && time < 1 - 0.15 * i) ? 1 - distance(time, 0.975f - 0.125 * i) * 10: 0f);
+        color.rgb = mix(color.rgb, MetalColor / 255f, (time > 0.9 - 0.125 * i && time < 1 - 0.15 * i) ? 1 - distance(time, 0.975f - 0.125 * i) * 10: 0f);
     }
     color.rgb = mix(color.rgb, hsv2rgb(getBlue(colorIn.b).rgb / vec3(360f, 100f, 100f)), colorIn.b > 0f);
     color.rgb = mix(color.rgb, vec3(colorIn.g, colorIn.g, colorIn.g), colorIn.g > 0f);

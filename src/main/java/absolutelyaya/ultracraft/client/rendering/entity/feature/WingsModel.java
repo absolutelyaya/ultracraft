@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.client.rendering.entity.feature;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -147,6 +148,9 @@ public class WingsModel<T extends LivingEntity> extends AnimalModel<T>
 	
 	Vec3d[] getPoseFromIndex(byte idx)
 	{
+		if(WingCustomizationScreen.MenuOpen)
+			return RestPose.clone();
+		
 		return switch(idx) {
 			case 0 -> DashPose.clone();
 			default -> RestPose.clone(); // 1 = rest! Default being here is intentional.

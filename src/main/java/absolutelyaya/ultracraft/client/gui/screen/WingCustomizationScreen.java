@@ -48,7 +48,7 @@ public class WingCustomizationScreen extends Screen
 	static int viewMode;
 	List<Drawable> mainWidgets = new ArrayList<>();
 	List<PreviewButton> previewButtons = new ArrayList<>();
-	ButtonWidget refreshPresetsButton;
+	ButtonWidget refreshPresetsButton, supportButton, refreshSupportButton;
 	
 	Text subTitle = Text.empty();
 	Perspective oldPerspective;
@@ -120,6 +120,15 @@ public class WingCustomizationScreen extends Screen
 								 .dimensions(width - 160, y, 150, 20).build();
 		refreshPresetsButton.active = false;
 		refreshPresetsButton.setAlpha(0f);
+		supportButton = ButtonWidget.builder(Text.translatable("screen.ultracraft.wing-settings.patterns.support"),
+						(b) -> client.setScreen(new InfoPopupScreen(Text.translatable("screen.ultracraft.wing-settings.patterns.support"), this)))
+									   .dimensions(width - 160, y, 130, 20).build();
+		supportButton.active = false;
+		supportButton.setAlpha(0f);
+		refreshSupportButton = new RefreshButton(width - 30, y, 20, 20, Text.translatable(""), (b) -> UltracraftClient.refreshSupporter());
+		refreshSupportButton.active = false;
+		refreshSupportButton.setAlpha(0f);
+		refreshSupportButton.setTooltip(Tooltip.of(Text.translatable("screen.ultracraft.wing-settings.patterns.refresh-supporter")));
 		y += 25;
 		addDrawableChild(ButtonWidget.builder(Text.translatable("screen.ultracraft.wing-settings.cycle-pov"), (button) -> viewMode = (viewMode + 1) % 3)
 								 .dimensions(width - 160, y, 150, 20).build());
@@ -198,6 +207,8 @@ public class WingCustomizationScreen extends Screen
 		matrices.push();
 		matrices.translate(0, 0, 5);
 		refreshPresetsButton.render(matrices, mouseX, mouseY, delta);
+		supportButton.render(matrices, mouseX, mouseY, delta);
+		refreshSupportButton.render(matrices, mouseX, mouseY, delta);
 		if(showScrollingHint > 0f)
 		{
 			RenderSystem.setShaderColor(1f, 1f, 1f, Math.min(showScrollingHint, 1f));
@@ -257,6 +268,8 @@ public class WingCustomizationScreen extends Screen
 			patternsAnim = -0.5f;
 		}
 		refreshPresetsButton.setAlpha(MathHelper.clamp(presetsAnim, 0.02f, 1f));
+		supportButton.setAlpha(MathHelper.clamp(patternsAnim, 0.02f, 1f));
+		refreshSupportButton.setAlpha(MathHelper.clamp(patternsAnim, 0.02f, 1f));
 	}
 	
 	public Vec3d getCameraOffset()
@@ -286,6 +299,8 @@ public class WingCustomizationScreen extends Screen
 	@Override
 	public void close()
 	{
+		if(!UltracraftClient.isSupporter())
+			UltracraftClient.setWingPattern("");
 		client.setScreen(parent);
 		client.gameRenderer.disablePostProcessor();
 		client.options.hudHidden = wasHudHidden;
@@ -331,6 +346,10 @@ public class WingCustomizationScreen extends Screen
 	{
 		if(refreshPresetsButton.isMouseOver(mouseX, mouseY))
 			return refreshPresetsButton.mouseClicked(mouseX, mouseY, button);
+		else if(supportButton.isMouseOver(mouseX, mouseY))
+			return supportButton.mouseClicked(mouseX, mouseY, button);
+		else if(refreshSupportButton.isMouseOver(mouseX, mouseY))
+			return refreshSupportButton.mouseClicked(mouseX, mouseY, button);
 		return super.mouseClicked(mouseX, mouseY, button);
 	}
 	
@@ -411,6 +430,13 @@ public class WingCustomizationScreen extends Screen
 		setMainTabActive(false);
 		closeButton.setMessage(Text.translatable("screen.ultracraft.wing-settings.back"));
 		populatePatternList();
+		boolean supporter = UltracraftClient.isSupporter();
+		supportButton.active = refreshSupportButton.active = !supporter;
+		if(supporter)
+		{
+			supportButton.setMessage(Text.translatable("screen.ultracraft.wing-settings.patterns.supported"));
+			refreshSupportButton.setTooltip(null);
+		}
 		if((previewButtons.size() / 2) * 24 > height - 105)
 			showScrollingHint = 6f;
 	}
@@ -436,7 +462,13 @@ public class WingCustomizationScreen extends Screen
 	void applyPattern(ButtonWidget button)
 	{
 		PreviewButton pb = ((PreviewButton)button);
-		UltracraftClient.setWingPattern(pb.id.equals("none") ? "" : pb.id);
+		boolean none = pb.id.equals("none");
+		UltracraftClient.setWingPattern(none ? "" : pb.id);
+		if(!UltracraftClient.isSupporter())
+		{
+			closeButton.active = none;
+			closeButton.setTooltip(Tooltip.of(none ? Text.of("") : Text.translatable("screen.ultracraft.wing-settings.patterns.non-supporter-hint")));
+		}
 	}
 	
 	void backToMain()
@@ -445,6 +477,11 @@ public class WingCustomizationScreen extends Screen
 		{
 			WingColorPresetManager.unloadPresets();
 			refreshPresetsButton.active = false;
+		}
+		if(tab == Tab.PATTERNS)
+		{
+			refreshSupportButton.active = false;
+			supportButton.active = false;
 		}
 		tab = Tab.MAIN;
 		subTitle = Text.empty();
@@ -478,6 +515,33 @@ public class WingCustomizationScreen extends Screen
 			else if (isSelected())
 				i = 2;
 			drawNineSlicedTexture(matrices, getX(), getY(), getWidth(), getHeight(), 20, 4, 200, 20, 0, i * 20);
+			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			i = active ? 16777215 : 10526880;
+			drawMessage(matrices, client.textRenderer, i | MathHelper.ceil(alpha * 255f) << 24);
+		}
+	}
+	
+	static class RefreshButton extends ButtonWidget
+	{
+		protected RefreshButton(int x, int y, int width, int height, Text message, PressAction onPress)
+		{
+			super(x, y, width, height, message, onPress, DEFAULT_NARRATION_SUPPLIER);
+		}
+		
+		@Override
+		public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta)
+		{
+			MinecraftClient client = MinecraftClient.getInstance();
+			RenderSystem.setShaderTexture(0, new Identifier(Ultracraft.MOD_ID, "textures/gui/widgets.png"));
+			RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
+			RenderSystem.enableBlend();
+			RenderSystem.enableDepthTest();
+			int i = 1;
+			if (!active)
+				i = 0;
+			else if (isSelected())
+				i = 2;
+			drawNineSlicedTexture(matrices, getX(), getY(), getWidth(), getHeight(), 20, 20, 20, 20, 0, (3 + i) * 20);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 			i = active ? 16777215 : 10526880;
 			drawMessage(matrices, client.textRenderer, i | MathHelper.ceil(alpha * 255f) << 24);

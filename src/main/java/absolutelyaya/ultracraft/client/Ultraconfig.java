@@ -71,7 +71,7 @@ public class Ultraconfig implements ConfigData
 	@ConfigEntry.Gui.Excluded
 	public boolean startedBefore = false;
 	@ConfigEntry.Gui.Excluded
-	public Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f / 255f, 1f, 154f / 255f), new Vec3d(117f / 255f, 154f / 255f, 1f) };
+	public Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f, 255f, 154f), new Vec3d(117f, 154f, 255f) };
 	@ConfigEntry.Gui.Excluded
 	public String wingPreset = "";
 	@ConfigEntry.Gui.Excluded

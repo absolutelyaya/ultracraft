@@ -92,7 +92,7 @@ public class UltracraftClient implements ClientModInitializer
 	static GameruleRegistry.Option HiVelOption = GameruleRegistry.Option.FREE;
 	static GameruleRegistry.Option TimeFreezeOption = GameruleRegistry.Option.FORCE_ON;
 	static GameruleRegistry.RegenOption BloodRegen = GameruleRegistry.RegenOption.ALWAYS;
-	static boolean disableHandswap = false, slamStorage = true, fallDamage = false, drowning = false, effectivelyViolent = false, wasMovementSoundsEnabled;
+	static boolean disableHandswap = false, slamStorage = true, fallDamage = false, drowning = false, effectivelyViolent = false, wasMovementSoundsEnabled, supporter = false;
 	public static int jumpBoost, speed, gravityReduction;
 	static float screenblood;
 	static Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f / 255f, 1f, 154f / 255f), new Vec3d(117f / 255f, 154f / 255f, 1f) };
@@ -190,6 +190,7 @@ public class UltracraftClient implements ClientModInitializer
 				client.player.sendMessage(Text.translatable("========================================="));
 			}
 			
+			refreshSupporter();
 			WingedPlayerEntity winged = ((WingedPlayerEntity)client.player);
 			winged.setWingColor(wingColors[0], 0);
 			winged.setWingColor(wingColors[1], 1);
@@ -307,6 +308,8 @@ public class UltracraftClient implements ClientModInitializer
 		setWingColor(config.get().wingColors[1], 1);
 		wingPreset = config.get().wingPreset;
 		setWingPattern(config.get().wingPattern);
+		
+		refreshSupporter();
 	}
 	
 	public static void addBlood(float f)
@@ -466,5 +469,17 @@ public class UltracraftClient implements ClientModInitializer
 		wingPattern = id;
 		if(MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player instanceof WingedPlayerEntity winged)
 			winged.setWingPattern(id);
+	}
+	
+	public static void refreshSupporter()
+	{
+		MinecraftClient client = MinecraftClient.getInstance();
+		String uuid = client.player != null ? client.player.getUuid().toString() : client.getSession().getUuid();
+		supporter = Ultracraft.checkSupporter(uuid);
+	}
+	
+	public static boolean isSupporter()
+	{
+		return supporter;
 	}
 }

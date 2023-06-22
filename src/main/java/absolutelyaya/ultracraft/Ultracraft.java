@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.registry.*;
+import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.ModInitializer;
@@ -14,12 +15,18 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.JsonHelper;
 import org.slf4j.Logger;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 public class Ultracraft implements ModInitializer
 {
     public static final String MOD_ID = "ultracraft";
     public static final Logger LOGGER = LogUtils.getLogger();
+    static final String SUPPORTER_LIST = "https://raw.githubusercontent.com/absolutelyaya/absolutelyaya/main/cool-people.json";
     public static String VERSION;
     static int freezeTicks;
     
@@ -81,5 +88,23 @@ public class Ultracraft implements ModInitializer
     {
         if(freezeTicks > 0)
             freezeTicks--;
+    }
+    
+    public static boolean checkSupporter(String uuid)
+    {
+        boolean supporter = false;
+        try
+        {
+            URL url = new URL(SUPPORTER_LIST);
+            JsonObject json = JsonHelper.deserialize(new InputStreamReader(url.openStream()));
+            supporter = JsonHelper.hasElement(json, uuid);
+            if(supporter)
+                Ultracraft.LOGGER.info("Support verified! Thank you for helping me make stuff :D");
+        }
+        catch (IOException e)
+        {
+            Ultracraft.LOGGER.error("Failed to fetch Supporters.", e);
+        }
+        return supporter;
     }
 }

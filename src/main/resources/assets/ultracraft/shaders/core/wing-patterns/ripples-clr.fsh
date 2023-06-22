@@ -8,9 +8,13 @@ uniform vec3 WingColor;
 uniform vec3 MetalColor;
 
 uniform vec4 ColorModulator;
+uniform float FogStart;
+uniform float FogEnd;
+uniform vec4 FogColor;
 
 in float vertexDistance;
 in vec4 vertexColor;
+in vec4 lightMapColor;
 in vec4 overlayColor;
 in vec2 texCoord0;
 in vec4 normal;
@@ -81,16 +85,25 @@ void main()
     vec4 color = colorIn;
     if (color.a < 0.1)
         discard;
-    vec2 pixelUV = round((texCoord0 + vec2(1f / (76f * 2), 1f / (40f * 2))) * vec2(76f, 40f)) / vec2(76f, 40f) + vec2(1f / (76f * 2), 1f / (40f * 2));
+    vec2 pixelUV = round((texCoord0 + 1f / 64f) * 32f) / 32f + 1f / 64f;
     color.rgb = hsv2rgb(getRed(colorIn.r).rgb / vec3(360f, 100f, 100f));
     for(int i = 0; i < 3; i++)
     {
-        float time = mod(GameTime * -300 + distance(pixelUV, vec2(-0.25, 0.25)), 2f);
-        color.rgb = mix(color.rgb, vec3(1, 1, 1), (time > 1.9 - 0.125 * i && time < 2 - 0.15 * i) ? 1 - distance(time, 1.975f - 0.125 * i) * 10: 0f);
-        time = mod(GameTime * -300 + distance(pixelUV, vec2(0.75, 0.25)), 2f);
-        color.rgb = mix(color.rgb, vec3(1, 1, 1), (time > 0.9 - 0.125 * i && time < 1 - 0.15 * i) ? 1 - distance(time, 0.975f - 0.125 * i) * 10: 0f);
+        float time = mod(GameTime * -300 + distance(pixelUV, vec2(0.75, 0.25)), 2f);
+        color.rgb = mix(color.rgb, MetalColor / 255f, (time > 1.9 - 0.125 * i && time < 2 - 0.15 * i) ? 1 - distance(time, 1.975f - 0.125 * i) * 10: 0f);
+        time = mod(GameTime * -300 + distance(pixelUV, vec2(0, 0.25)), 2f);
+        color.rgb = mix(color.rgb, MetalColor / 255f, (time > 0.9 - 0.125 * i && time < 1 - 0.15 * i) ? 1 - distance(time, 0.975f - 0.125 * i) * 10: 0f);
     }
     color.rgb = mix(color.rgb, hsv2rgb(getBlue(colorIn.b).rgb / vec3(360f, 100f, 100f)), colorIn.b > 0f);
     color.rgb = mix(color.rgb, vec3(colorIn.g, colorIn.g, colorIn.g), colorIn.g > 0f);
-    fragColor = color* ColorModulator;
+    vec4 v = vertexColor;
+    vec4 light = lightMapColor;
+    if(colorIn.r > 0f)
+    {
+        light = vec4(1f, 1f, 1f, 1f);
+        v = vec4(1f, 1f, 1f, 1f);
+    }
+    color *= v * ColorModulator;
+    color *= light;
+    fragColor = linear_fog(color, vertexDistance, FogStart, FogEnd, FogColor);
 }
