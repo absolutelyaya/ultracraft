@@ -21,6 +21,7 @@
     "ClientPlayerEntityMixin",
     "GameRendererMixin",
     "HandRendererMixin",
+    "ItemOverlayMixin",
     "KeyboardInputMixin",
     "LivingEntityRendererMixin",
     "MinecraftClientMixin",

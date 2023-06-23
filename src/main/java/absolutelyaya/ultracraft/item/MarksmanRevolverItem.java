@@ -9,6 +9,7 @@ import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
@@ -113,11 +114,8 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
 	{
 		controllerRegistrar.add(new AnimationController<>(this, getControllerName(), 1, state -> PlayState.STOP)
-										.triggerableAnim("charging", AnimationCharge)
-										.triggerableAnim("discharge", AnimationDischarge)
 										.triggerableAnim("shot", AnimationShot)
-										.triggerableAnim("shot2", AnimationShot2) //this animation purely exists to cancel shot animations.
-										.triggerableAnim("stop", AnimationStop));
+										.triggerableAnim("shot2", AnimationShot2)); //this animation purely exists to cancel shot animations.
 	}
 	
 	@Override
@@ -171,6 +169,22 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
 		if(cdm.isUsable(this, GunCooldownManager.PRIMARY))
 			return 0xdfb728;
+		return 0x28df53;
+	}
+	
+	@Override
+	public String getCountString(ItemStack stack)
+	{
+		if(stack.hasNbt() && stack.getNbt().contains("coins"))
+		{
+			return Formatting.GOLD + String.valueOf(stack.getNbt().getInt("coins"));
+		}
+		return null;
+	}
+	
+	@Override
+	public int getBorderColor(ItemStack stack)
+	{
 		return 0x28df53;
 	}
 }

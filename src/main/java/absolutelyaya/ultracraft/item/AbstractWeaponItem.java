@@ -73,4 +73,14 @@ public abstract class AbstractWeaponItem extends Item
 	}
 	
 	abstract String getControllerName();
+	
+	public String getCountString(ItemStack stack)
+	{
+		return null;
+	}
+	
+	public int getBorderColor(ItemStack stack)
+	{
+		return getItemBarColor(stack);
+	}
 }

@@ -107,7 +107,7 @@ public class PumpShotgunItem extends AbstractShotgunItem
 		super.inventoryTick(stack, world, entity, slot, selected);
 		if(!selected && stack.hasNbt() && stack.getNbt().contains("charge"))
 			stack.getNbt().remove("charge");
-		else if(stack.getNbt().getInt("charge") == 3 && entity.age % 6 == 4)
+		else if(stack.hasNbt() && stack.getNbt().getInt("charge") == 3 && entity.age % 6 == 4)
 			entity.playSound(SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), 0.3f, 0.78f);
 	}
 	
@@ -174,5 +174,11 @@ public class PumpShotgunItem extends AbstractShotgunItem
 			return 24;
 		else
 			return 0;
+	}
+	
+	@Override
+	public int getItemBarColor(ItemStack stack)
+	{
+		return 0x28df53;
 	}
 }

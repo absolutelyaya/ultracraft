@@ -68,6 +68,6 @@ public class ThrownCoinRenderer extends EntityRenderer<ThrownCoinEntity>
 	@Override
 	public Identifier getTexture(ThrownCoinEntity entity)
 	{
-		return new Identifier(Ultracraft.MOD_ID, "textures/entity/thrown_coin.png");
+		return new Identifier(Ultracraft.MOD_ID, "textures/entity/coin.png");
 	}
 }
