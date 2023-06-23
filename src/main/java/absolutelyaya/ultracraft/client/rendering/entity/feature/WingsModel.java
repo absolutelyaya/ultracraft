@@ -88,28 +88,28 @@ public class WingsModel<T extends LivingEntity> extends AnimalModel<T>
 		LeftWing2Root.addChild("cube_r5", ModelPartBuilder.create().uv(16, 18).mirrored().cuboid(-7.001F, -0.0436F, -1.0F, 7.0F, 1.0F, 1.0F, new Dilation(0.0F)).mirrored(false), ModelTransform.of(7.0F, -1.0F, 3.0F, 0.0364F, -0.4086F, -0.0515F));
 
 		ModelPartData LeftWing2 = LeftWing2Root.addChild("LeftWing2", ModelPartBuilder.create(), ModelTransform.pivot(6.5F, -0.5F, 2.5F));
-		LeftWing2.addChild("cube_r6", ModelPartBuilder.create().uv(0, 8).mirrored().cuboid(0.0F, -4.0F, 0.0F, 15.0F, 4.0F, 0.0F, new Dilation(0.0F)).mirrored(false)
+		LeftWing2.addChild("cube_r6", ModelPartBuilder.create().uv(0, 4).mirrored().cuboid(0.0F, -4.0F, 0.0F, 15.0F, 4.0F, 0.0F, new Dilation(0.0F)).mirrored(false)
 		.uv(16, 20).mirrored().cuboid(-2.0F, -4.0F, -0.5F, 3.0F, 5.0F, 1.0F, new Dilation(0.0F)).mirrored(false), ModelTransform.of(1.5F, -0.5F, 0.0F, 0.0F, 0.0F, 0.0436F));
 
 		ModelPartData RightWing2Root = Root.addChild("RightWing2Root", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, -20.0F, 2.0F));
 		RightWing2Root.addChild("cube_r7", ModelPartBuilder.create().uv(16, 18).cuboid(0.001F, -0.0436F, -1.0F, 7.0F, 1.0F, 1.0F, new Dilation(0.0F)), ModelTransform.of(-7.0F, -1.0F, 3.0F, 0.0364F, 0.4086F, 0.0515F));
 
 		ModelPartData RightWing2 = RightWing2Root.addChild("RightWing2", ModelPartBuilder.create(), ModelTransform.pivot(-6.5F, -0.5F, 2.5F));
-		RightWing2.addChild("cube_r8", ModelPartBuilder.create().uv(0, 8).cuboid(-15.0F, -4.0F, 0.0F, 15.0F, 4.0F, 0.0F, new Dilation(0.0F))
+		RightWing2.addChild("cube_r8", ModelPartBuilder.create().uv(0, 4).cuboid(-15.0F, -4.0F, 0.0F, 15.0F, 4.0F, 0.0F, new Dilation(0.0F))
 		.uv(16, 20).cuboid(-1.0F, -4.0F, -0.5F, 3.0F, 5.0F, 1.0F, new Dilation(0.0F)), ModelTransform.of(-1.5F, -0.5F, 0.0F, 0.0F, 0.0F, -0.0436F));
 
 		ModelPartData LeftWing3Root = Root.addChild("LeftWing3Root", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, -20.0F, 2.0F));
 		LeftWing3Root.addChild("cube_r9", ModelPartBuilder.create().uv(16, 18).mirrored().cuboid(-7.1635F, -0.7418F, -1.0F, 7.0F, 1.0F, 1.0F, new Dilation(0.0F)).mirrored(false), ModelTransform.of(6.0F, 4.5F, 2.5F, -0.109F, -0.3323F, 0.5855F));
 
 		ModelPartData LeftWing3 = LeftWing3Root.addChild("LeftWing3", ModelPartBuilder.create(), ModelTransform.pivot(5.5F, 4.0F, 2.5F));
-		LeftWing3.addChild("cube_r10", ModelPartBuilder.create().uv(0, 4).mirrored().cuboid(0.0F, -4.0F, 0.0F, 15.0F, 4.0F, 0.0F, new Dilation(0.0F)).mirrored(false)
+		LeftWing3.addChild("cube_r10", ModelPartBuilder.create().uv(0, 8).mirrored().cuboid(0.0F, -4.0F, 0.0F, 15.0F, 4.0F, 0.0F, new Dilation(0.0F)).mirrored(false)
 		.uv(16, 20).mirrored().cuboid(-2.0F, -4.0F, -0.5F, 3.0F, 5.0F, 1.0F, new Dilation(0.0F)).mirrored(false), ModelTransform.of(1.5F, 0.0F, -0.5F, 0.0F, 0.0F, 0.2618F));
 
 		ModelPartData RightWing3Root = Root.addChild("RightWing3Root", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, -20.0F, 2.0F));
 		RightWing3Root.addChild("cube_r11", ModelPartBuilder.create().uv(16, 18).cuboid(0.1635F, -0.7418F, -1.0F, 7.0F, 1.0F, 1.0F, new Dilation(0.0F)), ModelTransform.of(-6.0F, 4.5F, 2.5F, -0.109F, 0.3323F, -0.5855F));
 
 		ModelPartData RightWing3 = RightWing3Root.addChild("RightWing3", ModelPartBuilder.create(), ModelTransform.pivot(-5.5F, 4.0F, 2.5F));
-		RightWing3.addChild("cube_r12", ModelPartBuilder.create().uv(0, 4).cuboid(-15.0F, -4.0F, 0.0F, 15.0F, 4.0F, 0.0F, new Dilation(0.0F))
+		RightWing3.addChild("cube_r12", ModelPartBuilder.create().uv(0, 8).cuboid(-15.0F, -4.0F, 0.0F, 15.0F, 4.0F, 0.0F, new Dilation(0.0F))
 		.uv(16, 20).cuboid(-1.0F, -4.0F, -0.5F, 3.0F, 5.0F, 1.0F, new Dilation(0.0F)), ModelTransform.of(-1.5F, 0.0F, -0.5F, 0.0F, 0.0F, -0.2618F));
 
 		ModelPartData LeftWing4Root = Root.addChild("LeftWing4Root", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, -20.0F, 2.0F));

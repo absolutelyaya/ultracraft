@@ -107,6 +107,7 @@
   "intro.ultracraft.status": "STATUS UPDATE\n\nMACHINE ID:                %s\nLOCATION:                  MINECRAFT\nCURRENT OBJECTIVE:     FIND A WEAPON\n§4MANKIND IS DEAD.§r\n§4BLOOD IS FUEL.§r\n§4HELL IS FULL.§r",
 
   "screen.ultracraft.wing-settings.title": "High Velocity Wings",
+  "screen.ultracraft.wing-settings.only-in-world": "Only available in-world currently!",
   "screen.ultracraft.wing-settings.presets.title": "Presets",
   "screen.ultracraft.wing-settings.patterns.title": "§6☆ Patterns ☆",
   "screen.ultracraft.wing-settings.pov1": "Close-up Back View",
@@ -117,9 +118,8 @@
   "screen.ultracraft.wing-settings.red": "Red",
   "screen.ultracraft.wing-settings.green": "Green",
   "screen.ultracraft.wing-settings.blue": "Blue",
-  "screen.ultracraft.wing-settings.reset": "Reset",
-  "screen.ultracraft.wing-settings.pick-skin": "Pick from Skin",
-  "screen.ultracraft.wing-settings.soon": "Not yet Implemented",
+  "screen.ultracraft.wing-settings.reset": "Default",
+  "screen.ultracraft.wing-settings.revert": "Revert",
   "screen.ultracraft.wing-settings.wing": "Wing Color",
   "screen.ultracraft.wing-settings.metal": "Metal Color",
   "screen.ultracraft.wing-settings.undo": "undo",
@@ -251,7 +251,7 @@
   "text.autoconfig.ultracraft.option.movementSounds.@Tooltip": "Whether Sliding and quick movement should play their sound loops.",
 
   "text.autoconfig.ultracraft.option.safeVFX": "Disable Flashy VFX",
-  "text.autoconfig.ultracraft.option.safeVFX.@Tooltip": "Disable VFX that might affect photosensitive people negatively. (aka flashing)",
+  "text.autoconfig.ultracraft.option.safeVFX.@Tooltip": "Disable VFX that might affect photosensitive people negatively. (like flashing)",
 
   "text.autoconfig.ultracraft.option.repeatIntro": "Repeat Intro",
   "text.autoconfig.ultracraft.option.neverIntro": "Don't show Intro after switching Versions"

@@ -32,7 +32,7 @@ public abstract class SkinOptionsScreenMixin extends GameOptionsScreen
 		if(client.player == null)
 		{
 			b.active = false;
-			b.setTooltip(Tooltip.of(Text.of("Only available in-world currently!")));
+			b.setTooltip(Tooltip.of(Text.translatable("screen.ultracraft.wing-settings.only-in-world")));
 		}
 	}
 	

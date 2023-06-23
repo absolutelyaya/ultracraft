@@ -29,11 +29,9 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
-import org.joml.Matrix4f;
-import org.joml.Vector2i;
-import org.joml.Vector3i;
-import org.joml.Vector4f;
+import org.joml.*;
 
+import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -60,6 +58,7 @@ public class WingCustomizationScreen extends Screen
 	Tab tab = Tab.MAIN;
 	ButtonWidget closeButton;
 	ColorSelectionWidget top, bottom;
+	Vec3d startWingColor, startMetalColor;
 	
 	public WingCustomizationScreen(Screen parent)
 	{
@@ -92,6 +91,8 @@ public class WingCustomizationScreen extends Screen
 		MenuOpen = true;
 		safeVFX = UltracraftClient.getConfigHolder().get().safeVFX;
 		WingColorPresetManager.restoreDefaults();
+		startWingColor = UltracraftClient.getWingColors()[0];
+		startMetalColor = UltracraftClient.getWingColors()[1];
 	}
 	
 	@Override
@@ -99,11 +100,11 @@ public class WingCustomizationScreen extends Screen
 	{
 		super.init();
 		int y = 32;
-		mainWidgets.add(top = addDrawableChild(new ColorSelectionWidget(textRenderer, new Vector3i(width - 160, y, 155), false)));
+		mainWidgets.add(top = addDrawableChild(new ColorSelectionWidget(textRenderer, new Vector3i(width - 160, y, 155), false, this::getStartColor)));
 		y += 103;
 		if(height > 135 + 102 + 115)
 		{
-			mainWidgets.add(bottom = addDrawableChild(new ColorSelectionWidget(textRenderer, new Vector3i(width - 160, y, 155), true)));
+			mainWidgets.add(bottom = addDrawableChild(new ColorSelectionWidget(textRenderer, new Vector3i(width - 160, y, 155), true, this::getStartColor)));
 			y += 107;
 		}
 		else
@@ -300,6 +301,11 @@ public class WingCustomizationScreen extends Screen
 		RenderSystem.getShader().getUniform("Tiling").set(16f, 16f, noise);
 		drawTexture(matrices, width - 165 - 32, 0, 0, 0.0f, 0.0f, 32, height, 32, 32);
 		RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+	}
+	
+	Vec3d getStartColor(Boolean type)
+	{
+		return type ? startMetalColor : startWingColor;
 	}
 	
 	@Override
