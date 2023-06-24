@@ -200,5 +200,11 @@ public class ClientPacketRegistry
 			Vec3d pos = new Vec3d(buf.readVector3f());
 			MinecraftClient.getInstance().execute(() -> client.player.world.addParticle(ParticleRegistry.RIPPLE, pos.x, pos.y, pos.z, 0, 0, 0));
 		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.COIN_PUNCH_PACKET_ID, ((client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
+			int score = buf.readInt();
+			MinecraftClient.getInstance().execute(() -> UltraHudRenderer.onPunchCoin(score));
+		}));
 	}
 }

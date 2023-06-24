@@ -58,6 +58,7 @@ public class PacketRegistry
 	public static final Identifier PRIMARY_SHOT_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "primary_shot_s2c");
 	public static final Identifier DEBUG = new Identifier(Ultracraft.MOD_ID, "debug");
 	public static final Identifier SKIM_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "skim_s2c");
+	public static final Identifier COIN_PUNCH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "coinpunch");
 	
 	public static void registerC2S()
 	{

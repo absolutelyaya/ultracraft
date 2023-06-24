@@ -19,6 +19,9 @@ public class Ultraconfig implements ConfigData
 	@ConfigEntry.Gui.Tooltip
 	public boolean fishingJoke = true;
 	@ConfigEntry.Category("ultra-hud")
+	@ConfigEntry.Gui.Tooltip
+	public boolean coinPunchCounter = true;
+	@ConfigEntry.Category("ultra-hud")
 	@ConfigEntry.Gui.Tooltip(count = 2)
 	public UltraHudRenderer.UltraHudVisibility ultraHudVisibility = UltraHudRenderer.UltraHudVisibility.ALWAYS;
 	@ConfigEntry.Category("ultra-hud")

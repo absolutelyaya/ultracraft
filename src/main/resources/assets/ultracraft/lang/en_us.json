@@ -159,6 +159,9 @@
   "text.autoconfig.ultracraft.option.fishingJoke": "Fishing Popup",
   "text.autoconfig.ultracraft.option.fishingJoke.@Tooltip": "Adds a popup to your hud like in 5-S when fishing.",
 
+  "text.autoconfig.ultracraft.option.coinPunchCounter": "Coin Punch Counter",
+  "text.autoconfig.ultracraft.option.coinPunchCounter.@Tooltip": "Adds a popup to your hud that tells you how often you punched a Coin.",
+
   "text.autoconfig.ultracraft.option.ultraHudVisibility": "Show UltraHUD",
   "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[0]": "Whether the UltraHUD should be rendered.",
   "text.autoconfig.ultracraft.option.ultraHudVisibility.@Tooltip[1]": "LIMITED = only show when in Hi-Velocity Mode",

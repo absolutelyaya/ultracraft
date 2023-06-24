@@ -11,6 +11,9 @@ import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.item.CoinItem;
 import absolutelyaya.ultracraft.registry.CriteriaRegistry;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
+import absolutelyaya.ultracraft.registry.PacketRegistry;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -25,6 +28,7 @@ import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
@@ -294,12 +298,6 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	@Override
 	public void setParried(boolean val, PlayerEntity parrier)
 	{
-		if(world.isClient)
-		{
-			world.sendEntityStatus(this, (byte) 3);
-			kill();
-			return;
-		}
 		if(damage == 0)
 			damage = 1;
 		ThrownCoinEntity coin = null;
@@ -342,8 +340,13 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		}
 		if(coin != null)
 			coin.punchCounter = punchCounter + 1;
-		if(getOwner() instanceof ServerPlayerEntity player)
+		if(parrier instanceof ServerPlayerEntity player)
+		{
 			CriteriaRegistry.COIN_PUNCH.trigger(player, punchCounter);
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeInt(punchCounter);
+			ServerPlayNetworking.send(player, PacketRegistry.COIN_PUNCH_PACKET_ID, buf);
+		}
 		world.sendEntityStatus(this, (byte) 3);
 		kill();
 	}
