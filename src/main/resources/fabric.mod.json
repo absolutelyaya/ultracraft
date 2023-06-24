@@ -15,6 +15,9 @@
   "icon": "assets/ultracraft/icon.png",
   "environment": "*",
   "entrypoints": {
+    "fabric-datagen": [
+      "absolutelyaya.ultracraft.client.Datagen"
+    ],
     "client": [
       "absolutelyaya.ultracraft.client.UltracraftClient"
     ],

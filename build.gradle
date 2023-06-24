@@ -8,6 +8,27 @@ group = project.maven_group
 
 loom {
     accessWidenerPath = file("src/main/resources/ultracraft.accesswidener")
+    runs {
+        datagenClient {
+            inherit client
+            name "Data Generation"
+            vmArg "-Dfabric-api.datagen"
+            vmArg "-Dfabric-api.datagen.output-dir=${file("src/main/generated")}"
+            vmArg "-Dfabric-api.datagen.modid=${modid}"
+
+            runDir "build/datagen"
+        }
+    }
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs += [
+                    'src/main/generated'
+            ]
+        }
+    }
 }
 
 repositories {
@@ -49,6 +70,7 @@ dependencies {
 }
 
 processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     inputs.property "version", project.version
     filteringCharset "UTF-8"
 

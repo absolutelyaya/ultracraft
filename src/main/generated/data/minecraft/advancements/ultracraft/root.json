@@ -1,0 +1,29 @@
+{
+  "criteria": {
+    "tick": {
+      "conditions": {},
+      "trigger": "minecraft:tick"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "background": "minecraft:textures/block/stone_bricks.png",
+    "description": {
+      "translate": "advancements.ultracraft.root.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "ultracraft:blue_skull"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancements.ultracraft.root.title"
+    }
+  },
+  "requirements": [
+    [
+      "tick"
+    ]
+  ]
+}

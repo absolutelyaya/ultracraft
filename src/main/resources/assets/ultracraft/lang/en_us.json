@@ -124,6 +124,13 @@
   "key.ultracraft.hivel_toggle": "Toggle High Velocity Mode",
   "key.ultracraft.punch": "Punch",
 
+  "advancements.ultracraft.coinpunch-easy.title": "Coin Puncher",
+  "advancements.ultracraft.coinpunch-easy.description": "Punch one Coin 5 Times in a row.",
+  "advancements.ultracraft.coinpunch-medium.title": "§6Coin Juggler",
+  "advancements.ultracraft.coinpunch-medium.description": "Punch one Coin 25 Times in a row.",
+  "advancements.ultracraft.coinpunch-hard.title": "§4Coin Prodigy",
+  "advancements.ultracraft.coinpunch-hard.description": "Punch one Coin 50 Times in a row.",
+
   "narrator.button.background.vanilla": "Vanilla BG",
   "narrator.button.background.ultracraft": "Ultracraft BG",
 

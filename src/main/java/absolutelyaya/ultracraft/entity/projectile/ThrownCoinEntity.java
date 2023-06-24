@@ -9,6 +9,7 @@ import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.item.CoinItem;
+import absolutelyaya.ultracraft.registry.CriteriaRegistry;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -24,6 +25,7 @@ import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.TypeFilter;
@@ -128,7 +130,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		{
 			if(damage > 1 && !isDeadCoined() && !dataTracker.get(PUNCHED))
 				hitNext(DamageSources.get(world, DamageSources.RICOCHET, getOwner()), damage, (LivingEntity)getOwner());
-			if(dataTracker.get(PUNCHED) && punchCounter > 20)
+			if(dataTracker.get(PUNCHED) && punchCounter > 25)
 				dropStack(CoinItem.getStack(getOwner().getDisplayName().getString(), damage));
 		}
 	}
@@ -340,6 +342,8 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		}
 		if(coin != null)
 			coin.punchCounter = punchCounter + 1;
+		if(getOwner() instanceof ServerPlayerEntity player)
+			CriteriaRegistry.COIN_PUNCH.trigger(player, punchCounter);
 		world.sendEntityStatus(this, (byte) 3);
 		kill();
 	}
