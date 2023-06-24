@@ -124,7 +124,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		super.onCollision(hitResult);
 		if (!world.isClient)
 		{
-			if(damage > 0 && !isDeadCoined() && !dataTracker.get(PUNCHED))
+			if(damage > 1 && !isDeadCoined() && !dataTracker.get(PUNCHED))
 				hitNext(DamageSources.get(world, DamageSources.RICOCHET, getOwner()), damage, (LivingEntity)getOwner());
 			world.sendEntityStatus(this, (byte)3);
 			discard();
@@ -171,7 +171,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		else
 			playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 0.1f, 1.2f + (isDamageRicochet ? 0.05f * amount : 0f));
 		List<ThrownCoinEntity> list = world.getEntitiesByType(TypeFilter.instanceOf(ThrownCoinEntity.class), getBoundingBox().expand(16f),
-				e -> !e.equals(this) && e.isUnused() && !e.isRemoved());
+				e -> e.isUnused() && !e.isRemoved());
 		if (list.size() > 0)
 		{
 			if (hitTicks == 0)
@@ -190,7 +190,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 				coin.dataTracker.set(STOPPED, true);
 				dataTracker.set(STOPPED_TICKS, 0);
 				float dist = distanceTo(coin);
-				if (dist < closestDistance)
+				if (dist < closestDistance && !coin.equals(this))
 				{
 					closestDistance = dist;
 					closestCoin = coin;
