@@ -90,6 +90,7 @@ public class ItemRegistry
 			content.add(BLOOD_BUCKET);
 			content.add(PIERCE_REVOLVER);
 			content.add(MARKSMAN_REVOLVER);
+			content.add(MARKSMAN_REVOLVER.getStackedMarksman());
 			content.add(SHARPSHOOTER_REVOLVER);
 			content.add(CORE_SHOTGUN);
 			content.add(PUMP_SHOTGUN);
@@ -101,7 +102,6 @@ public class ItemRegistry
 			content.add(CERBERUS_SPAWN_EGG);
 			content.add(SWORDSMACHINE_SPAWN_EGG);
 			content.add(SWORDSMACHINE_SPAWN_EGG.getDefaultStack("item.ultracraft.swordsmachine_spawn_egg.special", "Dan"));
-			content.add(COIN);
 			content.add(PLUSHIE.getDefaultStack("yaya"));
 			content.add(PLUSHIE.getDefaultStack("hakita"));
 			content.add(PITR.getDefaultStack("pitr"));

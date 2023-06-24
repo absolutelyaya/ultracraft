@@ -19,6 +19,7 @@
     "CameraMixin",
     "ClientLivingEntityMixin",
     "ClientPlayerEntityMixin",
+    "EntityRenderDispatcherMixin",
     "GameRendererMixin",
     "HandRendererMixin",
     "ItemOverlayMixin",

@@ -8,6 +8,7 @@ import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
+import absolutelyaya.ultracraft.item.CoinItem;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -45,7 +46,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	Entity lastTarget, chargebackCauser;
 	final float flashRotSpeed;
 	byte hitTicks, hitscanType = ServerHitscanHandler.RICOCHET;
-	int damage = 1, nextHitDelay = 5, realAge;
+	int damage = 1, punchCounter = 0, nextHitDelay = 5, realAge;
 	
 	public ThrownCoinEntity(EntityType<? extends ThrownItemEntity> entityType, World world)
 	{
@@ -77,12 +78,13 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		return new ThrownCoinEntity(owner, world);
 	}
 	
-	public static ThrownCoinEntity spawn(LivingEntity owner, World world, Vec3d pos, int damage)
+	public static ThrownCoinEntity spawn(LivingEntity owner, World world, Vec3d pos, int damage) //Used during Coin Punch
 	{
 		ThrownCoinEntity coin = new ThrownCoinEntity(owner, world);
 		coin.setPos(pos.x, pos.y, pos.z);
 		coin.setVelocity(0f, 0.4f, 0f);
 		coin.damage = damage;
+		coin.dataTracker.set(PUNCHED, true);
 		world.spawnEntity(coin);
 		return coin;
 	}
@@ -126,8 +128,8 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		{
 			if(damage > 1 && !isDeadCoined() && !dataTracker.get(PUNCHED))
 				hitNext(DamageSources.get(world, DamageSources.RICOCHET, getOwner()), damage, (LivingEntity)getOwner());
-			world.sendEntityStatus(this, (byte)3);
-			discard();
+			if(dataTracker.get(PUNCHED) && punchCounter > 20)
+				dropStack(CoinItem.getStack(getOwner().getDisplayName().getString(), damage));
 		}
 	}
 	
@@ -172,7 +174,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 0.1f, 1.2f + (isDamageRicochet ? 0.05f * amount : 0f));
 		List<ThrownCoinEntity> list = world.getEntitiesByType(TypeFilter.instanceOf(ThrownCoinEntity.class), getBoundingBox().expand(16f),
 				e -> e.isUnused() && !e.isRemoved());
-		if (list.size() > 0)
+		if (list.size() > 1)
 		{
 			if (hitTicks == 0)
 			{
@@ -182,7 +184,6 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 				setOwner(attacker);
 				return false;
 			}
-			
 			ThrownCoinEntity closestCoin = null;
 			float closestDistance = Float.MAX_VALUE;
 			for (ThrownCoinEntity coin : list)
@@ -203,7 +204,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 				closestCoin.dataTracker.set(CHARGEBACK, dataTracker.get(CHARGEBACK));
 			}
 		}
-		else
+		if((hitTicks == 0 || hitTicks == nextHitDelay) && list.size() <= 1)
 		{
 			List<Entity> potentialTargets;
 			if(dataTracker.get(CHARGEBACK))
@@ -276,6 +277,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		{
 			if(isSplittable())
 			{
+				System.out.println("split!");
 				for (int i = 0; i < 2; i++)
 					hitNext(DamageSources.get(world, DamageSources.RICOCHET, getOwner()), damage, (LivingEntity)getOwner());
 			}
@@ -284,6 +286,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			world.sendEntityStatus(this, (byte) 3);
 			kill();
 		}
+		baseTick();
 	}
 	
 	@Override
@@ -336,7 +339,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			coin = ThrownCoinEntity.spawn(parrier, world, to.add(normal), damage);
 		}
 		if(coin != null)
-			coin.dataTracker.set(PUNCHED, true);
+			coin.punchCounter = punchCounter + 1;
 		world.sendEntityStatus(this, (byte) 3);
 		kill();
 	}

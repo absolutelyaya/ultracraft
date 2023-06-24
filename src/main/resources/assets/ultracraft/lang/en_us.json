@@ -21,6 +21,8 @@
   "item.ultracraft.swordsmachine_spawn_egg.special.lore": "§5This Swordsmachine will attack Husks!",
   "item.ultracraft.swordsmachine_spawn_egg.special.hiddenlore": "§8I don't know anyone named Dan, I'm sure Dans are lovely, not overly-agressive people in fact",
   "item.ultracraft.coin": "Coin",
+  "item.ultracraft.coin.lore": "This Coin was punched %s Times in a Row by %s. Impressive!",
+  "item.ultracraft.coin.hiddenlore": "§8I wonder how long it'll take for someone to get this.",
   "item.ultracraft.plushie": "Plushie",
   "item.ultracraft.plushie.lore": "§7Type: %s",
   "item.ultracraft.plushie.hakita-lore": "§7Hakita - Creator of Ultrakill",

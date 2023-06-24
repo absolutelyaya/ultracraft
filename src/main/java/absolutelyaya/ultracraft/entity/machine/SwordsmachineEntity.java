@@ -360,12 +360,6 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	}
 	
 	@Override
-	public boolean doesRenderOnFire()
-	{
-		return isInLava();
-	}
-	
-	@Override
 	protected Identifier getLootTableId()
 	{
 		return new Identifier(Ultracraft.MOD_ID, "entities/swordsmachine_death");

@@ -5,10 +5,13 @@ import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.MarksmanRevolverRenderer;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -25,6 +28,7 @@ import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -39,6 +43,14 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 	
+	public ItemStack getStackedMarksman()
+	{
+		ItemStack stack = getDefaultStack();
+		if(!stack.hasNbt())
+			stack.getOrCreateNbt().putInt("coins", 64);
+		return stack;
+	}
+	
 	@Override
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
 	{
@@ -46,10 +58,7 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 		ItemStack itemStack = user.getStackInHand(hand);
 		user.setCurrentHand(hand);
 		if(!itemStack.hasNbt())
-		{
-			itemStack.getOrCreateNbt();
-			itemStack.getNbt().putInt("coins", 4);
-		}
+			itemStack.getOrCreateNbt().putInt("coins", 4);
 		int coins = itemStack.getNbt().getInt("coins");
 		if(!world.isClient && coins > 0)
 		{
@@ -60,8 +69,8 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 			Vec3d pos = user.getEyePos().add(user.getRotationVector());
 			coin.setPos(pos.x, pos.y, pos.z);
 			coin.setVelocity(user, user.getPitch(), user.getYaw(), 0.0F, 0.5f, 0f);
+			//coin.addVelocity(user.getVelocity().multiply(1f, 0.25f, 1f));
 			coin.addVelocity(0f, 0.3f, 0f);
-			coin.addVelocity(user.getVelocity().multiply(1f, 0.25f, 1f));
 			world.spawnEntity(coin);
 		}
 		return TypedActionResult.pass(itemStack);
@@ -70,8 +79,7 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 	@Override
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
 	{
-		PlayerEntity player = MinecraftClient.getInstance().player;
-		if(player == null)
+		if(!(entity instanceof PlayerEntity player))
 			return;
 		GunCooldownManager cdm = ((WingedPlayerEntity)player).getGunCooldownManager();
 		super.inventoryTick(stack, world, entity, slot, selected);
@@ -87,7 +95,7 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 			{
 				stack.getNbt().putInt("coins", coins + 1);
 				cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
-				//player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.75f);
+				player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.75f);
 			}
 		}
 	}
