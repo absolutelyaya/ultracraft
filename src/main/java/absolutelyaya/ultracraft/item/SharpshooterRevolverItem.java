@@ -81,7 +81,7 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	@Override
 	public Vector2i getHUDTexture()
 	{
-		return new Vector2i(0, 0);
+		return new Vector2i(2, 0);
 	}
 	
 	@Override

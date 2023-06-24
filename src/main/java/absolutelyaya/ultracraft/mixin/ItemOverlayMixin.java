@@ -12,7 +12,6 @@ import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.ColorHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -30,10 +29,9 @@ public class ItemOverlayMixin
 			RenderSystem.enableBlend();
 			RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
 			RenderSystem.setShaderTexture(0, new Identifier(Ultracraft.MOD_ID, "textures/gui/weapon_border.png"));
-			int clr = weapon.getBorderColor(stack) + (0xff << 24);
-			RenderSystem.setShaderColor(ColorHelper.Argb.getRed(clr) / 255f, ColorHelper.Argb.getGreen(clr) / 255f, ColorHelper.Argb.getBlue(clr) / 255f, 1f);
-			DrawableHelper.drawTexture(matrices, x, y, 0, 0, 0, 16, 16, 16, 16);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			int i = weapon.getHUDTexture().x;
+			DrawableHelper.drawTexture(matrices, x, y, 0, 16 * (i % 2), 16 * (int)Math.floor(i / 2f), 16, 16, 32, 32);
 			matrices.pop();
 		}
 	}
