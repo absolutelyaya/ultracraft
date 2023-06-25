@@ -8,6 +8,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.joml.Vector2i;
@@ -79,8 +80,9 @@ public abstract class AbstractWeaponItem extends Item
 		return null;
 	}
 	
-	public int getBorderColor(ItemStack stack)
+	@Override
+	public boolean allowNbtUpdateAnimation(PlayerEntity player, Hand hand, ItemStack oldStack, ItemStack newStack)
 	{
-		return getItemBarColor(stack);
+		return false;
 	}
 }

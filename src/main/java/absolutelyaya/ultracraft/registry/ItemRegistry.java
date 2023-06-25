@@ -92,6 +92,7 @@ public class ItemRegistry
 			content.add(MARKSMAN_REVOLVER);
 			content.add(MARKSMAN_REVOLVER.getStackedMarksman());
 			content.add(SHARPSHOOTER_REVOLVER);
+			content.add(SHARPSHOOTER_REVOLVER.getStackedSharpshooter());
 			content.add(CORE_SHOTGUN);
 			content.add(PUMP_SHOTGUN);
 			content.add(MACHINE_SWORD);

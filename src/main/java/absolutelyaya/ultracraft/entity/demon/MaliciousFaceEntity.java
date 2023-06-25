@@ -755,7 +755,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 			}
 			if(timer <= 0)
 			{
-				ServerHitscanHandler.performHitscan(face, (byte)5, 0, new ServerHitscanHandler.HitscanExplosionData(5.5f, 10f, 0f, true));
+				ServerHitscanHandler.performHitscan(face, ServerHitscanHandler.MALICIOUS, 0, new ServerHitscanHandler.HitscanExplosionData(5.5f, 10f, 0f, true));
 				if(repeat)
 				{
 					timer = 22;

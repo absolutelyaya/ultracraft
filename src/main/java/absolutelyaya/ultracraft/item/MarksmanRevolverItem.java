@@ -5,13 +5,12 @@ import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.MarksmanRevolverRenderer;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -28,7 +27,6 @@ import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -43,19 +41,28 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 	
+	@Override
+	public ItemStack getDefaultStack()
+	{
+		ItemStack stack = new ItemStack(this);
+		setCoins(stack, 4);
+		return stack;
+	}
+	
 	public ItemStack getStackedMarksman()
 	{
 		ItemStack stack = getDefaultStack();
-		if(!stack.hasNbt())
-			stack.getOrCreateNbt().putInt("coins", 64);
+		setCoins(stack, 64);
 		return stack;
 	}
 	
 	@Override
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
 	{
-		GunCooldownManager cdm = ((WingedPlayerEntity) MinecraftClient.getInstance().player).getGunCooldownManager();
 		ItemStack itemStack = user.getStackInHand(hand);
+		if(hand.equals(Hand.OFF_HAND))
+			return TypedActionResult.fail(itemStack);
+		GunCooldownManager cdm = ((WingedPlayerEntity) MinecraftClient.getInstance().player).getGunCooldownManager();
 		user.setCurrentHand(hand);
 		if(!itemStack.hasNbt())
 			itemStack.getOrCreateNbt().putInt("coins", 4);
@@ -83,20 +90,12 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 			return;
 		GunCooldownManager cdm = ((WingedPlayerEntity)player).getGunCooldownManager();
 		super.inventoryTick(stack, world, entity, slot, selected);
-		if(!stack.hasNbt())
+		int coins = getCoins(stack);
+		if(coins < 4 && cdm.isUsable(this, GunCooldownManager.SECONDARY))
 		{
-			stack.getOrCreateNbt();
-			stack.getNbt().putInt("coins", 4);
-		}
-		if(stack.hasNbt() && stack.getNbt().contains("coins"))
-		{
-			int coins = stack.getNbt().getInt("coins");
-			if(coins < 4 && cdm.isUsable(this, GunCooldownManager.SECONDARY))
-			{
-				stack.getNbt().putInt("coins", coins + 1);
-				cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
-				player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.75f);
-			}
+			setCoins(stack, coins + 1);
+			cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
+			player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.75f);
 		}
 	}
 	
@@ -158,7 +157,7 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 	public boolean isItemBarVisible(ItemStack stack)
 	{
 		GunCooldownManager cdm = ((WingedPlayerEntity) MinecraftClient.getInstance().player).getGunCooldownManager();
-		return !cdm.isUsable(stack.getItem(), GunCooldownManager.PRIMARY) || (stack.hasNbt() && stack.getNbt().getInt("coins") < 4);
+		return !cdm.isUsable(stack.getItem(), GunCooldownManager.PRIMARY) || getCoins(stack) < 4;
 	}
 	
 	@Override
@@ -185,14 +184,20 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 	{
 		if(stack.hasNbt() && stack.getNbt().contains("coins"))
 		{
-			return Formatting.GOLD + String.valueOf(stack.getNbt().getInt("coins"));
+			return Formatting.GOLD + String.valueOf(getCoins(stack));
 		}
 		return null;
 	}
 	
-	@Override
-	public int getBorderColor(ItemStack stack)
+	public int getCoins(ItemStack stack)
 	{
-		return 0x28df53;
+		if(!stack.hasNbt() || !stack.getNbt().contains("coins", NbtElement.INT_TYPE))
+			stack.getOrCreateNbt().putInt("coins", 4);
+		return stack.getNbt().getInt("coins");
+	}
+	
+	public void setCoins(ItemStack stack, int i)
+	{
+		stack.getOrCreateNbt().putInt("coins", i);
 	}
 }

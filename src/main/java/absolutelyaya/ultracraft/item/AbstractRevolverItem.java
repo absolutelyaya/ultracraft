@@ -41,7 +41,7 @@ public abstract class AbstractRevolverItem extends AbstractWeaponItem implements
 			world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_BLAST, SoundCategory.PLAYERS, 0.75f,
 					0.9f + (user.getRandom().nextFloat() - 0.5f) * 0.2f);
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), b ? "shot" : "shot2");
-			ServerHitscanHandler.performHitscan(user, (byte)0, 1f);
+			ServerHitscanHandler.performHitscan(user, ServerHitscanHandler.NORMAL, 1f);
 			cdm.setCooldown(this, 6, GunCooldownManager.PRIMARY);
 			b = !b;
 			return true;

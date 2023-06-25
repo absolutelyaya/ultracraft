@@ -54,8 +54,10 @@ public class PumpShotgunItem extends AbstractShotgunItem
 	@Override
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
 	{
-		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
 		ItemStack itemStack = user.getStackInHand(hand);
+		if(hand.equals(Hand.OFF_HAND))
+			return TypedActionResult.fail(itemStack);
+		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
 		if(!cdm.isUsable(this, 1))
 			return TypedActionResult.fail(itemStack);
 		user.setCurrentHand(hand);
@@ -78,7 +80,7 @@ public class PumpShotgunItem extends AbstractShotgunItem
 			user.playSound(SoundEvents.BLOCK_PISTON_CONTRACT, 0.5f, 0.8f + 0.1f * Math.min(charge + 1, 3));
 		}
 		cdm.setCooldown(this, 5, GunCooldownManager.SECONDARY);
-		return TypedActionResult.consume(itemStack);
+		return TypedActionResult.pass(itemStack);
 	}
 	
 	@Override

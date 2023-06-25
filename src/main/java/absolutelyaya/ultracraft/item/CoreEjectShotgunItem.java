@@ -57,14 +57,16 @@ public class CoreEjectShotgunItem extends AbstractShotgunItem
 	@Override
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
 	{
-		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
 		ItemStack itemStack = user.getStackInHand(hand);
+		if(hand.equals(Hand.OFF_HAND))
+			return TypedActionResult.fail(itemStack);
+		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
 		if(!cdm.isUsable(this, 0))
 			return TypedActionResult.fail(itemStack);
 		user.setCurrentHand(hand);
 		if(!world.isClient)
 			itemStack.getOrCreateNbt().putBoolean("charging", true);
-		return TypedActionResult.consume(itemStack);
+		return TypedActionResult.pass(itemStack);
 	}
 	
 	@Override

@@ -74,7 +74,8 @@ public class ClientHitscanHandler
 			RAILGUN_DRILL(0x30ff72, 60, 0.3f),
 			RAILGUN_MALICIOUS(0xff4530, 60, 0.3f),
 			MALICIOUS(0xf4d81b, 60, 0.3f),
-			RICOCHET(0xf4d81b, 5, 0.1f);
+			RICOCHET(0xf4d81b, 5, 0.1f),
+			SHARPSHOOTER(0xdf2828, 60, 0.1f);
 			
 			public final int color, maxAge;
 			public final float startGirth;

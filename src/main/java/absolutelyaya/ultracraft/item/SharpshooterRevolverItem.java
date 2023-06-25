@@ -11,10 +11,11 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
@@ -45,21 +46,34 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	}
 	
 	@Override
+	public ItemStack getDefaultStack()
+	{
+		ItemStack stack = new ItemStack(this);
+		setCharges(stack, 3);
+		return stack;
+	}
+	
+	public ItemStack getStackedSharpshooter()
+	{
+		ItemStack stack = getDefaultStack();
+		setCharges(stack, 64);
+		return stack;
+	}
+	
+	@Override
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
 	{
 		ItemStack itemStack = user.getStackInHand(hand);
+		if(hand.equals(Hand.OFF_HAND))
+			return TypedActionResult.fail(itemStack);
 		user.setCurrentHand(hand);
-		if(!world.isClient)
-		{
-			itemStack.getOrCreateNbt().putBoolean("charging", true);
-		}
-		return TypedActionResult.consume(itemStack);
+		itemStack.getOrCreateNbt().putBoolean("charging", true);
+		return TypedActionResult.pass(itemStack);
 	}
 	
 	@Override
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
 	{
-		super.inventoryTick(stack, world, entity, slot, selected);
 		if(stack.hasNbt() && stack.getNbt().contains("charging"))
 		{
 			if(!selected)
@@ -76,6 +90,17 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 			else if(entity instanceof PlayerEntity player)
 				triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "charging");
 		}
+		if(!(entity instanceof PlayerEntity player))
+			return;
+		GunCooldownManager cdm = ((WingedPlayerEntity)player).getGunCooldownManager();
+		super.inventoryTick(stack, world, entity, slot, selected);
+		int charges = getCharges(stack);
+		if(charges < 3 && cdm.isUsable(this, GunCooldownManager.SECONDARY))
+		{
+			setCharges(stack, charges + 1);
+			cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
+			player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.5f);
+		}
 	}
 	
 	@Override
@@ -87,7 +112,7 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	@Override
 	String getControllerName()
 	{
-		return "sharpShooterRevolverController";
+		return "sharpshooterRevolverController";
 	}
 	
 	@Override
@@ -100,28 +125,31 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks)
 	{
 		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
-		NbtCompound nbt = stack.getNbt();
+		int charges = getCharges(stack);
 		if(remainingUseTicks <= 0)
 		{
 			if(user instanceof PlayerEntity player)
 			{
 				if(!world.isClient)
 				{
-					cdm.setCooldown(this, 50, GunCooldownManager.SECONDARY);
+					if(charges == 3)
+						cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
+					setCharges(stack, charges - 1);
 					triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "discharge");
 					world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, SoundCategory.PLAYERS, 1f,
 							0.85f + (user.getRandom().nextFloat() - 0.5f) * 0.2f);
 				}
-				player.getItemCooldownManager().set(this, 50);
+				player.getItemCooldownManager().set(this, 10);
 				onAltFire(world, player);
 			}
 			if(!world.isClient)
-				ServerHitscanHandler.performHitscan(user, (byte)1, 1, 3, true);
+				ServerHitscanHandler.performBouncingHitscan(user, ServerHitscanHandler.SHARPSHOOTER, 3, Integer.MAX_VALUE,
+						(int)Math.ceil(Math.min(Math.abs(remainingUseTicks) / 20f, 1f) * 3));
 		}
 		else if(!world.isClient && user instanceof PlayerEntity)
 			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "stop");
-		if(nbt != null)
-			nbt.remove("charging");
+		if(stack.hasNbt() && stack.getNbt().contains("charging"))
+			stack.getNbt().remove("charging");
 		approxUseTime = -1;
 	}
 	
@@ -134,7 +162,7 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	@Override
 	public int getMaxUseTime(ItemStack stack)
 	{
-		return 15;
+		return 20;
 	}
 	
 	@Override
@@ -176,8 +204,28 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	}
 	
 	@Override
+	public boolean isItemBarVisible(ItemStack stack)
+	{
+		GunCooldownManager cdm = ((WingedPlayerEntity) MinecraftClient.getInstance().player).getGunCooldownManager();
+		return !cdm.isUsable(stack.getItem(), GunCooldownManager.PRIMARY) || getCharges(stack) < 3;
+	}
+	
+	@Override
+	public int getItemBarStep(ItemStack stack)
+	{
+		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
+		if(!cdm.isUsable(this, GunCooldownManager.PRIMARY))
+			return (int)(cdm.getCooldownPercent(stack.getItem(), GunCooldownManager.PRIMARY) * 14);
+		else
+			return (int)((1f - cdm.getCooldownPercent(stack.getItem(), GunCooldownManager.SECONDARY)) * 14);
+	}
+	
+	@Override
 	public int getItemBarColor(ItemStack stack)
 	{
+		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
+		if(cdm.isUsable(this, GunCooldownManager.PRIMARY))
+			return 0xdfb728;
 		return 0xdf2828;
 	}
 	
@@ -185,5 +233,25 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	public Supplier<Object> getRenderProvider()
 	{
 		return renderProvider;
+	}
+	
+	@Override
+	public String getCountString(ItemStack stack)
+	{
+		if(stack.hasNbt() && stack.getNbt().contains("charges"))
+			return Formatting.GOLD + String.valueOf(getCharges(stack));
+		return null;
+	}
+	
+	public int getCharges(ItemStack stack)
+	{
+		if(!stack.hasNbt() || !stack.getNbt().contains("charges", NbtElement.INT_TYPE))
+			stack.getOrCreateNbt().putInt("charges", 3);
+		return stack.getNbt().getInt("charges");
+	}
+	
+	public void setCharges(ItemStack stack, int i)
+	{
+		stack.getOrCreateNbt().putInt("charges", i);
 	}
 }

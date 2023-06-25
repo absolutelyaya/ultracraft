@@ -39,7 +39,10 @@ public class Ultracraft implements ModInitializer
         RecipeSerializers.register();
         CriteriaRegistry.register();
     
-        ServerTickEvents.END_SERVER_TICK.register(minecraft -> tickFreeze());
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            tickFreeze();
+            ServerHitscanHandler.tickSchedule(server.getTicks());
+        });
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
             ((WingedPlayerEntity)newPlayer).setWingsVisible(((WingedPlayerEntity)oldPlayer).isWingsActive());
             PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());

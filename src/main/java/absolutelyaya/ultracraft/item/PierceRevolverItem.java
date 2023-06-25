@@ -11,7 +11,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -47,18 +46,16 @@ public class PierceRevolverItem extends AbstractRevolverItem
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
 	{
 		ItemStack itemStack = user.getStackInHand(hand);
+		if(hand.equals(Hand.OFF_HAND))
+			return TypedActionResult.fail(itemStack);
 		user.setCurrentHand(hand);
-		if(!world.isClient)
-		{
-			itemStack.getOrCreateNbt().putBoolean("charging", true);
-		}
-		return TypedActionResult.consume(itemStack);
+		itemStack.getOrCreateNbt().putBoolean("charging", true);
+		return TypedActionResult.pass(itemStack);
 	}
 	
 	@Override
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
 	{
-		super.inventoryTick(stack, world, entity, slot, selected);
 		if(stack.hasNbt() && stack.getNbt().contains("charging"))
 		{
 			if(!selected)
@@ -99,7 +96,6 @@ public class PierceRevolverItem extends AbstractRevolverItem
 	public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks)
 	{
 		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
-		NbtCompound nbt = stack.getNbt();
 		if(remainingUseTicks <= 0)
 		{
 			if(user instanceof PlayerEntity player)
@@ -115,12 +111,12 @@ public class PierceRevolverItem extends AbstractRevolverItem
 				onAltFire(world, player);
 			}
 			if(!world.isClient)
-				ServerHitscanHandler.performHitscan(user, (byte)1, 1, 3, true);
+				ServerHitscanHandler.performHitscan(user, ServerHitscanHandler.REVOLVER_PIERCE, 1, 3, true);
 		}
 		else if(!world.isClient && user instanceof PlayerEntity)
 			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "stop");
-		if(nbt != null)
-			nbt.remove("charging");
+		if(stack.hasNbt() && stack.getNbt().contains("charging"))
+			stack.getNbt().remove("charging");
 		approxUseTime = -1;
 	}
 	
