@@ -41,7 +41,7 @@ public class Ultracraft implements ModInitializer
     
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             tickFreeze();
-            ServerHitscanHandler.tickSchedule(server.getTicks());
+            ServerHitscanHandler.tickSchedule();
         });
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
             ((WingedPlayerEntity)newPlayer).setWingsVisible(((WingedPlayerEntity)oldPlayer).isWingsActive());

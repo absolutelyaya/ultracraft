@@ -5,7 +5,6 @@ import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.SharpshooterRevolverRenderer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -37,7 +36,6 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 {
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
-	protected int approxUseTime = -1;
 	
 	public SharpshooterRevolverItem(Settings settings)
 	{
@@ -64,7 +62,7 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
 	{
 		ItemStack itemStack = user.getStackInHand(hand);
-		if(hand.equals(Hand.OFF_HAND))
+		if(hand.equals(Hand.OFF_HAND) || getCharges(itemStack) == 0)
 			return TypedActionResult.fail(itemStack);
 		user.setCurrentHand(hand);
 		itemStack.getOrCreateNbt().putBoolean("charging", true);
@@ -81,14 +79,10 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 				stack.getNbt().remove("charging");
 				if(!world.isClient)
 					triggerAnim(entity, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "stop");
-				if(world.isClient && entity instanceof ClientPlayerEntity player && player.equals(MinecraftClient.getInstance().player))
-					approxUseTime = -1;
 				return;
 			}
-			if(world.isClient && entity instanceof ClientPlayerEntity player && player.equals(MinecraftClient.getInstance().player))
-				approxUseTime++;
-			else if(entity instanceof PlayerEntity player)
-				triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "charging");
+			if(!world.isClient && entity instanceof PlayerEntity player)
+				triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "spin");
 		}
 		if(!(entity instanceof PlayerEntity player))
 			return;
@@ -150,7 +144,6 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "stop");
 		if(stack.hasNbt() && stack.getNbt().contains("charging"))
 			stack.getNbt().remove("charging");
-		approxUseTime = -1;
 	}
 	
 	@Override
@@ -169,7 +162,7 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
 	{
 		controllerRegistrar.add(new AnimationController<>(this, getControllerName(), 1, state -> PlayState.STOP)
-										.triggerableAnim("charging", AnimationCharge)
+										.triggerableAnim("spin", AnimationSpin)
 										.triggerableAnim("discharge", AnimationDischarge)
 										.triggerableAnim("shot", AnimationShot)
 										.triggerableAnim("shot2", AnimationShot2) //this animation purely exists to cancel shot animations.
@@ -180,11 +173,6 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	public AnimatableInstanceCache getAnimatableInstanceCache()
 	{
 		return cache;
-	}
-	
-	public int getApproxUseTime()
-	{
-		return approxUseTime;
 	}
 	
 	@Override

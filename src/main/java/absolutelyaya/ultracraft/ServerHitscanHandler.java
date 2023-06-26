@@ -45,9 +45,13 @@ public class ServerHitscanHandler
 	
 	static final Queue<ScheduledHitscan> scheduleAdditions = new ArrayDeque<>();
 	static final List<ScheduledHitscan> schedule = new ArrayList<>();
+	static int time = 0;
 	
-	public static void tickSchedule(int time)
+	public static void tickSchedule()
 	{
+		if(Ultracraft.isTimeFrozen())
+			return;
+		time++;
 		schedule.addAll(scheduleAdditions);
 		scheduleAdditions.clear();
 		List<ScheduledHitscan> remove = new ArrayList<>();
@@ -122,9 +126,7 @@ public class ServerHitscanHandler
 		while (searchForEntities)
 		{
 			EntityHitResult eHit = ProjectileUtil.raycast(user, from, modifiedTo, box,
-					(entity) -> (!entities.contains(entity) &&
-										 (!(entity instanceof ProjectileEntity proj) ||
-												  ((ProjectileEntityAccessor)proj).isHitscanHittable()) || type == SHARPSHOOTER), 64f * 64f);
+					(entity) -> (!entities.contains(entity) && (!(entity instanceof ProjectileEntity) || (entity instanceof  ProjectileEntity proj && ((ProjectileEntityAccessor)proj).isHitscanHittable()) || type == SHARPSHOOTER)), 64f * 64f);
 			if(eHit == null)
 				break;
 			searchForEntities = eHit.getType() != HitResult.Type.MISS && maxHits > 0;
@@ -195,8 +197,8 @@ public class ServerHitscanHandler
 			Vec3d hitPos = lastResult.finalHit.getPos();
 			Vec3d lastDir = lastResult.dir;
 			Vec3d hitNormal = new Vec3d(((BlockHitResult)lastResult.finalHit).getSide().getUnitVector());
-			Vec3d dest = hitPos.add(lastDir.subtract(hitNormal.multiply(2 * lastDir.dotProduct(hitNormal))).multiply(64));
-			scheduleAdditions.add(new ScheduledHitscan(user, hitPos, hitPos, dest, type, damage, maxHits, bounces, null, user.getServer().getTicks(), 1));
+			Vec3d dest = hitPos.add(lastDir.subtract(hitNormal.multiply(2 * lastDir.dotProduct(hitNormal))).normalize().multiply(64));
+			scheduleAdditions.add(new ScheduledHitscan(user, hitPos, hitPos, dest, type, damage, maxHits, bounces, null, time, 1));
 		}
 	}
 	

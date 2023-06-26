@@ -13,6 +13,11 @@
 							"vector": [0, 0, 0]
 						}
 					}
+				},
+				"speedMarks": {
+					"scale": {
+						"vector": [0, 0, 0]
+					}
 				}
 			}
 		},
@@ -29,6 +34,11 @@
 							"easing": "easeInSine"
 						}
 					}
+				},
+				"speedMarks": {
+					"scale": {
+						"vector": [0, 0, 0]
+					}
 				}
 			}
 		},
@@ -44,6 +54,11 @@
 						"1.0": {
 							"vector": [0, 0, -720]
 						}
+					}
+				},
+				"speedMarks": {
+					"scale": {
+						"vector": [0, 0, 0]
 					}
 				}
 			}
@@ -94,6 +109,11 @@
 							"easing": "easeOutQuad"
 						}
 					}
+				},
+				"speedMarks": {
+					"scale": {
+						"vector": [0, 0, 0]
+					}
 				}
 			}
 		},
@@ -132,6 +152,11 @@
 							"easing": "easeInSine"
 						}
 					}
+				},
+				"speedMarks": {
+					"scale": {
+						"vector": [0, 0, 0]
+					}
 				}
 			}
 		},
@@ -169,6 +194,93 @@
 							"vector": [0, 0, 0],
 							"easing": "easeInSine"
 						}
+					}
+				},
+				"speedMarks": {
+					"scale": {
+						"vector": [0, 0, 0]
+					}
+				}
+			}
+		},
+		"spinup": {
+			"animation_length": 2,
+			"bones": {
+				"Root": {
+					"rotation": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.15": {
+							"vector": [-15.5, 0, -42.5]
+						},
+						"0.2": {
+							"vector": [-15.44384, -1.33462, -47.31902]
+						},
+						"0.3": {
+							"vector": [-15.5, 0, -42.5]
+						},
+						"0.4": {
+							"vector": [-38, 0, -42.5],
+							"easing": "easeInOutSine"
+						},
+						"1.0": {
+							"vector": [360, 0, -42.5],
+							"easing": "easeInSine"
+						},
+						"1.6": {
+							"vector": [1080, 0, -42.5]
+						},
+						"2.0": {
+							"vector": [1800, 0, -42.5],
+							"easing": "linear"
+						}
+					},
+					"position": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"0.2": {
+							"vector": [-2, 0, 0]
+						}
+					}
+				},
+				"speedMarks": {
+					"scale": {
+						"0.0": {
+							"vector": [0, 0, 0]
+						},
+						"1.25": {
+							"vector": [0, 0, 0]
+						},
+						"2.0": {
+							"vector": [5, 5, 3.1]
+						}
+					}
+				}
+			}
+		},
+		"spinning": {
+			"loop": true,
+			"animation_length": 0.4,
+			"bones": {
+				"Root": {
+					"rotation": {
+						"0.0": {
+							"vector": [1080, 0, -42.5]
+						},
+						"0.4": {
+							"vector": [1800, 0, -42.5],
+							"easing": "linear"
+						}
+					},
+					"position": {
+						"vector": [-2, 0, 0]
+					}
+				},
+				"speedMarks": {
+					"scale": {
+						"vector": [5, 5, 3.1]
 					}
 				}
 			}

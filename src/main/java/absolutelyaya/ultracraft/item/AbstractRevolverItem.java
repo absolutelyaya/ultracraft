@@ -18,6 +18,7 @@ public abstract class AbstractRevolverItem extends AbstractWeaponItem implements
 	boolean b; //toggled on every shot; decides purely which shot animation should be used to allow for rapid firing
 	final RawAnimation AnimationStop = RawAnimation.begin().then("nothing", Animation.LoopType.LOOP);
 	final RawAnimation AnimationCharge = RawAnimation.begin().thenPlay("charging").thenLoop("charged");
+	final RawAnimation AnimationSpin = RawAnimation.begin().thenPlay("spinup").thenLoop("spinning");
 	final RawAnimation AnimationDischarge = RawAnimation.begin().thenPlay("discharge");
 	final RawAnimation AnimationShot = RawAnimation.begin().thenPlay("shot");
 	final RawAnimation AnimationShot2 = RawAnimation.begin().thenPlay("shot2");
