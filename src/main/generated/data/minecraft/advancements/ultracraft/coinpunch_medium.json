@@ -18,7 +18,7 @@
     "icon": {
       "item": "ultracraft:coin"
     },
-    "show_toast": false,
+    "show_toast": true,
     "title": {
       "translate": "advancements.ultracraft.coinpunch-medium.title"
     }

@@ -146,12 +146,14 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			return false;
 		if(!(source.getAttacker() instanceof LivingEntity attacker))
 			return false;
-		if(attacker instanceof MaliciousFaceEntity)
+		if(attacker instanceof MaliciousFaceEntity malicious)
 		{
 			damage = (int)Math.ceil(amount);
 			dataTracker.set(CHARGEBACK, true);
 			chargebackCauser = attacker;
 			hitscanType = ServerHitscanHandler.MALICIOUS;
+			if(getOwner() instanceof ServerPlayerEntity player)
+				CriteriaRegistry.CHARGEBACK.trigger(player, malicious);
 			return hitNext(source, amount, attacker);
 		}
 		if(realAge <= 2) //deadcoin period
@@ -171,15 +173,16 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	
 	boolean hitNext(DamageSource source, float amount, LivingEntity attacker)
 	{
-		boolean isDamageRicochet = source.isOf(DamageSources.RICOCHET);
-		if(realAge <= 2) //deadcoin period
+		boolean isDamageChargeback = source.isOf(DamageSources.CHARGEBACK);
+		boolean isDamageRicochet = source.isOf(DamageSources.RICOCHET) || isDamageChargeback;
+		if(realAge <= 2 && !isDamageChargeback) //deadcoin period
 			return false;
 		if (world.isClient)
 			return true;
 		else
 			playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 0.1f, 1.2f + (isDamageRicochet ? 0.05f * amount : 0f));
 		List<ThrownCoinEntity> list = world.getEntitiesByType(TypeFilter.instanceOf(ThrownCoinEntity.class), getBoundingBox().expand(16f),
-				e -> e.isUnused() && !e.isRemoved());
+				e -> e.isUnused() && !e.isRemoved() && !(isDamageChargeback && e.age <= 2));
 		if (list.size() > 1)
 		{
 			if (hitTicks == 0)
@@ -187,7 +190,8 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 				nextHitDelay = 2;
 				hitTicks = 1;
 				damage = Math.round(amount);
-				setOwner(attacker);
+				if(!dataTracker.get(CHARGEBACK))
+					setOwner(attacker);
 				return false;
 			}
 			ThrownCoinEntity closestCoin = null;
@@ -205,12 +209,13 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			}
 			if (closestCoin != null && isUnused())
 			{
+				boolean cb = dataTracker.get(CHARGEBACK);
 				ServerHitscanHandler.sendPacket((ServerWorld) world, getPos(), closestCoin.getPos(), hitscanType);
-				closestCoin.damage(DamageSources.get(world, DamageSources.RICOCHET, attacker), isDamageRicochet ? amount + 1 : 1);
-				closestCoin.dataTracker.set(CHARGEBACK, dataTracker.get(CHARGEBACK));
+				closestCoin.dataTracker.set(CHARGEBACK, cb);
+				closestCoin.damage(DamageSources.get(world, cb ? DamageSources.CHARGEBACK : DamageSources.RICOCHET, attacker), isDamageRicochet ? amount + 1 : 1);
 			}
 		}
-		if((hitTicks == 0 || hitTicks == nextHitDelay) && list.size() <= 1)
+		if((hitTicks == 0 || hitTicks == nextHitDelay) && list.size() <= (dataTracker.get(CHARGEBACK) ? 2 : 1)) // if it's 1, the chargeback never hits an entity for some reason.
 		{
 			List<Entity> potentialTargets;
 			if(dataTracker.get(CHARGEBACK))
@@ -250,6 +255,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 						ExplosionHandler.explosion(getOwner(), world, closest.getPos(),
 								DamageSources.get(world, DamageTypes.EXPLOSION), 10, 0f, 5.5f, true);
 						Ultracraft.freeze((ServerWorld)world, 5);
+						list.forEach(Entity::kill); //necessary because otherwise *two* final chargeback attacks occur
 						return true;
 					}
 					ServerHitscanHandler.sendPacket((ServerWorld) world, getPos(), closest.getEyePos(), hitscanType);

@@ -273,6 +273,8 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 			return false;
 		if(source.isOf(DamageSources.POUND))
 			amount *= 2;
+		if(source.isOf(DamageSources.CHARGEBACK))
+			amount = 999;
 		if(dataTracker.get(DEAD))
 		{
 			if(source.isOf(DamageTypes.STARVE)) //starve because there's no way this damage would occur accidentally

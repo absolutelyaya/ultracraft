@@ -131,6 +131,8 @@
   "advancements.ultracraft.coinpunch-medium.description": "Punch one Coin 25 Times in a row.",
   "advancements.ultracraft.coinpunch-hard.title": "§4Coin Prodigy",
   "advancements.ultracraft.coinpunch-hard.description": "Punch one Coin 50 Times in a row.",
+  "advancements.ultracraft.chargeback-malicious.title": "Malicious Chargeback",
+  "advancements.ultracraft.chargeback-malicious.description": "Kill a Malicious Face by throwing a Coin into its Beam Attack.",
 
   "narrator.button.background.vanilla": "Vanilla BG",
   "narrator.button.background.ultracraft": "Ultracraft BG",

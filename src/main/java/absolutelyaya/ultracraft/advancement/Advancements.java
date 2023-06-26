@@ -1,10 +1,15 @@
 package absolutelyaya.ultracraft.advancement;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.advancement.Advancement;
 import net.minecraft.advancement.AdvancementFrame;
 import net.minecraft.advancement.criterion.TickCriterion;
+import net.minecraft.entity.EntityType;
+import net.minecraft.predicate.entity.EntityPredicate;
+import net.minecraft.predicate.entity.PlayerPredicate;
+import net.minecraft.predicate.entity.TypeSpecificPredicate;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -19,5 +24,11 @@ public class Advancements implements Consumer<Consumer<Advancement>>
 		Advancement coinpunch_easy = Advancement.Builder.create().parent(root).display(ItemRegistry.COIN, Text.translatable("advancements.ultracraft.coinpunch-easy.title"), Text.translatable("advancements.ultracraft.coinpunch-easy.description"), null, AdvancementFrame.TASK, true, true, false).criterion("punch", CoinPunchCriterion.Conditions.create(5)).build(consumer, Ultracraft.MOD_ID + "/coinpunch_easy");
 		Advancement coinpunch_medium = Advancement.Builder.create().parent(coinpunch_easy).display(ItemRegistry.COIN, Text.translatable("advancements.ultracraft.coinpunch-medium.title"), Text.translatable("advancements.ultracraft.coinpunch-medium.description"), null, AdvancementFrame.GOAL, true, true, false).criterion("punch", CoinPunchCriterion.Conditions.create(25)).build(consumer, Ultracraft.MOD_ID + "/coinpunch_medium");
 		Advancement.Builder.create().parent(coinpunch_medium).display(ItemRegistry.COIN, Text.translatable("advancements.ultracraft.coinpunch-hard.title"), Text.translatable("advancements.ultracraft.coinpunch-hard.description"), null, AdvancementFrame.CHALLENGE, true, true, false).criterion("punch", CoinPunchCriterion.Conditions.create(50)).build(consumer, Ultracraft.MOD_ID + "/coinpunch_hard");
+		Advancement.Builder.create().parent(root).display(ItemRegistry.COIN, Text.translatable("advancements.ultracraft.chargeback-malicious.title"), Text.translatable("advancements.ultracraft.chargeback-malicious.description"), null, AdvancementFrame.CHALLENGE, true, true, false).criterion("chargeback", ChargebackCriterion.Conditions.create(getTypePredicate(EntityRegistry.MALICIOUS_FACE))).build(consumer, Ultracraft.MOD_ID + "/chargeback_malicious");
+	}
+	
+	EntityPredicate.Extended getTypePredicate(EntityType<?> type)
+	{
+		return EntityPredicate.Extended.ofLegacy(EntityPredicate.Builder.create().type(type).build());
 	}
 }
