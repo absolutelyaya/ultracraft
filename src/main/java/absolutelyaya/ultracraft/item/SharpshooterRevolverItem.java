@@ -83,7 +83,6 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 			if((approxUseTime - 2) % frequency == 0)
 				entity.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 0.6f, pitch);
 		}
-		
 		if(stack.hasNbt() && stack.getNbt().contains("charging"))
 		{
 			if(!selected)

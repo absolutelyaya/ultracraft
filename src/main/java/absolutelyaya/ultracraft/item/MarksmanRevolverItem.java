@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.item;
 
+import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.MarksmanRevolverRenderer;
@@ -62,16 +63,17 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 		ItemStack itemStack = user.getStackInHand(hand);
 		if(hand.equals(Hand.OFF_HAND))
 			return TypedActionResult.fail(itemStack);
-		GunCooldownManager cdm = ((WingedPlayerEntity) MinecraftClient.getInstance().player).getGunCooldownManager();
+		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
 		user.setCurrentHand(hand);
-		if(!itemStack.hasNbt())
-			itemStack.getOrCreateNbt().putInt("coins", 4);
-		int coins = itemStack.getNbt().getInt("coins");
+		int coins = getCoins(itemStack);
+		if(coins <= 0)
+			return TypedActionResult.pass(itemStack);
+		((LivingEntityAccessor)user).punch();
 		if(!world.isClient && coins > 0)
 		{
 			if(coins == 4)
 				cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
-			itemStack.getNbt().putInt("coins", coins - 1);
+			setCoins(itemStack, coins - 1);
 			ThrownCoinEntity coin = ThrownCoinEntity.spawn(user, world);
 			Vec3d pos = user.getEyePos().add(user.getRotationVector());
 			coin.setPos(pos.x, pos.y, pos.z);
@@ -94,7 +96,8 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 		if(coins < 4 && cdm.isUsable(this, GunCooldownManager.SECONDARY))
 		{
 			setCoins(stack, coins + 1);
-			cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
+			if(coins + 1 < 4)
+				cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
 			player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.75f);
 		}
 	}
@@ -182,11 +185,7 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 	@Override
 	public String getCountString(ItemStack stack)
 	{
-		if(stack.hasNbt() && stack.getNbt().contains("coins"))
-		{
-			return Formatting.GOLD + String.valueOf(getCoins(stack));
-		}
-		return null;
+		return Formatting.GOLD + String.valueOf(getCoins(stack));
 	}
 	
 	public int getCoins(ItemStack stack)

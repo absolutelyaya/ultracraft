@@ -259,8 +259,12 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 				}
 			}
 			else
+			{
 				ServerHitscanHandler.sendPacket((ServerWorld) world, getPos(),
 						getPos().add(Vec3d.fromPolar(random.nextFloat() * 360, random.nextFloat() * 360 - 180).multiply(64)), hitscanType);
+				world.sendEntityStatus(this, (byte) 3);
+				kill();
+			}
 		}
 		return true;
 	}
@@ -282,11 +286,8 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		if(hitTicks == nextHitDelay)
 		{
 			if(isSplittable())
-			{
-				System.out.println("split!");
 				for (int i = 0; i < 2; i++)
 					hitNext(DamageSources.get(world, DamageSources.RICOCHET, getOwner()), damage, (LivingEntity)getOwner());
-			}
 			else
 				hitNext(DamageSources.get(world, DamageSources.RICOCHET, getOwner()), damage, (LivingEntity)getOwner());
 			world.sendEntityStatus(this, (byte) 3);
