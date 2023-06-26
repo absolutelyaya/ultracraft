@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.SharpshooterRevolverRenderer;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -18,6 +19,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.joml.Vector2i;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -36,6 +38,7 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 {
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
+	protected int approxUseTime = -1;
 	
 	public SharpshooterRevolverItem(Settings settings)
 	{
@@ -72,6 +75,15 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	@Override
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
 	{
+		if(world.isClient && approxUseTime > 5)
+		{
+			float f = Math.min((approxUseTime - 5) / 35f, 1f);
+			float pitch = MathHelper.lerp(f, 0.1f, 1.4f);
+			int frequency = MathHelper.lerp(f, 8, 3);
+			if((approxUseTime - 2) % frequency == 0)
+				entity.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 0.6f, pitch);
+		}
+		
 		if(stack.hasNbt() && stack.getNbt().contains("charging"))
 		{
 			if(!selected)
@@ -79,9 +91,13 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 				stack.getNbt().remove("charging");
 				if(!world.isClient)
 					triggerAnim(entity, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "stop");
+				if(world.isClient && entity instanceof ClientPlayerEntity player && player.equals(MinecraftClient.getInstance().player))
+					approxUseTime = -1;
 				return;
 			}
-			if(!world.isClient && entity instanceof PlayerEntity player)
+			if(world.isClient && entity instanceof ClientPlayerEntity player && player.equals(MinecraftClient.getInstance().player))
+				approxUseTime++;
+			else if(entity instanceof PlayerEntity player)
 				triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "spin");
 		}
 		if(!(entity instanceof PlayerEntity player))
@@ -144,6 +160,7 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "stop");
 		if(stack.hasNbt() && stack.getNbt().contains("charging"))
 			stack.getNbt().remove("charging");
+		approxUseTime = -1;
 	}
 	
 	@Override
