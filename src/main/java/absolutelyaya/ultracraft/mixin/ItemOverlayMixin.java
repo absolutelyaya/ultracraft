@@ -45,7 +45,7 @@ public class ItemOverlayMixin
 		{
 			RenderSystem.disableDepthTest();
 			matrices.push();
-			matrices.translate(0, 0, 500);
+			matrices.translate(0, 0, 200);
 			VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
 			textRenderer.draw(countLabel, x, y, 16777215, true, matrices.peek().getPositionMatrix(), immediate, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
 			immediate.draw();
