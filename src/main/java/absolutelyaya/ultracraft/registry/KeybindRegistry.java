@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -35,8 +36,11 @@ public class KeybindRegistry
 	public static final KeyBinding HIGH_VELOCITY_TOGGLE = KeyBindingHelper.registerKeyBinding(
 			new KeyBinding("key.ultracraft.hivel_toggle", InputUtil.Type.KEYSYM,
 			GLFW.GLFW_KEY_V, "category.ultracraft"));
+	public static final KeyBinding WING_CUSTOMIZATION = KeyBindingHelper.registerKeyBinding(
+			new KeyBinding("key.ultracraft.wing_customization", InputUtil.Type.KEYSYM,
+					GLFW.GLFW_KEY_APOSTROPHE, "category.ultracraft"));
 	
-	static boolean hivelPressed = false, punchPressed = false;
+	static boolean hivelPressed = false, punchPressed = false, wingCustomizationPressed = false;
 	
 	public static void register()
 	{
@@ -100,6 +104,15 @@ public class KeybindRegistry
 			}
 			while(PUNCH.wasPressed()); //remove stored punch presses
 			punchPressed = PUNCH.isPressed();
+		});
+		ClientTickEvents.END_CLIENT_TICK.register(client ->
+		{
+			while (WING_CUSTOMIZATION.wasPressed() && !wingCustomizationPressed)
+			{
+				client.setScreen(new WingCustomizationScreen(null));
+			}
+			while(WING_CUSTOMIZATION.wasPressed()); //remove stored punch presses
+			wingCustomizationPressed = WING_CUSTOMIZATION.isPressed();
 		});
 	}
 }
