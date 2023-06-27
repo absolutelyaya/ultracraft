@@ -16,6 +16,7 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.joml.Vector2i;
@@ -68,9 +69,9 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 	@Override
 	protected void initGoals()
 	{
-		goalSelector.add(0, new FilthLungeAttackGoal(this, 0.4f));
-		goalSelector.add(0, new FilthMovingAttackGoal(this, 0.3f));
-		goalSelector.add(0, new FilthStationaryAttackGoal(this, 0.1f));
+		goalSelector.add(0, new FilthLungeAttackGoal(this, 1.5f));
+		goalSelector.add(0, new FilthMovingAttackGoal(this, 1.25f));
+		goalSelector.add(0, new FilthStationaryAttackGoal(this, 1f));
 		goalSelector.add(1, new WanderAroundGoal(this, 1.0));
 		goalSelector.add(2, new LookAtEntityGoal(this, LivingEntity.class, 5));
 		goalSelector.add(3, new LookAroundGoal(this));
@@ -205,7 +206,7 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 		return super.cannotDespawn() || isRare();
 	}
 	
-	boolean isInAttackAnimation()
+	public boolean isInAttackAnimation()
 	{
 		byte anim = getAnimation();
 		return anim == ANIMATION_ATTACK_LUNGE || anim == ANIMATION_ATTACK_MOVING || anim == ANIMATION_ATTACK_STATIONARY;
@@ -216,7 +217,7 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 		List<Entity> nearby = world.getOtherEntities(this, getBoundingBox().expand(6), e -> e instanceof FilthEntity);
 		nearby.forEach(e -> {
 			if(e instanceof FilthEntity filth)
-				filth.dataTracker.set(ATTACK_COOLDOWN, 5);
+				filth.dataTracker.set(ATTACK_COOLDOWN, filth.dataTracker.get(ATTACK_COOLDOWN) + 5);
 		});
 	}
 	
@@ -225,18 +226,19 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 		final protected FilthEntity mob;
 		final protected float velocity;
 		final byte animationID;
-		final boolean hop;
+		final boolean hop, stopMoving;
 		final Vector2i interruptPeriod, damagePeriod;
 		LivingEntity target;
 		int time;
 		boolean didDamage;
 		
-		public FilthAttackGoal(FilthEntity mob, float velocity, byte animationID, boolean hop, Vector2i interruptPeriod, Vector2i damagePeriod)
+		public FilthAttackGoal(FilthEntity mob, float velocity, byte animationID, boolean hop, boolean stopMoving, Vector2i interruptPeriod, Vector2i damagePeriod)
 		{
 			this.mob = mob;
 			this.velocity = velocity;
 			this.animationID = animationID;
 			this.hop = hop;
+			this.stopMoving = stopMoving;
 			this.interruptPeriod = interruptPeriod;
 			this.damagePeriod = damagePeriod;
 			setControls(EnumSet.of(Control.LOOK, Control.MOVE));
@@ -275,26 +277,30 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 		@Override
 		public void tick()
 		{
-			mob.getLookControl().lookAt(target);
-			double d = mob.squaredDistanceTo(target);
-			if (d > 3.0 * 3.0 && mob.getAnimation() != animationID)
+			if(time < getApplyVelocityFrame())
 			{
-				mob.getNavigation().startMovingTo(target, 1.0);
-				return;
+				mob.lookAtEntity(target, 360, 360);
+				double d = mob.squaredDistanceTo(target);
+				if (d > 3.0 * 3.0 && mob.getAnimation() != animationID)
+				{
+					mob.getNavigation().startMovingTo(target, 1.0);
+					return;
+				}
+				if(stopMoving)
+					mob.getNavigation().stop();
 			}
-			mob.getNavigation().stop();
+			mob.setBodyYaw(mob.headYaw);
 			mob.setAttacking(time > interruptPeriod.x && time < interruptPeriod.y);
 			if(time == 0)
 				mob.dataTracker.set(ANIMATION, animationID);
 			if (time == getApplyVelocityFrame())
 			{
+				mob.playSound(SoundEvents.ENTITY_EVOKER_FANGS_ATTACK, 1f, 1f);
 				if(target != null)
 				{
-					Vec3d vec3d = mob.getVelocity();
 					Vec3d vec3d2 = new Vec3d(target.getX() - mob.getX(), 0.0, target.getZ() - mob.getZ());
-					if (vec3d2.lengthSquared() > 1.0E-7)
-						vec3d2 = vec3d2.normalize().multiply(0.8).add(vec3d.multiply(0.2));
-					mob.setVelocity(vec3d2.x, hop ? velocity : 0f, vec3d2.z);
+					vec3d2 = vec3d2.normalize().multiply(velocity);
+					mob.setVelocity(vec3d2.x, hop ? velocity / 5f : 0f, vec3d2.z);
 				}
 			}
 			if(!didDamage && (time > damagePeriod.x && time < damagePeriod.y) && mob.getBoundingBox().expand(0.2f).intersects(target.getBoundingBox()))
@@ -334,7 +340,7 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 	{
 		public FilthStationaryAttackGoal(FilthEntity entity, float velocity)
 		{
-			super(entity, velocity, ANIMATION_ATTACK_STATIONARY, false, new Vector2i(8, 15), new Vector2i(15, 25));
+			super(entity, velocity, ANIMATION_ATTACK_STATIONARY, false, true, new Vector2i(8, 15), new Vector2i(15, 25));
 		}
 		
 		@Override
@@ -348,19 +354,25 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 		{
 			return 34;
 		}
+		
+		@Override
+		public boolean canStart()
+		{
+			return super.canStart() && mob.random.nextInt(1) == 0;
+		}
 	}
 	
 	static class FilthMovingAttackGoal extends FilthAttackGoal
 	{
 		public FilthMovingAttackGoal(FilthEntity entity, float velocity)
 		{
-			super(entity, velocity, ANIMATION_ATTACK_MOVING, false, new Vector2i(5, 12), new Vector2i(10, 20));
+			super(entity, velocity, ANIMATION_ATTACK_MOVING, false, true, new Vector2i(5, 12), new Vector2i(10, 20));
 		}
 		
 		@Override
 		protected int getApplyVelocityFrame()
 		{
-			return 0;
+			return 5;
 		}
 		
 		@Override
@@ -372,7 +384,7 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 		@Override
 		public boolean canStart()
 		{
-			return super.canStart() && mob.random.nextInt(3) == 0;
+			return super.canStart() && mob.random.nextInt(2) == 0;
 		}
 	}
 	
@@ -380,7 +392,7 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 	{
 		public FilthLungeAttackGoal(FilthEntity entity, float velocity)
 		{
-			super(entity, velocity, ANIMATION_ATTACK_LUNGE, true, new Vector2i(8, 16), new Vector2i(15, 25));
+			super(entity, velocity, ANIMATION_ATTACK_LUNGE, true, true, new Vector2i(8, 16), new Vector2i(15, 25));
 		}
 		
 		@Override
