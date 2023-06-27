@@ -73,30 +73,10 @@ public class PacketRegistry
 			boolean debug = buf.readBoolean();
 			
 			server.execute(() -> {
-				ProjectileEntity p;
 				Vec3d forward = player.getRotationVector().normalize();
-				Vec3d pos = player.getEyePos();
-				Box check = new Box(pos.x - 0.3f, pos.y - 0.3f, pos.z - 0.3f,
-						pos.x + 0.3f, pos.y + 0.3f, pos.z + 0.3f)
-									.stretch(forward.multiply(0.9)).offset(new Vec3d(clientVel.mul(-0.5f)))
-									.stretch(clientVel.x * 16, clientVel.y * 16, clientVel.z * 16);
-				List<ProjectileEntity> projectiles = player.world.getEntitiesByClass(ProjectileEntity.class, check,
-						(e) -> !((ProjectileEntityAccessor)e).isParried());
-				
-				if(debug) {
-					addDebugParticle(player, new Vec3d(check.minX, check.minY, check.minZ));
-					addDebugParticle(player, new Vec3d(check.maxX, check.minY, check.minZ));
-					addDebugParticle(player, new Vec3d(check.minX, check.minY, check.maxZ));
-					addDebugParticle(player, new Vec3d(check.maxX, check.minY, check.maxZ));
-					addDebugParticle(player, new Vec3d(check.minX, check.maxY, check.minZ));
-					addDebugParticle(player, new Vec3d(check.maxX, check.maxY, check.minZ));
-					addDebugParticle(player, new Vec3d(check.minX, check.maxY, check.maxZ));
-					addDebugParticle(player, new Vec3d(check.maxX, check.maxY, check.maxZ));
-				}
-				
 				player.swingHand(Hand.OFF_HAND, true);
 				
-				//Punch Entity
+				//Punch Entity; Takes Priority over Projectile Parries
 				if(target != null)
 				{
 					if(player.getOffHandStack().isIn(TagRegistry.PUNCH_FLAMES))
@@ -122,25 +102,68 @@ public class PacketRegistry
 				}
 				
 				//Projectile Parry
+				//Fetch all Parry Candidate Projectiles
+				Vec3d pos = player.getEyePos();
+				Box check = new Box(pos.x - 0.3f, pos.y - 0.3f, pos.z - 0.3f,
+						pos.x + 0.3f, pos.y + 0.3f, pos.z + 0.3f)
+									.stretch(forward.multiply(0.45)).offset(new Vec3d(clientVel.mul(-0.5f)))
+									.stretch(clientVel.x * 16, clientVel.y * 16, clientVel.z * 16);
+				//Get Projectiles that absolutely are in the Parry Check
+				List<ProjectileEntity> projectiles = player.world.getEntitiesByClass(ProjectileEntity.class, check,
+						e -> !((ProjectileEntityAccessor)e).isParried());
+				//Get Projectiles that could move into the Parry Check
+				List<ProjectileEntity> potentialProjectiles = player.world.getEntitiesByClass(ProjectileEntity.class, player.getBoundingBox().expand(4),
+						e -> !((ProjectileEntityAccessor)e).isParried() && !projectiles.contains(e));
+				for (ProjectileEntity proj : potentialProjectiles)
+				{
+					//Predict position within the last 1 and next 3 ticks. If it is or was within the parry check, then the parry is successful
+					//This is mainly intended for combatting latency and shit
+					for (int i = 0; i < 4; i++)
+					{
+						Vec3d predictedPos = proj.getLerpedPos(i);
+						if (check.contains(predictedPos))
+						{
+							if(debug)
+								addDebugParticle(player, predictedPos);
+							projectiles.add(proj);
+							break;
+						}
+					}
+				}
+				
+				if(debug)
+				{
+					addDebugParticle(player, new Vec3d(check.minX, check.minY, check.minZ));
+					addDebugParticle(player, new Vec3d(check.maxX, check.minY, check.minZ));
+					addDebugParticle(player, new Vec3d(check.minX, check.minY, check.maxZ));
+					addDebugParticle(player, new Vec3d(check.maxX, check.minY, check.maxZ));
+					addDebugParticle(player, new Vec3d(check.minX, check.maxY, check.minZ));
+					addDebugParticle(player, new Vec3d(check.maxX, check.maxY, check.minZ));
+					addDebugParticle(player, new Vec3d(check.minX, check.maxY, check.maxZ));
+					addDebugParticle(player, new Vec3d(check.maxX, check.maxY, check.maxZ));
+				}
+				
+				//The actual Parry Logic
+				ProjectileEntity parried;
 				if(projectiles.size() > 0)
-					p = getNearestProjectile(projectiles, pos);
+					parried = getNearestProjectile(projectiles, pos);
 				else
 					return;
-				if(!((ProjectileEntityAccessor)p).isParriable())
+				if(!((ProjectileEntityAccessor)parried).isParriable())
 					return;
-				if(player.equals(p.getOwner()) && p.age < 4)
+				if(player.equals(parried.getOwner()) && parried.age < 4)
 				{
-					if(((ProjectileEntityAccessor)p).isBoostable())
+					if(((ProjectileEntityAccessor)parried).isBoostable())
 						Ultracraft.freeze((ServerWorld) player.world, 5); //ProjBoost freezes are shorter
 					else
 						return;
 				}
-				else if(!(p instanceof ThrownCoinEntity))
+				else if(!(parried instanceof ThrownCoinEntity))
 					Ultracraft.freeze((ServerWorld) player.world, 10);
 				world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
-				ProjectileEntityAccessor pa = (ProjectileEntityAccessor)p;
+				ProjectileEntityAccessor pa = (ProjectileEntityAccessor)parried;
 				pa.setParried(true, player);
-				p.setVelocity(forward.multiply(2.5f));
+				parried.setVelocity(forward.multiply(2.5f));
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(PUNCH_BLOCK_PACKET_ID, (server, player, handler, buf, sender) -> {
