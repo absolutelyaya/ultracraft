@@ -1,10 +1,7 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
-import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
-import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.accessor.*;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
@@ -103,17 +100,18 @@ public class PacketRegistry
 				
 				//Projectile Parry
 				//Fetch all Parry Candidate Projectiles
+				boolean chainingAllowed = world.getGameRules().getBoolean(GameruleRegistry.PARRY_CHAINING);
 				Vec3d pos = player.getEyePos();
 				Box check = new Box(pos.x - 0.3f, pos.y - 0.3f, pos.z - 0.3f,
 						pos.x + 0.3f, pos.y + 0.3f, pos.z + 0.3f)
-									.stretch(forward.multiply(0.45)).offset(new Vec3d(clientVel.mul(-0.5f)))
+									.stretch(forward.multiply(0.9)).offset(new Vec3d(clientVel.mul(-0.5f)))
 									.stretch(clientVel.x * 16, clientVel.y * 16, clientVel.z * 16);
 				//Get Projectiles that absolutely are in the Parry Check
 				List<ProjectileEntity> projectiles = player.world.getEntitiesByClass(ProjectileEntity.class, check,
-						e -> !((ProjectileEntityAccessor)e).isParried());
+						e -> (!((ProjectileEntityAccessor)e).isParried()) || chainingAllowed);
 				//Get Projectiles that could move into the Parry Check
 				List<ProjectileEntity> potentialProjectiles = player.world.getEntitiesByClass(ProjectileEntity.class, player.getBoundingBox().expand(4),
-						e -> !((ProjectileEntityAccessor)e).isParried() && !projectiles.contains(e));
+						e -> (!((ProjectileEntityAccessor)e).isParried() || chainingAllowed) && !projectiles.contains(e));
 				for (ProjectileEntity proj : potentialProjectiles)
 				{
 					//Predict position within the last 1 and next 3 ticks. If it is or was within the parry check, then the parry is successful
@@ -163,7 +161,7 @@ public class PacketRegistry
 				world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
 				ProjectileEntityAccessor pa = (ProjectileEntityAccessor)parried;
 				pa.setParried(true, player);
-				parried.setVelocity(forward.multiply(2.5f));
+				parried.setVelocity(forward.multiply(chainingAllowed ? 1f + 0.125f * ((ChainParryAccessor)pa).getParryCount() : 2.5f));
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(PUNCH_BLOCK_PACKET_ID, (server, player, handler, buf, sender) -> {

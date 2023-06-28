@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.ChainParryAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
@@ -9,6 +10,9 @@ import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.util.hit.BlockHitResult;
@@ -26,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.List;
 
 @Mixin(ProjectileEntity.class)
-public abstract class ProjectileEntityMixin extends Entity implements ProjectileEntityAccessor
+public abstract class ProjectileEntityMixin extends Entity implements ProjectileEntityAccessor, ChainParryAccessor
 {
 	@Shadow @Nullable private Entity owner;
 	
@@ -36,13 +40,20 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	
 	@Shadow protected abstract void onEntityHit(EntityHitResult entityHitResult);
 	
+	private static final TrackedData<Integer> PARRIES = DataTracker.registerData(ProjectileEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected PlayerEntity parrier;
-	boolean parried, frozen;
+	boolean frozen;
 	Vec3d preFreezeVel;
 	
 	public ProjectileEntityMixin(EntityType<?> type, World world)
 	{
 		super(type, world);
+	}
+	
+	@Inject(method = "<init>", at = @At("TAIL"))
+	void onInit(EntityType<?> entityType, World world, CallbackInfo ci)
+	{
+		dataTracker.startTracking(PARRIES, 0);
 	}
 	
 	@Inject(method = "onBlockHit", at = @At("HEAD"))
@@ -54,7 +65,7 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	@Inject(method = "onEntityHit", at = @At("HEAD"))
 	void onEntityHit(EntityHitResult entityHitResult, CallbackInfo ci)
 	{
-		if(parried == entityHitResult.getEntity().equals(owner) && parrier != null)
+		if(isParried() && entityHitResult.getEntity().equals(owner) && parrier != null)
 			parrier.heal(6);
 		collide(entityHitResult);
 	}
@@ -104,41 +115,47 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	
 	void collide(HitResult hitResult)
 	{
-		if(parried)
+		if(isParried())
 		{
 			onParriedCollision(hitResult);
-			parried = false;
+			dataTracker.set(PARRIES, 0);
 		}
 	}
 	
 	@Override
 	public void onParriedCollision(HitResult hitResult)
 	{
+		int parries = getParryCount() - 1;
+		float damageMult = 1f + parries * 0.2f;
+		float rangeMult = 1f + parries * 0.1f;
 		Vec3d pos = hitResult.getPos();
 		if(owner == null)
 		{
-			ExplosionHandler.explosion(null, world, pos, DamageSources.get(world, DamageSources.PARRYAOE, parrier), 5f, 1f, 3f, true);
+			ExplosionHandler.explosion(null, world, pos, DamageSources.get(world, DamageSources.PARRYAOE, parrier),
+					5f * damageMult, 1f, 3f * rangeMult, true);
 			return;
 		}
 		Entity hit = null;
 		if(hitResult.getType().equals(HitResult.Type.ENTITY))
 			hit = ((EntityHitResult)hitResult).getEntity();
 		if(owner.equals(hit))
-			owner.damage(DamageSources.get(world, DamageSources.PARRY, parrier), 15);
-		ExplosionHandler.explosion(owner.equals(hit) ? hit : null, world, pos, DamageSources.get(world, DamageSources.PARRYAOE, parrier), 5f, 1f, 3f, true);
+			owner.damage(DamageSources.get(world, DamageSources.PARRY, parrier), 15 * damageMult);
+		ExplosionHandler.explosion(owner.equals(hit) ? hit : null, world, pos, DamageSources.get(world, DamageSources.PARRYAOE, parrier),
+				5f * damageMult, 1f, 3f * rangeMult, true);
 	}
 	
 	@Override
 	public void setParried(boolean val, PlayerEntity parrier)
 	{
-		parried = val;
+		dataTracker.set(PARRIES, dataTracker.get(PARRIES) + 1);
 		this.parrier = parrier;
+		age = 0;
 	}
 	
 	@Override
 	public boolean isParried()
 	{
-		return parried;
+		return dataTracker.get(PARRIES) > 0;
 	}
 	
 	@Override
@@ -168,5 +185,17 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	public boolean isHitscanHittable()
 	{
 		return false;
+	}
+	
+	@Override
+	public int getParryCount()
+	{
+		return dataTracker.get(PARRIES);
+	}
+	
+	@Override
+	public void setParryCount(int val)
+	{
+		dataTracker.set(PARRIES, val);
 	}
 }

@@ -337,11 +337,9 @@ public class UltracraftClient implements ClientModInitializer
 		return config;
 	}
 	
-	public static void syncGameRule(byte data)
+	public static void syncGameRule(byte data, int value)
 	{
-		int rule = data / 10;
-		int value = data - rule * 10;
-		switch (rule)
+		switch (data)
 		{
 			case 1 ->
 			{
@@ -351,24 +349,15 @@ public class UltracraftClient implements ClientModInitializer
 			}
 			case 2 -> TimeFreezeOption = GameruleRegistry.Option.values()[value];
 			case 3 -> disableHandswap = value == 1;
+			case 4 -> jumpBoost = value;
 			case 5 -> slamStorage = value == 1;
 			case 6 -> fallDamage = value == 1;
 			case 7 -> drowning = value == 1;
 			case 8 -> BloodRegen = GameruleRegistry.RegenOption.values()[value];
-			case 11 -> effectivelyViolent = value == 1;
-			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncB] -> " + data);
-		}
-	}
-	
-	public static void syncGameRule(byte data, int value)
-	{
-		int rule = data / 10;
-		switch (rule)
-		{
-			case 4 -> jumpBoost = value;
 			case 9 -> speed = value;
 			case 10 -> gravityReduction = value;
-			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncI] -> " + data);
+			case 11 -> effectivelyViolent = value == 1;
+			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncB] -> " + data);
 		}
 	}
 }

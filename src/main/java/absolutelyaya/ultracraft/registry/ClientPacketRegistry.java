@@ -120,10 +120,7 @@ public class ClientPacketRegistry
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SYNC_RULE, ((client, handler, buf, sender) -> {
 			byte b = buf.readByte();
-			if(b == 40 || b == 90 || b == 100)
-				UltracraftClient.syncGameRule(b, buf.readInt());
-			else
-				UltracraftClient.syncGameRule(b);
+			UltracraftClient.syncGameRule(b, buf.readInt());
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.ENTITY_TRAIL, ((client, handler, buf, sender) -> {
 			Entity e = client.world.getEntityById(buf.readInt());

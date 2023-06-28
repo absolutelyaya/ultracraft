@@ -20,6 +20,7 @@
     "ClientLivingEntityMixin",
     "ClientPlayerEntityMixin",
     "EntityRenderDispatcherMixin",
+    "EntityRendererMixin",
     "GameRendererMixin",
     "HandRendererMixin",
     "ItemOverlayMixin",

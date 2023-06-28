@@ -88,11 +88,6 @@ public class ServerHitscanHandler
 		performHitscan(user, type, damage, 1, null);
 	}
 	
-	public static HitscanResult performHitscan(LivingEntity user, byte type, float damage, int maxHits)
-	{
-		return performHitscan(user, type, damage, maxHits, null);
-	}
-	
 	public static void performHitscan(LivingEntity user, byte type, float damage, HitscanExplosionData explosion)
 	{
 		performHitscan(user, type, damage, 1, explosion);
@@ -103,14 +98,14 @@ public class ServerHitscanHandler
 		performHitscan(user, type, damage, maxHits, new HitscanExplosionData(2f, 0f, 0f, breakBlocks));
 	}
 	
-	public static HitscanResult performHitscan(LivingEntity user, byte type, float damage, int maxHits, @Nullable HitscanExplosionData explosion)
+	public static void performHitscan(LivingEntity user, byte type, float damage, int maxHits, @Nullable HitscanExplosionData explosion)
 	{
 		Vec3d origin = user.getEyePos();
 		Vec3d visualOrigin = origin.add(
 				new Vec3d(-0.5f * (user instanceof PlayerEntity player && player.getMainArm().equals(Arm.LEFT) ? -1 : 1), -0.2f, 0.4f)
 						.rotateX(-(float)Math.toRadians(user.getPitch())).rotateY(-(float) Math.toRadians(user.getYaw())));
 		Vec3d dest = user.getEyePos().add(user.getRotationVec(0.5f).multiply(64.0));
-		return performHitscan(user, origin, visualOrigin, dest, type, damage, maxHits, explosion);
+		performHitscan(user, origin, visualOrigin, dest, type, damage, maxHits, explosion);
 	}
 	
 	public static HitscanResult performHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, int maxHits, @Nullable HitscanExplosionData explosion)
