@@ -23,10 +23,13 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import org.joml.Vector3f;
+
+import java.util.UUID;
 
 @SuppressWarnings("CodeBlock2Expr")
 @Environment(EnvType.CLIENT)
@@ -202,6 +205,37 @@ public class ClientPacketRegistry
 				return;
 			int score = buf.readInt();
 			MinecraftClient.getInstance().execute(() -> UltraHudRenderer.onPunchCoin(score));
+		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.WORLD_INFO_PACKET_ID, ((client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
+			MinecraftClient.getInstance().execute(() -> UltracraftClient.sendJoinInfo(MinecraftClient.getInstance()));
+		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.BLOCK_PLAYER_PACKET_ID, ((client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
+			UUID target = buf.readUuid();
+			MinecraftClient.getInstance().execute(() -> {
+				boolean b = UltracraftClient.getConfigHolder().get().blockedPlayers.contains(target);
+				if(!b)
+				{
+					UltracraftClient.getConfigHolder().get().blockedPlayers.add(target);
+					client.player.sendMessage(Text.translatable("command.ultracraft.block.client-success"));
+				}
+				else
+					client.player.sendMessage(Text.translatable("command.ultracraft.block.client-fail"));
+			});
+		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.UNBLOCK_PLAYER_PACKET_ID, ((client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
+			UUID target = buf.readUuid();
+			MinecraftClient.getInstance().execute(() -> {
+				boolean b = UltracraftClient.getConfigHolder().get().blockedPlayers.remove(target);
+				client.player.sendMessage(b ? Text.translatable("command.ultracraft.unblock.client-success") :
+												  Text.translatable("command.ultracraft.unblock.client-fail"));
+			});
+			//TODO: add functionality after merge with experiment-WNG-CLR
 		}));
 	}
 }

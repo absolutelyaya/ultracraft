@@ -56,6 +56,9 @@ public class PacketRegistry
 	public static final Identifier DEBUG = new Identifier(Ultracraft.MOD_ID, "debug");
 	public static final Identifier SKIM_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "skim_s2c");
 	public static final Identifier COIN_PUNCH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "coinpunch");
+	public static final Identifier WORLD_INFO_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "world-info");
+	public static final Identifier BLOCK_PLAYER_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "block");
+	public static final Identifier UNBLOCK_PLAYER_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "unblock");
 	
 	public static void registerC2S()
 	{

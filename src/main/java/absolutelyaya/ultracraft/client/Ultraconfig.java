@@ -6,6 +6,10 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 @SuppressWarnings("CanBeFinal")
 @Config(name = Ultracraft.MOD_ID)
 @Config.Gui.Background("minecraft:textures/block/stone_bricks.png")
@@ -72,4 +76,6 @@ public class Ultraconfig implements ConfigData
 	public String lastVersion = "none";
 	@ConfigEntry.Gui.Excluded
 	public boolean startedBefore = false;
+	@ConfigEntry.Gui.Excluded
+	public List<UUID> blockedPlayers = new ArrayList<>();
 }

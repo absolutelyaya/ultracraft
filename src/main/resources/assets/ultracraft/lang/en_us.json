@@ -84,8 +84,21 @@
   "death.attack.overcharge.item": "%1$s felt the full force of %2$ss enthusiasm handling %3$s",
   "death.attack.overcharge-self": "%s got overzealous handling a Pump Shotgun",
   "death.attack.overcharge-self.item": "%1$s got overzealous handling %3$s",
+  "death.attack.overcharge-slf.player": "%1$s got overzealous handling a Pump Shotgun whilst fighting %2$s",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
+
+  "command.ultracraft.block.client-success": "[Ultracraft] Block Successful! The User will now only be displayed with default wings.",
+  "command.ultracraft.block.client-fail": "[Ultracraft] That User is already blocked.",
+  "command.ultracraft.block.server-success": "[Ultracraft] Trying to block %s...",
+  "command.ultracraft.block.self": "[Ultracraft] Why would you block yourself?",
+  "command.ultracraft.unblock.client-success": "[Ultracraft] Unblock Successful!",
+  "command.ultracraft.unblock.client-fail": "[Ultracraft] That User isn't blocked.",
+  "command.ultracraft.unblock.server-success": "[Ultracraft] Trying to block %s...",
+  "command.ultracraft.time-freeze.success": "[Ultracraft] %s froze Time for %s Ticks.",
+  "command.ultracraft.time-freeze.fail": "[Ultracraft] Can't freeze time while the Time Freezing Gamerule is disabled.",
+  "command.ultracraft.time-unfreeze.success": "[Ultracraft] %s unfroze Time.",
+  "command.ultracraft.time-unfreeze.fail": "[Ultracraft] Time isn't Frozen.",
 
   "message.ultracraft.join-info-header": "===============[§4Ultracraft§r]===============",
   "message.ultracraft.hi-vel-forced": "This World is forcing §bHigh Velocity Mode§r to be %s",
