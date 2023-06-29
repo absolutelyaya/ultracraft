@@ -100,6 +100,13 @@
   "command.ultracraft.time-unfreeze.success": "[Ultracraft] %s unfroze Time.",
   "command.ultracraft.time-unfreeze.fail": "[Ultracraft] Time isn't Frozen.",
 
+  "gamerule.ultra-disableHandSwap": "Disable Hand-Quickswapping",
+  "gamerule.ultra-disableHandSwap.description": "Prevents Players from switching their offhand using a keybind.",
+  "gamerule.ultra-speed": "HiVel Speed",
+  "gamerule.ultra-speed.description": "How fast Players are in High Velocity Mode.",
+  "gamerule.ultra-timeStopEffect": "Time Freezing",
+  "gamerule.ultra-timeStopEffect.description": "Whether time can be frozen.",
+
   "message.ultracraft.join-info-header": "===============[§4Ultracraft§r]===============",
   "message.ultracraft.hi-vel-forced": "This World is forcing §bHigh Velocity Mode§r to be %s",
   "message.ultracraft.hi-vel-free": "This World allows toggling §bHigh Velocity Mode§r freely",
@@ -133,6 +140,8 @@
   "intro.ultracraft.input": "Press any Key",
   "intro.ultracraft.calibration-complete": "  §aCALIBRATION COMPLETE§r",
   "intro.ultracraft.status": "STATUS UPDATE\n\nMACHINE ID:                %s\nLOCATION:                  MINECRAFT\nCURRENT OBJECTIVE:     FIND A WEAPON\n§4MANKIND IS DEAD.§r\n§4BLOOD IS FUEL.§r\n§4HELL IS FULL.§r",
+
+  "screen.ultracraft.server.config-menu.title": "Server Config",
 
   "category.ultracraft": "Ultracraft",
   "key.ultracraft.hivel_toggle": "Toggle High Velocity Mode",

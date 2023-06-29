@@ -42,7 +42,7 @@ public class UltracraftCommand
 	
 	static int executeConfig(CommandContext<ServerCommandSource> context)
 	{
-		context.getSource().sendMessage(Text.literal("config!"));
+		ServerPlayNetworking.send(context.getSource().getPlayer(), PacketRegistry.OPEN_SERVER_CONFIG_MENU, new PacketByteBuf(Unpooled.buffer()));
 		return Command.SINGLE_SUCCESS;
 	}
 	

@@ -9,6 +9,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -41,6 +42,9 @@ public class Ultracraft implements ModInitializer
         RecipeSerializers.register();
         CriteriaRegistry.register();
         
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+        
+        });
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             UltracraftCommand.register(dispatcher, registryAccess);
         });

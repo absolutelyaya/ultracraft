@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ITrailEnjoyer;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
@@ -236,6 +237,13 @@ public class ClientPacketRegistry
 												  Text.translatable("command.ultracraft.unblock.client-fail"));
 			});
 			//TODO: add functionality after merge with experiment-WNG-CLR
+		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.OPEN_SERVER_CONFIG_MENU, ((client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
+			MinecraftClient.getInstance().execute(() -> {
+				client.setScreen(new ServerConfigScreen(client.player.getWorld()));
+			});
 		}));
 	}
 }
