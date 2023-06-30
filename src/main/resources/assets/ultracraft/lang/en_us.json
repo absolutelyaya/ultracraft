@@ -103,7 +103,7 @@
   "gamerule.ultra-projBoost": "Projectile Boosting",
   "gamerule.ultra-projBoost.description": "Restricts what Projectiles can be boosted (aka self-parried immediately when shot, for example hitting your own arrow, making it do a lot more damage).",
   "gamerule.ultra-hiVelMode": "High Velocity Mode",
-  "gamerule.ultra-hiVelMode.description": "Sets whether players are free to switch between modes or force it always be on/off for everyone. (aka HiVel-Mode)",
+  "gamerule.ultra-hiVelMode.description": "Sets whether players are free to switch between modes or force it to always be on/off for everyone. (aka HiVel-Mode)",
   "gamerule.ultra-timeStopEffect": "Time Freezing",
   "gamerule.ultra-timeStopEffect.description": "Whether time can be frozen.",
   "gamerule.ultra-disableHandSwap": "Disable Hand-Quickswapping",

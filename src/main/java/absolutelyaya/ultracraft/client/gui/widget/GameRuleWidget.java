@@ -1,6 +1,8 @@
 package absolutelyaya.ultracraft.client.gui.widget;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.WidgetAccessor;
+import absolutelyaya.ultracraft.util.RenderingUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -18,11 +20,15 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec2f;
 import net.minecraft.world.GameRules;
 import org.joml.Vector2i;
+import org.joml.Vector4f;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget implements Element, Drawable, Selectable
 {
@@ -35,6 +41,7 @@ public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget 
 	TextRenderer renderer;
 	String[] cycleValues;
 	Drawable valueWidget;
+	Identifier BGTexture;
 	
 	public GameRuleWidget(NbtCompound rules, Vector2i pos, T rule, ValueType type, int idx)
 	{
@@ -52,6 +59,7 @@ public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget 
 			}
 		}
 		this.icon = idx + 1;
+		BGTexture = pickBG();
 	}
 	
 	public GameRuleWidget(NbtCompound rules, Vector2i pos, T rule, String[] values, int idx)
@@ -65,6 +73,7 @@ public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget 
 		valueWidget = CyclingButtonWidget.builder(o -> Text.of((String)o)).values(values).initially(rules.getString(rule.getName()))
 							  .omitKeyText().build(getX() + 130, getY() + 14, 68, 20, Text.empty());
 		this.icon = idx + 1;
+		BGTexture = pickBG();
 	}
 	
 	public GameRuleWidget(NbtCompound rules, Vector2i pos, T rule, Enum<?>[] values, int idx)
@@ -78,16 +87,42 @@ public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget 
 		valueWidget = CyclingButtonWidget.builder(o -> Text.of((String)o)).values(cycleValues).initially(rules.getString(rule.getName()))
 							  .omitKeyText().build(getX() + 130, getY() + 14, 68, 20, Text.empty());
 		this.icon = idx + 1;
+		BGTexture = pickBG();
+	}
+	
+	Identifier pickBG()
+	{
+		int bg = new Random().nextInt(100);
+		if(bg == 0)
+			return new Identifier("textures/block/diamond_ore.png");
+		else if(bg < 5)
+			return new Identifier("textures/block/lapis_ore.png");
+		else if(bg < 12)
+			return new Identifier("textures/block/gold_ore.png");
+		else if(bg < 25)
+			return new Identifier("textures/block/iron_ore.png");
+		else if(bg < 50)
+			return new Identifier("textures/block/coal_ore.png");
+		else
+			return new Identifier("textures/block/stone.png");
 	}
 	
 	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
 	{
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-		drawBorder(matrices, getX(), getY(), 200, 36, 0xffffffff);
+		alpha = MathHelper.clamp((getY() - 30) / 10f, 0f, 1f);
+		RenderSystem.setShaderColor(0.69f, 0.69f, 0.69f, alpha);
+		RenderSystem.setShaderTexture(0, BGTexture);
+		RenderingUtil.drawTexture(matrices.peek().getPositionMatrix(), new Vector4f(getX(), getY(), 200, 36), 0,
+				new Vec2f(16, 16), new Vector4f(0f, 0, 100, 16), alpha);
+		RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
+		fill(matrices, getX(), getY(), getX() + 200, getY() + 1, 0xaaffffff);
+		fill(matrices, getX(), getY(), getX() + 1, getY() + 36, 0xaaffffff);
+		fill(matrices, getX(), getY() + 35, getX() + 200, getY() + 36, 0xaa000000);
+		fill(matrices, getX() + 199, getY(), getX() + 200, getY() + 36, 0xaa000000);
 		drawBorder(matrices, getX() + 2, getY() + 2, 32, 32, 0xffffffff);
 		RenderSystem.setShaderTexture(0, ICONS);
-		drawTexture(matrices, getX() + 2, getY() + 2, 32 * (icon % 10), 32 * (int)Math.floor(icon / 10f), 32, 32, 320, 320);
+		RenderingUtil.drawTexture(matrices.peek().getPositionMatrix(), new Vector4f(getX() + 2, getY() + 2, 32, 32), 1, new Vec2f(320, 320), new Vector4f(32 * (icon % 10), 32 * (int)Math.floor(icon / 10f) + 32, 32, -32), alpha);
 		drawTextWithShadow(matrices, renderer, Text.translatable(rule.getTranslationKey()).getWithStyle(Style.EMPTY.withUnderline(true)).get(0),
 				getX() + 36, getY() + 2, 0xffffffff);
 		int controlWidth = switch(type)
@@ -118,6 +153,8 @@ public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget 
 			drawTextWithShadow(matrices, renderer, t,
 					getX() + 36, getY() + 13 + renderer.fontHeight * i, 0xffffffff);
 		}
+		((WidgetAccessor)valueWidget).setOffset(((WidgetAccessor)this).getOffset());
+		((WidgetAccessor) valueWidget).setAlpha(Math.max(alpha, 0.02f));
 		valueWidget.render(matrices, mouseX, mouseY, delta);
 		super.render(matrices, mouseX, mouseY, delta);
 	}

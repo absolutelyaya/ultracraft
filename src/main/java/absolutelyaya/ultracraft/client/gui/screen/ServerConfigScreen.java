@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.client.gui.screen;
 
+import absolutelyaya.ultracraft.accessor.WidgetAccessor;
 import absolutelyaya.ultracraft.client.gui.widget.GameRuleWidget;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -8,6 +9,8 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.GameRules;
 import org.joml.Vector2i;
 
@@ -16,9 +19,11 @@ import java.util.List;
 
 public class ServerConfigScreen extends Screen
 {
+	static final Identifier BACKGROUND = new Identifier("textures/block/stone.png");
 	public static ServerConfigScreen INSTANCE;
 	final NbtCompound rules;
 	List<GameRuleWidget<?>> ruleWidgets = new ArrayList<>();
+	float curScroll, desiredScroll;
 	
 	public ServerConfigScreen(NbtCompound rules)
 	{
@@ -31,8 +36,6 @@ public class ServerConfigScreen extends Screen
 	protected void init()
 	{
 		super.init();
-		//TODO: Add Scrolling
-		//TODO: Add Widget Body Texture
 		ruleWidgets.forEach(this::remove);
 		ruleWidgets.clear();
 		Vector2i pos = new Vector2i(width / 2 - 100, 40);
@@ -56,6 +59,8 @@ public class ServerConfigScreen extends Screen
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
 	{
 		renderBackground(matrices);
+		curScroll = MathHelper.lerp(delta / 2f, curScroll, desiredScroll);
+		ruleWidgets.forEach(w -> ((WidgetAccessor)w).setOffset(new Vector2i(0, Math.round(curScroll))));
 		super.render(matrices, mouseX, mouseY, delta);
 		drawCenteredTextWithShadow(matrices, textRenderer, title, width / 2, 20, 0xffffffff);
 	}
@@ -71,6 +76,13 @@ public class ServerConfigScreen extends Screen
 		drawTexture(matrices, width /2 - 125, 0, 0, 0.0f, 0.0f, 250, height, 32, 32);
 		fill(matrices, width / 2 - 125, -1, width / 2 - 124, height + 1, 0xaaffffff);
 		fill(matrices, width / 2 + 125, -1, width / 2 + 124, height + 1, 0xaa000000);
+	}
+	
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double amount)
+	{
+		desiredScroll = MathHelper.clamp(desiredScroll + (float)amount * -15f, -36 * (ruleWidgets.size() - 6), 0);
+		return super.mouseScrolled(mouseX, mouseY, amount);
 	}
 	
 	public <T extends GameRules.Key<?>> void onExternalRuleUpdate(T rule, String value)
