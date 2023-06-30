@@ -6,32 +6,50 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
 import org.joml.Vector2i;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ServerConfigScreen extends Screen
 {
-	final GameRules gameRules;
+	public static ServerConfigScreen INSTANCE;
+	final NbtCompound rules;
+	List<GameRuleWidget<?>> ruleWidgets = new ArrayList<>();
 	
-	public ServerConfigScreen(World world)
+	public ServerConfigScreen(NbtCompound rules)
 	{
 		super(Text.translatable("screen.ultracraft.server.config-menu.title"));
-		gameRules = world.getGameRules();
+		this.rules = rules;
+		INSTANCE = this;
 	}
 	
 	@Override
 	protected void init()
 	{
 		super.init();
-		//TODO: Query Server Gamerules to set initial values
 		//TODO: Add Scrolling
-		//TODO: Add all other Mod Gamerules
 		//TODO: Add Widget Body Texture
-		addDrawableChild(new GameRuleWidget<>(gameRules, new Vector2i(width / 2 - 100, height / 2 - 38), GameruleRegistry.DISABLE_HANDSWAP, GameRuleWidget.ValueType.BOOL, 1));
-		addDrawableChild(new GameRuleWidget<>(gameRules, new Vector2i(width / 2 - 100, height / 2), GameruleRegistry.HIVEL_SPEED, GameRuleWidget.ValueType.INT, 2));
-		addDrawableChild(new GameRuleWidget<>(gameRules, new Vector2i(width / 2 - 100, height / 2 + 38), GameruleRegistry.TIME_STOP, new String[] { GameruleRegistry.Option.FORCE_ON.toString(), GameruleRegistry.Option.FORCE_OFF.toString() }, 3));
+		ruleWidgets.forEach(this::remove);
+		ruleWidgets.clear();
+		Vector2i pos = new Vector2i(width / 2 - 100, 40);
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.PROJ_BOOST, GameruleRegistry.ProjectileBoostSetting.values(), ruleWidgets.size())));
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.HI_VEL_MODE,GameruleRegistry.Option.values(), ruleWidgets.size())));
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.TIME_STOP, new String[] { GameruleRegistry.Option.FORCE_ON.toString(), GameruleRegistry.Option.FORCE_OFF.toString() }, ruleWidgets.size())));
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.DISABLE_HANDSWAP, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.HIVEL_JUMP_BOOST, GameRuleWidget.ValueType.INT, ruleWidgets.size())));
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.SLAM_STORAGE, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.HIVEL_FALLDAMAGE, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.HIVEL_DROWNING, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.BLOODHEAL, GameruleRegistry.RegenOption.values(), ruleWidgets.size())));
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.HIVEL_SPEED, GameRuleWidget.ValueType.INT, ruleWidgets.size())));
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.HIVEL_SLOWFALL, GameRuleWidget.ValueType.INT, ruleWidgets.size())));
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.EFFECTIVELY_VIOLENT, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.SM_SAFE_LEDGES, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.PARRY_CHAINING, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
 	}
 	
 	@Override
@@ -39,6 +57,7 @@ public class ServerConfigScreen extends Screen
 	{
 		renderBackground(matrices);
 		super.render(matrices, mouseX, mouseY, delta);
+		drawCenteredTextWithShadow(matrices, textRenderer, title, width / 2, 20, 0xffffffff);
 	}
 	
 	@Override
@@ -50,12 +69,26 @@ public class ServerConfigScreen extends Screen
 		RenderSystem.setShaderTexture(0, OPTIONS_BACKGROUND_TEXTURE);
 		RenderSystem.setShaderColor(0.25f, 0.25f, 0.25f, 1.0f);
 		drawTexture(matrices, width /2 - 125, 0, 0, 0.0f, 0.0f, 250, height, 32, 32);
-		drawBorder(matrices, width / 2 - 125, -1, 250, height + 2, 0xffdddddd);
+		fill(matrices, width / 2 - 125, -1, width / 2 - 124, height + 1, 0xaaffffff);
+		fill(matrices, width / 2 + 125, -1, width / 2 + 124, height + 1, 0xaa000000);
+	}
+	
+	public <T extends GameRules.Key<?>> void onExternalRuleUpdate(T rule, String value)
+	{
+		rules.putString(rule.getName(), value);
+		ruleWidgets.forEach(GameRuleWidget::stateUpdate);
 	}
 	
 	@Override
 	public boolean shouldPause()
 	{
 		return false;
+	}
+	
+	@Override
+	public void close()
+	{
+		super.close();
+		INSTANCE = null;
 	}
 }

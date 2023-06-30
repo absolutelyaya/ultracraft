@@ -24,6 +24,7 @@ public class GameruleRegistry
 						case ENTITY_TAG -> sendAdminMessage(server, Text.translatable("message.ultracraft.server.projboost-tag"));
 						case DISALLOW -> sendAdminMessage(server, Text.translatable("message.ultracraft.server.projboost-disable"));
 					}
+					OnChanged(server, (byte)0, rule.get().ordinal());
 				}));
 	public static final GameRules.Key<EnumRule<Option>> HI_VEL_MODE =
 			GameRuleRegistry.register("ultra-hiVelMode", GameRules.Category.PLAYER, GameRuleFactory.createEnumRule(Option.FREE,
@@ -79,13 +80,16 @@ public class GameruleRegistry
 							(server, rule) -> OnChanged(server, (byte)11, rule.get() ? 1 : 0)));
 	public static final GameRules.Key<GameRules.BooleanRule> EXPLOSION_DAMAGE =
 			GameRuleRegistry.register("ultra-explosionBlockBreaking", GameRules.Category.PLAYER,
-					GameRuleFactory.createBooleanRule(true));
+					GameRuleFactory.createBooleanRule(true,
+							(server, rule) -> OnChanged(server, (byte)12, rule.get() ? 1 : 0)));
 	public static final GameRules.Key<GameRules.BooleanRule> SM_SAFE_LEDGES =
 			GameRuleRegistry.register("ultra-swordsmachineSafeLedges", GameRules.Category.MOBS,
-					GameRuleFactory.createBooleanRule(false));
+					GameRuleFactory.createBooleanRule(false,
+							(server, rule) -> OnChanged(server, (byte)13, rule.get() ? 1 : 0)));
 	public static final GameRules.Key<GameRules.BooleanRule> PARRY_CHAINING =
 			GameRuleRegistry.register("ultra-parryChaining", GameRules.Category.PLAYER,
-					GameRuleFactory.createBooleanRule(false));
+					GameRuleFactory.createBooleanRule(false,
+							(server, rule) -> OnChanged(server, (byte)14, rule.get() ? 1 : 0)));
 	
 	public static void OnChanged(MinecraftServer server, byte b, int val)
 	{

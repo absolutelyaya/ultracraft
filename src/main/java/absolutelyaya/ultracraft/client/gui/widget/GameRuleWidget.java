@@ -1,11 +1,7 @@
 package absolutelyaya.ultracraft.client.gui.widget;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.brigadier.context.CommandContext;
-import com.mojang.datafixers.types.templates.Check;
-import net.fabricmc.fabric.api.gamerule.v1.rule.EnumRule;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Drawable;
@@ -18,19 +14,21 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.GameRules;
 import org.joml.Vector2i;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget implements Element, Drawable, Selectable
 {
-	static final Identifier ICONS = new Identifier(Ultracraft.MOD_ID, "textures/gui/gamerule-icons.png");
+	static final Identifier ICONS = new Identifier(Ultracraft.MOD_ID, "textures/gui/gamerule_icons.png");
 	
-	final GameRules rules;
+	final NbtCompound rules;
 	final T rule;
 	final ValueType type;
 	final int icon;
@@ -38,37 +36,48 @@ public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget 
 	String[] cycleValues;
 	Drawable valueWidget;
 	
-	public GameRuleWidget(GameRules rules, Vector2i pos, T rule, ValueType type, int icon)
+	public GameRuleWidget(NbtCompound rules, Vector2i pos, T rule, ValueType type, int idx)
 	{
-		super(pos.x, pos.y, 200, 36, Text.empty());
+		super(pos.x, pos.y + 38 * idx, 200, 36, Text.empty());
 		this.rules = rules;
 		this.rule = rule;
 		this.type = type;
 		renderer = MinecraftClient.getInstance().textRenderer;
 		switch(type)
 		{
-			case BOOL -> {
-				valueWidget = new CheckboxWidget(pos.x + 200 - 22, pos.y + 14, 20, 20, Text.empty(), rules.getBoolean((GameRules.Key<GameRules.BooleanRule>)rule));
-				System.out.println(rules.getBoolean((GameRules.Key<GameRules.BooleanRule>)rule));
-			}
+			case BOOL -> valueWidget = new CheckboxWidget(getX() + 178, getY() + 14, 20, 20, Text.empty(), Boolean.parseBoolean(rules.getString(rule.getName())));
 			case INT -> {
-				valueWidget = new TextFieldWidget(renderer, pos.x + 151, pos.y + 15, 46, 18, Text.of(String.valueOf(rules.getInt((GameRules.Key<GameRules.IntRule>)rule))));
+				valueWidget = new TextFieldWidget(renderer, getX() + 151, getY() + 15, 46, 18, Text.empty());
+				((TextFieldWidget)valueWidget).setText(rules.getString(rule.getName()));
 			}
 		}
-		this.icon = icon;
+		this.icon = idx + 1;
 	}
 	
-	public GameRuleWidget(GameRules rules, Vector2i pos, T rule, String[] values, int icon)
+	public GameRuleWidget(NbtCompound rules, Vector2i pos, T rule, String[] values, int idx)
 	{
-		super(pos.x, pos.y, 200, 36, Text.empty());
+		super(pos.x, pos.y + 38 * idx, 200, 36, Text.empty());
 		this.rules = rules;
 		this.rule = rule;
 		this.cycleValues = values;
 		this.type = ValueType.CYCLE;
 		renderer = MinecraftClient.getInstance().textRenderer;
-		valueWidget = CyclingButtonWidget.builder(o -> Text.of((String)o)).values(values).initially(rules.get((GameRules.Key<EnumRule<GameruleRegistry.Option>>)rule).toString())
-							  .omitKeyText().build(pos.x + 130, pos.y + 14, 68, 20, Text.empty());
-		this.icon = icon;
+		valueWidget = CyclingButtonWidget.builder(o -> Text.of((String)o)).values(values).initially(rules.getString(rule.getName()))
+							  .omitKeyText().build(getX() + 130, getY() + 14, 68, 20, Text.empty());
+		this.icon = idx + 1;
+	}
+	
+	public GameRuleWidget(NbtCompound rules, Vector2i pos, T rule, Enum<?>[] values, int idx)
+	{
+		super(pos.x, pos.y + 38 * idx, 200, 36, Text.empty());
+		this.rules = rules;
+		this.rule = rule;
+		this.cycleValues = Arrays.stream(values).map(Enum::name).toArray(String[]::new);
+		this.type = ValueType.CYCLE;
+		renderer = MinecraftClient.getInstance().textRenderer;
+		valueWidget = CyclingButtonWidget.builder(o -> Text.of((String)o)).values(cycleValues).initially(rules.getString(rule.getName()))
+							  .omitKeyText().build(getX() + 130, getY() + 14, 68, 20, Text.empty());
+		this.icon = idx + 1;
 	}
 	
 	@Override
@@ -133,7 +142,7 @@ public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget 
 			else if(valueWidget instanceof CyclingButtonWidget<?> cycler)
 				text = cycler.getValue().toString();
 			if(text.length() > 0)
-				MinecraftClient.getInstance().player.networkHandler.sendChatCommand(String.format("gamerule %s %s", rule.getName(), text));
+				setRule(text);
 		}
 		return b || super.mouseClicked(mouseX, mouseY, button);
 	}
@@ -141,7 +150,10 @@ public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget 
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers)
 	{
-		return ((Element)valueWidget).keyPressed(keyCode, scanCode, modifiers);
+		boolean b = ((Element)valueWidget).keyPressed(keyCode, scanCode, modifiers);
+		if(valueWidget instanceof TextFieldWidget text && type.equals(ValueType.INT) && keyCode == 259)
+			setRule(text.getText());
+		return b;
 	}
 	
 	@Override
@@ -154,9 +166,30 @@ public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget 
 		{
 			String text = ((TextFieldWidget)valueWidget).getText();
 			if(text.length() > 0 && Integer.parseInt(text) > 0)
-				MinecraftClient.getInstance().player.networkHandler.sendChatCommand(String.format("gamerule %s %s", rule.getName(), text));
+				setRule(text);
 		}
 		return b;
+	}
+	
+	void setRule(String value)
+	{
+		if(value.length() == 0)
+			return;
+		rules.putString(rule.getName(), value);
+		MinecraftClient.getInstance().player.networkHandler.sendChatCommand(String.format("gamerule %s %s", rule.getName(), value));
+	}
+	
+	public void stateUpdate()
+	{
+		switch(type)
+		{
+			case BOOL -> {
+				if(((CheckboxWidget)valueWidget).isChecked() != Boolean.parseBoolean(rules.getString(rule.getName())))
+					((CheckboxWidget)valueWidget).onPress();
+			}
+			case INT -> ((TextFieldWidget)valueWidget).setText(rules.getString(rule.getName()));
+			case CYCLE -> ((CyclingButtonWidget)valueWidget).setValue(rules.getString(rule.getName()));
+		}
 	}
 	
 	@Override

@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.client;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
 import absolutelyaya.ultracraft.client.rendering.TrailRenderer;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.client.rendering.block.entity.CerberusBlockRenderer;
@@ -65,6 +66,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import software.bernie.geckolib.network.GeckoLibNetwork;
 
@@ -344,23 +346,33 @@ public class UltracraftClient implements ClientModInitializer
 	{
 		switch (data)
 		{
+			case 0 -> onExternalRuleUpdate(GameruleRegistry.PROJ_BOOST, (GameruleRegistry.ProjectileBoostSetting.values()[value]).name());
 			case 1 ->
 			{
-				HiVelOption = GameruleRegistry.Option.values()[value];
+				onExternalRuleUpdate(GameruleRegistry.HI_VEL_MODE, (HiVelOption = GameruleRegistry.Option.values()[value]).name());
 				if(HiVelOption != GameruleRegistry.Option.FREE)
 					setHighVel(HiVelOption == GameruleRegistry.Option.FORCE_ON, false);
 			}
-			case 2 -> TimeFreezeOption = GameruleRegistry.Option.values()[value];
-			case 3 -> disableHandswap = value == 1;
-			case 4 -> jumpBoost = value;
-			case 5 -> slamStorage = value == 1;
-			case 6 -> fallDamage = value == 1;
-			case 7 -> drowning = value == 1;
-			case 8 -> BloodRegen = GameruleRegistry.RegenOption.values()[value];
-			case 9 -> speed = value;
-			case 10 -> gravityReduction = value;
-			case 11 -> effectivelyViolent = value == 1;
+			case 2 -> onExternalRuleUpdate(GameruleRegistry.TIME_STOP, (TimeFreezeOption = GameruleRegistry.Option.values()[value]).name());
+			case 3 -> onExternalRuleUpdate(GameruleRegistry.DISABLE_HANDSWAP, disableHandswap = value == 1);
+			case 4 -> onExternalRuleUpdate(GameruleRegistry.HIVEL_JUMP_BOOST, jumpBoost = value);
+			case 5 -> onExternalRuleUpdate(GameruleRegistry.SLAM_STORAGE, slamStorage = value == 1);
+			case 6 -> onExternalRuleUpdate(GameruleRegistry.HIVEL_FALLDAMAGE, fallDamage = value == 1);
+			case 7 -> onExternalRuleUpdate(GameruleRegistry.HIVEL_DROWNING, drowning = value == 1);
+			case 8 -> onExternalRuleUpdate(GameruleRegistry.BLOODHEAL, (BloodRegen = GameruleRegistry.RegenOption.values()[value]).name());
+			case 9 -> onExternalRuleUpdate(GameruleRegistry.HIVEL_SPEED, speed = value);
+			case 10 -> onExternalRuleUpdate(GameruleRegistry.HIVEL_SLOWFALL, gravityReduction = value);
+			case 11 -> onExternalRuleUpdate(GameruleRegistry.EFFECTIVELY_VIOLENT, effectivelyViolent = value == 1);
+			case 12 -> onExternalRuleUpdate(GameruleRegistry.EXPLOSION_DAMAGE, value == 1);
+			case 13 -> onExternalRuleUpdate(GameruleRegistry.SM_SAFE_LEDGES, value == 1);
+			case 14 -> onExternalRuleUpdate(GameruleRegistry.PARRY_CHAINING, value == 1);
 			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncB] -> " + data);
 		}
+	}
+	
+	static <V, T extends GameRules.Key<?>> void onExternalRuleUpdate(T rule, V value)
+	{
+		if(ServerConfigScreen.INSTANCE != null)
+			ServerConfigScreen.INSTANCE.onExternalRuleUpdate(rule, String.valueOf(value));
 	}
 }
