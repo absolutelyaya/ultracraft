@@ -174,26 +174,6 @@ public class UltracraftClient implements ClientModInitializer
 			buf.writeString(wingPattern);
 			ClientPlayNetworking.send(PacketRegistry.SEND_WINGED_DATA_C2S_PACKET_ID, buf);
 			
-			if(config.get().serverJoinInfo)
-			{
-				GameruleRegistry.Option hivel = client.world.getGameRules().get(GameruleRegistry.HI_VEL_MODE).get();
-				GameruleRegistry.Option freeze = client.world.getGameRules().get(GameruleRegistry.TIME_STOP).get();
-				client.player.sendMessage(Text.translatable("message.ultracraft.join-info-header"));
-				if(!hivel.equals(GameruleRegistry.Option.FREE))
-					client.player.sendMessage(Text.translatable("message.ultracraft.hi-vel-forced",
-							hivel.equals(GameruleRegistry.Option.FORCE_ON) ? Text.translatable("options.on") : Text.translatable("options.off")));
-				else
-					client.player.sendMessage(Text.translatable("message.ultracraft.hi-vel-free"));
-				if(client.getServer() != null && client.getServer().isRemote())
-					client.player.sendMessage(Text.translatable("message.ultracraft.freeze-forced",
-							freeze.equals(GameruleRegistry.Option.FORCE_ON) ? Text.translatable("options.on") : Text.translatable("options.off")));
-				client.player.sendMessage(Text.translatable("message.ultracraft.jump-boost", jumpBoost));
-				if(fallDamage)
-					client.player.sendMessage(Text.translatable("message.ultracraft.fall-damage"));
-				client.player.sendMessage(Text.translatable("message.ultracraft.join-info"));
-				client.player.sendMessage(Text.translatable("========================================="));
-			}
-			
 			refreshSupporter();
 			WingedPlayerEntity winged = ((WingedPlayerEntity)client.player);
 			winged.setWingColor(wingColors[0], 0);
@@ -201,6 +181,7 @@ public class UltracraftClient implements ClientModInitializer
 			winged.setWingPattern(wingPattern);
 			if(config.get().showEpilepsyWarning)
 				MinecraftClient.getInstance().setScreen(new EpilepsyPopupScreen(null));
+			if(config.get().serverJoinInfo)
 				sendJoinInfo(client);
 		});
 		
