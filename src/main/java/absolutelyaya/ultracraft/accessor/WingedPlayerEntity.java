@@ -59,6 +59,14 @@ public interface WingedPlayerEntity
 	
 	void updateSpeedGamerule();
 	
+	Vec3d[] getWingColors();
+	
+	void setWingColor(Vec3d val, int idx);
+	
+	String getWingPattern();
+	
+	void setWingPattern(String id);
+  
 	void bloodHeal(float val);
 	
 	void blockBloodHeal(int ticks);

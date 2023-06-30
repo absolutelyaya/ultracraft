@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.command.UltracraftCommand;
 import absolutelyaya.ultracraft.registry.*;
+import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.ModInitializer;
@@ -17,12 +18,18 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.JsonHelper;
 import org.slf4j.Logger;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 public class Ultracraft implements ModInitializer
 {
     public static final String MOD_ID = "ultracraft";
     public static final Logger LOGGER = LogUtils.getLogger();
+    static final String SUPPORTER_LIST = "https://raw.githubusercontent.com/absolutelyaya/absolutelyaya/main/cool-people.json";
     public static String VERSION;
     static int freezeTicks;
     
@@ -58,7 +65,7 @@ public class Ultracraft implements ModInitializer
             buf.writeUuid(newPlayer.getUuid());
             buf.writeBoolean(((WingedPlayerEntity)oldPlayer).isWingsActive());
             for (ServerPlayerEntity p : ((ServerWorld)newPlayer.world).getPlayers())
-                ServerPlayNetworking.send(p, PacketRegistry.SET_HIGH_VELOCITY_S2C_PACKET_ID, buf);
+                ServerPlayNetworking.send(p, PacketRegistry.SEND_WINGED_DATA_S2C_PACKET_ID, buf);
         });
         
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((serverPlayer, lastWorld, newWorld) -> GameruleRegistry.SyncAll(serverPlayer));
@@ -100,5 +107,23 @@ public class Ultracraft implements ModInitializer
     {
         if(freezeTicks > 0)
             freezeTicks--;
+    }
+    
+    public static boolean checkSupporter(String uuid, boolean client)
+    {
+        boolean supporter = false;
+        try
+        {
+            URL url = new URL(SUPPORTER_LIST);
+            JsonObject json = JsonHelper.deserialize(new InputStreamReader(url.openStream()));
+            supporter = JsonHelper.hasElement(json, uuid);
+            if(supporter && client)
+                Ultracraft.LOGGER.info("[ULTRACRAFT] Support verified! Thank you for helping me make stuff :D");
+        }
+        catch (IOException e)
+        {
+            Ultracraft.LOGGER.error("[ULTRACRAFT] Failed to fetch Supporters.", e);
+        }
+        return supporter;
     }
 }

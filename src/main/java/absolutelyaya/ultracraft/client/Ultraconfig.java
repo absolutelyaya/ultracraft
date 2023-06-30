@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
+import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,12 +71,23 @@ public class Ultraconfig implements ConfigData
 	@ConfigEntry.Category("debug")
 	@ConfigEntry.Gui.Tooltip
 	public boolean showPunchArea = false;
+	@ConfigEntry.Gui.Tooltip
+	public boolean safeVFX = true;
 	public boolean repeatIntro = false;
+	public boolean neverIntro = false;
 	
 	@ConfigEntry.Gui.Excluded
 	public String lastVersion = "none";
 	@ConfigEntry.Gui.Excluded
 	public boolean startedBefore = false;
+	@ConfigEntry.Gui.Excluded
+	public Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f, 255f, 154f), new Vec3d(117f, 154f, 255f) };
+	@ConfigEntry.Gui.Excluded
+	public String wingPreset = "";
+	@ConfigEntry.Gui.Excluded
+	public String wingPattern = "";
+	@ConfigEntry.Gui.Excluded
+	public boolean showEpilepsyWarning = true;
 	@ConfigEntry.Gui.Excluded
 	public List<UUID> blockedPlayers = new ArrayList<>();
 }

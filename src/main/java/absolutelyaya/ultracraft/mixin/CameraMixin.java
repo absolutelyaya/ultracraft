@@ -2,11 +2,13 @@ package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Arm;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.RaycastContext;
@@ -35,6 +37,44 @@ public abstract class CameraMixin
 	
 	@Shadow private Vec3d pos;
 	
+	@Shadow protected abstract void setRotation(float yaw, float pitch);
+	
+	@Shadow private float yaw;
+	
+	@Shadow private float cameraY;
+	@Shadow private float lastCameraY;
+	@Shadow private boolean ready;
+	@Shadow private BlockView area;
+	@Shadow private Entity focusedEntity;
+	@Shadow private boolean thirdPerson;
+	Vec3d curOffset;
+	float curYaw, baseYaw;
+	boolean wasWingCustomizationOpen;
+	
+	@Inject(method = "update", at = @At("HEAD"), cancellable = true)
+	void onBeforeUpdate(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci)
+	{
+		if(WingCustomizationScreen.MenuOpen)
+		{
+			this.ready = true;
+			this.area = area;
+			this.focusedEntity = focusedEntity;
+			this.thirdPerson = thirdPerson;
+			setRotation(focusedEntity.getYaw(tickDelta), focusedEntity.getPitch(tickDelta));
+			setPos(new Vec3d(MathHelper.lerp(tickDelta, focusedEntity.prevX, focusedEntity.getX()),
+					MathHelper.lerp(tickDelta, focusedEntity.prevY, focusedEntity.getY()) + (double)MathHelper.lerp(tickDelta, lastCameraY, cameraY),
+					MathHelper.lerp(tickDelta, focusedEntity.prevZ, focusedEntity.getZ())));
+			wingCustomizationUpdate(area, focusedEntity, tickDelta);
+			ci.cancel();
+		}
+		else
+		{
+			curOffset = getPos();
+			curYaw = yaw;
+			wasWingCustomizationOpen = false;
+		}
+	}
+	
 	@Inject(method = "update", at = @At("TAIL"))
 	void onUpdate(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci)
 	{
@@ -61,5 +101,28 @@ public abstract class CameraMixin
 		double y = horizontalPlane.y() * vec.x + verticalPlane.y() * vec.y + diagonalPlane.y() * vec.z;
 		double z = horizontalPlane.z() * vec.x + verticalPlane.z() * vec.y + diagonalPlane.z() * vec.z;
 		return new Vec3d(x, y, z);
+	}
+	
+	void wingCustomizationUpdate(BlockView area, Entity focusedEntity, float tickDelta)
+	{
+		Vec3d offset = rotationize(WingCustomizationScreen.Instance.getCameraOffset());
+		HitResult hitResult = area.raycast(new RaycastContext(getPos(), getPos().add(offset), RaycastContext.ShapeType.VISUAL, RaycastContext.FluidHandling.NONE, focusedEntity));
+		if(!hitResult.getType().equals(HitResult.Type.MISS))
+			offset = hitResult.getPos().subtract(getPos());
+		
+		if(!wasWingCustomizationOpen) //set initial transform when opening Menu
+		{
+			baseYaw = yaw;
+			curYaw = yaw + WingCustomizationScreen.Instance.getCameraRotation();
+			curOffset = new Vec3d(offset.x, offset.y, offset.z);
+			wasWingCustomizationOpen = true;
+		}
+		else //lerp towards target transform
+		{
+			setRotation(curYaw = MathHelper.lerp(tickDelta / 10f, curYaw, yaw + WingCustomizationScreen.Instance.getCameraRotation()), 0f);
+			curOffset = curOffset.lerp(offset, tickDelta / 10);
+			offset = curOffset.rotateY((float)Math.toRadians(-(yaw - baseYaw)));
+			setPos(new Vec3d(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z));
+		}
 	}
 }

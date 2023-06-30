@@ -17,6 +17,7 @@
     "BackgroundRendererMixin",
     "BipedModelMixin",
     "CameraMixin",
+    "ClickableWidgetMixin",
     "ClientLivingEntityMixin",
     "ClientPlayerEntityMixin",
     "EntityRenderDispatcherMixin",
@@ -28,6 +29,7 @@
     "LivingEntityRendererMixin",
     "MinecraftClientMixin",
     "OtherClientPlayerMixin",
+    "SkinOptionsScreenMixin",
     "TitleScreenMixin"
   ],
   "injectors": {

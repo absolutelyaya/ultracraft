@@ -35,17 +35,17 @@ public class PacketRegistry
 	public static final Identifier PUNCH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "parry");
 	public static final Identifier PUNCH_BLOCK_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_block");
 	public static final Identifier PRIMARY_SHOT_PACKET_ID_C2S = new Identifier(Ultracraft.MOD_ID, "primary_shot_c2s");
-	public static final Identifier SET_HIGH_VELOCITY_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "sethivel_c2s");
+	public static final Identifier SEND_WINGED_DATA_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_winged_data_c2s");
 	public static final Identifier DASH_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_c2s");
 	public static final Identifier GROUND_POUND_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ground_pound_c2s");
-	public static final Identifier REQUEST_HIVEL_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "request_hivel");
+	public static final Identifier REQUEST_WINGED_DATA_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "request_winged_data");
 	public static final Identifier SKIM_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "skim_c2s");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
 	public static final Identifier DASH_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_s2c");
 	public static final Identifier BLEED_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "bleed");
-	public static final Identifier SET_HIGH_VELOCITY_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "sethivel_s2c");
+	public static final Identifier SEND_WINGED_DATA_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_winged_data_s2c");
 	public static final Identifier SET_GUNCD_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_gcd");
 	public static final Identifier CATCH_FISH_ID = new Identifier(Ultracraft.MOD_ID, "fish");
 	public static final Identifier SYNC_RULE = new Identifier(Ultracraft.MOD_ID, "sync_rule");
@@ -203,18 +203,28 @@ public class PacketRegistry
 					Ultracraft.LOGGER.warn(player + " tried to use primary fire action but is holding a non-weapon Item!");
 			});
 		});
-		ServerPlayNetworking.registerGlobalReceiver(SET_HIGH_VELOCITY_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
+		ServerPlayNetworking.registerGlobalReceiver(SEND_WINGED_DATA_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			WingedPlayerEntity winged = (WingedPlayerEntity)player;
 			if(winged == null)
 				return;
-			boolean b = buf.readBoolean();
-			server.execute(() -> winged.setWingsVisible(b));
+			boolean wingsActive = buf.readBoolean();
+			Vector3f wingColor = buf.readVector3f(), metalColor = buf.readVector3f();
+			String pattern = Ultracraft.checkSupporter(player.getUuid().toString(), false) ? buf.readString() : "";
+			server.execute(() -> {
+				winged.setWingsVisible(wingsActive);
+				winged.setWingColor(new Vec3d(wingColor), 0);
+				winged.setWingColor(new Vec3d(metalColor), 1);
+				winged.setWingPattern(pattern);
+			});
 			for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
 			{
 				buf = new PacketByteBuf(Unpooled.buffer());
 				buf.writeUuid(player.getUuid());
-				buf.writeBoolean(b);
-				ServerPlayNetworking.send(p, SET_HIGH_VELOCITY_S2C_PACKET_ID, buf);
+				buf.writeBoolean(wingsActive);
+				buf.writeVector3f(wingColor);
+				buf.writeVector3f(metalColor);
+				buf.writeString(pattern);
+				ServerPlayNetworking.send(p, SEND_WINGED_DATA_S2C_PACKET_ID, buf);
 			}
 		});
 		ServerPlayNetworking.registerGlobalReceiver(DASH_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
@@ -246,15 +256,19 @@ public class PacketRegistry
 					ServerPlayNetworking.send(p, GROUND_POUND_S2C_PACKET_ID, cbuf);
 			});
 		});
-		ServerPlayNetworking.registerGlobalReceiver(REQUEST_HIVEL_PACKET_ID, (server, player, handler, buf, sender) -> {
+		ServerPlayNetworking.registerGlobalReceiver(REQUEST_WINGED_DATA_PACKET_ID, (server, player, handler, buf, sender) -> {
 			UUID targetID = buf.readUuid();
 			PlayerEntity target = server.getPlayerManager().getPlayer(targetID);
 			if(target == null)
 				return;
+			WingedPlayerEntity winged = (WingedPlayerEntity)target;
 			buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeUuid(targetID);
-			buf.writeBoolean(((WingedPlayerEntity)target).isWingsActive());
-			ServerPlayNetworking.send(player, SET_HIGH_VELOCITY_S2C_PACKET_ID, buf);
+			buf.writeBoolean(winged.isWingsActive());
+			buf.writeVector3f(winged.getWingColors()[0].toVector3f());
+			buf.writeVector3f(winged.getWingColors()[1].toVector3f());
+			buf.writeString(winged.getWingPattern());
+			ServerPlayNetworking.send(player, SEND_WINGED_DATA_S2C_PACKET_ID, buf);
 		});
 		ServerPlayNetworking.registerGlobalReceiver(SKIM_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			if(player == null)

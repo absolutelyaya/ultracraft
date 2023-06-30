@@ -1,0 +1,56 @@
+{
+    "targets": [
+        "swap",
+        "swap2",
+        "final"
+    ],
+    "passes": [
+        {
+            "name": "ultracraft:distance_blur",
+            "intarget": "minecraft:main",
+            "outtarget": "swap",
+            "auxtargets": [
+                {
+                    "name": "DiffuseDepthSampler",
+                    "id": "minecraft:main:depth"
+                }
+            ],
+            "uniforms": [
+                {
+                    "name": "BlurDir",
+                    "values": [ 1.0, 0.0 ]
+                },
+                {
+                    "name": "Radius",
+                    "values": [ 3.0 ]
+                }
+            ]
+        },
+        {
+            "name": "ultracraft:distance_blur",
+            "intarget": "swap",
+            "outtarget": "final",
+            "auxtargets": [
+                {
+                    "name": "DiffuseDepthSampler",
+                    "id": "minecraft:main:depth"
+                }
+            ],
+            "uniforms": [
+                {
+                    "name": "BlurDir",
+                    "values": [ 0.0, 1.0 ]
+                },
+                {
+                    "name": "Radius",
+                    "values": [ 3.0 ]
+                }
+            ]
+        },
+        {
+            "name": "blit",
+            "intarget": "final",
+            "outtarget": "minecraft:main"
+        }
+    ]
+}
