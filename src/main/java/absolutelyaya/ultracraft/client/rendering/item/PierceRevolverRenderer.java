@@ -21,7 +21,7 @@ public class PierceRevolverRenderer extends GeoItemRenderer<PierceRevolverItem>
 	
 	public PierceRevolverRenderer()
 	{
-		super(new DefaultedItemGeoModel<>(new Identifier(Ultracraft.MOD_ID, "pierce_revolver")));
+		super(new DefaultedItemGeoModel<>(new Identifier(Ultracraft.MOD_ID, "revolver")));
 	}
 	
 	@Override

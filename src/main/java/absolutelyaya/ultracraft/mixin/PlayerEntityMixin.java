@@ -53,7 +53,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	boolean wingsActive, groundPounding, ignoreSlowdown;
 	byte wingState, lastState;
 	float wingAnimTime;
-	int dashingTicks = -2, slamDamageCooldown, stamina, wingHintDisplayTicks;
+	int dashingTicks = -2, slamDamageCooldown, stamina, wingHintDisplayTicks, bloodHealCooldown;
 	GunCooldownManager gunCDM;
 	Multimap<EntityAttribute, EntityAttributeModifier> curSpeedMod;
 	Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f / 255f, 1f, 154f / 255f), new Vec3d(117f / 255f, 154f / 255f, 1f) };
@@ -121,6 +121,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			else
 				timeUntilRegen = 11;
 		}
+		bloodHealCooldown = 4;
 	}
 	
 	@Inject(method = "isSwimming", at = @At("HEAD"), cancellable = true)
@@ -346,6 +347,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			dashingTicks--;
 		if(slamDamageCooldown > 0)
 			slamDamageCooldown--;
+		if(bloodHealCooldown > 0)
+			bloodHealCooldown--;
 	}
 	
 	@Inject(method = "tickMovement", at = @At("TAIL"))
@@ -438,5 +441,18 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public void setWingPattern(String id)
 	{
 		wingPattern = id;
+  }
+  
+	@Override
+	public void bloodHeal(float val)
+	{
+		if(bloodHealCooldown == 0)
+			heal(val);
+	}
+	
+	@Override
+	public void blockBloodHeal(int ticks)
+	{
+		bloodHealCooldown = ticks;
 	}
 }

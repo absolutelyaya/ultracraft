@@ -7,6 +7,8 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.*;
 
 public class ClientHitscanHandler
@@ -22,8 +24,15 @@ public class ClientHitscanHandler
 	
 	public void tick()
 	{
-		if(hitscans.size() == 0 && added.size() == 0)
-			return;
+		if(hitscans.size() == 0)
+			if(hitscans.size() == 0 && added.size() == 0)
+				return;
+		for (Object o : hitscans.toArray())
+		{
+			Hitscan hitscan = (Hitscan)o;
+			if(!hitscan.tick())
+				hitscans.remove(hitscan);
+		}
 		hitscans.removeIf(hitscan -> !hitscan.tick());
 		while(added.size() > 0)
 			hitscans.add(added.remove());
@@ -64,7 +73,9 @@ public class ClientHitscanHandler
 			RAILGUN_ELEC(0x2ee9ff, 60, 0.3f),
 			RAILGUN_DRILL(0x30ff72, 60, 0.3f),
 			RAILGUN_MALICIOUS(0xff4530, 60, 0.3f),
-			MALICIOUS(0xf4d81b, 60, 0.3f);
+			MALICIOUS(0xf4d81b, 60, 0.3f),
+			RICOCHET(0xf4d81b, 5, 0.1f),
+			SHARPSHOOTER(0xdf2828, 60, 0.1f);
 			
 			public final int color, maxAge;
 			public final float startGirth;

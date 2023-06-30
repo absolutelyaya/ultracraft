@@ -68,7 +68,7 @@ public abstract class MinecraftClientMixin
 			return;
 		HitResult hit = player.raycast(interactionManager.getReachDistance(), 0f, false);
 		boolean pedestal = hit instanceof BlockHitResult bhit && player.world.getBlockState(bhit.getBlockPos()).isOf(BlockRegistry.PEDESTAL);
-		if(player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldCancelHits())
+		if(player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldCancelPunching())
 		{
 			if(options.sneakKey.isPressed() && pedestal)
 			{
@@ -114,7 +114,7 @@ public abstract class MinecraftClientMixin
 		boolean pedestal = hit instanceof BlockHitResult bhit && player.world.getBlockState(bhit.getBlockPos()).isOf(BlockRegistry.PEDESTAL);
 		if(player.isCreative() && pedestal && options.sneakKey.isPressed())
 			ci.cancel();
-		else if(player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldCancelHits())
+		else if(player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldCancelPunching())
 			ci.cancel();
 	}
 	

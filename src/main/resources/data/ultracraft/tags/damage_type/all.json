@@ -10,6 +10,11 @@
     "ultracraft:parry",
     "ultracraft:parry_collateral",
     "ultracraft:interrupt",
-    "ultracraft:projectile_boost"
+    "ultracraft:projectile_boost",
+    "ultracraft:ricochet",
+    "ultracraft:coin_punch",
+    "ultracraft:chargeback",
+    "ultracraft:overcharge",
+    "ultracraft:overcharge_self"
   ]
 }

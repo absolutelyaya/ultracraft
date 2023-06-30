@@ -7,6 +7,10 @@ import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import net.minecraft.util.math.Vec3d;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 @SuppressWarnings("CanBeFinal")
 @Config(name = Ultracraft.MOD_ID)
 @Config.Gui.Background("minecraft:textures/block/stone_bricks.png")
@@ -19,6 +23,9 @@ public class Ultraconfig implements ConfigData
 	@ConfigEntry.Category("ultra-hud")
 	@ConfigEntry.Gui.Tooltip
 	public boolean fishingJoke = true;
+	@ConfigEntry.Category("ultra-hud")
+	@ConfigEntry.Gui.Tooltip
+	public boolean coinPunchCounter = true;
 	@ConfigEntry.Category("ultra-hud")
 	@ConfigEntry.Gui.Tooltip(count = 2)
 	public UltraHudRenderer.UltraHudVisibility ultraHudVisibility = UltraHudRenderer.UltraHudVisibility.ALWAYS;
@@ -81,4 +88,6 @@ public class Ultraconfig implements ConfigData
 	public String wingPattern = "";
 	@ConfigEntry.Gui.Excluded
 	public boolean showEpilepsyWarning = true;
+	@ConfigEntry.Gui.Excluded
+	public List<UUID> blockedPlayers = new ArrayList<>();
 }

@@ -273,6 +273,8 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 			return false;
 		if(source.isOf(DamageSources.POUND))
 			amount *= 2;
+		if(source.isOf(DamageSources.CHARGEBACK))
+			amount = 999;
 		if(dataTracker.get(DEAD))
 		{
 			if(source.isOf(DamageTypes.STARVE)) //starve because there's no way this damage would occur accidentally
@@ -755,7 +757,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 			}
 			if(timer <= 0)
 			{
-				ServerHitscanHandler.performHitscan(face, (byte)5, 0, new ServerHitscanHandler.HitscanExplosionData(5.5f, 10f, 0f, true));
+				ServerHitscanHandler.performHitscan(face, ServerHitscanHandler.MALICIOUS, 0, new ServerHitscanHandler.HitscanExplosionData(5.5f, 10f, 0f, true));
 				if(repeat)
 				{
 					timer = 22;

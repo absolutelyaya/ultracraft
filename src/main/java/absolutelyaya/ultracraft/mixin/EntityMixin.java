@@ -2,14 +2,16 @@ package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
-import absolutelyaya.ultracraft.fluid.BloodFluid;
-import absolutelyaya.ultracraft.registry.FluidRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
+import absolutelyaya.ultracraft.registry.TagRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.FluidState;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,6 +27,10 @@ public abstract class EntityMixin
 	@Shadow public abstract float getYaw(float tickDelta);
 	
 	@Shadow public abstract BlockPos getBlockPos();
+	
+	@Shadow public abstract Box getBoundingBox();
+	
+	@Shadow public World world;
 	
 	@Inject(method = "tick", at = @At("HEAD"), cancellable = true)
 	void onTick(CallbackInfo ci)
@@ -59,13 +65,32 @@ public abstract class EntityMixin
 	@ModifyArg(method = "onSwimmingStart", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;addParticle(Lnet/minecraft/particle/ParticleEffect;DDDDDD)V"))
 	ParticleEffect onSwimmingStart(ParticleEffect effect)
 	{
-		if(!(getWorld().getFluidState(getBlockPos()).getFluid() instanceof BloodFluid))
+		if(!(isInBlood()))
 			return effect;
 		if(effect.equals(ParticleTypes.SPLASH))
 			return ParticleRegistry.BLOOD_SPLASH;
 		else if(effect.equals(ParticleTypes.BUBBLE))
 			return ParticleRegistry.BLOOD_BUBBLE;
 		else return effect;
+	}
+	
+	boolean isInBlood()
+	{
+		Box box = getBoundingBox().contract(0.001);
+		for(int x = MathHelper.floor(box.minX); x < MathHelper.ceil(box.maxX); ++x)
+		{
+			for(int y = MathHelper.floor(box.minY); y < MathHelper.ceil(box.maxY); ++y)
+			{
+				for(int z = MathHelper.floor(box.minZ); z < MathHelper.ceil(box.maxZ); ++z)
+				{
+					BlockPos pos = new BlockPos(x, y, z);
+					FluidState fluidState = world.getFluidState(pos);
+					if (fluidState.isIn(TagRegistry.BLOOD_FLUID) && y + fluidState.getHeight(world, pos) >= box.minY)
+						return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	public float angleDelta(float alpha, float beta)

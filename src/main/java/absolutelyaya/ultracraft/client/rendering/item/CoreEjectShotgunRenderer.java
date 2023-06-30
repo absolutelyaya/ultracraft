@@ -22,7 +22,7 @@ public class CoreEjectShotgunRenderer extends GeoItemRenderer<CoreEjectShotgunIt
 	
 	public CoreEjectShotgunRenderer()
 	{
-		super(new DefaultedItemGeoModel<>(new Identifier(Ultracraft.MOD_ID, "core_shotgun")));
+		super(new DefaultedItemGeoModel<>(new Identifier(Ultracraft.MOD_ID, "shotgun")));
 	}
 	
 	@Override

@@ -33,11 +33,16 @@ public class ExplosionHandler
 	
 	public static void explosion(Entity ignored, World world, Vec3d pos, DamageSource source, float damage, float falloff, float radius, boolean breakBlocks)
 	{
+		explosion(ignored, world, pos, source, damage, falloff, radius, breakBlocks, false);
+	}
+	
+	public static void explosion(Entity ignored, World world, Vec3d pos, DamageSource source, float damage, float falloff, float radius, boolean breakBlocks, boolean applyKnockbackIgnored)
+	{
 		if(world.isClient && damage > 0f)
 			explosionClient((ClientWorld)world, pos, radius);
 		else
 		{
-			explosionServer(ignored, (ServerWorld)world, pos, source, damage, falloff, radius, breakBlocks);
+			explosionServer(ignored, (ServerWorld)world, pos, source, damage, falloff, radius, breakBlocks, applyKnockbackIgnored);
 			if(damage <= 0f)
 				return;
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
@@ -69,20 +74,23 @@ public class ExplosionHandler
 		}
 	}
 	
-	private static void explosionServer(Entity ignored, ServerWorld world, Vec3d pos, DamageSource source, float damage, float falloff, float radius, boolean breakBlocks)
+	private static void explosionServer(Entity ignored, ServerWorld world, Vec3d pos, DamageSource source, float damage, float falloff, float radius, boolean breakBlocks, boolean applyKnockbackToIgnored)
 	{
 		Box box = new Box(pos.subtract(radius, radius, radius), pos.add(radius, radius, radius));
 		if(damage > 0f)
 		{
-			world.getOtherEntities(ignored, box, Entity::isLiving).forEach(e -> {
+			world.getOtherEntities(null, box, Entity::isLiving).forEach(e -> {
 				float normalizedDistance = (float)e.getPos().distanceTo(pos) / radius;
-				if((e instanceof LivingEntityAccessor living && living.takePunchKnockback()) || e instanceof ProjectileEntity)
+				if((e instanceof LivingEntityAccessor living && (applyKnockbackToIgnored || !e.equals(ignored)) && living.takePunchKnockback()) || e instanceof ProjectileEntity)
 					e.addVelocity(e.getPos().subtract(pos).add(0.0, 1f - normalizedDistance, 0.0).normalize()
 										  .multiply(Math.min(radius * 0.75, 1.75f) * (normalizedDistance == 0f ? 0.75f : Math.min(1.5f - normalizedDistance, 1f))));
-				boolean unUltra = !(e instanceof AbstractUltraHostileEntity);
-				e.damage(source, MathHelper.lerp(normalizedDistance, damage * (unUltra ? 1.5f : 1f), Math.max(damage - falloff, 0f) * (unUltra ? 1.5f : 1f)));
-				if(!(e instanceof PlayerEntity))
-					e.setOnFireFor(10);
+				if(e != ignored)
+				{
+					boolean unUltra = !(e instanceof AbstractUltraHostileEntity);
+					e.damage(source, MathHelper.lerp(normalizedDistance, damage * (unUltra ? 1.5f : 1f), Math.max(damage - falloff, 0f) * (unUltra ? 1.5f : 1f)));
+					if(!(e instanceof PlayerEntity))
+						e.setOnFireFor(10);
+				}
 			});
 		}
 		Entity exploder = source.getSource();

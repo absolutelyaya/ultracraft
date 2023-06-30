@@ -16,8 +16,10 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.joml.Vector2i;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -28,19 +30,24 @@ import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.EnumSet;
+import java.util.List;
 
 public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeInterruptable
 {
 	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
 	private static final RawAnimation RUN_ANIM = RawAnimation.begin().thenLoop("run");
-	private static final RawAnimation ATTACK_ANIM = RawAnimation.begin().thenLoop("attack");
+	private static final RawAnimation ATTACK_LUNGE_ANIM = RawAnimation.begin().thenLoop("lunge");
+	private static final RawAnimation ATTACK_MOVING_ANIM = RawAnimation.begin().thenLoop("attackMoving");
+	private static final RawAnimation ATTACK_STATIONARY_ANIM = RawAnimation.begin().thenLoop("attackStationary");
 	private static final RawAnimation THROWBACK_ANIM = RawAnimation.begin().thenLoop("throwback");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	protected static final TrackedData<Boolean> RARE = DataTracker.registerData(FilthEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(FilthEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	private static final byte ANIMATION_IDLE = 0;
-	private static final byte ANIMATION_ATTACK = 1;
-	private static final byte ANIMATION_THROWBACK = 2;
+	private static final byte ANIMATION_ATTACK_LUNGE = 1;
+	private static final byte ANIMATION_ATTACK_MOVING = 2;
+	private static final byte ANIMATION_ATTACK_STATIONARY = 3;
+	private static final byte ANIMATION_THROWBACK = 4;
 	static int throwbackTicks;
 	
 	public FilthEntity(EntityType<? extends HostileEntity> entityType, World world)
@@ -62,7 +69,9 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 	@Override
 	protected void initGoals()
 	{
-		goalSelector.add(0, new FilthLungeAttackGoal(this, 0.4f));
+		goalSelector.add(0, new FilthLungeAttackGoal(this, 1.5f));
+		goalSelector.add(0, new FilthMovingAttackGoal(this, 1.25f));
+		goalSelector.add(0, new FilthStationaryAttackGoal(this, 1f));
 		goalSelector.add(1, new WanderAroundGoal(this, 1.0));
 		goalSelector.add(2, new LookAtEntityGoal(this, LivingEntity.class, 5));
 		goalSelector.add(3, new LookAroundGoal(this));
@@ -93,7 +102,9 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 				controller.setAnimationSpeed(getVelocity().horizontalLengthSquared() > 0.03 ? 2f : 1f);
 				controller.setAnimation(event.isMoving() ? RUN_ANIM : IDLE_ANIM);
 			}
-			case ANIMATION_ATTACK -> controller.setAnimation(ATTACK_ANIM);
+			case ANIMATION_ATTACK_LUNGE -> controller.setAnimation(ATTACK_LUNGE_ANIM);
+			case ANIMATION_ATTACK_MOVING -> controller.setAnimation(ATTACK_MOVING_ANIM);
+			case ANIMATION_ATTACK_STATIONARY -> controller.setAnimation(ATTACK_STATIONARY_ANIM);
 			case ANIMATION_THROWBACK -> controller.setAnimation(THROWBACK_ANIM);
 		}
 		return PlayState.CONTINUE;
@@ -119,7 +130,7 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 	public void tickMovement()
 	{
 		super.tickMovement();
-		if(getAnimation() == ANIMATION_ATTACK && !Ultracraft.isTimeFrozen())
+		if(getAnimation() == ANIMATION_ATTACK_LUNGE && !Ultracraft.isTimeFrozen())
 		{
 			if(getVelocity().length() > 0.1)
 				lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, getPos().add(getVelocity().normalize()));
@@ -137,14 +148,14 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 	@Override
 	protected void pushAway(Entity entity)
 	{
-		if(!isAttacking())
+		if(!isInAttackAnimation())
 			super.pushAway(entity);
 	}
 	
 	@Override
 	public void pushAwayFrom(Entity entity)
 	{
-		if(!isAttacking())
+		if(!isInAttackAnimation())
 			super.pushAwayFrom(entity);
 	}
 	
@@ -195,40 +206,106 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 		return super.cannotDespawn() || isRare();
 	}
 	
-	static class FilthLungeAttackGoal extends Goal
+	public boolean isInAttackAnimation()
 	{
-		final FilthEntity mob;
-		final float velocity;
+		byte anim = getAnimation();
+		return anim == ANIMATION_ATTACK_LUNGE || anim == ANIMATION_ATTACK_MOVING || anim == ANIMATION_ATTACK_STATIONARY;
+	}
+	
+	void delayNearby() //prevent insta-death through Filth Swarms
+	{
+		List<Entity> nearby = world.getOtherEntities(this, getBoundingBox().expand(6), e -> e instanceof FilthEntity);
+		nearby.forEach(e -> {
+			if(e instanceof FilthEntity filth)
+				filth.dataTracker.set(ATTACK_COOLDOWN, filth.dataTracker.get(ATTACK_COOLDOWN) + 5);
+		});
+	}
+	
+	static class FilthAttackGoal extends Goal
+	{
+		final protected FilthEntity mob;
+		final protected float velocity;
+		final byte animationID;
+		final boolean hop, stopMoving;
+		final Vector2i interruptPeriod, damagePeriod;
 		LivingEntity target;
 		int time;
 		boolean didDamage;
 		
-		public FilthLungeAttackGoal(FilthEntity entity, float velocity)
+		public FilthAttackGoal(FilthEntity mob, float velocity, byte animationID, boolean hop, boolean stopMoving, Vector2i interruptPeriod, Vector2i damagePeriod)
 		{
-			this.mob = entity;
+			this.mob = mob;
 			this.velocity = velocity;
+			this.animationID = animationID;
+			this.hop = hop;
+			this.stopMoving = stopMoving;
+			this.interruptPeriod = interruptPeriod;
+			this.damagePeriod = damagePeriod;
 			setControls(EnumSet.of(Control.LOOK, Control.MOVE));
 		}
 		
 		@Override
 		public boolean canStart()
 		{
-			this.target = mob.getTarget();
-			if (this.target == null || mob.dataTracker.get(ATTACK_COOLDOWN) > 0)
+			target = mob.getTarget();
+			if (target == null || mob.dataTracker.get(ATTACK_COOLDOWN) > 0)
 				return false;
-			
 			double d = mob.squaredDistanceTo(target);
 			if (d > 16.0 * 16.0)
 				return false;
-			
-			return mob.isOnGround() && mob.getAnimation() != ANIMATION_ATTACK;
+			return mob.isOnGround() && !mob.isInAttackAnimation();
+		}
+		
+		protected int getApplyVelocityFrame()
+		{
+			return -1;
+		}
+		
+		protected int getAnimLength()
+		{
+			return 0;
 		}
 		
 		@Override
 		public void start()
 		{
+			mob.delayNearby();
 			time = 0;
 			didDamage = false;
+		}
+		
+		@Override
+		public void tick()
+		{
+			if(time < getApplyVelocityFrame())
+			{
+				mob.lookAtEntity(target, 360, 360);
+				double d = mob.squaredDistanceTo(target);
+				if (d > 3.0 * 3.0 && mob.getAnimation() != animationID)
+				{
+					mob.getNavigation().startMovingTo(target, 1.0);
+					return;
+				}
+				if(stopMoving)
+					mob.getNavigation().stop();
+			}
+			mob.setBodyYaw(mob.headYaw);
+			mob.setAttacking(time > interruptPeriod.x && time < interruptPeriod.y);
+			if(time == 0)
+				mob.dataTracker.set(ANIMATION, animationID);
+			if (time == getApplyVelocityFrame())
+			{
+				mob.playSound(SoundEvents.ENTITY_EVOKER_FANGS_ATTACK, 1f, 1f);
+				if(target != null)
+				{
+					Vec3d vec3d2 = new Vec3d(target.getX() - mob.getX(), 0.0, target.getZ() - mob.getZ());
+					vec3d2 = vec3d2.normalize().multiply(velocity);
+					mob.setVelocity(vec3d2.x, hop ? velocity / 5f : 0f, vec3d2.z);
+				}
+			}
+			if(!didDamage && (time > damagePeriod.x && time < damagePeriod.y) && mob.getBoundingBox().expand(0.2f).intersects(target.getBoundingBox()))
+				didDamage = mob.tryAttack(target);
+			time++;
 		}
 		
 		@Override
@@ -238,45 +315,9 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 		}
 		
 		@Override
-		public void tick()
-		{
-			this.mob.getLookControl().lookAt(target);
-			
-			double d = mob.squaredDistanceTo(target);
-			if (d > 3.0 * 3.0 && mob.getAnimation() != ANIMATION_ATTACK)
-			{
-				mob.getNavigation().startMovingTo(target, 1.0);
-				return;
-			}
-			mob.getNavigation().stop();
-			
-			mob.setAttacking(time > 8 && time < 16);
-			
-			if(time == 0)
-				mob.dataTracker.set(ANIMATION, ANIMATION_ATTACK);
-			if (time == 12)
-			{
-				if(target != null)
-				{
-					Vec3d vec3d = mob.getVelocity();
-					Vec3d vec3d2 = new Vec3d(target.getX() - mob.getX(), 0.0, target.getZ() - mob.getZ());
-					if (vec3d2.lengthSquared() > 1.0E-7)
-						vec3d2 = vec3d2.normalize().multiply(0.8).add(vec3d.multiply(0.2));
-					
-					mob.setVelocity(vec3d2.x, velocity, vec3d2.z);
-				}
-			}
-			
-			if(!didDamage && !mob.onGround && mob.getBoundingBox().expand(0.1f).intersects(target.getBoundingBox()))
-				didDamage = mob.tryAttack(target);
-			
-			time++;
-		}
-		
-		@Override
 		public boolean shouldContinue()
 		{
-			return time < 26 && mob.squaredDistanceTo(target) < 24.0 * 24.0;
+			return time < getAnimLength() && mob.squaredDistanceTo(target) < 24.0 * 24.0;
 		}
 		
 		@Override
@@ -288,10 +329,88 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 		@Override
 		public void stop()
 		{
-			if(mob.getAnimation() == ANIMATION_ATTACK)
+			if(mob.getAnimation() == animationID)
 				mob.dataTracker.set(ANIMATION, ANIMATION_IDLE);
 			mob.dataTracker.set(ATTACK_COOLDOWN, 10 + mob.random.nextInt(10));
 			mob.setAttacking(false);
+		}
+	}
+	
+	static class FilthStationaryAttackGoal extends FilthAttackGoal
+	{
+		public FilthStationaryAttackGoal(FilthEntity entity, float velocity)
+		{
+			super(entity, velocity, ANIMATION_ATTACK_STATIONARY, false, true, new Vector2i(8, 15), new Vector2i(15, 25));
+		}
+		
+		@Override
+		protected int getApplyVelocityFrame()
+		{
+			return 15;
+		}
+		
+		@Override
+		protected int getAnimLength()
+		{
+			return 34;
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			return super.canStart() && mob.random.nextInt(1) == 0;
+		}
+	}
+	
+	static class FilthMovingAttackGoal extends FilthAttackGoal
+	{
+		public FilthMovingAttackGoal(FilthEntity entity, float velocity)
+		{
+			super(entity, velocity, ANIMATION_ATTACK_MOVING, false, true, new Vector2i(5, 12), new Vector2i(10, 20));
+		}
+		
+		@Override
+		protected int getApplyVelocityFrame()
+		{
+			return 5;
+		}
+		
+		@Override
+		protected int getAnimLength()
+		{
+			return 31;
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			return super.canStart() && mob.random.nextInt(2) == 0;
+		}
+	}
+	
+	static class FilthLungeAttackGoal extends FilthAttackGoal
+	{
+		public FilthLungeAttackGoal(FilthEntity entity, float velocity)
+		{
+			super(entity, velocity, ANIMATION_ATTACK_LUNGE, true, true, new Vector2i(8, 16), new Vector2i(15, 25));
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			return super.canStart() && mob.random.nextInt(6) == 0;
+		}
+		
+		@Override
+		protected int getApplyVelocityFrame()
+		{
+			return 12;
+		}
+		
+		@Override
+		protected int getAnimLength()
+		{
+			return 70;
 		}
 	}
 }

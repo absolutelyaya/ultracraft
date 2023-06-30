@@ -41,9 +41,9 @@ public class UltraHudRenderer extends DrawableHelper
 	final Identifier WEAPONS_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/weapon_icons.png");
 	final Identifier CROSSHAIR_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/crosshair_stats.png");
 	float healthPercent, staminaPercent, yOffset;
-	static float fishTimer;
+	static float fishTimer, coinTimer, coinRot = 0, coinRotDest = 0;
 	static ItemStack lastCatch;
-	static int fishCaught;
+	static int fishCaught, coinCombo;
 	final String[] fishMania = new String[] {"message.ultracraft.fish.mania1", "message.ultracraft.fish.mania2", "message.ultracraft.fish.mania3", "message.ultracraft.fish.mania4"};
 	final Random rand = new Random();
 	
@@ -105,6 +105,43 @@ public class UltraHudRenderer extends DrawableHelper
 			matrices.pop();
 			fishTimer -= tickDelta / 20;
 			matrices.pop();
+		}
+		
+		//Coin Combo
+		if(coinTimer > 0f)
+		{
+			matrices.push();
+			matrices.scale(aspect, 1f, 1f);
+			matrices.push();
+			matrices.scale(0.001f, -0.001f, 0.001f);
+			TextRenderer render = client.textRenderer;
+			Text t;
+			drawOutlinedText(matrices, t = Text.of(String.valueOf(coinCombo)), -render.getWidth(t) / 2f, 50f, 1f);
+			matrices.pop();
+			matrices.push();
+			matrices.translate(0f, -0.725f, 1f);
+			RenderSystem.setShaderColor(1f, 1f, 1f, Math.min(coinTimer, 1f));
+			coinRot = MathHelper.lerp(tickDelta / 10, coinRot, coinRotDest);
+			matrices.translate(0f, 0.14f, 0f);
+			matrices.scale(0.25f, 0.25f, 0.25f);
+			matrices.multiply(new Quaternionf(new AxisAngle4f(
+					(float)(Math.toRadians(15)), 1f, 0f, 0f)));
+			matrices.multiply(new Quaternionf(new AxisAngle4f(
+					(float)(Math.toRadians(coinRot * 180)), 0f, 1f, 0f)));
+			RenderSystem.setShaderLights(new Vector3f(0, 0, -1), new Vector3f(0, 0, -1));
+			VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
+			drawItem(matrices, new Matrix4f(matrices.peek().getPositionMatrix()), client, immediate, new ItemStack(ItemRegistry.COIN), false);
+			immediate.draw();
+			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+			coinTimer -= tickDelta / 20;
+			matrices.pop();
+			matrices.pop();
+		}
+		else if(coinCombo > 0)
+		{
+			coinCombo = 0;
+			coinRot = 0;
+			coinRotDest = 0;
 		}
 		RenderSystem.enableBlend();
 		
@@ -269,6 +306,44 @@ public class UltraHudRenderer extends DrawableHelper
 				matrix, immediate, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
 	}
 	
+	void drawOutlinedText(MatrixStack matrices, Text text, float x, float y, float alpha)
+	{
+		MinecraftClient client = MinecraftClient.getInstance();
+		VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
+		Matrix4f matrix = matrices.peek().getPositionMatrix();
+		client.textRenderer.draw(text, x, y, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
+				matrix, immediate, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
+		matrix.translate(0f, 0f, 0.5f);
+		client.textRenderer.draw(text, x, y - 1, Color.ofRGBA(0f, 0f, 0f, alpha).getColor(), false,
+				matrix, immediate, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
+		client.textRenderer.draw(text, x, y + 1, Color.ofRGBA(0f, 0f, 0f, alpha).getColor(), false,
+				matrix, immediate, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
+		client.textRenderer.draw(text, x - 1, y, Color.ofRGBA(0f, 0f, 0f, alpha).getColor(), false,
+				matrix, immediate, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
+		client.textRenderer.draw(text, x + 1, y, Color.ofRGBA(0f, 0f, 0f, alpha).getColor(), false,
+				matrix, immediate, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
+	}
+	
+	void drawTexture(Matrix4f matrix, Vector4f transform, float z, Vec2f textureSize, Vector4f uv, float alpha)
+	{
+		RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
+		RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+		BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
+		bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
+		uv = new Vector4f(uv.x() / textureSize.x, uv.y() / textureSize.y,
+				uv.z() / textureSize.x, uv.w() / textureSize.y);
+		bufferBuilder.vertex(matrix, transform.x(), transform.y() + transform.w(), z)
+				.texture(uv.x(), uv.y()).next();
+		bufferBuilder.vertex(matrix, transform.x() + transform.z(), transform.y() + transform.w(), z)
+				.texture(uv.x() + uv.z(), uv.y()).next();
+		bufferBuilder.vertex(matrix, transform.x() + transform.z(), transform.y(), z)
+				.texture(uv.x() + uv.z(), uv.y() + uv.w()).next();
+		bufferBuilder.vertex(matrix, transform.x(), transform.y(), z)
+				.texture(uv.x(), uv.y() + uv.w()).next();
+		BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
+		BufferRenderer.resetCurrentVertexBuffer();
+	}
+  
 	public static void onCatchFish(ItemStack stack)
 	{
 		if(UltracraftClient.getConfigHolder().get().fishingJoke)
@@ -276,6 +351,16 @@ public class UltraHudRenderer extends DrawableHelper
 			lastCatch = stack;
 			fishTimer = 10f;
 			fishCaught++;
+		}
+	}
+	
+	public static void onPunchCoin(int score)
+	{
+		if(UltracraftClient.getConfigHolder().get().coinPunchCounter)
+		{
+			coinTimer = 10f;
+			coinCombo = score + 1;
+			coinRotDest += 1f + 0.05f * score;
 		}
 	}
 	

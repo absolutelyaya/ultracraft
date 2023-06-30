@@ -1,12 +1,10 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
-import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
-import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.accessor.*;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -57,6 +55,11 @@ public class PacketRegistry
 	public static final Identifier PRIMARY_SHOT_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "primary_shot_s2c");
 	public static final Identifier DEBUG = new Identifier(Ultracraft.MOD_ID, "debug");
 	public static final Identifier SKIM_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "skim_s2c");
+	public static final Identifier COIN_PUNCH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "coinpunch");
+	public static final Identifier WORLD_INFO_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "world-info");
+	public static final Identifier BLOCK_PLAYER_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "block");
+	public static final Identifier UNBLOCK_PLAYER_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "unblock");
+	public static final Identifier OPEN_SERVER_CONFIG_MENU = new Identifier(Ultracraft.MOD_ID, "server_config");
 	
 	public static void registerC2S()
 	{
@@ -71,30 +74,10 @@ public class PacketRegistry
 			boolean debug = buf.readBoolean();
 			
 			server.execute(() -> {
-				ProjectileEntity p;
 				Vec3d forward = player.getRotationVector().normalize();
-				Vec3d pos = player.getEyePos();
-				Box check = new Box(pos.x - 0.3f, pos.y - 0.3f, pos.z - 0.3f,
-						pos.x + 0.3f, pos.y + 0.3f, pos.z + 0.3f)
-									.stretch(forward.multiply(0.9)).offset(new Vec3d(clientVel.mul(-0.5f)))
-									.stretch(clientVel.x * 16, clientVel.y * 16, clientVel.z * 16);
-				List<ProjectileEntity> projectiles = player.world.getEntitiesByClass(ProjectileEntity.class, check,
-						(e) -> !((ProjectileEntityAccessor)e).isParried());
-				
-				if(debug) {
-					addDebugParticle(player, new Vec3d(check.minX, check.minY, check.minZ));
-					addDebugParticle(player, new Vec3d(check.maxX, check.minY, check.minZ));
-					addDebugParticle(player, new Vec3d(check.minX, check.minY, check.maxZ));
-					addDebugParticle(player, new Vec3d(check.maxX, check.minY, check.maxZ));
-					addDebugParticle(player, new Vec3d(check.minX, check.maxY, check.minZ));
-					addDebugParticle(player, new Vec3d(check.maxX, check.maxY, check.minZ));
-					addDebugParticle(player, new Vec3d(check.minX, check.maxY, check.maxZ));
-					addDebugParticle(player, new Vec3d(check.maxX, check.maxY, check.maxZ));
-				}
-				
 				player.swingHand(Hand.OFF_HAND, true);
 				
-				//Punch Entity
+				//Punch Entity; Takes Priority over Projectile Parries
 				if(target != null)
 				{
 					if(player.getOffHandStack().isIn(TagRegistry.PUNCH_FLAMES))
@@ -120,25 +103,69 @@ public class PacketRegistry
 				}
 				
 				//Projectile Parry
+				//Fetch all Parry Candidate Projectiles
+				boolean chainingAllowed = world.getGameRules().getBoolean(GameruleRegistry.PARRY_CHAINING);
+				Vec3d pos = player.getEyePos();
+				Box check = new Box(pos.x - 0.3f, pos.y - 0.3f, pos.z - 0.3f,
+						pos.x + 0.3f, pos.y + 0.3f, pos.z + 0.3f)
+									.stretch(forward.multiply(0.9)).offset(new Vec3d(clientVel.mul(-0.5f)))
+									.stretch(clientVel.x * 16, clientVel.y * 16, clientVel.z * 16);
+				//Get Projectiles that absolutely are in the Parry Check
+				List<ProjectileEntity> projectiles = player.world.getEntitiesByClass(ProjectileEntity.class, check,
+						e -> (!((ProjectileEntityAccessor)e).isParried()) || chainingAllowed);
+				//Get Projectiles that could move into the Parry Check
+				List<ProjectileEntity> potentialProjectiles = player.world.getEntitiesByClass(ProjectileEntity.class, player.getBoundingBox().expand(4),
+						e -> (!((ProjectileEntityAccessor)e).isParried() || chainingAllowed) && !projectiles.contains(e));
+				for (ProjectileEntity proj : potentialProjectiles)
+				{
+					//Predict position within the last 1 and next 3 ticks. If it is or was within the parry check, then the parry is successful
+					//This is mainly intended for combatting latency and shit
+					for (int i = 0; i < 4; i++)
+					{
+						Vec3d predictedPos = proj.getLerpedPos(i);
+						if (check.contains(predictedPos))
+						{
+							if(debug)
+								addDebugParticle(player, predictedPos);
+							projectiles.add(proj);
+							break;
+						}
+					}
+				}
+				
+				if(debug)
+				{
+					addDebugParticle(player, new Vec3d(check.minX, check.minY, check.minZ));
+					addDebugParticle(player, new Vec3d(check.maxX, check.minY, check.minZ));
+					addDebugParticle(player, new Vec3d(check.minX, check.minY, check.maxZ));
+					addDebugParticle(player, new Vec3d(check.maxX, check.minY, check.maxZ));
+					addDebugParticle(player, new Vec3d(check.minX, check.maxY, check.minZ));
+					addDebugParticle(player, new Vec3d(check.maxX, check.maxY, check.minZ));
+					addDebugParticle(player, new Vec3d(check.minX, check.maxY, check.maxZ));
+					addDebugParticle(player, new Vec3d(check.maxX, check.maxY, check.maxZ));
+				}
+				
+				//The actual Parry Logic
+				ProjectileEntity parried;
 				if(projectiles.size() > 0)
-					p = getNearestProjectile(projectiles, pos);
+					parried = getNearestProjectile(projectiles, pos);
 				else
 					return;
-				if(!((ProjectileEntityAccessor)p).isParriable())
+				if(!((ProjectileEntityAccessor)parried).isParriable())
 					return;
-				if(player.equals(p.getOwner()))
+				if(player.equals(parried.getOwner()) && parried.age < 4)
 				{
-					if(((ProjectileEntityAccessor)p).isBoostable())
+					if(((ProjectileEntityAccessor)parried).isBoostable())
 						Ultracraft.freeze((ServerWorld) player.world, 5); //ProjBoost freezes are shorter
 					else
 						return;
 				}
-				else
+				else if(!(parried instanceof ThrownCoinEntity))
 					Ultracraft.freeze((ServerWorld) player.world, 10);
 				world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
-				ProjectileEntityAccessor pa = (ProjectileEntityAccessor)p;
+				ProjectileEntityAccessor pa = (ProjectileEntityAccessor)parried;
 				pa.setParried(true, player);
-				p.setVelocity(forward.multiply(2.5f));
+				parried.setVelocity(forward.multiply(chainingAllowed ? 1f + 0.125f * ((ChainParryAccessor)pa).getParryCount() : 2.5f));
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(PUNCH_BLOCK_PACKET_ID, (server, player, handler, buf, sender) -> {

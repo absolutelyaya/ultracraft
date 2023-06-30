@@ -1,0 +1,39 @@
+{
+  "parent": "minecraft:ultracraft/root",
+  "criteria": {
+    "chargeback": {
+      "conditions": {
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "ultracraft:malicious_face"
+            }
+          }
+        ]
+      },
+      "trigger": "ultracraft:chargeback"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.ultracraft.chargeback-malicious.description"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "icon": {
+      "item": "ultracraft:coin"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.ultracraft.chargeback-malicious.title"
+    }
+  },
+  "requirements": [
+    [
+      "chargeback"
+    ]
+  ]
+}

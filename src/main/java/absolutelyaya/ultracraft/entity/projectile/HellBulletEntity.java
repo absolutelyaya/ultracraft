@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.entity.projectile;
 
 import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.ChainParryAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
@@ -134,9 +135,8 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 		
 		if(age > getMaxAge())
 		{
-			for (int i = 0; i < 5; i++)
-				world.addParticle(new ItemStackParticleEffect(ParticleTypes.ITEM, getStack()),
-						getX(), getY(), getZ(), 0f, 0f, 0f);
+			world.addParticle(new ItemStackParticleEffect(ParticleTypes.ITEM, getStack()),
+					getX(), getY(), getZ(), 0f, 0f, 0f);
 			if(!world.isClient())
 				discard();
 		}
@@ -161,25 +161,30 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 			return false;
 		boolean val = super.canHit(entity);
 		return val || (isOwner(entity) && parried && !entity.equals(getParrier())) ||
-							   (!isOwner(entity) && !(entity instanceof ProjectileEntity));
+					   (!isOwner(entity) && !(entity instanceof ProjectileEntity));
 	}
 	
 	@Override
 	public void onParriedCollision(HitResult hitResult)
 	{
+		int parries = ((ChainParryAccessor)this).getParryCount() - 1;
+		float damageMult = 1f + parries * 0.2f;
+		float rangeMult = 1f + parries * 0.1f;
 		Vec3d pos = hitResult.getPos();
 		Entity owner = getOwner();
 		if(owner == null)
 		{
-			ExplosionHandler.explosion(null, world, pos, DamageSources.get(world, DamageSources.PARRYAOE, parrier), 5f, 1f, 3f, true);
+			ExplosionHandler.explosion(null, world, pos, DamageSources.get(world, DamageSources.PARRYAOE, parrier),
+					5f * damageMult, 1f, 3f * rangeMult, true);
 			return;
 		}
 		Entity hit = null;
 		if(hitResult.getType().equals(HitResult.Type.ENTITY))
 			hit = ((EntityHitResult)hitResult).getEntity();
 		if(owner.equals(hit))
-			owner.damage(DamageSources.get(world, DamageSources.PARRY, parrier), 15);
-		ExplosionHandler.explosion(owner.equals(hit) ? hit : null, world, pos, DamageSources.get(world, DamageSources.PARRYAOE, parrier), 5f, 1f, 3f, true);
+			owner.damage(DamageSources.get(world, DamageSources.PARRY, parrier), 15 * damageMult);
+		ExplosionHandler.explosion(owner.equals(hit) ? hit : null, world, pos, DamageSources.get(world, DamageSources.PARRYAOE, parrier),
+				5f * damageMult, 1f, 3f * rangeMult, true);
 	}
 	
 	@Override
@@ -207,6 +212,9 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 			this.parrier = parrier;
 		else
 			this.parrier = null;
+		if(val && this instanceof ChainParryAccessor chainer)
+			chainer.setParryCount(chainer.getParryCount() + 1);
+		age = 0;
 	}
 	
 	@Override

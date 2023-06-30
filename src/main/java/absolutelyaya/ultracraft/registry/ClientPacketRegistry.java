@@ -5,9 +5,11 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ITrailEnjoyer;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
+import com.mojang.serialization.Dynamic;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -17,16 +19,21 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
+import net.minecraft.world.GameRules;
 import org.joml.Vector3f;
+
+import java.util.UUID;
 
 @SuppressWarnings("CodeBlock2Expr")
 @Environment(EnvType.CLIENT)
@@ -69,8 +76,6 @@ public class ClientPacketRegistry
 				return;
 			float amount = buf.readFloat();
 			Vec3d pos = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
-			if(client.player.getPos().squaredDistanceTo(pos) < 0.1)
-				return;
 			double halfheight = buf.readDouble();
 			boolean shotgun = buf.readBoolean();
 			boolean water = client.player.world.getFluidState(new BlockPos((int)pos.x, (int)pos.y, (int)pos.z)).isIn(FluidTags.WATER);
@@ -128,10 +133,7 @@ public class ClientPacketRegistry
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SYNC_RULE, ((client, handler, buf, sender) -> {
 			byte b = buf.readByte();
-			if(b == 40 || b == 90 || b == 100)
-				UltracraftClient.syncGameRule(b, buf.readInt());
-			else
-				UltracraftClient.syncGameRule(b);
+			UltracraftClient.syncGameRule(b, buf.readInt());
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.ENTITY_TRAIL, ((client, handler, buf, sender) -> {
 			Entity e = client.world.getEntityById(buf.readInt());
@@ -207,6 +209,51 @@ public class ClientPacketRegistry
 				return;
 			Vec3d pos = new Vec3d(buf.readVector3f());
 			MinecraftClient.getInstance().execute(() -> client.player.world.addParticle(ParticleRegistry.RIPPLE, pos.x, pos.y, pos.z, 0, 0, 0));
+		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.COIN_PUNCH_PACKET_ID, ((client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
+			int score = buf.readInt();
+			MinecraftClient.getInstance().execute(() -> UltraHudRenderer.onPunchCoin(score));
+		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.WORLD_INFO_PACKET_ID, ((client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
+			MinecraftClient.getInstance().execute(() -> UltracraftClient.sendJoinInfo(MinecraftClient.getInstance()));
+		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.BLOCK_PLAYER_PACKET_ID, ((client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
+			UUID target = buf.readUuid();
+			MinecraftClient.getInstance().execute(() -> {
+				boolean b = UltracraftClient.getConfigHolder().get().blockedPlayers.contains(target);
+				if(!b)
+				{
+					UltracraftClient.getConfigHolder().get().blockedPlayers.add(target);
+					client.player.sendMessage(Text.translatable("command.ultracraft.block.client-success"));
+				}
+				else
+					client.player.sendMessage(Text.translatable("command.ultracraft.block.client-fail"));
+			});
+		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.UNBLOCK_PLAYER_PACKET_ID, ((client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
+			UUID target = buf.readUuid();
+			MinecraftClient.getInstance().execute(() -> {
+				boolean b = UltracraftClient.getConfigHolder().get().blockedPlayers.remove(target);
+				client.player.sendMessage(b ? Text.translatable("command.ultracraft.unblock.client-success") :
+												  Text.translatable("command.ultracraft.unblock.client-fail"));
+			});
+			//TODO: add functionality after merge with experiment-WNG-CLR
+		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.OPEN_SERVER_CONFIG_MENU, ((client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
+			NbtCompound rules = buf.readNbt();
+			MinecraftClient.getInstance().execute(() -> {
+				client.setScreen(new ServerConfigScreen(rules));
+			});
 		}));
 	}
 }

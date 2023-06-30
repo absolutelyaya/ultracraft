@@ -63,13 +63,13 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	
 	@Shadow public abstract void updateLimbs(boolean flutter);
 	
+	@Shadow public abstract boolean isAlive();
+	
 	final int punchDuration = 6;
 	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
-	int punchTicks;
-	boolean punching;
+	int punchTicks, ricochetCooldown;
+	boolean punching, timeFrozen;
 	float punchProgress, prevPunchProgress, recoil;
-	
-	boolean timeFrozen;
 	
 	public LivingEntityMixin(EntityType<?> type, World world)
 	{
@@ -83,6 +83,8 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		if(!timeFrozen || punchTicks < 2)
 			punchTick();
 		recoil = MathHelper.lerp(0.3f, recoil, 0f);
+		if(ricochetCooldown > 0)
+			ricochetCooldown--;
 	}
 	
 	@ModifyArgs(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;applyDamage(Lnet/minecraft/entity/damage/DamageSource;F)V"))
@@ -98,9 +100,13 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	@Inject(method = "damage", at = @At("RETURN"))
 	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
 	{
-		if(!cir.getReturnValue() || world.isClient || !IsCanBleed())
+		if(!cir.getReturnValue() || world.isClient)
 			return;
-		List<PlayerEntity> nearby = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(32), e -> true);
+		if(source.isOf(DamageSources.RICOCHET))
+			ricochetCooldown = 5; //after ricochet hit, cant ricochet to this enemy again for 3 seconds
+		if(!IsCanBleed())
+			return;
+		List<PlayerEntity> nearby = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(32), e -> !e.equals(this));
 		List<PlayerEntity> heal = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(2), e -> !e.equals(this));
 		for (PlayerEntity player : nearby)
 		{
@@ -118,10 +124,12 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		{
 			for (PlayerEntity player : heal)
 			{
-				if(healRule.equals(GameruleRegistry.RegenOption.ONLY_HIVEL) && (!(player instanceof WingedPlayerEntity winged) || !winged.isWingsActive()))
+				if(!(player instanceof WingedPlayerEntity winged))
+					continue;
+				if((healRule.equals(GameruleRegistry.RegenOption.ONLY_HIVEL) && !winged.isWingsActive()))
 					continue;
 				float healing = amount * (source.isOf(DamageSources.SHOTGUN) ? 1f : 2.5f);
-				player.heal(healing);
+				winged.bloodHeal(healing);
 				player.getHungerManager().add((int)(healing / 1.5f), 5f);
 			}
 		}
@@ -352,5 +360,11 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	public float getRecoil()
 	{
 		return recoil;
+	}
+	
+	@Override
+	public boolean isRicochetHittable()
+	{
+		return isAlive() && ricochetCooldown <= 0;
 	}
 }

@@ -2,10 +2,7 @@ package absolutelyaya.ultracraft.client.rendering.block.entity;
 
 import absolutelyaya.ultracraft.block.PedestalBlock;
 import absolutelyaya.ultracraft.block.PedestalBlockEntity;
-import absolutelyaya.ultracraft.item.AbstractWeaponItem;
-import absolutelyaya.ultracraft.item.CoreEjectShotgunItem;
-import absolutelyaya.ultracraft.item.PierceRevolverItem;
-import absolutelyaya.ultracraft.item.PlushieItem;
+import absolutelyaya.ultracraft.item.*;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -57,12 +54,12 @@ public class PedestalBlockEntityRenderer implements BlockEntityRenderer<Pedestal
 		}
 		else if (item instanceof AbstractWeaponItem)
 		{
-			if(item instanceof PierceRevolverItem) //TODO: replace with generic Revolver class
+			if(item instanceof AbstractRevolverItem)
 			{
 				matrices.translate(0f, -0.125f, 0f);
 				matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(10), 0f, 0f, 1f)));
 			}
-			if(item instanceof CoreEjectShotgunItem)
+			if(item instanceof AbstractShotgunItem)
 			{
 				matrices.translate(-0.075f, -0.055f, 0f);
 				matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(15), 0f, 0f, 1f)));

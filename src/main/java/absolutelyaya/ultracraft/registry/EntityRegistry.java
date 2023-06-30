@@ -43,11 +43,11 @@ public class EntityRegistry
 	public static final EntityType<HellBulletEntity> HELL_BULLET = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "hell_bullet"),
 			EntityType.Builder.create(HellBulletEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
-					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().disableSaving().build("hell_bullet"));
+					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("hell_bullet"));
 	public static final EntityType<CerberusBallEntity> CERBERUS_BALL = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "cerberus_ball"),
 			EntityType.Builder.create(CerberusBallEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
-					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().disableSaving().build("cerberus_ball"));
+					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("cerberus_ball"));
 	public static final EntityType<ShotgunPelletEntity> SHOTGUN_PELLET = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "shotgun_pellet"),
 			EntityType.Builder.create(ShotgunPelletEntity::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
@@ -60,6 +60,10 @@ public class EntityRegistry
 			new Identifier(Ultracraft.MOD_ID, "thrown_machinesword"),
 			EntityType.Builder.create(ThrownMachineSwordEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
 					.maxTrackingRange(4).trackingTickInterval(20).disableSummon().build("thrown_machinesword"));
+	public static final EntityType<ThrownCoinEntity> THROWN_COIN = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "thrown_coin"),
+			EntityType.Builder.create(ThrownCoinEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
+					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("thrown_coin"));
 	
 	public static final EntityType<ShockwaveEntity> SHOCKWAVE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "shockwave"),
@@ -68,7 +72,6 @@ public class EntityRegistry
 			new Identifier(Ultracraft.MOD_ID, "interruptable_charge"),
 			EntityType.Builder.create(InterruptableCharge::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
 					.disableSummon().maxTrackingRange(5).build("interruptable_charge"));
-	
 	
 	public static final TagKey<EntityType<?>> PROJBOOSTABLE = TagKey.of(RegistryKeys.ENTITY_TYPE, new Identifier(Ultracraft.MOD_ID, "projboostable"));
 	

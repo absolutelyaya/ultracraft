@@ -66,4 +66,8 @@ public interface WingedPlayerEntity
 	String getWingPattern();
 	
 	void setWingPattern(String id);
+  
+	void bloodHeal(float val);
+	
+	void blockBloodHeal(int ticks);
 }

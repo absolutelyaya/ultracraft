@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.entity.projectile;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.ChainParryAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
@@ -279,7 +280,7 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 	@Override
 	public boolean isParriable()
 	{
-		return !dataTracker.get(REACHED_DEST);
+		return !dataTracker.get(REACHED_DEST) && !isParried();
 	}
 	
 	@Override

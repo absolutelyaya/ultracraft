@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "ultracraft:parry_collateral",
-    "ultracraft:projectile_boost"
+    "ultracraft:projectile_boost",
+    "ultracraft:overcharge",
+    "ultracraft:overcharge_self"
   ]
 }

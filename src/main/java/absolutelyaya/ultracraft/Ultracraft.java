@@ -1,13 +1,16 @@
 package absolutelyaya.ultracraft;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.command.UltracraftCommand;
 import absolutelyaya.ultracraft.registry.*;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -44,8 +47,18 @@ public class Ultracraft implements ModInitializer
         SoundRegistry.register();
         GameruleRegistry.register();
         RecipeSerializers.register();
-    
-        ServerTickEvents.END_SERVER_TICK.register(minecraft -> tickFreeze());
+        CriteriaRegistry.register();
+        
+        ServerLifecycleEvents.SERVER_STARTED.register(server -> {
+        
+        });
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            UltracraftCommand.register(dispatcher, registryAccess);
+        });
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            tickFreeze();
+            ServerHitscanHandler.tickSchedule();
+        });
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
             ((WingedPlayerEntity)newPlayer).setWingsVisible(((WingedPlayerEntity)oldPlayer).isWingsActive());
             PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
@@ -82,6 +95,12 @@ public class Ultracraft implements ModInitializer
         }
         freezeTicks += ticks;
         LOGGER.info("Stopping time for " + ticks + " ticks.");
+    }
+    
+    public static void cancelFreeze(ServerWorld world)
+    {
+        freezeTicks = 0;
+        LOGGER.info("Forcefully Unstopped time.");
     }
     
     public static void tickFreeze()

@@ -1,0 +1,31 @@
+{
+  "parent": "minecraft:ultracraft/coinpunch_easy",
+  "criteria": {
+    "punch": {
+      "conditions": {
+        "score": 25
+      },
+      "trigger": "ultracraft:coin_punching"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.ultracraft.coinpunch-medium.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "icon": {
+      "item": "ultracraft:coin"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.ultracraft.coinpunch-medium.title"
+    }
+  },
+  "requirements": [
+    [
+      "punch"
+    ]
+  ]
+}

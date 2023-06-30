@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.client;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.gui.screen.EpilepsyPopupScreen;
+import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
 import absolutelyaya.ultracraft.client.rendering.TrailRenderer;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.client.rendering.block.entity.CerberusBlockRenderer;
@@ -73,6 +74,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import software.bernie.geckolib.network.GeckoLibNetwork;
 
@@ -120,6 +122,7 @@ public class UltracraftClient implements ClientModInitializer
 		EntityRendererRegistry.register(EntityRegistry.SHOTGUN_PELLET, ShotgunPelletRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.EJECTED_CORE, EjectedCoreRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.THROWN_MACHINE_SWORD, ThrownMachineSwordRenderer::new);
+		EntityRendererRegistry.register(EntityRegistry.THROWN_COIN, ThrownCoinRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.SHOCKWAVE, ShockwaveRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.INTERRUPTABLE_CHARGE, InterruptableChargeRenderer::new);
 		//Particles
@@ -198,6 +201,7 @@ public class UltracraftClient implements ClientModInitializer
 			winged.setWingPattern(wingPattern);
 			if(config.get().showEpilepsyWarning)
 				MinecraftClient.getInstance().setScreen(new EpilepsyPopupScreen(null));
+				sendJoinInfo(client);
 		});
 		
 		ClientEntityEvents.ENTITY_LOAD.register((entity, clientWorld) -> {
@@ -316,6 +320,26 @@ public class UltracraftClient implements ClientModInitializer
 		refreshSupporter();
 	}
 	
+	public static void sendJoinInfo(MinecraftClient client)
+	{
+		GameruleRegistry.Option hivel = client.world.getGameRules().get(GameruleRegistry.HI_VEL_MODE).get();
+		GameruleRegistry.Option freeze = client.world.getGameRules().get(GameruleRegistry.TIME_STOP).get();
+		client.player.sendMessage(Text.translatable("message.ultracraft.join-info-header"));
+		if(!hivel.equals(GameruleRegistry.Option.FREE))
+			client.player.sendMessage(Text.translatable("message.ultracraft.hi-vel-forced",
+					hivel.equals(GameruleRegistry.Option.FORCE_ON) ? Text.translatable("options.on") : Text.translatable("options.off")));
+		else
+			client.player.sendMessage(Text.translatable("message.ultracraft.hi-vel-free"));
+		if(client.getServer() != null && client.getServer().isRemote())
+			client.player.sendMessage(Text.translatable("message.ultracraft.freeze-forced",
+					freeze.equals(GameruleRegistry.Option.FORCE_ON) ? Text.translatable("options.on") : Text.translatable("options.off")));
+		client.player.sendMessage(Text.translatable("message.ultracraft.jump-boost", jumpBoost));
+		if(fallDamage)
+			client.player.sendMessage(Text.translatable("message.ultracraft.fall-damage"));
+		client.player.sendMessage(Text.translatable("message.ultracraft.join-info"));
+		client.player.sendMessage(Text.translatable("========================================="));
+	}
+	
 	public static void addBlood(float f)
 	{
 		screenblood = Math.min(3.5f, screenblood + f);
@@ -401,39 +425,38 @@ public class UltracraftClient implements ClientModInitializer
 		return config;
 	}
 	
-	public static void syncGameRule(byte data)
+	public static void syncGameRule(byte data, int value)
 	{
-		int rule = data / 10;
-		int value = data - rule * 10;
-		switch (rule)
+		switch (data)
 		{
+			case 0 -> onExternalRuleUpdate(GameruleRegistry.PROJ_BOOST, (GameruleRegistry.ProjectileBoostSetting.values()[value]).name());
 			case 1 ->
 			{
-				HiVelOption = GameruleRegistry.Option.values()[value];
+				onExternalRuleUpdate(GameruleRegistry.HI_VEL_MODE, (HiVelOption = GameruleRegistry.Option.values()[value]).name());
 				if(HiVelOption != GameruleRegistry.Option.FREE)
 					setHighVel(HiVelOption == GameruleRegistry.Option.FORCE_ON, false);
 			}
-			case 2 -> TimeFreezeOption = GameruleRegistry.Option.values()[value];
-			case 3 -> disableHandswap = value == 1;
-			case 5 -> slamStorage = value == 1;
-			case 6 -> fallDamage = value == 1;
-			case 7 -> drowning = value == 1;
-			case 8 -> BloodRegen = GameruleRegistry.RegenOption.values()[value];
-			case 11 -> effectivelyViolent = value == 1;
+			case 2 -> onExternalRuleUpdate(GameruleRegistry.TIME_STOP, (TimeFreezeOption = GameruleRegistry.Option.values()[value]).name());
+			case 3 -> onExternalRuleUpdate(GameruleRegistry.DISABLE_HANDSWAP, disableHandswap = value == 1);
+			case 4 -> onExternalRuleUpdate(GameruleRegistry.HIVEL_JUMP_BOOST, jumpBoost = value);
+			case 5 -> onExternalRuleUpdate(GameruleRegistry.SLAM_STORAGE, slamStorage = value == 1);
+			case 6 -> onExternalRuleUpdate(GameruleRegistry.HIVEL_FALLDAMAGE, fallDamage = value == 1);
+			case 7 -> onExternalRuleUpdate(GameruleRegistry.HIVEL_DROWNING, drowning = value == 1);
+			case 8 -> onExternalRuleUpdate(GameruleRegistry.BLOODHEAL, (BloodRegen = GameruleRegistry.RegenOption.values()[value]).name());
+			case 9 -> onExternalRuleUpdate(GameruleRegistry.HIVEL_SPEED, speed = value);
+			case 10 -> onExternalRuleUpdate(GameruleRegistry.HIVEL_SLOWFALL, gravityReduction = value);
+			case 11 -> onExternalRuleUpdate(GameruleRegistry.EFFECTIVELY_VIOLENT, effectivelyViolent = value == 1);
+			case 12 -> onExternalRuleUpdate(GameruleRegistry.EXPLOSION_DAMAGE, value == 1);
+			case 13 -> onExternalRuleUpdate(GameruleRegistry.SM_SAFE_LEDGES, value == 1);
+			case 14 -> onExternalRuleUpdate(GameruleRegistry.PARRY_CHAINING, value == 1);
 			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncB] -> " + data);
 		}
 	}
 	
-	public static void syncGameRule(byte data, int value)
+	static <V, T extends GameRules.Key<?>> void onExternalRuleUpdate(T rule, V value)
 	{
-		int rule = data / 10;
-		switch (rule)
-		{
-			case 4 -> jumpBoost = value;
-			case 9 -> speed = value;
-			case 10 -> gravityReduction = value;
-			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncI] -> " + data);
-		}
+		if(ServerConfigScreen.INSTANCE != null)
+			ServerConfigScreen.INSTANCE.onExternalRuleUpdate(rule, String.valueOf(value));
 	}
 	
 	public static ShaderProgram getWingsColoredShaderProgram()
