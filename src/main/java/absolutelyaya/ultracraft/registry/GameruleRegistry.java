@@ -122,6 +122,7 @@ public class GameruleRegistry
 		OnChanged(player, (byte)9, player.server.getGameRules().get(HIVEL_SPEED).get());
 		OnChanged(player, (byte)10, player.server.getGameRules().get(HIVEL_SLOWFALL).get());
 		OnChanged(player, (byte)11, player.server.getGameRules().getBoolean(EFFECTIVELY_VIOLENT) ? 1 : 0);
+		OnChanged(player, (byte)127, 0); //sync finished indicator
 	}
 	
 	static void sendAdminMessage(MinecraftServer server, Text message)
