@@ -80,7 +80,7 @@ public class ServerConfigScreen extends Screen
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double amount)
 	{
-		desiredScroll = MathHelper.clamp(desiredScroll + (float)amount * -15f, -36 * (ruleWidgets.size() - 3), 0);
+		desiredScroll = MathHelper.clamp(desiredScroll + (float)amount * 15f, -36 * (ruleWidgets.size() - 3), 0);
 		return super.mouseScrolled(mouseX, mouseY, amount);
 	}
 	

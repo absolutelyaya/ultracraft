@@ -223,7 +223,7 @@ public class WingCustomizationScreen extends Screen
 			fill(matrices, (width - 80) - w / 2, height - 92, (width - 80) + w / 2, height - 80, 0x88000000);
 			drawCenteredTextWithShadow(matrices, textRenderer, scrollHint, (width - 80), height - 90, 16777215);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-			showScrollingHint -= delta / 20;
+			showScrollingHint += delta / 20;
 		}
 		matrices.pop();
 		
