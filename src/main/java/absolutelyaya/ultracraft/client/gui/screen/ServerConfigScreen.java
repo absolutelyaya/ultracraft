@@ -9,7 +9,6 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.GameRules;
 import org.joml.Vector2i;
@@ -19,7 +18,6 @@ import java.util.List;
 
 public class ServerConfigScreen extends Screen
 {
-	static final Identifier BACKGROUND = new Identifier("textures/block/stone.png");
 	public static ServerConfigScreen INSTANCE;
 	final NbtCompound rules;
 	List<GameRuleWidget<?>> ruleWidgets = new ArrayList<>();
@@ -51,6 +49,7 @@ public class ServerConfigScreen extends Screen
 		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.HIVEL_SPEED, GameRuleWidget.ValueType.INT, ruleWidgets.size())));
 		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.HIVEL_SLOWFALL, GameRuleWidget.ValueType.INT, ruleWidgets.size())));
 		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.EFFECTIVELY_VIOLENT, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.EXPLOSION_DAMAGE, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
 		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.SM_SAFE_LEDGES, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
 		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.PARRY_CHAINING, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
 	}
@@ -81,7 +80,7 @@ public class ServerConfigScreen extends Screen
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double amount)
 	{
-		desiredScroll = MathHelper.clamp(desiredScroll + (float)amount * -15f, -36 * (ruleWidgets.size() - 6), 0);
+		desiredScroll = MathHelper.clamp(desiredScroll + (float)amount * -15f, -36 * (ruleWidgets.size() - 3), 0);
 		return super.mouseScrolled(mouseX, mouseY, amount);
 	}
 	

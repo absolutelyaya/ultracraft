@@ -150,8 +150,7 @@ public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget 
 				t = Text.of(sb + "...").asOrderedText();
 				setTooltip(Tooltip.of(fullText));
 			}
-			drawTextWithShadow(matrices, renderer, t,
-					getX() + 36, getY() + 13 + renderer.fontHeight * i, 0xffffffff);
+			drawOutlinedText(matrices, renderer, t, getX() + 36, getY() + 13 + renderer.fontHeight * i, alpha);
 		}
 		((WidgetAccessor)valueWidget).setOffset(((WidgetAccessor)this).getOffset());
 		((WidgetAccessor) valueWidget).setAlpha(Math.max(alpha, 0.02f));
@@ -251,6 +250,18 @@ public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget 
 	protected void appendClickableNarrations(NarrationMessageBuilder builder)
 	{
 	
+	}
+	
+	void drawOutlinedText(MatrixStack matrices, TextRenderer textRenderer, OrderedText text, int x, int y, float alpha)
+	{
+		RenderSystem.setShaderColor(0.1f, 0.1f, 0.1f, alpha);
+		textRenderer.draw(matrices, text, x - 1, y, 0xff444444);
+		textRenderer.draw(matrices, text, x + 1, y, 0xff444444);
+		textRenderer.draw(matrices, text, x, y + 1, 0xff444444);
+		textRenderer.draw(matrices, text, x, y - 1, 0xff444444);
+		RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
+		
+		textRenderer.draw(matrices, text, x, y, 0xffffffff);
 	}
 	
 	public enum ValueType

@@ -18,6 +18,8 @@ public class Ultraconfig implements ConfigData
 {
 	@ConfigEntry.Gui.Tooltip
 	public boolean serverJoinInfo = true;
+	@ConfigEntry.Gui.Tooltip
+	public boolean detailedJoinInfo = false;
 	@ConfigEntry.Gui.Tooltip(count = 2)
 	public boolean freezeVFX = true;
 	@ConfigEntry.Category("ultra-hud")

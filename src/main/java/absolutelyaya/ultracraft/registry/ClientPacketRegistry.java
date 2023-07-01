@@ -219,7 +219,7 @@ public class ClientPacketRegistry
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.WORLD_INFO_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)
 				return;
-			MinecraftClient.getInstance().execute(() -> UltracraftClient.sendJoinInfo(MinecraftClient.getInstance()));
+			MinecraftClient.getInstance().execute(() -> UltracraftClient.sendJoinInfo(MinecraftClient.getInstance(), true));
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.BLOCK_PLAYER_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)

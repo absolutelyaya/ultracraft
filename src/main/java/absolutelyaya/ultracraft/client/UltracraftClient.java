@@ -72,6 +72,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameRules;
@@ -94,8 +95,9 @@ public class UltracraftClient implements ClientModInitializer
 	static boolean HiVelMode = false;
 	static GameruleRegistry.Option HiVelOption = GameruleRegistry.Option.FREE;
 	static GameruleRegistry.Option TimeFreezeOption = GameruleRegistry.Option.FORCE_ON;
-	static GameruleRegistry.RegenOption BloodRegen = GameruleRegistry.RegenOption.ALWAYS;
-	static boolean disableHandswap = false, slamStorage = true, fallDamage = false, drowning = false, effectivelyViolent = false, wasMovementSoundsEnabled, supporter = false;
+	static GameruleRegistry.RegenOption bloodRegen = GameruleRegistry.RegenOption.ALWAYS;
+	static GameruleRegistry.ProjectileBoostSetting projBoost = GameruleRegistry.ProjectileBoostSetting.LIMITED;
+	static boolean disableHandswap = false, slamStorage = true, fallDamage = false, drowning = false, effectivelyViolent = false, wasMovementSoundsEnabled, parryChaining, supporter = false;
 	public static int jumpBoost, speed, gravityReduction;
 	static float screenblood;
 	static Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f, 255f, 154f), new Vec3d(117f, 154f, 255f) };
@@ -182,7 +184,7 @@ public class UltracraftClient implements ClientModInitializer
 			if(config.get().showEpilepsyWarning)
 				MinecraftClient.getInstance().setScreen(new EpilepsyPopupScreen(null));
 			if(config.get().serverJoinInfo)
-				sendJoinInfo(client);
+				sendJoinInfo(client, false);
 		});
 		
 		ClientEntityEvents.ENTITY_LOAD.register((entity, clientWorld) -> {
@@ -301,7 +303,7 @@ public class UltracraftClient implements ClientModInitializer
 		refreshSupporter();
 	}
 	
-	public static void sendJoinInfo(MinecraftClient client)
+	public static void sendJoinInfo(MinecraftClient client, boolean manual)
 	{
 		GameruleRegistry.Option hivel = client.world.getGameRules().get(GameruleRegistry.HI_VEL_MODE).get();
 		GameruleRegistry.Option freeze = client.world.getGameRules().get(GameruleRegistry.TIME_STOP).get();
@@ -314,10 +316,27 @@ public class UltracraftClient implements ClientModInitializer
 		if(client.getServer() != null && client.getServer().isRemote())
 			client.player.sendMessage(Text.translatable("message.ultracraft.freeze-forced",
 					freeze.equals(GameruleRegistry.Option.FORCE_ON) ? Text.translatable("options.on") : Text.translatable("options.off")));
-		client.player.sendMessage(Text.translatable("message.ultracraft.jump-boost", jumpBoost));
+		client.player.sendMessage(Text.translatable("message.ultracraft.attributes", speed, jumpBoost,
+				MathHelper.clamp(gravityReduction * 10, 0, 99)).append("%"));
+		client.player.sendMessage(Text.translatable("message.ultracraft.blood-heal." + bloodRegen.name()));
 		if(fallDamage)
 			client.player.sendMessage(Text.translatable("message.ultracraft.fall-damage"));
-		client.player.sendMessage(Text.translatable("message.ultracraft.join-info"));
+		if(drowning)
+			client.player.sendMessage(Text.translatable("message.ultracraft.drowning"));
+		if(config.get().detailedJoinInfo || manual)
+		{
+			client.player.sendMessage(Text.translatable("message.ultracraft.projectile-boost." + projBoost.name()));
+			if(disableHandswap)
+				client.player.sendMessage(Text.translatable("message.ultracraft.disabled-handswap"));
+			if(!slamStorage)
+				client.player.sendMessage(Text.translatable("message.ultracraft.disabled-slamstorage"));
+			if(effectivelyViolent)
+				client.player.sendMessage(Text.translatable("message.ultracraft.effectively-violent"));
+			if(parryChaining)
+				client.player.sendMessage(Text.translatable("message.ultracraft.parry-chaining"));
+		}
+		if(!manual)
+			client.player.sendMessage(Text.translatable("message.ultracraft.join-info"));
 		client.player.sendMessage(Text.translatable("========================================="));
 	}
 	
@@ -410,7 +429,7 @@ public class UltracraftClient implements ClientModInitializer
 	{
 		switch (data)
 		{
-			case 0 -> onExternalRuleUpdate(GameruleRegistry.PROJ_BOOST, (GameruleRegistry.ProjectileBoostSetting.values()[value]).name());
+			case 0 -> onExternalRuleUpdate(GameruleRegistry.PROJ_BOOST, (projBoost = GameruleRegistry.ProjectileBoostSetting.values()[value]).name());
 			case 1 ->
 			{
 				onExternalRuleUpdate(GameruleRegistry.HI_VEL_MODE, (HiVelOption = GameruleRegistry.Option.values()[value]).name());
@@ -423,13 +442,13 @@ public class UltracraftClient implements ClientModInitializer
 			case 5 -> onExternalRuleUpdate(GameruleRegistry.SLAM_STORAGE, slamStorage = value == 1);
 			case 6 -> onExternalRuleUpdate(GameruleRegistry.HIVEL_FALLDAMAGE, fallDamage = value == 1);
 			case 7 -> onExternalRuleUpdate(GameruleRegistry.HIVEL_DROWNING, drowning = value == 1);
-			case 8 -> onExternalRuleUpdate(GameruleRegistry.BLOODHEAL, (BloodRegen = GameruleRegistry.RegenOption.values()[value]).name());
+			case 8 -> onExternalRuleUpdate(GameruleRegistry.BLOODHEAL, (bloodRegen = GameruleRegistry.RegenOption.values()[value]).name());
 			case 9 -> onExternalRuleUpdate(GameruleRegistry.HIVEL_SPEED, speed = value);
 			case 10 -> onExternalRuleUpdate(GameruleRegistry.HIVEL_SLOWFALL, gravityReduction = value);
 			case 11 -> onExternalRuleUpdate(GameruleRegistry.EFFECTIVELY_VIOLENT, effectivelyViolent = value == 1);
 			case 12 -> onExternalRuleUpdate(GameruleRegistry.EXPLOSION_DAMAGE, value == 1);
 			case 13 -> onExternalRuleUpdate(GameruleRegistry.SM_SAFE_LEDGES, value == 1);
-			case 14 -> onExternalRuleUpdate(GameruleRegistry.PARRY_CHAINING, value == 1);
+			case 14 -> onExternalRuleUpdate(GameruleRegistry.PARRY_CHAINING, parryChaining = value == 1);
 			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncB] -> " + data);
 		}
 	}
