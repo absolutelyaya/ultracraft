@@ -35,17 +35,19 @@ public class PacketRegistry
 	public static final Identifier PUNCH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "parry");
 	public static final Identifier PUNCH_BLOCK_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_block");
 	public static final Identifier PRIMARY_SHOT_PACKET_ID_C2S = new Identifier(Ultracraft.MOD_ID, "primary_shot_c2s");
+	public static final Identifier SEND_WING_STATE_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_winged_state_c2s");
 	public static final Identifier SEND_WINGED_DATA_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_winged_data_c2s");
 	public static final Identifier DASH_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_c2s");
 	public static final Identifier GROUND_POUND_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ground_pound_c2s");
-	public static final Identifier REQUEST_WINGED_DATA_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "request_winged_data");
+	public static final Identifier REQUEST_WINGED_DATA_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "request_wing_data");
 	public static final Identifier SKIM_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "skim_c2s");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
 	public static final Identifier DASH_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_s2c");
 	public static final Identifier BLEED_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "bleed");
-	public static final Identifier SEND_WINGED_DATA_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_winged_data_s2c");
+	public static final Identifier WING_STATE_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "wing_state_s2c");
+	public static final Identifier WING_DATA_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "wing_data_s2c");
 	public static final Identifier SET_GUNCD_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_gcd");
 	public static final Identifier CATCH_FISH_ID = new Identifier(Ultracraft.MOD_ID, "fish");
 	public static final Identifier SYNC_RULE = new Identifier(Ultracraft.MOD_ID, "sync_rule");
@@ -203,6 +205,20 @@ public class PacketRegistry
 					Ultracraft.LOGGER.warn(player + " tried to use primary fire action but is holding a non-weapon Item!");
 			});
 		});
+		ServerPlayNetworking.registerGlobalReceiver(SEND_WING_STATE_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
+			WingedPlayerEntity winged = (WingedPlayerEntity)player;
+			if(winged == null)
+				return;
+			boolean wingsActive = buf.readBoolean();
+			server.execute(() -> winged.setWingsVisible(wingsActive));
+			for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
+			{
+				buf = new PacketByteBuf(Unpooled.buffer());
+				buf.writeUuid(player.getUuid());
+				buf.writeBoolean(wingsActive);
+				ServerPlayNetworking.send(p, WING_STATE_S2C_PACKET_ID, buf);
+			}
+		});
 		ServerPlayNetworking.registerGlobalReceiver(SEND_WINGED_DATA_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			WingedPlayerEntity winged = (WingedPlayerEntity)player;
 			if(winged == null)
@@ -224,7 +240,7 @@ public class PacketRegistry
 				buf.writeVector3f(wingColor);
 				buf.writeVector3f(metalColor);
 				buf.writeString(pattern);
-				ServerPlayNetworking.send(p, SEND_WINGED_DATA_S2C_PACKET_ID, buf);
+				ServerPlayNetworking.send(p, WING_DATA_S2C_PACKET_ID, buf);
 			}
 		});
 		ServerPlayNetworking.registerGlobalReceiver(DASH_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
@@ -268,7 +284,7 @@ public class PacketRegistry
 			buf.writeVector3f(winged.getWingColors()[0].toVector3f());
 			buf.writeVector3f(winged.getWingColors()[1].toVector3f());
 			buf.writeString(winged.getWingPattern());
-			ServerPlayNetworking.send(player, SEND_WINGED_DATA_S2C_PACKET_ID, buf);
+			ServerPlayNetworking.send(player, WING_DATA_S2C_PACKET_ID, buf);
 		});
 		ServerPlayNetworking.registerGlobalReceiver(SKIM_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			if(player == null)

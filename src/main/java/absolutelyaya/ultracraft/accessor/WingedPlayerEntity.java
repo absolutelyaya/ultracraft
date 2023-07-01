@@ -70,4 +70,8 @@ public interface WingedPlayerEntity
 	void bloodHeal(float val);
 	
 	void blockBloodHeal(int ticks);
+	
+	void setBlocked(boolean b);
+	
+	boolean isBlocked();
 }

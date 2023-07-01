@@ -50,7 +50,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	
 	@Shadow public abstract void playSound(SoundEvent event, SoundCategory category, float volume, float pitch);
 	
-	boolean wingsActive, groundPounding, ignoreSlowdown;
+	boolean wingsActive, groundPounding, ignoreSlowdown, blocked;
 	byte wingState, lastState;
 	float wingAnimTime;
 	int dashingTicks = -2, slamDamageCooldown, stamina, wingHintDisplayTicks, bloodHealCooldown;
@@ -454,5 +454,17 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public void blockBloodHeal(int ticks)
 	{
 		bloodHealCooldown = ticks;
+	}
+	
+	@Override
+	public void setBlocked(boolean blocked)
+	{
+		this.blocked = blocked;
+	}
+	
+	@Override
+	public boolean isBlocked()
+	{
+		return blocked;
 	}
 }

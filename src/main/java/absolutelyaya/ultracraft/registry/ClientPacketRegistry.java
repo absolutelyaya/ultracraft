@@ -4,15 +4,17 @@ import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ITrailEnjoyer;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
-import com.mojang.serialization.Dynamic;
+import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
@@ -20,17 +22,18 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
-import net.minecraft.world.GameRules;
 import org.joml.Vector3f;
 
 import java.util.UUID;
@@ -102,18 +105,43 @@ public class ClientPacketRegistry
 				}
 			});
 		})));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SEND_WINGED_DATA_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.WING_STATE_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)
 				return;
 			PlayerEntity player = client.player.world.getPlayerByUuid(buf.readUuid());
 			if(player == null)
 				return;
 			boolean b = buf.readBoolean();
-			Vector3f wingColor = buf.readVector3f(), metalColor = buf.readVector3f();
-			String pattern = buf.readString();
 			MinecraftClient.getInstance().execute(() -> {
 				WingedPlayerEntity winged = ((WingedPlayerEntity)player);
 				winged.setWingsVisible(b);
+			});
+		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.WING_DATA_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
+			UUID id = buf.readUuid();
+			PlayerEntity player = client.player.world.getPlayerByUuid(id);
+			if(player == null)
+				return;
+			boolean b = buf.readBoolean();
+			Vector3f wingColor = buf.readVector3f(), metalColor = buf.readVector3f();
+			String pattern = buf.readString();
+			MinecraftClient.getInstance().execute(() -> {
+				Ultraconfig config = UltracraftClient.getConfigHolder().get();
+				WingedPlayerEntity winged = ((WingedPlayerEntity)player);
+				winged.setWingsVisible(b);
+				if(config.blockedPlayers.contains(id))
+				{
+					winged.setBlocked(true);
+					Vec3d[] colors = UltracraftClient.getDefaultWingColors();
+					winged.setWingColor(colors[0], 0);
+					winged.setWingColor(colors[1], 1);
+					winged.setWingPattern("");
+					return;
+				}
+				else
+					winged.setBlocked(false);
 				winged.setWingColor(new Vec3d(wingColor), 0);
 				winged.setWingColor(new Vec3d(metalColor), 1);
 				winged.setWingPattern(UltracraftClient.getConfigHolder().get().safeVFX ? "" : pattern);
@@ -230,10 +258,12 @@ public class ClientPacketRegistry
 				if(!b)
 				{
 					UltracraftClient.getConfigHolder().get().blockedPlayers.add(target);
-					client.player.sendMessage(Text.translatable("command.ultracraft.block.client-success"));
+					PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
+					cbuf.writeUuid(target);
+					ClientPlayNetworking.send(PacketRegistry.REQUEST_WINGED_DATA_PACKET_ID, cbuf);
+					UltracraftClient.getConfigHolder().save();
 				}
-				else
-					client.player.sendMessage(Text.translatable("command.ultracraft.block.client-fail"));
+				client.player.sendMessage(Text.translatable("command.ultracraft.block.client-" + (b ? "fail" : "success")));
 			});
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.UNBLOCK_PLAYER_PACKET_ID, ((client, handler, buf, sender) -> {
@@ -241,11 +271,13 @@ public class ClientPacketRegistry
 				return;
 			UUID target = buf.readUuid();
 			MinecraftClient.getInstance().execute(() -> {
+				PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
+				cbuf.writeUuid(target);
+				ClientPlayNetworking.send(PacketRegistry.REQUEST_WINGED_DATA_PACKET_ID, cbuf);
 				boolean b = UltracraftClient.getConfigHolder().get().blockedPlayers.remove(target);
-				client.player.sendMessage(b ? Text.translatable("command.ultracraft.unblock.client-success") :
-												  Text.translatable("command.ultracraft.unblock.client-fail"));
+				UltracraftClient.getConfigHolder().save();
+				client.player.sendMessage(Text.translatable("command.ultracraft.unblock.client-" + (b ? "success" : "fail")));
 			});
-			//TODO: add functionality after merge with experiment-WNG-CLR
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.OPEN_SERVER_CONFIG_MENU, ((client, handler, buf, sender) -> {
 			if(client.player == null)

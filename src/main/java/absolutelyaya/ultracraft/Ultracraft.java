@@ -65,7 +65,7 @@ public class Ultracraft implements ModInitializer
             buf.writeUuid(newPlayer.getUuid());
             buf.writeBoolean(((WingedPlayerEntity)oldPlayer).isWingsActive());
             for (ServerPlayerEntity p : ((ServerWorld)newPlayer.world).getPlayers())
-                ServerPlayNetworking.send(p, PacketRegistry.SEND_WINGED_DATA_S2C_PACKET_ID, buf);
+                ServerPlayNetworking.send(p, PacketRegistry.WING_DATA_S2C_PACKET_ID, buf);
         });
         
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((serverPlayer, lastWorld, newWorld) -> GameruleRegistry.SyncAll(serverPlayer));

@@ -59,7 +59,6 @@ public class UltracraftCommand
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeUuid(target.getUuid());
 		ServerPlayNetworking.send(context.getSource().getPlayer(), PacketRegistry.BLOCK_PLAYER_PACKET_ID, buf);
-		context.getSource().sendFeedback(Text.translatable("command.ultracraft.block.server-success"), false);
 		return Command.SINGLE_SUCCESS;
 	}
 	
@@ -74,7 +73,6 @@ public class UltracraftCommand
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeUuid(target.getUuid());
 		ServerPlayNetworking.send(context.getSource().getPlayer(), PacketRegistry.UNBLOCK_PLAYER_PACKET_ID, buf);
-		context.getSource().sendFeedback(Text.translatable("command.ultracraft.unblock.server-success"), false);
 		return Command.SINGLE_SUCCESS;
 	}
 	
