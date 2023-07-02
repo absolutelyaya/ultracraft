@@ -129,19 +129,20 @@ public class UltracraftClient implements ClientModInitializer
 		EntityRendererRegistry.register(EntityRegistry.INTERRUPTABLE_CHARGE, InterruptableChargeRenderer::new);
 		//Particles
 		ParticleFactoryRegistry particleRegistry = ParticleFactoryRegistry.getInstance();
-		particleRegistry.register(ParticleRegistry.MALICIOUS_CHARGE, MaliciousChargeParticle.MaliciousChargeParticleFactory::new);
-		particleRegistry.register(ParticleRegistry.DASH, DashParticle.DashParticleFactory::new);
-		particleRegistry.register(ParticleRegistry.SLIDE, SlideParticle.SlideParticleFactory::new);
-		particleRegistry.register(ParticleRegistry.GROUND_POUND, GroundPoundParticle.GroundPoundParticleFactory::new);
-		particleRegistry.register(ParticleRegistry.EJECTED_CORE_FLASH, EjectedCoreFlashParticle.EjectedCoreFlashParticleFactory::new);
+		particleRegistry.register(ParticleRegistry.MALICIOUS_CHARGE, MaliciousChargeParticle.Factory::new);
+		particleRegistry.register(ParticleRegistry.DASH, DashParticle.Factory::new);
+		particleRegistry.register(ParticleRegistry.SLIDE, SlideParticle.Factory::new);
+		particleRegistry.register(ParticleRegistry.GROUND_POUND, GroundPoundParticle.Factory::new);
+		particleRegistry.register(ParticleRegistry.EJECTED_CORE_FLASH, EjectedCoreFlashParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.BLOOD_SPLASH, WaterSplashParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.BLOOD_BUBBLE, WaterBubbleParticle.Factory::new);
-		particleRegistry.register(ParticleRegistry.RIPPLE, RippleParticle.RippleFactory::new);
-		particleRegistry.register(ParticleRegistry.PARRY_INDICATOR, ParryIndicatorParticle.ParryIndicatorParticleFactory::new);
-		particleRegistry.register(ParticleRegistry.TELEPORT, TeleportParticle.TeleportParticleFactory::new);
-		particleRegistry.register(ParticleRegistry.GOOP_DROP, GoopDropParticle.GoopDropParticleFactory::new);
-		particleRegistry.register(ParticleRegistry.GOOP, GoopParticle.GoopParticleFactory::new);
-		particleRegistry.register(ParticleRegistry.GOOP_STRING, GoopStringParticle.GoopStringParticleFactory::new);
+		particleRegistry.register(ParticleRegistry.RIPPLE, RippleParticle.Factory::new);
+		particleRegistry.register(ParticleRegistry.PARRY_INDICATOR, ParryIndicatorParticle.Factory::new);
+		particleRegistry.register(ParticleRegistry.TELEPORT, TeleportParticle.Factory::new);
+		particleRegistry.register(ParticleRegistry.GOOP_DROP, GoopDropParticle.Factory::new);
+		particleRegistry.register(ParticleRegistry.GOOP, GoopParticle.Factory::new);
+		particleRegistry.register(ParticleRegistry.GOOP_STRING, GoopStringParticle.Factory::new);
+		particleRegistry.register(ParticleRegistry.RICOCHET_WARNING, RicochetWarningParticle.Factory::new);
 		//Entity model layers
 		EntityModelLayerRegistry.registerModelLayer(WINGS_LAYER, WingsModel::getTexturedModelData);
 		EntityModelLayerRegistry.registerModelLayer(MALICIOUS_LAYER, MaliciousFaceModel::getTexturedModelData);

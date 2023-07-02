@@ -38,7 +38,7 @@ public class TeleportParticle extends SpriteAAParticle
 		setSpriteForAge(spriteProvider);
 	}
 	
-	public record TeleportParticleFactory(SpriteProvider sprite) implements ParticleFactory<TeleportParticleEffect>
+	public record Factory(SpriteProvider sprite) implements ParticleFactory<TeleportParticleEffect>
 	{
 		@Nullable
 		@Override

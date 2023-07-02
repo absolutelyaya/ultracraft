@@ -14,7 +14,6 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.world.ClientWorld;
@@ -27,7 +26,6 @@ import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.FluidTags;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
@@ -285,6 +283,15 @@ public class ClientPacketRegistry
 			NbtCompound rules = buf.readNbt();
 			MinecraftClient.getInstance().execute(() -> {
 				client.setScreen(new ServerConfigScreen(rules));
+			});
+		}));
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.RICOCHET_WARNING, ((client, handler, buf, sender) -> {
+			if(client.player == null)
+				return;
+			Vector3f source = buf.readVector3f();
+			MinecraftClient.getInstance().execute(() -> {
+				client.player.world.addParticle(ParticleRegistry.RICOCHET_WARNING, source.x, source.y, source.z, 0, 0, 0);
+				client.player.world.playSound(null, BlockPos.ofFloored(new Vec3d(source)), SoundEvents.BLOCK_BELL_RESONATE, SoundCategory.PLAYERS, 1f, 1.65f);
 			});
 		}));
 	}

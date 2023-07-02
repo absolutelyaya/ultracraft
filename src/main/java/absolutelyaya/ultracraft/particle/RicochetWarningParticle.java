@@ -3,20 +3,23 @@ package absolutelyaya.ultracraft.particle;
 import net.minecraft.client.particle.*;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particle.DefaultParticleType;
+import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 
-public class EjectedCoreFlashParticle extends SpriteBillboardParticle
+import java.util.Random;
+
+public class RicochetWarningParticle extends SpriteBillboardParticle
 {
-	final float rotSpeed;
+	static Random random = new Random();
+	float rotSpeed;
 	
-	protected EjectedCoreFlashParticle(ClientWorld world, double x, double y, double z)
+	protected RicochetWarningParticle(ClientWorld world, double x, double y, double z)
 	{
 		super(world, x, y, z);
-		rotSpeed = (random.nextFloat() - 0.5f) * 1.25f;
-		angle = random.nextFloat() * 90f;
-		prevAngle = angle;
-		maxAge = 3;
-		scale = random.nextFloat() * 0.2f + 0.2f;
+		angle = random.nextFloat() * 3;
+		rotSpeed = (random.nextFloat() - 0.5f) * 0.5f;
+		maxAge = 13;
+		scale = 0f;
 	}
 	
 	@Override
@@ -31,6 +34,11 @@ public class EjectedCoreFlashParticle extends SpriteBillboardParticle
 		super.tick();
 		prevAngle = angle;
 		angle += rotSpeed;
+		if(age < 4)
+			scale += 0.25;
+		else if(age > 10)
+			scale -= 0.25;
+		rotSpeed = MathHelper.lerp(0.05f, rotSpeed, 0f);
 	}
 	
 	@Override
@@ -45,10 +53,9 @@ public class EjectedCoreFlashParticle extends SpriteBillboardParticle
 		@Override
 		public Particle createParticle(DefaultParticleType parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ)
 		{
-			EjectedCoreFlashParticle p = new EjectedCoreFlashParticle(world, x, y, z);
+			RicochetWarningParticle p = new RicochetWarningParticle(world, x, y, z);
 			p.setSprite(sprite);
 			p.setVelocity(velocityX, velocityY, velocityZ);
-			p.setAlpha(0.75f);
 			return p;
 		}
 	}

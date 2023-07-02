@@ -27,7 +27,7 @@ public class SlideParticle extends BillboardStripeParticle
 		this.setSprite(spriteProvider.getSprite(this.random));
 	}
 	
-	public record SlideParticleFactory(SpriteProvider spriteProvider) implements ParticleFactory<DefaultParticleType>
+	public record Factory(SpriteProvider spriteProvider) implements ParticleFactory<DefaultParticleType>
 	{
 		@Override
 		public Particle createParticle(DefaultParticleType parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ)

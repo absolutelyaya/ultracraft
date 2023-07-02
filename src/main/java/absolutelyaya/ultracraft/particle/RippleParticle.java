@@ -10,8 +10,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.particle.DefaultParticleType;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Random;
-
 public class RippleParticle extends AnimatedFloorEffectParticle
 {
 	protected RippleParticle(ClientWorld world, double x, double y, double z, SpriteProvider spriteProvider)
@@ -38,11 +36,11 @@ public class RippleParticle extends AnimatedFloorEffectParticle
 		}
 	}
 	
-	public static class RippleFactory implements ParticleFactory<DefaultParticleType>
+	public static class Factory implements ParticleFactory<DefaultParticleType>
 	{
 		protected final SpriteProvider spriteProvider;
 		
-		public RippleFactory(SpriteProvider spriteProvider)
+		public Factory(SpriteProvider spriteProvider)
 		{
 			this.spriteProvider = spriteProvider;
 		}
@@ -51,11 +49,11 @@ public class RippleParticle extends AnimatedFloorEffectParticle
 		@Override
 		public Particle createParticle(DefaultParticleType parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ)
 		{
-			RippleParticle rainRipple = new RippleParticle(world, x, y, z, spriteProvider);
-			rainRipple.setSpriteForAge(spriteProvider);
-			rainRipple.setMaxAge((int)((new Random().nextFloat() * 10f + 5f)));
-			rainRipple.setAlpha(1);
-			return rainRipple;
+			RippleParticle ripple = new RippleParticle(world, x, y, z, spriteProvider);
+			ripple.setSpriteForAge(spriteProvider);
+			ripple.setMaxAge((int)((10f)));
+			ripple.setAlpha(1);
+			return ripple;
 		}
 	}
 }

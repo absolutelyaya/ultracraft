@@ -53,11 +53,11 @@ public class GoopParticle extends SurfaceAlignedParticle
 					0, 0, 0);
 	}
 	
-	public static class GoopParticleFactory implements ParticleFactory<GoopParticleEffect>
+	public static class Factory implements ParticleFactory<GoopParticleEffect>
 	{
 		protected final SpriteProvider spriteProvider;
 		
-		public GoopParticleFactory(SpriteProvider spriteProvider)
+		public Factory(SpriteProvider spriteProvider)
 		{
 			this.spriteProvider = spriteProvider;
 		}

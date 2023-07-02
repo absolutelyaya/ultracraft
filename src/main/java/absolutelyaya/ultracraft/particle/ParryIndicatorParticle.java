@@ -42,7 +42,7 @@ public class ParryIndicatorParticle extends SpriteBillboardParticle
 		return 15728880;
 	}
 	
-	public record ParryIndicatorParticleFactory(SpriteProvider sprite) implements ParticleFactory<ParryIndicatorParticleEffect>
+	public record Factory(SpriteProvider sprite) implements ParticleFactory<ParryIndicatorParticleEffect>
 	{
 		@Nullable
 		@Override

@@ -44,11 +44,11 @@ public class GoopStringParticle extends SpriteAAParticle
 		alpha = MathHelper.lerp((float)age / maxAge, 1.2f, 0f);
 	}
 	
-	public static class GoopStringParticleFactory implements ParticleFactory<GoopStringParticleEffect>
+	public static class Factory implements ParticleFactory<GoopStringParticleEffect>
 	{
 		protected final SpriteProvider spriteProvider;
 		
-		public GoopStringParticleFactory(SpriteProvider spriteProvider)
+		public Factory(SpriteProvider spriteProvider)
 		{
 			this.spriteProvider = spriteProvider;
 		}

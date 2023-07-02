@@ -268,12 +268,14 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 						list.forEach(Entity::kill); //necessary because otherwise *two* final chargeback attacks occur
 						return true;
 					}
-					if(closest instanceof PlayerEntity)
+					if(closest instanceof ServerPlayerEntity player)
 					{
+						PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+						buf.writeVector3f(getPos().toVector3f());
+						ServerPlayNetworking.send(player, PacketRegistry.RICOCHET_WARNING, buf);
 						ServerHitscanHandler.scheduleHitscan(attacker, getPos(), getPos(), closest.getEyePos(), hitscanType, isDamageRicochet ? 5 * amount : 5, 1, 0, null, 1);
-						Ultracraft.freeze((ServerWorld)world, 5);
-						if(attacker instanceof ServerPlayerEntity player)
-							CriteriaRegistry.RICOCHET.trigger(player, damage);
+						if(attacker instanceof ServerPlayerEntity attackingPlayer)
+							CriteriaRegistry.RICOCHET.trigger(attackingPlayer, damage);
 					}
 					else
 					{

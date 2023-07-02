@@ -100,11 +100,11 @@ public class GoopDropParticle extends SpriteBillboardParticle
 		super.move(dx, dy, dz);
 	}
 	
-	public static class GoopDropParticleFactory implements ParticleFactory<GoopDropParticleEffect>
+	public static class Factory implements ParticleFactory<GoopDropParticleEffect>
 	{
 		protected final SpriteProvider spriteProvider;
 		
-		public GoopDropParticleFactory(SpriteProvider spriteProvider)
+		public Factory(SpriteProvider spriteProvider)
 		{
 			this.spriteProvider = spriteProvider;
 		}

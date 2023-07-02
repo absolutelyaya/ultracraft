@@ -62,6 +62,7 @@ public class PacketRegistry
 	public static final Identifier BLOCK_PLAYER_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "block");
 	public static final Identifier UNBLOCK_PLAYER_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "unblock");
 	public static final Identifier OPEN_SERVER_CONFIG_MENU = new Identifier(Ultracraft.MOD_ID, "server_config");
+	public static final Identifier RICOCHET_WARNING = new Identifier(Ultracraft.MOD_ID, "warn_ricochet");
 	
 	public static void registerC2S()
 	{
