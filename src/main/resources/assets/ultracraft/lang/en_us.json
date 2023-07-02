@@ -251,6 +251,8 @@
   "key.ultracraft.hivel_toggle": "Toggle High Velocity Mode",
   "key.ultracraft.punch": "Punch",
 
+  "advancements.ultracraft.root.title": "ULTRACRAFT",
+  "advancements.ultracraft.root.description": "Here are some Challenges for you",
   "advancements.ultracraft.coinpunch-easy.title": "Coin Puncher",
   "advancements.ultracraft.coinpunch-easy.description": "Punch one Coin 5 Times in a row.",
   "advancements.ultracraft.coinpunch-medium.title": "§6Coin Juggler",
@@ -258,7 +260,9 @@
   "advancements.ultracraft.coinpunch-hard.title": "§4Coin Prodigy",
   "advancements.ultracraft.coinpunch-hard.description": "Punch one Coin 50 Times in a row.",
   "advancements.ultracraft.chargeback-malicious.title": "Malicious Chargeback",
-  "advancements.ultracraft.chargeback-malicious.description": "Kill a Malicious Face by throwing a Coin into its Beam Attack.",
+  "advancements.ultracraft.chargeback-malicious.description": "Kill a Malicious Face with its own Beam Attack.",
+  "advancements.ultracraft.ricochet.title": "Ricoshot",
+  "advancements.ultracraft.ricochet.description": "Hit an Entity with a Ricochet spanning over 4 or more Coins.",
 
   "narrator.button.background.vanilla": "Vanilla BG",
   "narrator.button.background.ultracraft": "Ultracraft BG",

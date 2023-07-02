@@ -261,6 +261,8 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 					ServerHitscanHandler.sendPacket((ServerWorld) world, getPos(), closest.getEyePos(), hitscanType);
 					closest.damage(DamageSources.get(world, DamageSources.RICOCHET, attacker), isDamageRicochet ? 5 * amount : 5);
 					Ultracraft.freeze((ServerWorld)world, 3);
+					if(attacker instanceof ServerPlayerEntity player)
+						CriteriaRegistry.RICOCHET.trigger(player, damage);
 					//world.getPlayers().forEach(p -> p.sendMessage(Text.of("CHAIN END! final damage: " + (isDamageRicochet ? 5 * amount : 5))));
 				}
 			}

@@ -1,0 +1,31 @@
+{
+  "parent": "minecraft:ultracraft/root",
+  "criteria": {
+    "ricochet": {
+      "conditions": {
+        "score": 4
+      },
+      "trigger": "ultracraft:ricochet"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.ultracraft.ricochet.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "ultracraft:coin"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.ultracraft.ricochet.title"
+    }
+  },
+  "requirements": [
+    [
+      "ricochet"
+    ]
+  ]
+}
