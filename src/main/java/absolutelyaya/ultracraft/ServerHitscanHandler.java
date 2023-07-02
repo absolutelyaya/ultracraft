@@ -193,8 +193,13 @@ public class ServerHitscanHandler
 			Vec3d lastDir = lastResult.dir;
 			Vec3d hitNormal = new Vec3d(((BlockHitResult)lastResult.finalHit).getSide().getUnitVector());
 			Vec3d dest = hitPos.add(lastDir.subtract(hitNormal.multiply(2 * lastDir.dotProduct(hitNormal))).normalize().multiply(64));
-			scheduleAdditions.add(new ScheduledHitscan(user, hitPos, hitPos, dest, type, damage, maxHits, bounces, null, time, 1));
+			scheduleHitscan(user, hitPos, hitPos, dest, type, damage, maxHits, bounces, null, 1);
 		}
+	}
+	
+	public static void scheduleHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, int maxHits, int bounces, HitscanExplosionData explosion, int delay)
+	{
+		scheduleAdditions.add(new ScheduledHitscan(user, from, visualFrom, to, type, damage, maxHits, bounces, explosion, time, 1));
 	}
 	
 	public record HitscanExplosionData(float radius, float damage, float falloff, boolean breakBlocks) {}
