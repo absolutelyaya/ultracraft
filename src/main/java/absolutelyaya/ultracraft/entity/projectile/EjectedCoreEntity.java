@@ -1,7 +1,9 @@
 package absolutelyaya.ultracraft.entity.projectile;
 
 import absolutelyaya.ultracraft.ExplosionHandler;
+import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
@@ -88,6 +90,8 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 	public void tick()
 	{
 		super.tick();
+		if(world.isClient && UltracraftClient.getConfigHolder().get().safeVFX)
+			return;
 		if(age % 5 == 0)
 		{
 			Vec3d vel = getVelocity();
