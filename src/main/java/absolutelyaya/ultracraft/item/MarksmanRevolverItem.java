@@ -77,6 +77,7 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 			ThrownCoinEntity coin = ThrownCoinEntity.spawn(user, world);
 			Vec3d pos = user.getEyePos().add(user.getRotationVector());
 			coin.setPos(pos.x, pos.y, pos.z);
+			coin.setStartY((float)pos.y);
 			coin.setVelocity(user, user.getPitch(), user.getYaw(), 0.0F, 0.5f, 0f);
 			//coin.addVelocity(user.getVelocity().multiply(1f, 0.25f, 1f));
 			coin.addVelocity(0f, 0.3f, 0f);

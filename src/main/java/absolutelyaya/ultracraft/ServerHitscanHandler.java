@@ -10,6 +10,7 @@ import net.minecraft.block.BellBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
@@ -43,8 +44,8 @@ public class ServerHitscanHandler
 	public static final byte RICOCHET = 6;
 	public static final byte SHARPSHOOTER = 7;
 	
-	static final Queue<ScheduledHitscan> scheduleAdditions = new ArrayDeque<>();
-	static final List<ScheduledHitscan> schedule = new ArrayList<>();
+	static final Queue<IScheduledHitscan> scheduleAdditions = new ArrayDeque<>();
+	static final List<IScheduledHitscan> schedule = new ArrayList<>();
 	static int time = 0;
 	
 	public static void tickSchedule()
@@ -54,15 +55,12 @@ public class ServerHitscanHandler
 		time++;
 		schedule.addAll(scheduleAdditions);
 		scheduleAdditions.clear();
-		List<ScheduledHitscan> remove = new ArrayList<>();
-		for (ScheduledHitscan sh : schedule)
+		List<IScheduledHitscan> remove = new ArrayList<>();
+		for (IScheduledHitscan sh : schedule)
 		{
-			if(sh.scheduleTime + sh.delay <= time)
+			if(sh.isReady(time))
 			{
-				if(sh.bounces > 0)
-					performBouncingHitscan(sh.owner, sh.from, sh.visualFrom, sh.dest, sh.type, sh.damage, sh.maxHits, sh.bounces);
-				else
-					performHitscan(sh.owner, sh.from, sh.visualFrom, sh.dest, sh.type, sh.damage, sh.maxHits, sh.explosion);
+				sh.perform();
 				remove.add(sh);
 			}
 		}
@@ -105,17 +103,17 @@ public class ServerHitscanHandler
 				new Vec3d(-0.5f * (user instanceof PlayerEntity player && player.getMainArm().equals(Arm.LEFT) ? -1 : 1), -0.2f, 0.4f)
 						.rotateX(-(float)Math.toRadians(user.getPitch())).rotateY(-(float) Math.toRadians(user.getYaw())));
 		Vec3d dest = user.getEyePos().add(user.getRotationVec(0.5f).multiply(64.0));
-		performHitscan(user, origin, visualOrigin, dest, type, damage, maxHits, explosion);
+		performHitscan(user, origin, visualOrigin, dest, type, damage, DamageSources.get(user.world, DamageSources.GUN, user), maxHits, explosion);
 	}
 	
-	public static HitscanResult performHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, int maxHits, @Nullable HitscanExplosionData explosion)
+	public static HitscanResult performHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, DamageSource source, int maxHits, @Nullable HitscanExplosionData explosion)
 	{
 		World world = user.getWorld();
 		BlockHitResult bHit = world.raycast(new RaycastContext(from, to, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, user));
 		Vec3d modifiedTo = bHit.getPos();
 		List<Entity> entities = new ArrayList<>();
 		Vec3d dir = to.subtract(from).normalize();
-		Box box = user.getBoundingBox().stretch(dir.multiply(64.0)).expand(1.0, 1.0, 1.0);
+		Box box = new Box(from.subtract(-1f, -1f, -1f), from.add(1f, 1f, 1f)).stretch(dir.multiply(64.0)).expand(1.0, 1.0, 1.0);
 		EntityHitResult finalEHit = null;
 		boolean searchForEntities = true;
 		while (searchForEntities)
@@ -138,7 +136,7 @@ public class ServerHitscanHandler
 		}
 		AtomicBoolean disableExplosion = new AtomicBoolean(false);
 		entities.forEach(e -> {
-			e.damage(DamageSources.get(world, DamageSources.GUN, user), damage);
+			e.damage(source, damage);
 			if(type == SHARPSHOOTER && e instanceof ProjectileEntity proj)
 				proj.kill();
 			if(e instanceof ThrownCoinEntity)
@@ -169,12 +167,12 @@ public class ServerHitscanHandler
 				new Vec3d(-0.5f * (user instanceof PlayerEntity player && player.getMainArm().equals(Arm.LEFT) ? -1 : 1), -0.2f, 0.4f)
 						.rotateX(-(float)Math.toRadians(user.getPitch())).rotateY(-(float) Math.toRadians(user.getYaw())));
 		Vec3d dest = origin.add(user.getRotationVec(0.5f).normalize().multiply(64));
-		performBouncingHitscan(user, origin, visualOrigin, dest, type, damage, maxHits, bounces);
+		performBouncingHitscan(user, origin, visualOrigin, dest, type, damage, DamageSources.get(user.world, DamageSources.GUN, user), maxHits, bounces);
 	}
 	
-	public static void performBouncingHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, int maxHits, int bounces)
+	public static void performBouncingHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, DamageSource source, int maxHits, int bounces)
 	{
-		HitscanResult lastResult = performHitscan(user, from, visualFrom, to, type, damage, maxHits, null);
+		HitscanResult lastResult = performHitscan(user, from, visualFrom, to, type, damage, source, maxHits, null);
 		if(bounces > 0)
 		{
 			if(lastResult.finalHit != null)
@@ -193,18 +191,85 @@ public class ServerHitscanHandler
 			Vec3d lastDir = lastResult.dir;
 			Vec3d hitNormal = new Vec3d(((BlockHitResult)lastResult.finalHit).getSide().getUnitVector());
 			Vec3d dest = hitPos.add(lastDir.subtract(hitNormal.multiply(2 * lastDir.dotProduct(hitNormal))).normalize().multiply(64));
-			scheduleHitscan(user, hitPos, hitPos, dest, type, damage, maxHits, bounces, null, 1);
+			scheduleHitscan(user, hitPos, hitPos, dest, type, damage, DamageSources.get(user.world, DamageSources.GUN, user), maxHits, bounces, null, 1);
 		}
 	}
 	
-	public static void scheduleHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, int maxHits, int bounces, HitscanExplosionData explosion, int delay)
+	public static void scheduleHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, int delay)
 	{
-		scheduleAdditions.add(new ScheduledHitscan(user, from, visualFrom, to, type, damage, maxHits, bounces, explosion, time, 1));
+		scheduleAdditions.add(new ScheduledHitscan(user, from, visualFrom, to, type, damage, source, maxHits, bounces, explosion, time, delay));
+	}
+	
+	public static void scheduleDelayedAimingHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, LivingEntity target, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, int reAimTime, int delay, boolean warn)
+	{
+		scheduleAdditions.add(new DelayedAimingHitscan(user, from, visualFrom, target, type, damage, source, maxHits, bounces, explosion, time, reAimTime, delay, warn));
 	}
 	
 	public record HitscanExplosionData(float radius, float damage, float falloff, boolean breakBlocks) {}
 	
 	public record HitscanResult(HitResult finalHit, Vec3d dir, int entitiesHit) {}
 	
-	public record ScheduledHitscan(LivingEntity owner, Vec3d from, Vec3d visualFrom, Vec3d dest, byte type, float damage, int maxHits, int bounces, HitscanExplosionData explosion, long scheduleTime, int delay) {}
+	public record ScheduledHitscan(LivingEntity owner, Vec3d from, Vec3d visualFrom, Vec3d dest, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, long scheduleTime, int delay) implements IScheduledHitscan {
+		@Override
+		public boolean isReady(int time)
+		{
+			return scheduleTime + delay <= time;
+		}
+		
+		@Override
+		public void perform()
+		{
+			if(bounces > 0)
+				performBouncingHitscan(owner, from, visualFrom, dest, type, damage, source, maxHits, bounces);
+			else
+				performHitscan(owner, from, visualFrom, dest, type, damage, source, maxHits, explosion);
+		}
+	}
+	
+	public record DelayedAimingHitscan(LivingEntity owner, Vec3d from, Vec3d visualFrom, LivingEntity target, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, long scheduleTime, int reAimTime, int delay, boolean warn) implements IScheduledHitscan
+	{
+		static Vec3d dest;
+		static boolean warned;
+		
+		@Override
+		public boolean isReady(int time)
+		{
+			int warnTime = (int)(scheduleTime + reAimTime - 20);
+			if((warnTime == time || (warnTime <= time && !warned)) && warn)
+			{
+				if(target instanceof ServerPlayerEntity player)
+				{
+					PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+					buf.writeVector3f(visualFrom.toVector3f());
+					ServerPlayNetworking.send(player, PacketRegistry.RICOCHET_WARNING, buf);
+				}
+				warned = true;
+			}
+			if(scheduleTime + reAimTime == time)
+				reAim();
+			return scheduleTime + delay <= time;
+		}
+		
+		private void reAim()
+		{
+			dest = from.add(target.getBoundingBox().getCenter().subtract(from).normalize().multiply(64f));
+		}
+		
+		@Override
+		public void perform()
+		{
+			if(bounces > 0)
+				performBouncingHitscan(owner, from, visualFrom, dest, type, damage, source, maxHits, bounces);
+			else
+				performHitscan(owner, from, visualFrom, dest, type, damage, source, maxHits, explosion);
+			warned = false;
+		}
+	}
+	
+	interface IScheduledHitscan
+	{
+		boolean isReady(int time);
+		
+		void perform();
+	}
 }

@@ -17,8 +17,8 @@ public class RicochetWarningParticle extends SpriteBillboardParticle
 	{
 		super(world, x, y, z);
 		angle = random.nextFloat() * 3;
-		rotSpeed = (random.nextFloat() - 0.5f) * 0.5f;
-		maxAge = 13;
+		rotSpeed = (random.nextFloat() - 0.5f) * 0.75f;
+		maxAge = 22;
 		scale = 0f;
 	}
 	
@@ -34,10 +34,10 @@ public class RicochetWarningParticle extends SpriteBillboardParticle
 		super.tick();
 		prevAngle = angle;
 		angle += rotSpeed;
-		if(age < 4)
-			scale += 0.25;
-		else if(age > 10)
-			scale -= 0.25;
+		if(age < 8)
+			scale += 1f / 8f;
+		else if(age > 16)
+			scale -= 1f / 6f;
 		rotSpeed = MathHelper.lerp(0.05f, rotSpeed, 0f);
 	}
 	

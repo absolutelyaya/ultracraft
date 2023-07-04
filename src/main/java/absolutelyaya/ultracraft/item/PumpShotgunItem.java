@@ -61,10 +61,10 @@ public class PumpShotgunItem extends AbstractShotgunItem
 		if(!cdm.isUsable(this, 1))
 			return TypedActionResult.fail(itemStack);
 		user.setCurrentHand(hand);
+		if(!itemStack.hasNbt())
+			itemStack.getOrCreateNbt();
 		if(!world.isClient)
 		{
-			if(!itemStack.hasNbt())
-				itemStack.getOrCreateNbt();
 			int charge = 0;
 			if(itemStack.getNbt().contains("charge", NbtElement.INT_TYPE))
 				charge = itemStack.getNbt().getInt("charge");

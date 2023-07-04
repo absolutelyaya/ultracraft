@@ -49,11 +49,13 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	protected static final TrackedData<Boolean> CHARGEBACK = DataTracker.registerData(ThrownCoinEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> PUNCHED = DataTracker.registerData(ThrownCoinEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Integer> STOPPED_TICKS = DataTracker.registerData(ThrownCoinEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Integer> SPLITS = DataTracker.registerData(ThrownCoinEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	Entity lastTarget, chargebackCauser;
 	final float flashRotSpeed;
 	byte hitTicks, hitscanType = ServerHitscanHandler.RICOCHET;
-	int damage = 1, punchCounter = 0, nextHitDelay = 5, realAge, splits = 0;
+	int damage = 1, punchCounter = 0, nextHitDelay = 5, realAge;
 	boolean splitting;
+	float startY;
 	
 	public ThrownCoinEntity(EntityType<? extends ThrownItemEntity> entityType, World world)
 	{
@@ -89,6 +91,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	{
 		ThrownCoinEntity coin = new ThrownCoinEntity(owner, world);
 		coin.setPos(pos.x, pos.y, pos.z);
+		coin.startY = (float)coin.getY();
 		coin.setVelocity(0f, 0.4f, 0f);
 		coin.damage = damage;
 		coin.dataTracker.set(PUNCHED, true);
@@ -105,6 +108,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		dataTracker.startTracking(CHARGEBACK, false);
 		dataTracker.startTracking(PUNCHED, false);
 		dataTracker.startTracking(STOPPED_TICKS, 0);
+		dataTracker.startTracking(SPLITS, 0);
 	}
 	
 	@Override
@@ -173,7 +177,11 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			return false;
 		}
 		if((source.isIn(DamageTypeTags.HITSCAN) || source.isOf(DamageSources.RICOCHET)))
+		{
+			if(isSplittable() && !splitting)
+				dataTracker.set(SPLITS, dataTracker.get(SPLITS) + 1);
 			return hitNext(source, amount, attacker);
+		}
 		return super.damage(source, amount);
 	}
 	
@@ -219,7 +227,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 				ServerHitscanHandler.sendPacket((ServerWorld) world, getPos(), closestCoin.getPos(), hitscanType);
 				closestCoin.dataTracker.set(CHARGEBACK, cb);
 				if(!splitting)
-					closestCoin.splits = splits;
+					closestCoin.dataTracker.set(SPLITS, dataTracker.get(SPLITS));
 				closestCoin.damage(DamageSources.get(world, cb ? DamageSources.CHARGEBACK : DamageSources.RICOCHET, attacker), isDamageRicochet ? amount + 1 : 1);
 			}
 			world.sendEntityStatus(this, (byte) 3);
@@ -270,31 +278,36 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 					}
 					if(closest instanceof ServerPlayerEntity player)
 					{
-						PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-						buf.writeVector3f(getPos().toVector3f());
-						ServerPlayNetworking.send(player, PacketRegistry.RICOCHET_WARNING, buf);
-						ServerHitscanHandler.scheduleHitscan(attacker, getPos(), getPos(), closest.getEyePos(), hitscanType, isDamageRicochet ? 5 * amount : 5, 1, 0, null, 1);
-						if(attacker instanceof ServerPlayerEntity attackingPlayer)
+						ServerHitscanHandler.scheduleDelayedAimingHitscan((LivingEntity)getOwner(), getPos(), getPos(), player, hitscanType,
+								(isDamageRicochet ? Math.max(amount, 1) : 1), DamageSources.get(world, DamageSources.RICOCHET,
+										this, getOwner()), 1, 0, null,
+								15 + 10 * (dataTracker.get(SPLITS) + 1), 20 + 10 * (dataTracker.get(SPLITS) + 1), true);
+						if(getOwner() instanceof ServerPlayerEntity attackingPlayer)
+						{
 							CriteriaRegistry.RICOCHET.trigger(attackingPlayer, damage);
+							attackingPlayer.setAttacking(player);
+						}
 					}
 					else
 					{
-						ServerHitscanHandler.sendPacket((ServerWorld) world, getPos(), closest.getEyePos(), hitscanType);
-						closest.damage(DamageSources.get(world, DamageSources.RICOCHET, attacker), isDamageRicochet ? 5 * amount : 5);
+						ServerHitscanHandler.performBouncingHitscan(attacker, getPos(), getPos(), closest.getBoundingBox().getCenter(), hitscanType,
+								isDamageRicochet ? 5 * amount : 5, DamageSources.get(world, DamageSources.RICOCHET, this, getOwner()), 1, 0);
 						Ultracraft.freeze((ServerWorld)world, 3);
-						if(attacker instanceof ServerPlayerEntity player)
+						if(getOwner() instanceof ServerPlayerEntity player)
 							CriteriaRegistry.RICOCHET.trigger(player, damage);
 						//world.getPlayers().forEach(p -> p.sendMessage(Text.of("CHAIN END! final damage: " + (isDamageRicochet ? 5 * amount : 5))));
 					}
 				}
-				if(splits > 0)
+				if(dataTracker.get(SPLITS) > 0)
 					return performSplits(source, amount, attacker, potentialTargets.size() > 1);
+				world.sendEntityStatus(this, (byte) 3);
+				kill();
 			}
 			else
 			{
 				ServerHitscanHandler.sendPacket((ServerWorld) world, getPos(),
 						getPos().add(Vec3d.fromPolar(random.nextFloat() * 360, random.nextFloat() * 360 - 180).multiply(64)), hitscanType);
-				if(splits > 0)
+				if(dataTracker.get(SPLITS) > 0)
 					return performSplits(source, amount, attacker, false);
 				world.sendEntityStatus(this, (byte) 3);
 				kill();
@@ -305,7 +318,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	
 	boolean performSplits(DamageSource source, float amount, LivingEntity attacker, boolean hasTargets)
 	{
-		splits--;
+		dataTracker.set(SPLITS, dataTracker.get(SPLITS) - 1);
 		if(hasTargets)
 		{
 			nextHitDelay = 2;
@@ -315,7 +328,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			hitTicks = (byte)nextHitDelay;
 		hitNext(source, amount, attacker);
 		splitting = true;
-		if(splits <= 0)
+		if(dataTracker.get(SPLITS) < 0)
 		{
 			world.sendEntityStatus(this, (byte) 3);
 			kill();
@@ -338,11 +351,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		if(hitTicks > 0 && hitTicks < nextHitDelay)
 			hitTicks++;
 		if(hitTicks == nextHitDelay)
-		{
-			if(isSplittable() && !splitting)
-				splits++;
 			hitNext(DamageSources.get(world, DamageSources.RICOCHET, getOwner()), damage, (LivingEntity)getOwner());
-		}
 		baseTick();
 	}
 	
@@ -461,6 +470,11 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	
 	public boolean isSplittable()
 	{
-		return !dataTracker.get(PUNCHED) && !dataTracker.get(CHARGEBACK) && (Math.max(1f - Math.abs(getVelocity().y * 6.5f), 0f) > 0.3f || realAge > 80);
+		return !dataTracker.get(PUNCHED) && !dataTracker.get(CHARGEBACK) && (Math.max(1f - Math.abs(getVelocity().y * 6.5f), 0f) > 0.35f || getY() < startY + 0.25f);
+	}
+	
+	public void setStartY(float val)
+	{
+		startY = val;
 	}
 }

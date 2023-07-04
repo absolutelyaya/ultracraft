@@ -36,4 +36,9 @@ public class DamageSources
 	{
 		return new DamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type), attacker);
 	}
+	
+	public static DamageSource get(World world, RegistryKey<DamageType> type, Entity source, Entity attacker)
+	{
+		return new DamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type), source, attacker);
+	}
 }
