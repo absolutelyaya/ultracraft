@@ -383,10 +383,7 @@ public class UltracraftClient implements ClientModInitializer
 			HiVelMode = !HiVelMode;
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeBoolean(isHiVelEnabled());
-			buf.writeVector3f(getWingColors()[0].toVector3f());
-			buf.writeVector3f(getWingColors()[1].toVector3f());
-			buf.writeString(wingPattern);
-			ClientPlayNetworking.send(PacketRegistry.SEND_WINGED_DATA_C2S_PACKET_ID, buf);
+			ClientPlayNetworking.send(PacketRegistry.SEND_WING_STATE_C2S_PACKET_ID, buf);
 		}
 		else
 			player.sendMessage(
@@ -404,7 +401,7 @@ public class UltracraftClient implements ClientModInitializer
 		return world.getDifficulty() == Difficulty.HARD || effectivelyViolent;
 	}
 	
-	public static void setHighVel(boolean b, boolean fromServer)
+	public static void setHiVel(boolean b, boolean fromServer)
 	{
 		PlayerEntity player = MinecraftClient.getInstance().player;
 		HiVelMode = b;
@@ -412,10 +409,7 @@ public class UltracraftClient implements ClientModInitializer
 		{
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeBoolean(isHiVelEnabled());
-			buf.writeVector3f(getWingColors()[0].toVector3f());
-			buf.writeVector3f(getWingColors()[1].toVector3f());
-			buf.writeString(wingPattern);
-			ClientPlayNetworking.send(PacketRegistry.SEND_WINGED_DATA_C2S_PACKET_ID, buf);
+			ClientPlayNetworking.send(PacketRegistry.SEND_WING_STATE_C2S_PACKET_ID, buf);
 		}
 	}
 	
@@ -433,7 +427,7 @@ public class UltracraftClient implements ClientModInitializer
 			{
 				onExternalRuleUpdate(GameruleRegistry.HI_VEL_MODE, (HiVelOption = GameruleRegistry.Option.values()[value]).name());
 				if(HiVelOption != GameruleRegistry.Option.FREE)
-					setHighVel(HiVelOption == GameruleRegistry.Option.FORCE_ON, false);
+					setHiVel(HiVelOption == GameruleRegistry.Option.FORCE_ON, false);
 			}
 			case 2 -> onExternalRuleUpdate(GameruleRegistry.TIME_STOP, (TimeFreezeOption = GameruleRegistry.Option.values()[value]).name());
 			case 3 -> onExternalRuleUpdate(GameruleRegistry.DISABLE_HANDSWAP, disableHandswap = value == 1);

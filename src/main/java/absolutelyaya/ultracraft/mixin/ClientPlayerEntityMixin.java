@@ -460,4 +460,16 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	{
 		return new BlockPos(new Vec3i((int)Math.floor(vec.x), (int)Math.floor(vec.y), (int)Math.floor(vec.z)));
 	}
+	
+	@Override
+	public Vec3d[] getWingColors()
+	{
+		return UltracraftClient.getWingColors();
+	}
+	
+	@Override
+	public String getWingPattern()
+	{
+		return UltracraftClient.wingPattern;
+	}
 }

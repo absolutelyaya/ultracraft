@@ -19,6 +19,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.JsonHelper;
+import net.minecraft.util.math.Vec3d;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -60,10 +61,18 @@ public class Ultracraft implements ModInitializer
             ServerHitscanHandler.tickSchedule();
         });
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
+            Vec3d[] colors = ((WingedPlayerEntity)oldPlayer).getWingColors();
             ((WingedPlayerEntity)newPlayer).setWingsVisible(((WingedPlayerEntity)oldPlayer).isWingsActive());
+            ((WingedPlayerEntity)newPlayer).setWingColor(colors[0], 0);
+            ((WingedPlayerEntity)newPlayer).setWingColor(colors[1], 1);
+            System.out.println(colors[0] + " " + ((WingedPlayerEntity) oldPlayer).getWingColors()[0] + " " + ((WingedPlayerEntity) oldPlayer).getWingColors()[1]);
+            ((WingedPlayerEntity)newPlayer).setWingPattern(((WingedPlayerEntity)oldPlayer).getWingPattern());
             PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
             buf.writeUuid(newPlayer.getUuid());
             buf.writeBoolean(((WingedPlayerEntity)oldPlayer).isWingsActive());
+            buf.writeVector3f(colors[0].toVector3f());
+            buf.writeVector3f(colors[1].toVector3f());
+            buf.writeString(((WingedPlayerEntity)oldPlayer).getWingPattern());
             for (ServerPlayerEntity p : ((ServerWorld)newPlayer.world).getPlayers())
                 ServerPlayNetworking.send(p, PacketRegistry.WING_DATA_S2C_PACKET_ID, buf);
         });
@@ -118,7 +127,7 @@ public class Ultracraft implements ModInitializer
             JsonObject json = JsonHelper.deserialize(new InputStreamReader(url.openStream()));
             supporter = JsonHelper.hasElement(json, uuid);
             if(supporter && client)
-                Ultracraft.LOGGER.info("[ULTRACRAFT] Support verified! Thank you for helping me make stuff :D");
+                Ultracraft.LOGGER.info("[ULTRACRAFT] " + uuid + " has been verified as a Supporter!");
         }
         catch (IOException e)
         {
