@@ -91,8 +91,8 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AnimalMode
 		//TODO: add Slam Pose..? could be epic
 	}
 	
-	@Inject(method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At("TAIL"))
-	void onSetArmAngle(T livingEntity, float f, float g, float h, float i, float j, CallbackInfo ci)
+	@Inject(method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/BipedEntityModel;animateArms(Lnet/minecraft/entity/LivingEntity;F)V"))
+	void onSetArmAngle(T livingEntity, float f, float g, float h, float headYaw, float headPitch, CallbackInfo ci)
 	{
 		if(!UltracraftClient.applyEntityPoses)
 			return;
@@ -101,14 +101,16 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AnimalMode
 			if(livingEntity.getMainArm().equals(Arm.LEFT))
 			{
 				leftArm.resetTransform();
-				leftArm.rotate(new Vector3f(-90f - ((LivingEntityAccessor)livingEntity).getRecoil(), 0f, 0f)
-									   .mul(MathHelper.RADIANS_PER_DEGREE).add(new Vector3f(head.pitch, head.yaw * 0.6f, 0f)));
+				Vector3f angles = new Vector3f(-90f - ((LivingEntityAccessor)livingEntity).getRecoil(), 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE)
+										  .add(new Vector3f(head.pitch, head.yaw, 0f));
+				leftArm.setAngles(angles.x, angles.y, angles.z);
 			}
 			else
 			{
 				rightArm.resetTransform();
-				rightArm.rotate(new Vector3f(-90f - ((LivingEntityAccessor)livingEntity).getRecoil(), 0f, 0f)
-										.mul(MathHelper.RADIANS_PER_DEGREE).add(new Vector3f(head.pitch, head.yaw * 0.6f, 0f)));
+				Vector3f angles = new Vector3f(-90f - ((LivingEntityAccessor)livingEntity).getRecoil(), 0f, 0f).mul(MathHelper.RADIANS_PER_DEGREE)
+										  .add(new Vector3f(head.pitch, head.yaw, 0f));
+				rightArm.setAngles(angles.x, angles.y, angles.z);
 			}
 		}
 	}
