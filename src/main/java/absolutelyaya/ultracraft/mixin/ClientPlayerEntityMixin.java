@@ -80,7 +80,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	
 	Vec3d dashDir = Vec3d.ZERO;
 	Vec3d slideDir = Vec3d.ZERO;
-	boolean slamming, lastSlamming, strongGroundPound, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored, slideStartedSideways;
+	boolean slamming, lastSlamming, strongGroundPound, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored,
+			slideStartedSideways, increaseAirControl;
 	int slamTicks, slamCooldown, slamJumpTimer = -1, slideTicks, wallJumps = 3, coyote, disableJumpTicks;
 	float slideVelocity;
 	final float baseJumpVel = 0.42f;
@@ -269,6 +270,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				if(grounded)
 					coyote = 4;
 				wallJumps = 3;
+				increaseAirControl = false;
 				if(slamming)
 					slamming = false;
 			}
@@ -317,6 +319,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				if(!isCreative())
 					wallJumps--;
 				setIgnoreSlowdown(false);
+				increaseAirControl = true;
 				ci.cancel();
 			}
 			//update movement data
@@ -504,5 +507,11 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	public String getWingPattern()
 	{
 		return UltracraftClient.wingPattern;
+	}
+	
+	@Override
+	public boolean isAirControlIncreased()
+	{
+		return increaseAirControl;
 	}
 }

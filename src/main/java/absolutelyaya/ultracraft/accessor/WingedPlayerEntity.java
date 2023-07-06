@@ -74,4 +74,6 @@ public interface WingedPlayerEntity
 	void setBlocked(boolean b);
 	
 	boolean isBlocked();
+	
+	boolean isAirControlIncreased();
 }

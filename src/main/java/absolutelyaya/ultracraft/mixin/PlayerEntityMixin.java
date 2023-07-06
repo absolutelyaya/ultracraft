@@ -401,6 +401,15 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			instance.addExhaustion(exhaustion);
 	}
 	
+	@ModifyConstant(method = "getOffGroundSpeed", constant = @Constant(floatValue = 0.02f))
+	float modifyAirControl(float val)
+	{
+		if(isWingsActive() && isAirControlIncreased())
+			return 0.05f;
+		else
+			return val;
+	}
+	
 	@Override
 	public boolean shouldIgnoreSlowdown()
 	{
@@ -466,5 +475,11 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public boolean isBlocked()
 	{
 		return blocked;
+	}
+	
+	@Override
+	public boolean isAirControlIncreased()
+	{
+		return true;
 	}
 }
