@@ -16,6 +16,7 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.network.PacketByteBuf;
@@ -24,8 +25,11 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShape;
+import net.minecraft.world.RaycastContext;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -72,6 +76,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	
 	@Shadow public abstract void playSound(SoundEvent event, SoundCategory category, float volume, float pitch);
 	
+	@Shadow public abstract boolean damage(DamageSource source, float amount);
+	
 	Vec3d dashDir = Vec3d.ZERO;
 	Vec3d slideDir = Vec3d.ZERO;
 	boolean slamming, lastSlamming, strongGroundPound, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored, slideStartedSideways;
@@ -113,6 +119,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	{
 		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying && !isSpectator())
 		{
+			boolean grounded = isGrounded(0.1f);
 			if(slamCooldown > 0)
 				slamCooldown--;
 			if(wasHiVel != UltracraftClient.isHiVelEnabled() && lastSprintPressed)
@@ -135,7 +142,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				else if(!horizontalCollision && !jumping && !isDashing() && !wasDashing(2))
 				{
 					BlockPos pos = posToBlock(getPos().add(Vec3d.fromPolar(0f, getYaw()).normalize()));
-					setSliding((!isUnSolid(posToBlock(getPos().subtract(0f, 0.79f, 0f))) || verticalCollision) &&
+					setSliding((isGrounded(0.79f) || verticalCollision) &&
 										 !world.getBlockState(pos).isSolidBlock(world, pos), lastSprintPressed);
 				}
 				//cancel slide because it shouldn't be possible rn anyways
@@ -149,7 +156,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			//stop sliding once conditions aren't met anymore
 			else if(isSprinting())
 			{
-				if(jumping && (!isUnSolid(posToBlock(getPos().subtract(0f, 0.1f, 0f))) || coyote > 0))
+				if(jumping && (grounded || coyote > 0))
 				{
 					setVelocity(slideDir.multiply(1f + 0.05 * UltracraftClient.speed).multiply(slideVelocity * 1.5));
 					addVelocity(0, baseJumpVel, 0);
@@ -158,7 +165,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				boolean moved = new Vec3d(lastX, lastBaseY, lastZ).distanceTo(getPos()) > slideVelocity / 2f || Ultracraft.isTimeFrozen() || slideTicks < 1;
 				setSprinting(client.options.sprintKey.isPressed() && !slamming && moved && !jumping);
 				slideTicks++;
-				if(isUnSolid(posToBlock(getPos().subtract(0f, 0.25f, 0f))))
+				if(!grounded)
 					slideTicks = 0;
 				ci.cancel();
 			}
@@ -231,7 +238,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				ci.cancel();
 			}
 			//dash jump (preserves velocity)
-			if(wasDashing() && input.jumping && !lastJumping && (!isUnSolid(posToBlock(getPos().subtract(0f, 0.49f, 0f))) || coyote > 0))
+			if(wasDashing() && input.jumping && !lastJumping && (isGrounded(0.49f) || coyote > 0))
 			{
 				onDashJump();
 				if(!consumeStamina())
@@ -244,7 +251,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			if(wasDashing() && !isDashing())
 			{
 				float slipandslide = getSteppingBlockState().getBlock().getSlipperiness();
-				if(isUnSolid(posToBlock(getPos().subtract(0f, 0.1f, 0f))))
+				if(!grounded)
 					setVelocity(dashDir.multiply(0.3));
 				else if(slipandslide > 0.6)
 					setVelocity(dashDir.multiply(Math.min(slipandslide - 0.5, 0.6)));
@@ -253,33 +260,33 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				ci.cancel();
 			}
 			//stop ignoring slowdown when not sliding/dashing and on ground
-			if((verticalCollision && !isUnSolid(posToBlock(getPos().subtract(0f, 0.1f, 0f)))) &&
+			if((verticalCollision && grounded) &&
 					   !isSprinting() && shouldIgnoreSlowdown() && !isDashing())
 				setIgnoreSlowdown(false);
 			//reset walljumps upon landing
 			if(!lastOnGround && onGround)
 			{
-				if(!isUnSolid(posToBlock(getPos().subtract(0f, 0.1f, 0f))))
+				if(grounded)
 					coyote = 4;
 				wallJumps = 3;
 				if(slamming)
 					slamming = false;
 			}
-			if((!onGround || isUnSolid(posToBlock(getPos().subtract(0f, 0.1f, 0f)))) && coyote > 0)
+			if((!onGround || !grounded) && coyote > 0)
 				coyote--;
 			//wall sliding / fall slow-down
 			Iterable<VoxelShape> temp = world.getBlockCollisions(this, getBoundingBox().expand(0.1f, 0, 0f));
 			ArrayList<VoxelShape> touchingWalls = new ArrayList<>(StreamSupport.stream(temp.spliterator(), false).toList());
 			temp = world.getBlockCollisions(this, getBoundingBox().expand(0f, 0, 0.1f));
 			touchingWalls.addAll(StreamSupport.stream(temp.spliterator(), false).toList());
-			if(!slamming && !isSprinting() && touchingWalls.size() > 0 && isUnSolid(posToBlock(getPos().subtract(0f, 0.2f, 0f))))
+			if(!slamming && !isSprinting() && touchingWalls.size() > 0 && !grounded)
 			{
 				Vec3d vel = getVelocity();
 				setVelocity(new Vec3d(vel.x, Math.max(vel.y, -0.2), vel.z));
 				ci.cancel();
 			}
 			//wall jump
-			if(wallJumps > 0 && isUnSolid(posToBlock(getPos().subtract(0f, 0.5f, 0f))) &&
+			if(wallJumps > 0 && !isGrounded(0.5f) &&
 					   jumping && !lastJumping && !lastOnGround && touchingWalls.size() > 0 && (UltracraftClient.isSlamStorageEnabled() || !slamming) &&
 					   !isSprinting())
 			{
@@ -402,6 +409,32 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	{
 		BlockState state = world.getBlockState(pos);
 		return !state.hasSolidTopSurface(world, pos, this);
+	}
+	
+	public boolean isGrounded(float distance)
+	{
+		if(isBlockHit(groundCheck(getPos(), distance)))
+			return true;
+		Box box = getBoundingBox();
+		float y = (float)box.getMin(Direction.Axis.Y);
+		if(isBlockHit(groundCheck(new Vec3d(box.getMin(Direction.Axis.X), y, box.getMin(Direction.Axis.Z)), distance)))
+			return true;
+		if(isBlockHit(groundCheck(new Vec3d(box.getMax(Direction.Axis.X) - 0.05, y, box.getMin(Direction.Axis.Z)), distance)))
+			return true;
+		if(isBlockHit(groundCheck(new Vec3d(box.getMin(Direction.Axis.X), y, box.getMax(Direction.Axis.Z) - 0.05), distance)))
+			return true;
+		return isBlockHit(groundCheck(new Vec3d(box.getMax(Direction.Axis.X) - 0.05, y, box.getMax(Direction.Axis.Z) - 0.05), distance));
+	}
+	
+	BlockHitResult groundCheck(Vec3d start, float distance)
+	{
+		return world.raycast(new RaycastContext(start, start.subtract(0, distance, 0),
+				RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
+	}
+	
+	boolean isBlockHit(BlockHitResult hit)
+	{
+		return hit != null && hit.getType().equals(HitResult.Type.BLOCK);
 	}
 	
 	@Redirect(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;hasForwardMovement()Z"))
