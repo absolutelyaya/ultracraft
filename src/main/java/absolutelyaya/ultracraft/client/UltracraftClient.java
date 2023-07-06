@@ -79,6 +79,8 @@ import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import software.bernie.geckolib.network.GeckoLibNetwork;
 
+import java.util.UUID;
+
 @Environment(EnvType.CLIENT)
 public class UltracraftClient implements ClientModInitializer
 {
@@ -306,6 +308,8 @@ public class UltracraftClient implements ClientModInitializer
 	
 	public static void sendJoinInfo(MinecraftClient client, boolean manual)
 	{
+		if(client.player == null)
+			return;
 		client.player.sendMessage(Text.translatable("message.ultracraft.join-info-header"));
 		if(!HiVelOption.equals(GameruleRegistry.Option.FREE))
 			client.player.sendMessage(Text.translatable("message.ultracraft.hi-vel-forced",
@@ -502,7 +506,7 @@ public class UltracraftClient implements ClientModInitializer
 	public static void refreshSupporter()
 	{
 		MinecraftClient client = MinecraftClient.getInstance();
-		String uuid = client.player != null ? client.player.getUuid().toString() : client.getSession().getUuid();
+		UUID uuid = client.player != null ? client.player.getUuid() : UUID.fromString(client.getSession().getUuid());
 		supporter = Ultracraft.checkSupporter(uuid, true);
 	}
 	

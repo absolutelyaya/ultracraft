@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.util.*;
 
 public class Ultracraft implements ModInitializer
 {
@@ -33,6 +34,7 @@ public class Ultracraft implements ModInitializer
     static final String SUPPORTER_LIST = "https://raw.githubusercontent.com/absolutelyaya/absolutelyaya/main/cool-people.json";
     public static String VERSION;
     static int freezeTicks;
+    static Map<UUID, Integer> supporterCache = new HashMap<>(), supporterCacheAdditions = new HashMap<>();
     
     @Override
     public void onInitialize()
@@ -59,6 +61,12 @@ public class Ultracraft implements ModInitializer
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             tickFreeze();
             ServerHitscanHandler.tickSchedule();
+            supporterCache.putAll(supporterCacheAdditions);
+            supporterCacheAdditions.clear();
+            supporterCache.forEach((uuid, i) -> {
+                if(i > 0)
+                    supporterCache.put(uuid, i - 1);
+            });
         });
         ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
             Vec3d[] colors = ((WingedPlayerEntity)oldPlayer).getWingColors();
@@ -118,16 +126,24 @@ public class Ultracraft implements ModInitializer
             freezeTicks--;
     }
     
-    public static boolean checkSupporter(String uuid, boolean client)
+    public static boolean checkSupporter(UUID uuid, boolean client)
     {
+        int i;
+        if(supporterCache.containsKey(uuid) && (i = supporterCache.get(uuid)) != 0)
+            return i == -1;
         boolean supporter = false;
         try
         {
             URL url = new URL(SUPPORTER_LIST);
             JsonObject json = JsonHelper.deserialize(new InputStreamReader(url.openStream()));
-            supporter = JsonHelper.hasElement(json, uuid);
+            supporter = JsonHelper.hasElement(json, uuid.toString());
             if(supporter && client)
+            {
                 Ultracraft.LOGGER.info("[ULTRACRAFT] " + uuid + " has been verified as a Supporter!");
+                supporterCacheAdditions.put(uuid, -1);
+            }
+            else
+                supporterCacheAdditions.put(uuid, 600); //if not a supporter, only check again after 30 seconds
         }
         catch (IOException e)
         {

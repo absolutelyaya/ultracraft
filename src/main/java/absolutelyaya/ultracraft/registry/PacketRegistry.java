@@ -226,7 +226,7 @@ public class PacketRegistry
 				return;
 			boolean wingsActive = buf.readBoolean();
 			Vector3f wingColor = buf.readVector3f(), metalColor = buf.readVector3f();
-			String pattern = Ultracraft.checkSupporter(player.getUuid().toString(), false) ? buf.readString() : "";
+			String pattern = Ultracraft.checkSupporter(player.getUuid(), false) ? buf.readString() : "";
 			server.execute(() -> {
 				winged.setWingsVisible(wingsActive);
 				winged.setWingColor(new Vec3d(wingColor), 0);
