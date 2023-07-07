@@ -73,7 +73,7 @@ public class KeybindRegistry
 					else if(crosshairTarget.getType().equals(HitResult.Type.BLOCK))
 					{
 						BlockHitResult hit = ((BlockHitResult)crosshairTarget);
-						BlockState state = player.world.getBlockState(hit.getBlockPos());
+						BlockState state = player.getWorld().getBlockState(hit.getBlockPos());
 						if(state.getBlock() instanceof IPunchableBlock || state.isIn(TagRegistry.FRAGILE) || state.getBlock() instanceof BellBlock)
 						{
 							PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
@@ -85,7 +85,7 @@ public class KeybindRegistry
 						}
 						Vec3d pos = hit.getPos();
 						for (int i = 0; i < 6; i++)
-							player.world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), pos.x, pos.y, pos.z, 0f, 0f, 0f);
+							player.getWorld().addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), pos.x, pos.y, pos.z, 0f, 0f, 0f);
 						player.playSound(state.getSoundGroup().getHitSound(), 1f, 1f);
 					}
 				}

@@ -61,15 +61,15 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 			Vec3d newVel = getVelocity().multiply(-0.5f, 1f, -0.5f);
 			setVelocity(newVel);
 			Vec3d pos = entityHit.getPos();
-			world.playSound(null, new BlockPos((int)pos.x, (int)pos.y, (int)pos.z), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.HOSTILE, 1f, 1.75f);
+			getWorld().playSound(null, new BlockPos((int)pos.x, (int)pos.y, (int)pos.z), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.HOSTILE, 1f, 1.75f);
 			return;
 		}
 		super.onCollision(hitResult);
 		
-		if (!world.isClient)
+		if (!getWorld().isClient)
 		{
-			ExplosionHandler.explosion(null, world, hitResult.getPos(), getDamageSources().explosion(getOwner(), getOwner()), 5f, 2f, 2f, true);
-			world.sendEntityStatus(this, (byte)3);
+			ExplosionHandler.explosion(null, getWorld(), hitResult.getPos(), getDamageSources().explosion(getOwner(), getOwner()), 5f, 2f, 2f, true);
+			getWorld().sendEntityStatus(this, (byte)3);
 			discard();
 		}
 	}
@@ -79,8 +79,8 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 	{
 		if(source.isIn(DamageTypeTags.HITSCAN))
 		{
-			ExplosionHandler.explosion(null, world, getPos(), getDamageSources().explosion(getOwner(), getOwner()), 10f, 4f, 3f, true);
-			world.sendEntityStatus(this, (byte)3);
+			ExplosionHandler.explosion(null, getWorld(), getPos(), getDamageSources().explosion(getOwner(), getOwner()), 10f, 4f, 3f, true);
+			getWorld().sendEntityStatus(this, (byte)3);
 			kill();
 		}
 		return super.damage(source, amount);
@@ -90,12 +90,12 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 	public void tick()
 	{
 		super.tick();
-		if(world.isClient && UltracraftClient.getConfigHolder().get().safeVFX)
+		if(getWorld().isClient && UltracraftClient.getConfigHolder().get().safeVFX)
 			return;
 		if(age % 5 == 0)
 		{
 			Vec3d vel = getVelocity();
-			world.addParticle(ParticleRegistry.EJECTED_CORE_FLASH, getX(), getY(), getZ(), vel.x, vel.y, vel.z);
+			getWorld().addParticle(ParticleRegistry.EJECTED_CORE_FLASH, getX(), getY(), getZ(), vel.x, vel.y, vel.z);
 		}
 	}
 	
@@ -120,7 +120,7 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 	@Override
 	public boolean isBoostable()
 	{
-		return switch(world.getGameRules().get(GameruleRegistry.PROJ_BOOST).get())
+		return switch(getWorld().getGameRules().get(GameruleRegistry.PROJ_BOOST).get())
 		{
 			case ALLOW_ALL -> true;
 			case ENTITY_TAG -> getType().isIn(EntityRegistry.PROJBOOSTABLE);

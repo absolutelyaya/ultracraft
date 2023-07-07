@@ -35,7 +35,7 @@ public class TitleBGRenderer extends RotatingCubeMapRenderer
 		BufferBuilder bufferBuilder = tessellator.getBuffer();
 		Matrix4f matrix4f = new Matrix4f().perspective(85f * 0.0174f, (float)client.getWindow().getFramebufferWidth() / (float)client.getWindow().getFramebufferHeight(), 0.05F, 10.0F);
 		RenderSystem.backupProjectionMatrix();
-		RenderSystem.setProjectionMatrix(matrix4f);
+		RenderSystem.setProjectionMatrix(matrix4f, RenderSystem.getVertexSorting());
 		MatrixStack matrixStack = RenderSystem.getModelViewStack();
 		matrixStack.push();
 		matrixStack.loadIdentity();

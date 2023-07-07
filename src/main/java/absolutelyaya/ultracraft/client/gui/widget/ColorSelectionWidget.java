@@ -8,8 +8,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.SharedConstants;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.ShaderProgram;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public class ColorSelectionWidget extends DrawableHelper implements Element, Drawable, Selectable, WidgetAccessor
+public class ColorSelectionWidget implements Element, Drawable, Selectable, WidgetAccessor
 {
 	Function<Boolean, Vec3d> startColorSupplier;
 	TextRenderer textRenderer;
@@ -43,6 +43,8 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 	ButtonWidget reset, revert, typeSwitch;
 	List<Drawable> children = new ArrayList<>();
 	float alpha;
+	
+	
 	
 	public ColorSelectionWidget(TextRenderer textRenderer, Vector3i dimensions, boolean type, Function<Boolean, Vec3d> startColorSupplier)
 	{
@@ -86,7 +88,7 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 	}
 	
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
+	public void render(DrawContext context, int mouseX, int mouseY, float delta)
 	{
 		int x = this.x;
 		int y = this.y;
@@ -94,23 +96,24 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 		y += offsetY;
 		
 		RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
-		fill(matrices, x, y, x + width, y + height, 0x66000000);
-		drawBorder(matrices, x, y, width, height, 0xff000000);
-		fill(matrices, x, y, x + width, y + 13, 0x88000000);
-		drawCenteredTextWithShadow(matrices, textRenderer, title, x + width / 2, y + 3, 0xffffffff);
+		context.fill(x, y, x + width, y + height, 0x66000000);
+		context.drawBorder(x, y, width, height, 0xff000000);
+		context.fill(x, y, x + width, y + 13, 0x88000000);
+		context.drawCenteredTextWithShadow(textRenderer, title, x + width / 2, y + 3, 0xffffffff);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		
-		red.render(matrices, mouseX, mouseY, delta);
-		green.render(matrices, mouseX, mouseY, delta);
-		blue.render(matrices, mouseX, mouseY, delta);
+		red.render(context, mouseX, mouseY, delta);
+		green.render(context, mouseX, mouseY, delta);
+		blue.render(context, mouseX, mouseY, delta);
 		
 		RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
-		fill(matrices, x + 111, y + 14 + 45, x + 111 + 42, y + 14 + 45 + 19, 0xff000000);
-		drawBorder(matrices, x + 111, y + 58, 42, 20, 0xff888888);
+		context.fill(x + 111, y + 14 + 45, x + 111 + 42, y + 14 + 45 + 19, 0xff000000);
+		context.drawBorder(x + 111, y + 58, 42, 20, 0xff888888);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		MatrixStack matrices = context.getMatrices();
 		matrices.push();
 		matrices.translate(2, 4, 0);
-		hexField.render(matrices, mouseX, mouseY, delta);
+		hexField.render(context, mouseX, mouseY, delta);
 		matrices.pop();
 		
 		ShaderProgram wingShader = UltracraftClient.getWingsColoredUIShaderProgram();
@@ -121,13 +124,13 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 		RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
 		RenderingUtil.drawTexture(new Matrix4f(matrices.peek().getPositionMatrix()), new Vector4f(x + 112, y + 15, 40, 40), new Vec2f(32, 64),
 				new Vector4f(type ? 16f : 0f, 0f, 16f, 16f));
-		drawBorder(matrices, x + 111, y + 14, 42, 42, 0xff000000);
+		context.drawBorder(x + 111, y + 14, 42, 42, 0xff000000);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		
-		reset.render(matrices, mouseX, mouseY, delta);
-		revert.render(matrices, mouseX, mouseY, delta);
+		reset.render(context, mouseX, mouseY, delta);
+		revert.render(context, mouseX, mouseY, delta);
 		typeSwitch.visible = typeSwitch.active = showTypeSwitch;
-		typeSwitch.render(matrices, mouseX, mouseY, delta);
+		typeSwitch.render(context, mouseX, mouseY, delta);
 	}
 	
 	void updateHex(boolean initial)
@@ -347,22 +350,22 @@ public class ColorSelectionWidget extends DrawableHelper implements Element, Dra
 		}
 		
 		@Override
-		public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta)
+		public void renderButton(DrawContext context, int mouseX, int mouseY, float delta)
 		{
-			super.renderButton(matrices, mouseX, mouseY, delta);
+			super.renderButton(context, mouseX, mouseY, delta);
+			MatrixStack matrices = context.getMatrices();
 			matrices.push();
 			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(90), 0, 0, 1)));
 			int start = getPreviewColor(true);
 			int end = getPreviewColor(false);
 			RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
-			fillGradient(matrices, getY() + 1, -getX() - width + 1, getY() + height - 1, -getX() - 1,
+			context.fillGradient(getY() + 1, -getX() - width + 1, getY() + height - 1, -getX() - 1,
 					start, end);
 			matrices.pop();
 			int i = (!hovered && !isFocused() ? 2 : 3) * 20;
-			RenderSystem.setShaderTexture(0, new Identifier("textures/gui/slider.png"));
-			drawNineSlicedTexture(matrices, getX() + (int)(value * (double)(width - 8)), getY(), 8, 20, 20, 4, 200, 20, 0, i);
+			context.drawNineSlicedTexture(new Identifier("textures/gui/slider.png"), getX() + (int)(value * (double)(width - 8)), getY(), 8, 20, 20, 4, 200, 20, 0, i);
 			i = active ? 16777215 : 10526880;
-			drawScrollableText(matrices, textRenderer, 2, i | MathHelper.ceil(alpha * 255.0F) << 24);
+			drawScrollableText(context, textRenderer, 2, i | MathHelper.ceil(alpha * 255.0F) << 24);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		}
 		

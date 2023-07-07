@@ -81,7 +81,7 @@ public class Ultracraft implements ModInitializer
             buf.writeVector3f(colors[0].toVector3f());
             buf.writeVector3f(colors[1].toVector3f());
             buf.writeString(((WingedPlayerEntity)oldPlayer).getWingPattern());
-            for (ServerPlayerEntity p : ((ServerWorld)newPlayer.world).getPlayers())
+            for (ServerPlayerEntity p : ((ServerWorld)newPlayer.getWorld()).getPlayers())
                 ServerPlayNetworking.send(p, PacketRegistry.WING_DATA_S2C_PACKET_ID, buf);
         });
         

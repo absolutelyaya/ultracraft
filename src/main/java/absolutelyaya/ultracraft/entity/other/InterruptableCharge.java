@@ -74,9 +74,9 @@ public class InterruptableCharge extends Entity
 	public void tick()
 	{
 		super.tick();
-		if(world.isClient)
+		if(getWorld().isClient)
 			return;
-		LivingEntity livingOwner = (LivingEntity) world.getEntityById(dataTracker.get(OWNER));
+		LivingEntity livingOwner = (LivingEntity) getWorld().getEntityById(dataTracker.get(OWNER));
 		if(livingOwner == null || !livingOwner.isAlive() || age >= dataTracker.get(LIFETIME))
 		{
 			discard();

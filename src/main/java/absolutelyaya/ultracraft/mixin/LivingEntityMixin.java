@@ -100,14 +100,14 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	@Inject(method = "damage", at = @At("RETURN"))
 	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
 	{
-		if(!cir.getReturnValue() || world.isClient)
+		if(!cir.getReturnValue() || getWorld().isClient)
 			return;
 		if(source.isOf(DamageSources.RICOCHET))
 			ricochetCooldown = 5; //after ricochet hit, cant ricochet to this enemy again for 3 seconds
 		if(!IsCanBleed())
 			return;
-		List<PlayerEntity> nearby = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(32), e -> !e.equals(this));
-		List<PlayerEntity> heal = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(2), e -> !e.equals(this));
+		List<PlayerEntity> nearby = getWorld().getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(32), e -> !e.equals(this));
+		List<PlayerEntity> heal = getWorld().getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(2), e -> !e.equals(this));
 		for (PlayerEntity player : nearby)
 		{
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
@@ -119,7 +119,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			buf.writeBoolean(source.isOf(DamageSources.SHOTGUN));
 			ServerPlayNetworking.send((ServerPlayerEntity)player, PacketRegistry.BLEED_PACKET_ID, buf);
 		}
-		GameruleRegistry.RegenOption healRule = world.getGameRules().get(GameruleRegistry.BLOODHEAL).get();
+		GameruleRegistry.RegenOption healRule = getWorld().getGameRules().get(GameruleRegistry.BLOODHEAL).get();
 		if(!healRule.equals(GameruleRegistry.RegenOption.NEVER))
 		{
 			for (PlayerEntity player : heal)
@@ -146,8 +146,8 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	{
 		if(this instanceof WingedPlayerEntity winged && winged.isWingsActive())
 		{
-			if(!world.isClient)
-				cir.setReturnValue(cir.getReturnValue() + 0.1f * Math.max(world.getGameRules().getInt(GameruleRegistry.HIVEL_JUMP_BOOST) +
+			if(!getWorld().isClient)
+				cir.setReturnValue(cir.getReturnValue() + 0.1f * Math.max(getWorld().getGameRules().getInt(GameruleRegistry.HIVEL_JUMP_BOOST) +
 						(isTouchingWater() ? 0.5f : 0f), 0));
 		}
 	}
@@ -177,7 +177,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			float h = (float)EnchantmentHelper.getDepthStrider((LivingEntity)(Object)this);
 			if (h > 3.0f)
 				h = 3.0f;
-			if (!onGround)
+			if (!isOnGround())
 				h *= 0.5f;
 			if (h > 0.0f)
 			{
@@ -214,7 +214,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	{
 		if(!(this instanceof WingedPlayerEntity winged && winged.isWingsActive()) || ((PlayerEntity)winged).getAbilities().flying || touchingWater)
 			return value;
-		int val = (world.isClient ? getGravityReduction() : world.getGameRules().get(GameruleRegistry.HIVEL_SLOWFALL).get());
+		int val = (getWorld().isClient ? getGravityReduction() : getWorld().getGameRules().get(GameruleRegistry.HIVEL_SLOWFALL).get());
 		return Math.max(value * (1f - 0.1f * val), 0.01f);
 	}
 	
@@ -223,8 +223,8 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	{
 		if(!(this instanceof WingedPlayerEntity winged && winged.isWingsActive()))
 			return value;
-		return value + ((world.getGameRules().get(GameruleRegistry.HIVEL_JUMP_BOOST).get() + 1) *
-								(1f + (world.getGameRules().get(GameruleRegistry.HIVEL_SLOWFALL).get() / 2f)));
+		return value + ((getWorld().getGameRules().get(GameruleRegistry.HIVEL_JUMP_BOOST).get() + 1) *
+								(1f + (getWorld().getGameRules().get(GameruleRegistry.HIVEL_SLOWFALL).get() / 2f)));
 	}
 	
 	@ModifyVariable(method = "computeFallDamage", ordinal = 1, at = @At("LOAD"), argsOnly = true)
@@ -245,7 +245,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	@Inject(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;shouldSwimInFluids()Z"))
 	void onTickMovement(CallbackInfo ci)
 	{
-		if (this instanceof WingedPlayerEntity winged && winged.isWingsActive() && onGround && jumping && jumpingCooldown == 0)
+		if (this instanceof WingedPlayerEntity winged && winged.isWingsActive() && isOnGround() && jumping && jumpingCooldown == 0)
 		{
 			jump();
 			jumpingCooldown = 10;
@@ -256,7 +256,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	void onShouldSwimInFluids(CallbackInfoReturnable<Boolean> cir)
 	{
 		if(this instanceof WingedPlayerEntity winged && winged.isWingsActive() &&
-				   world.getFluidState(((PlayerEntity)winged).getBlockPos()).isIn(FluidTags.WATER))
+				   getWorld().getFluidState(((PlayerEntity)winged).getBlockPos()).isIn(FluidTags.WATER))
 			cir.setReturnValue(false);
 	}
 	
@@ -297,7 +297,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		{
 			punchTicks = 0;
 			punching = true;
-			if(!world.isClient)
+			if(!getWorld().isClient)
 				swingHand(Hand.OFF_HAND);
 			return true;
 		}

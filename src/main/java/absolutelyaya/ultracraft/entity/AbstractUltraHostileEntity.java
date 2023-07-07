@@ -38,13 +38,13 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	public void onSpawnPacket(EntitySpawnS2CPacket packet)
 	{
 		super.onSpawnPacket(packet);
-		world.addParticle(new TeleportParticleEffect(getTeleportParticleSize()), packet.getX(), packet.getY(), packet.getZ(), 0f, 0f, 0f);
+		getWorld().addParticle(new TeleportParticleEffect(getTeleportParticleSize()), packet.getX(), packet.getY(), packet.getZ(), 0f, 0f, 0f);
 	}
 	
 	@Override
 	public boolean teleport(double x, double y, double z, boolean particleEffects)
 	{
-		world.addParticle(new TeleportParticleEffect(getTeleportParticleSize()), x, y, z, 0f, 0f, 0f);
+		getWorld().addParticle(new TeleportParticleEffect(getTeleportParticleSize()), x, y, z, 0f, 0f, 0f);
 		return super.teleport(x, y, z, particleEffects);
 	}
 	
@@ -57,9 +57,9 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	{
 		if(useYaw)
 			offset = offset.rotateY(-(float)Math.toRadians(getYaw() + 180));
-		if(!world.isClient)
+		if(!getWorld().isClient)
 		{
-			((ServerWorld)world).spawnParticles(new ParryIndicatorParticleEffect(unparriable),
+			((ServerWorld)getWorld()).spawnParticles(new ParryIndicatorParticleEffect(unparriable),
 					getX() + offset.x, getY() + offset.y, getZ() + offset.z, 1, 0f, 0f, 0f, 0f);
 		}
 	}
@@ -67,7 +67,7 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	@Override
 	protected boolean shouldSwimInFluids()
 	{
-		return !world.getFluidState(getBlockPos()).isIn(FluidTags.WATER);
+		return !getWorld().getFluidState(getBlockPos()).isIn(FluidTags.WATER);
 	}
 	
 	@Override

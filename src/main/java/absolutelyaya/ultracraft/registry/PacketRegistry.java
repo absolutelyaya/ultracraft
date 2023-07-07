@@ -67,7 +67,7 @@ public class PacketRegistry
 	public static void registerC2S()
 	{
 		ServerPlayNetworking.registerGlobalReceiver(PUNCH_PACKET_ID, (server, player, handler, buf, sender) -> {
-			World world = player.world;
+			World world = player.getWorld();
 			Entity target;
 			if(buf.readBoolean())
 				target = world.getEntityById(buf.readInt());
@@ -87,7 +87,7 @@ public class PacketRegistry
 						target.setFireTicks(100);
 					if (target instanceof MeleeInterruptable mp && (!(mp instanceof MobEntity) || ((MobEntity)mp).isAttacking()))
 					{
-						Ultracraft.freeze((ServerWorld) player.world, 10);
+						Ultracraft.freeze((ServerWorld) player.getWorld(), 10);
 						target.damage(DamageSources.get(world, DamageSources.INTERRUPT, player), 6);
 						mp.onInterrupt(player);
 						world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
@@ -114,10 +114,10 @@ public class PacketRegistry
 									.stretch(forward.multiply(0.9)).offset(new Vec3d(clientVel.mul(-0.5f)))
 									.stretch(clientVel.x * 16, clientVel.y * 16, clientVel.z * 16);
 				//Get Projectiles that absolutely are in the Parry Check
-				List<ProjectileEntity> projectiles = player.world.getEntitiesByClass(ProjectileEntity.class, check,
+				List<ProjectileEntity> projectiles = player.getWorld().getEntitiesByClass(ProjectileEntity.class, check,
 						e -> (!((ProjectileEntityAccessor)e).isParried()) || chainingAllowed);
 				//Get Projectiles that could move into the Parry Check
-				List<ProjectileEntity> potentialProjectiles = player.world.getEntitiesByClass(ProjectileEntity.class, player.getBoundingBox().expand(4),
+				List<ProjectileEntity> potentialProjectiles = player.getWorld().getEntitiesByClass(ProjectileEntity.class, player.getBoundingBox().expand(4),
 						e -> (!((ProjectileEntityAccessor)e).isParried() || chainingAllowed) && !projectiles.contains(e));
 				for (ProjectileEntity proj : potentialProjectiles)
 				{
@@ -159,12 +159,12 @@ public class PacketRegistry
 				if(player.equals(parried.getOwner()) && parried.age < 4)
 				{
 					if(((ProjectileEntityAccessor)parried).isBoostable())
-						Ultracraft.freeze((ServerWorld) player.world, 5); //ProjBoost freezes are shorter
+						Ultracraft.freeze((ServerWorld) player.getWorld(), 5); //ProjBoost freezes are shorter
 					else
 						return;
 				}
 				else if(!(parried instanceof ThrownCoinEntity))
-					Ultracraft.freeze((ServerWorld) player.world, 10);
+					Ultracraft.freeze((ServerWorld) player.getWorld(), 10);
 				world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
 				ProjectileEntityAccessor pa = (ProjectileEntityAccessor)parried;
 				pa.setParried(true, player);
@@ -182,9 +182,9 @@ public class PacketRegistry
 					if(state.getBlock() instanceof IPunchableBlock punchable)
 						punchable.onPunch(player, target, mainHand);
 					if(state.getBlock() instanceof BellBlock bell)
-						bell.ring(player, player.world, target, player.getHorizontalFacing().getOpposite());
+						bell.ring(player, player.getWorld(), target, player.getHorizontalFacing().getOpposite());
 					if(state.isIn(TagRegistry.PUNCH_BREAKABLE) && player.canModifyAt(world, target))
-						player.world.breakBlock(target, true, player);
+						player.getWorld().breakBlock(target, true, player);
 				}
 			});
 		});
@@ -193,9 +193,9 @@ public class PacketRegistry
 			server.execute(() -> {
 				if (player.getMainHandStack().getItem() instanceof AbstractWeaponItem gun)
 				{
-					if (!gun.onPrimaryFire(player.world, player, velocity))
+					if (!gun.onPrimaryFire(player.getWorld(), player, velocity))
 						return;
-					for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
+					for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers())
 					{
 						PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
 						cbuf.writeUuid(player.getUuid());
@@ -212,7 +212,7 @@ public class PacketRegistry
 				return;
 			boolean wingsActive = buf.readBoolean();
 			server.execute(() -> winged.setWingsVisible(wingsActive));
-			for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
+			for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers())
 			{
 				buf = new PacketByteBuf(Unpooled.buffer());
 				buf.writeUuid(player.getUuid());
@@ -233,7 +233,7 @@ public class PacketRegistry
 				winged.setWingColor(new Vec3d(metalColor), 1);
 				winged.setWingPattern(pattern);
 			});
-			for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
+			for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers())
 			{
 				buf = new PacketByteBuf(Unpooled.buffer());
 				buf.writeUuid(player.getUuid());
@@ -251,7 +251,7 @@ public class PacketRegistry
 			buf.writeDouble(dir.x);
 			buf.writeDouble(dir.y);
 			buf.writeDouble(dir.z);
-			for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
+			for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers())
 				ServerPlayNetworking.send(p, DASH_S2C_PACKET_ID, buf);
 		});
 		ServerPlayNetworking.registerGlobalReceiver(GROUND_POUND_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
@@ -269,7 +269,7 @@ public class PacketRegistry
 				cbuf.writeUuid(player.getUuid());
 				cbuf.writeBlockPos(player.getSteppingPos());
 				cbuf.writeBoolean(strong);
-				for (ServerPlayerEntity p : ((ServerWorld)player.world).getPlayers())
+				for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers())
 					ServerPlayNetworking.send(p, GROUND_POUND_S2C_PACKET_ID, cbuf);
 			});
 		});
@@ -293,13 +293,13 @@ public class PacketRegistry
 			Vec3d pos = new Vec3d(buf.readVector3f());
 			PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
 			cbuf.writeVector3f(pos.toVector3f());
-			player.world.getPlayers().forEach(p -> {
+			player.getWorld().getPlayers().forEach(p -> {
 				if(player.squaredDistanceTo(p) < 32f * 32f)
 					ServerPlayNetworking.send((ServerPlayerEntity)p, SKIM_S2C_PACKET_ID, cbuf);
 			});
 			server.execute(() -> {
 				player.playSound(SoundEvents.ENTITY_SALMON_FLOP, SoundCategory.PLAYERS, 1f, 0.8f + player.getRandom().nextFloat() * 0.4f);
-				player.world.addParticle(ParticleRegistry.RIPPLE, pos.x, pos.y, pos.z, 0, 0, 0);
+				player.getWorld().addParticle(ParticleRegistry.RIPPLE, pos.x, pos.y, pos.z, 0, 0, 0);
 			});
 		});
 	}

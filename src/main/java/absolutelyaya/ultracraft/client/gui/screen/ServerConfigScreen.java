@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.accessor.WidgetAccessor;
 import absolutelyaya.ultracraft.client.gui.widget.GameRuleWidget;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -55,26 +56,25 @@ public class ServerConfigScreen extends Screen
 	}
 	
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
+	public void render(DrawContext context, int mouseX, int mouseY, float delta)
 	{
-		renderBackground(matrices);
+		renderBackground(context);
 		curScroll = MathHelper.lerp(delta / 2f, curScroll, desiredScroll);
 		ruleWidgets.forEach(w -> ((WidgetAccessor)w).setOffset(new Vector2i(0, Math.round(curScroll))));
-		super.render(matrices, mouseX, mouseY, delta);
-		drawCenteredTextWithShadow(matrices, textRenderer, title, width / 2, 20, 0xffffffff);
+		super.render(context, mouseX, mouseY, delta);
+		context.drawCenteredTextWithShadow(textRenderer, title, width / 2, 20, 0xffffffff);
 	}
 	
 	@Override
-	public void renderBackground(MatrixStack matrices)
+	public void renderBackground(DrawContext context)
 	{
-		super.renderBackground(matrices);
-		fill(matrices, 0, 0, width, height, 0x44000000);
+		super.renderBackground(context);
+		context.fill(0, 0, width, height, 0x44000000);
 		RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-		RenderSystem.setShaderTexture(0, OPTIONS_BACKGROUND_TEXTURE);
 		RenderSystem.setShaderColor(0.25f, 0.25f, 0.25f, 1.0f);
-		drawTexture(matrices, width /2 - 125, 0, 0, 0.0f, 0.0f, 250, height, 32, 32);
-		fill(matrices, width / 2 - 125, -1, width / 2 - 124, height + 1, 0xaaffffff);
-		fill(matrices, width / 2 + 125, -1, width / 2 + 124, height + 1, 0xaa000000);
+		context.drawTexture(OPTIONS_BACKGROUND_TEXTURE, width /2 - 125, 0, 0, 0.0f, 0.0f, 250, height, 32, 32);
+		context.fill(width / 2 - 125, -1, width / 2 - 124, height + 1, 0xaaffffff);
+		context.fill(width / 2 + 125, -1, width / 2 + 124, height + 1, 0xaa000000);
 	}
 	
 	@Override

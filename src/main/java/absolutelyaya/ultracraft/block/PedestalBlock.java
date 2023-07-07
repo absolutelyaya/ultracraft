@@ -59,14 +59,15 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 	@Override
 	public boolean onPunch(PlayerEntity puncher, BlockPos pos, boolean mainHand)
 	{
-		BlockEntity blockEntity = puncher.world.getBlockEntity(pos);
+		World world = puncher.getWorld();
+		BlockEntity blockEntity = world.getBlockEntity(pos);
 		if(blockEntity instanceof PedestalBlockEntity pedestal)
 		{
 			boolean result = pedestal.onPunch(puncher, mainHand);
-			if(!puncher.world.isClient)
-				puncher.world.emitGameEvent(puncher, GameEvent.BLOCK_CHANGE, pos);
-			puncher.world.updateNeighbors(pos, this);
-			puncher.world.updateNeighbors(pos.down(), this);
+			if(!world.isClient)
+				world.emitGameEvent(puncher, GameEvent.BLOCK_CHANGE, pos);
+			world.updateNeighbors(pos, this);
+			world.updateNeighbors(pos.down(), this);
 			return result;
 		}
 		return false;

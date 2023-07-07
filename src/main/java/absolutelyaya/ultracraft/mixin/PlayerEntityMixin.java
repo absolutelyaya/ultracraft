@@ -106,7 +106,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	{
 		if(isDashing())
 			cir.setReturnValue(false);
-		if(wingsActive && source.isOf(DamageTypes.FALL) && ((!world.isClient && !world.getGameRules().get(GameruleRegistry.HIVEL_FALLDAMAGE).get()) ||
+		if(wingsActive && source.isOf(DamageTypes.FALL) && ((!getWorld().isClient && !getWorld().getGameRules().get(GameruleRegistry.HIVEL_FALLDAMAGE).get()) ||
 				   getSteppingBlockState().getBlock() instanceof FluidBlock))
 			cir.setReturnValue(false);
 	}
@@ -191,7 +191,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public void onDash()
 	{
 		dashingTicks = 3;
-		world.playSound(null, getBlockPos(), SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.75f, 1.6f);
+		getWorld().playSound(null, getBlockPos(), SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.75f, 1.6f);
 	}
 	
 	@Override
@@ -204,7 +204,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public void onDashJump()
 	{
 		dashingTicks = -2;
-		world.playSound(null, getBlockPos(), SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.75f, 1.8f);
+		getWorld().playSound(null, getBlockPos(), SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.75f, 1.8f);
 	}
 	
 	public boolean isDashing()
@@ -252,7 +252,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	{
 		Multimap<EntityAttribute, EntityAttributeModifier> speedMod = HashMultimap.create();
 		speedMod.put(EntityAttributes.GENERIC_MOVEMENT_SPEED, new EntityAttributeModifier(UUID.fromString("9c92fac8-0018-11ee-be56-0242ac120002"), "spd_up",
-				0.2f * world.getGameRules().getInt(GameruleRegistry.HIVEL_SPEED), EntityAttributeModifier.Operation.MULTIPLY_TOTAL));
+				0.2f * getWorld().getGameRules().getInt(GameruleRegistry.HIVEL_SPEED), EntityAttributeModifier.Operation.MULTIPLY_TOTAL));
 		return speedMod;
 	}
 	
@@ -316,16 +316,16 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public void endSlam(boolean strong)
 	{
 		groundPounding = false;
-		if(!onGround)
+		if(!isOnGround())
 			return;
-		world.playSound(null, getBlockPos(), SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.PLAYERS,
+		getWorld().playSound(null, getBlockPos(), SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.PLAYERS,
 				strong ? 1f : 0.75f, strong ? 0.75f : 1.25f);
-		world.getOtherEntities(this, getBoundingBox().expand(0f, 1f, 0f).offset(0f, -0.5f, 0f)).forEach(e ->
-				e.damage(DamageSources.get(world, DamageSources.POUND, this), slamDamageCooldown > 0 ? 1 : 6));
+		getWorld().getOtherEntities(this, getBoundingBox().expand(0f, 1f, 0f).offset(0f, -0.5f, 0f)).forEach(e ->
+				e.damage(DamageSources.get(getWorld(), DamageSources.POUND, this), slamDamageCooldown > 0 ? 1 : 6));
 		slamDamageCooldown = 30;
 		if(!strong)
 			return;
-		world.getOtherEntities(this, getBoundingBox().expand(3f, 0.5f, 3f)).forEach(e -> {
+		getWorld().getOtherEntities(this, getBoundingBox().expand(3f, 0.5f, 3f)).forEach(e -> {
 			if((e instanceof LivingEntityAccessor l) && l.takePunchKnockback())
 				e.addVelocity(0f, 1f, 0f);
 		});
@@ -360,14 +360,14 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			Vec3d particleVel = new Vec3d(-dir.x, 0, -dir.z).multiply(random.nextDouble() * 0.33 + 0.1);
 			Vec3d pos = getPos().add((random.nextDouble() - 0.5) * getWidth(),
 					random.nextDouble() * getHeight(), (random.nextDouble() - 0.5) * getWidth()).add(dir.multiply(0.25));
-			world.addParticle(ParticleRegistry.DASH, true, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
+			getWorld().addParticle(ParticleRegistry.DASH, true, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
 		}
 		if(isSprinting() && isWingsActive())
 		{
 			Vec3d dir = getVelocity().multiply(1.0, 0.0, 1.0).normalize();
 			Vec3d particleVel = new Vec3d(-dir.x, -dir.y, -dir.z).multiply(random.nextDouble() * 0.1 + 0.025);
 			Vec3d pos = getPos().add(dir.multiply(1.5));
-			world.addParticle(ParticleRegistry.SLIDE, true, pos.x, pos.y + 0.1, pos.z, particleVel.x, particleVel.y, particleVel.z);
+			getWorld().addParticle(ParticleRegistry.SLIDE, true, pos.x, pos.y + 0.1, pos.z, particleVel.x, particleVel.y, particleVel.z);
 		}
 		if(groundPounding)
 		{
@@ -375,7 +375,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			for (int i = 0; i < random.nextInt(4) + 8; i++)
 			{
 				Vec3d pos = getPos().add((random.nextDouble() - 0.5) * 10.0, 5.0 * ((random.nextDouble() - 0.9) * 2), (random.nextDouble() - 0.5) * 10.0);
-				world.addParticle(ParticleRegistry.GROUND_POUND, true, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
+				getWorld().addParticle(ParticleRegistry.GROUND_POUND, true, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
 			}
 			fallDistance = 0f;
 		}
@@ -425,7 +425,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Override
 	public boolean canBreatheInWater()
 	{
-		return isWingsActive() && !world.getGameRules().getBoolean(GameruleRegistry.HIVEL_DROWNING);
+		return isWingsActive() && !getWorld().getGameRules().getBoolean(GameruleRegistry.HIVEL_DROWNING);
 	}
 	
 	@Override

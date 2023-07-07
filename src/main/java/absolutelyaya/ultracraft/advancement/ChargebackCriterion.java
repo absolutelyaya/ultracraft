@@ -6,10 +6,11 @@ import com.google.gson.JsonObject;
 import net.minecraft.advancement.criterion.AbstractCriterion;
 import net.minecraft.advancement.criterion.AbstractCriterionConditions;
 import net.minecraft.loot.context.LootContext;
-import net.minecraft.loot.context.LootContextParameters;
+import net.minecraft.loot.context.LootContextTypes;
 import net.minecraft.predicate.entity.AdvancementEntityPredicateDeserializer;
 import net.minecraft.predicate.entity.AdvancementEntityPredicateSerializer;
 import net.minecraft.predicate.entity.EntityPredicate;
+import net.minecraft.predicate.entity.LootContextPredicate;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
@@ -18,9 +19,9 @@ public class ChargebackCriterion extends AbstractCriterion<ChargebackCriterion.C
 	static final Identifier ID = new Identifier(Ultracraft.MOD_ID, "chargeback");
 	
 	@Override
-	protected Conditions conditionsFromJson(JsonObject obj, EntityPredicate.Extended playerPredicate, AdvancementEntityPredicateDeserializer predicateDeserializer)
+	protected Conditions conditionsFromJson(JsonObject obj, LootContextPredicate playerPredicate, AdvancementEntityPredicateDeserializer predicateDeserializer)
 	{
-		return new Conditions(playerPredicate, EntityPredicate.Extended.getInJson(obj, "entity", predicateDeserializer));
+		return new Conditions(playerPredicate, LootContextPredicate.fromJson("entity", predicateDeserializer, obj, LootContextTypes.ENTITY));
 	}
 	
 	@Override
@@ -37,22 +38,22 @@ public class ChargebackCriterion extends AbstractCriterion<ChargebackCriterion.C
 	
 	public static class Conditions extends AbstractCriterionConditions
 	{
-		private final EntityPredicate.Extended victim;
+		private final LootContextPredicate victim;
 		
-		public Conditions(EntityPredicate.Extended player, EntityPredicate.Extended entity)
+		public Conditions(LootContextPredicate player, LootContextPredicate entity)
 		{
 			super(ID, player);
 			victim = entity;
 		}
 		
-		public static Conditions create(EntityPredicate.Extended entity)
+		public static Conditions create(EntityPredicate entity)
 		{
-			return new Conditions(EntityPredicate.Extended.EMPTY, entity);
+			return new Conditions(LootContextPredicate.EMPTY, EntityPredicate.asLootContextPredicate(entity));
 		}
 		
-		public boolean matches(LootContext victimLootContext)
+		public boolean matches(LootContext context)
 		{
-			return victim.test(victimLootContext);
+			return victim.test(context);
 		}
 		
 		@Override

@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.util.RenderingUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
@@ -108,22 +109,23 @@ public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget 
 	}
 	
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
+	public void render(DrawContext context, int mouseX, int mouseY, float delta)
 	{
 		alpha = MathHelper.clamp((getY() - 30) / 10f, 0f, 1f);
 		RenderSystem.setShaderColor(0.69f, 0.69f, 0.69f, alpha);
 		RenderSystem.setShaderTexture(0, BGTexture);
+		MatrixStack matrices = context.getMatrices();
 		RenderingUtil.drawTexture(matrices.peek().getPositionMatrix(), new Vector4f(getX(), getY(), 200, 36), 0,
 				new Vec2f(16, 16), new Vector4f(0f, 0, 100, 16), alpha);
 		RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
-		fill(matrices, getX(), getY(), getX() + 200, getY() + 1, 0xaaffffff);
-		fill(matrices, getX(), getY(), getX() + 1, getY() + 36, 0xaaffffff);
-		fill(matrices, getX(), getY() + 35, getX() + 200, getY() + 36, 0xaa000000);
-		fill(matrices, getX() + 199, getY(), getX() + 200, getY() + 36, 0xaa000000);
-		drawBorder(matrices, getX() + 2, getY() + 2, 32, 32, 0xffffffff);
+		context.fill(getX(), getY(), getX() + 200, getY() + 1, 0xaaffffff);
+		context.fill(getX(), getY(), getX() + 1, getY() + 36, 0xaaffffff);
+		context.fill(getX(), getY() + 35, getX() + 200, getY() + 36, 0xaa000000);
+		context.fill(getX() + 199, getY(), getX() + 200, getY() + 36, 0xaa000000);
+		context.drawBorder(getX() + 2, getY() + 2, 32, 32, 0xffffffff);
 		RenderSystem.setShaderTexture(0, ICONS);
 		RenderingUtil.drawTexture(matrices.peek().getPositionMatrix(), new Vector4f(getX() + 2, getY() + 2, 32, 32), 1, new Vec2f(320, 320), new Vector4f(32 * (icon % 10), 32 * (int)Math.floor(icon / 10f) + 32, 32, -32), alpha);
-		drawTextWithShadow(matrices, renderer, Text.translatable(rule.getTranslationKey()).getWithStyle(Style.EMPTY.withUnderline(true)).get(0),
+		context.drawTextWithShadow(renderer, Text.translatable(rule.getTranslationKey()).getWithStyle(Style.EMPTY.withUnderline(true)).get(0),
 				getX() + 36, getY() + 2, 0xffffffff);
 		int controlWidth = switch(type)
 		{
@@ -150,16 +152,16 @@ public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget 
 				t = Text.of(sb + "...").asOrderedText();
 				setTooltip(Tooltip.of(fullText));
 			}
-			drawOutlinedText(matrices, renderer, t, getX() + 36, getY() + 13 + renderer.fontHeight * i, alpha);
+			drawOutlinedText(context, renderer, t, getX() + 36, getY() + 13 + renderer.fontHeight * i, alpha);
 		}
 		((WidgetAccessor)valueWidget).setOffset(((WidgetAccessor)this).getOffset());
 		((WidgetAccessor) valueWidget).setAlpha(Math.max(alpha, 0.02f));
-		valueWidget.render(matrices, mouseX, mouseY, delta);
-		super.render(matrices, mouseX, mouseY, delta);
+		valueWidget.render(context, mouseX, mouseY, delta);
+		super.render(context, mouseX, mouseY, delta);
 	}
 	
 	@Override
-	public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta)
+	public void renderButton(DrawContext context, int mouseX, int mouseY, float delta)
 	{
 	
 	}
@@ -252,16 +254,16 @@ public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget 
 	
 	}
 	
-	void drawOutlinedText(MatrixStack matrices, TextRenderer textRenderer, OrderedText text, int x, int y, float alpha)
+	void drawOutlinedText(DrawContext context, TextRenderer textRenderer, OrderedText text, int x, int y, float alpha)
 	{
 		RenderSystem.setShaderColor(0.1f, 0.1f, 0.1f, alpha);
-		textRenderer.draw(matrices, text, x - 1, y, 0xff444444);
-		textRenderer.draw(matrices, text, x + 1, y, 0xff444444);
-		textRenderer.draw(matrices, text, x, y + 1, 0xff444444);
-		textRenderer.draw(matrices, text, x, y - 1, 0xff444444);
+		context.drawText(textRenderer, text, x - 1, y, 0xff444444, false);
+		context.drawText(textRenderer, text, x + 1, y, 0xff444444, false);
+		context.drawText(textRenderer, text, x, y + 1, 0xff444444, false);
+		context.drawText(textRenderer, text, x, y - 1, 0xff444444, false);
 		RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
 		
-		textRenderer.draw(matrices, text, x, y, 0xffffffff);
+		context.drawText(textRenderer, text, x, y, 0xffffffff, false);
 	}
 	
 	public enum ValueType

@@ -6,7 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
-import net.minecraft.inventory.CraftingInventory;
+import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.*;
@@ -35,7 +35,7 @@ public class PlushieRecipe implements CraftingRecipe
 	}
 	
 	@Override
-	public boolean matches(CraftingInventory inventory, World world)
+	public boolean matches(RecipeInputInventory inventory, World world)
 	{
 		RecipeMatcher recipeMatcher = new RecipeMatcher();
 		int i = 0;
@@ -49,7 +49,7 @@ public class PlushieRecipe implements CraftingRecipe
 	}
 	
 	@Override
-	public ItemStack craft(CraftingInventory inventory, DynamicRegistryManager registryManager)
+	public ItemStack craft(RecipeInputInventory inventory, DynamicRegistryManager registryManager)
 	{
 		return output.copy();
 	}

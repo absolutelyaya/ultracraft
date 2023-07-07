@@ -204,7 +204,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 	
 	private void throwBullet(LivingEntity target)
 	{
-		CerberusBallEntity bullet = CerberusBallEntity.spawn(this, world);
+		CerberusBallEntity bullet = CerberusBallEntity.spawn(this, getWorld());
 		double d = target.getEyeY() - target.getHeight() / 2.0;
 		double e = target.getX() - getX();
 		double f = d - bullet.getY();
@@ -212,7 +212,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 		bullet.setVelocity(e, f, g, 2.5f, 0.0f);
 		bullet.setNoGravity(true);
 		playSound(SoundEvents.ENTITY_SNOW_GOLEM_SHOOT, 1.0f, 0.2f / (getRandom().nextFloat() * 0.2f + 0.4f));
-		world.spawnEntity(bullet);
+		getWorld().spawnEntity(bullet);
 	}
 	
 	public void setRotation(float rot)
@@ -261,7 +261,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 	public void onDeath(DamageSource damageSource)
 	{
 		super.onDeath(damageSource);
-		world.getEntitiesByType(TypeFilter.instanceOf(CerberusEntity.class), getBoundingBox().expand(64),
+		getWorld().getEntitiesByType(TypeFilter.instanceOf(CerberusEntity.class), getBoundingBox().expand(64),
 						e -> !e.isEnraged() && e != this).forEach(CerberusEntity::enrage);
 	}
 	
@@ -385,7 +385,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 			
 			if(timer > 15 && timer < 30)
 			{
-				mob.world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), mob.getBoundingBox().expand(0.2), p -> true)
+				mob.getWorld().getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), mob.getBoundingBox().expand(0.2), p -> true)
 						.forEach(p -> {
 							if(!hits.contains(p))
 							{
@@ -445,9 +445,9 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 			super.process();
 			mob.getLookControl().lookAt(target.getX(), target.getEyeY(), target.getZ());
 			
-			if(!mob.world.isClient && timer == 15)
+			if(!mob.getWorld().isClient && timer == 15)
 			{
-				ShockwaveEntity shockwave = EntityRegistry.SHOCKWAVE.spawn((ServerWorld)mob.world, mob.getBlockPos(), SpawnReason.EVENT);
+				ShockwaveEntity shockwave = EntityRegistry.SHOCKWAVE.spawn((ServerWorld)mob.getWorld(), mob.getBlockPos(), SpawnReason.EVENT);
 				if(shockwave != null)
 				{
 					shockwave.setAffectOnly(PlayerEntity.class);

@@ -22,7 +22,9 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -62,7 +64,7 @@ public abstract class FishingBobberMixin extends ProjectileEntity
 	@ModifyArg(method = "tickFishingLogic", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;spawnParticles(Lnet/minecraft/particle/ParticleEffect;DDDIDDDD)I"))
 	ParticleEffect onSwimmingStart(ParticleEffect effect)
 	{
-		if(world.getBlockState(getBlockPos()).isOf(Blocks.WATER))
+		if(getWorld().getBlockState(getBlockPos()).isOf(Blocks.WATER))
 			return effect;
 		if(effect.equals(ParticleTypes.SPLASH) || effect.equals(ParticleTypes.FISHING))
 			return ParticleRegistry.BLOOD_SPLASH;

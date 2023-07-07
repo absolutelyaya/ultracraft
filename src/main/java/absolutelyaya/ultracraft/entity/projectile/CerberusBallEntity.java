@@ -27,7 +27,7 @@ public class CerberusBallEntity extends HellBulletEntity implements ProjectileEn
 	protected void onCollision(HitResult hitResult)
 	{
 		super.onCollision(hitResult);
-		ExplosionHandler.explosion(null, world, hitResult.getPos(), getDamageSources().explosion(this, getOwner()), 8f, 4f, 2f, true);
+		ExplosionHandler.explosion(null, getWorld(), hitResult.getPos(), getDamageSources().explosion(this, getOwner()), 8f, 4f, 2f, true);
 	}
 	
 	public static CerberusBallEntity spawn(LivingEntity owner, World world)

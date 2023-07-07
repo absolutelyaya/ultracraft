@@ -40,7 +40,8 @@ import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootTable;
-import net.minecraft.loot.context.LootContext;
+import net.minecraft.loot.context.LootContextParameterSet;
+import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.loot.context.LootContextTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -344,13 +345,14 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		{
 			dataTracker.set(BREAKDOWN_TICKS, 60);
 			dataTracker.set(ANIMATION, ANIMATION_BREAKDOWN);
-			if(world.getServer() == null || !(source.getAttacker() instanceof PlayerEntity))
+			if(getWorld().getServer() == null || !(source.getAttacker() instanceof PlayerEntity))
 				return b;
-			Advancement advancement = world.getServer().getAdvancementLoader().get(new Identifier(Ultracraft.MOD_ID, "shotgun_get"));
+			Advancement advancement = getWorld().getServer().getAdvancementLoader().get(new Identifier(Ultracraft.MOD_ID, "shotgun_get"));
 			if(source.getAttacker() instanceof ServerPlayerEntity p && !p.getAdvancementTracker().getProgress(advancement).isDone())
 			{
-				LootTable lootTable = world.getServer().getLootManager().getTable(new Identifier(Ultracraft.MOD_ID, "entities/swordsmachine_breakdown"));
-				LootContext.Builder builder = getLootContextBuilder(source.getAttacker() instanceof PlayerEntity, source);
+				LootTable lootTable = getWorld().getServer().getLootManager().getLootTable(new Identifier(Ultracraft.MOD_ID, "entities/swordsmachine_breakdown"));
+				LootContextParameterSet.Builder builder = (new LootContextParameterSet.Builder((ServerWorld)this.getWorld())).add(LootContextParameters.THIS_ENTITY, this)
+																  .add(LootContextParameters.ORIGIN, this.getPos()).add(LootContextParameters.DAMAGE_SOURCE, source);
 				lootTable.generateLoot(builder.build(LootContextTypes.ENTITY), this::dropStack);
 				for (String string : p.getAdvancementTracker().getProgress(advancement).getUnobtainedCriteria())
 					p.getAdvancementTracker().grantCriterion(advancement, string);
@@ -376,7 +378,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		boolean changed = attack != dataTracker.get(CURRENT_ATTACK);
 		dataTracker.set(CURRENT_ATTACK, attack);
 		
-		if(world.isClient)
+		if(getWorld().isClient)
 		{
 			if(attack != 0)
 				addEntityTrail(attack);
@@ -386,7 +388,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		}
 		if(!changed)
 			return; //don't send needless packets
-		List<ServerPlayerEntity> players = world.getEntitiesByType(TypeFilter.instanceOf(ServerPlayerEntity.class), getBoundingBox().expand(128), LivingEntity::isAlive);
+		List<ServerPlayerEntity> players = getWorld().getEntitiesByType(TypeFilter.instanceOf(ServerPlayerEntity.class), getBoundingBox().expand(128), LivingEntity::isAlive);
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeInt(getId());
 		buf.writeBoolean(attack != 0);
@@ -480,13 +482,13 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		dir = dir.rotateY((float)Math.toRadians(-getBodyYaw()));
 		for (int i = 0; i < 16; i++)
 		{
-			ShotgunPelletEntity bullet = ShotgunPelletEntity.spawn(this, world, false);
+			ShotgunPelletEntity bullet = ShotgunPelletEntity.spawn(this, getWorld(), false);
 			bullet.setVelocity(dir.x, dir.y, dir.z, 1f, 20f);
 			Vec3d vel = bullet.getVelocity();
-			world.addParticle(ParticleTypes.SMOKE, bullet.getX(), bullet.getY(), bullet.getZ(), vel.x, vel.y, vel.z);
+			getWorld().addParticle(ParticleTypes.SMOKE, bullet.getX(), bullet.getY(), bullet.getZ(), vel.x, vel.y, vel.z);
 			bullet.setNoGravity(true);
 			bullet.setIgnored(getClass());
-			world.spawnEntity(bullet);
+			getWorld().spawnEntity(bullet);
 		}
 		playSound(SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 1.0f, 0.2f / (getRandom().nextFloat() * 0.2f + 0.6f));
 	}
@@ -494,7 +496,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	private void throwSword(LivingEntity target)
 	{
 		Vec3d dir = target.getPos().subtract(getPos()).normalize();
-		ThrownMachineSwordEntity sword = ThrownMachineSwordEntity.spawn(world, this, ItemStack.EMPTY, 30);
+		ThrownMachineSwordEntity sword = ThrownMachineSwordEntity.spawn(getWorld(), this, ItemStack.EMPTY, 30);
 		sword.setVelocity(dir);
 		sword.setYaw(-(float)Math.toDegrees(Math.atan2(dir.z, dir.x)) - 90);
 		dataTracker.set(HAS_SWORD, false);
@@ -562,14 +564,14 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	public boolean tryAttack(Entity target)
 	{
 		float f = (float)this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
-		return target.damage(DamageSources.get(world, DamageSources.SWORDSMACHINE, this), f);
+		return target.damage(DamageSources.get(getWorld(), DamageSources.SWORDSMACHINE, this), f);
 	}
 	
 	@Override
 	public void onRemoved()
 	{
 		super.onRemoved();
-		if(world.isClient)
+		if(getWorld().isClient)
 			setCurrentAttackTrail((byte)0); //remove attack Trail in case there is one
 	}
 	
@@ -590,8 +592,8 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	@Override
 	public void move(MovementType movementType, Vec3d movement)
 	{
-		BlockHitResult hit = world.raycast(new RaycastContext(getPos(), getPos().subtract(0, 2, 0), RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
-		if(world.getGameRules().getBoolean(GameruleRegistry.SM_SAFE_LEDGES) && !hit.getType().equals(HitResult.Type.MISS))
+		BlockHitResult hit = getWorld().raycast(new RaycastContext(getPos(), getPos().subtract(0, 2, 0), RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
+		if(getWorld().getGameRules().getBoolean(GameruleRegistry.SM_SAFE_LEDGES) && !hit.getType().equals(HitResult.Type.MISS))
 		{
 			for (int x = -1; x <= 1; x++)
 			{
@@ -599,7 +601,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 				{
 					if(x == 0 && z == 0)
 						continue;
-					if(world.isSpaceEmpty(getBoundingBox().expand(0.1).offset(movement).offset(x * 0.4, -2, z * 0.4)))
+					if(getWorld().isSpaceEmpty(getBoundingBox().expand(0.1).offset(movement).offset(x * 0.4, -2, z * 0.4)))
 					{
 						movement = movement.multiply(1f - Math.abs(x), 1f, 1f - Math.abs(z));
 						setVelocity(getVelocity().multiply(1f - Math.abs(x), 1f, 1f - Math.abs(z)));
@@ -903,7 +905,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 			if(timer > 10 && timer < 25)
 			{
 				sm.setVelocity(direction.multiply(0.75f));
-				List<Entity> hit = sm.world.getOtherEntities(sm, sm.getBoundingBox().expand(2f, 0f, 2f),
+				List<Entity> hit = sm.getWorld().getOtherEntities(sm, sm.getBoundingBox().expand(2f, 0f, 2f),
 						e -> (e instanceof PlayerEntity || (sm.shouldHuntHusks() && e instanceof AbstractHuskEntity)) && !damaged.contains(e));
 				hit.forEach(e -> {
 					if(sm.tryAttack(e))
@@ -1010,7 +1012,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 			if((timer >= 27 && timer <= 29) || (timer >= 42 && timer <= 44) || (timer == 62))
 			{
 				sm.setVelocity(direction.multiply(timer == 62 ? 0.75f : 1f));
-				List<Entity> hit = sm.world.getOtherEntities(sm, sm.getBoundingBox().expand(3f, 0f, 3f),
+				List<Entity> hit = sm.getWorld().getOtherEntities(sm, sm.getBoundingBox().expand(3f, 0f, 3f),
 						e -> (e instanceof PlayerEntity || (sm.shouldHuntHusks() && e instanceof AbstractHuskEntity)) && !damaged.contains(e));
 				hit.forEach(e -> {
 					if(sm.tryAttack(e))
@@ -1104,7 +1106,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 			if(timer > 10 && timer < 60)
 			{
 				float time = (timer - 12) / 48f * 3f;
-				List<Entity> hit = sm.world.getOtherEntities(sm, sm.getBoundingBox().expand(1f + time, 0f, 1f + time),
+				List<Entity> hit = sm.getWorld().getOtherEntities(sm, sm.getBoundingBox().expand(1f + time, 0f, 1f + time),
 						e -> (e instanceof PlayerEntity || (sm.shouldHuntHusks() && e instanceof AbstractHuskEntity)) && !damaged.contains(e));
 				hit.forEach(e -> {
 					if(sm.tryAttack(e))

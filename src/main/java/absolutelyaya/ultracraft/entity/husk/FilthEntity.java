@@ -214,7 +214,7 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 	
 	void delayNearby() //prevent insta-death through Filth Swarms
 	{
-		List<Entity> nearby = world.getOtherEntities(this, getBoundingBox().expand(6), e -> e instanceof FilthEntity);
+		List<Entity> nearby = getWorld().getOtherEntities(this, getBoundingBox().expand(6), e -> e instanceof FilthEntity);
 		nearby.forEach(e -> {
 			if(e instanceof FilthEntity filth)
 				filth.dataTracker.set(ATTACK_COOLDOWN, filth.dataTracker.get(ATTACK_COOLDOWN) + 5);

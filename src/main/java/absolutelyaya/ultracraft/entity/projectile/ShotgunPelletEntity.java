@@ -59,7 +59,7 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	{
 		super.tick();
 		if(age == 1 && !isRemoved())
-			if(world.isClient)
+			if(getWorld().isClient)
 				UltracraftClient.TRAIL_RENDERER.createTrail(uuid, this::getPoint, new Vector4f(1f, 1f, 0f, 0.4f), 5);
 		if(age == 5 && chosenOne) //after projboost time window, set speed to normal pellets
 			setVelocity(getVelocity().normalize().multiply(1.5f));
@@ -91,7 +91,7 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	{
 		Entity entity = entityHitResult.getEntity();
 		if(!entity.getClass().equals(ignore) || ((ProjectileEntityAccessor)this).isParried())
-			entity.damage(DamageSources.get(world, DamageSources.SHOTGUN, getOwner()), damage);
+			entity.damage(DamageSources.get(getWorld(), DamageSources.SHOTGUN, getOwner()), damage);
 	}
 	
 	@Override
@@ -106,7 +106,7 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 		if (status == 3)
 		{
 			if(hitPos != null)
-				world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, world.getBlockState(hitPos)), true,
+				getWorld().addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, getWorld().getBlockState(hitPos)), true,
 						getX(), getY(), getZ(), 0, 0, 0);
 		}
 	}
@@ -116,14 +116,14 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	{
 		Entity owner = getOwner();
 		Vec3d pos = hitResult.getPos();
-		ExplosionHandler.explosion(owner, world, pos, DamageSources.get(world, DamageSources.PROJBOOST, parrier), 3.5f, 2.3f, 3f, true);
+		ExplosionHandler.explosion(owner, getWorld(), pos, DamageSources.get(getWorld(), DamageSources.PROJBOOST, parrier), 3.5f, 2.3f, 3f, true);
 	}
 	
 	@Override
 	public void onRemoved()
 	{
 		super.onRemoved();
-		if(world.isClient)
+		if(getWorld().isClient)
 			UltracraftClient.TRAIL_RENDERER.removeTrail(uuid);
 	}
 	
@@ -132,7 +132,7 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	{
 		if(isRemoved())
 			return;
-		if(world.isClient)
+		if(getWorld().isClient)
 			UltracraftClient.TRAIL_RENDERER.removeTrail(uuid);
 		super.onCollision(hitResult);
 	}

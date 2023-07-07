@@ -53,7 +53,7 @@ public class UltracraftCommand
 		ServerPlayerEntity target = EntityArgumentType.getPlayer(context, "target");
 		if(context.getSource().getPlayer().equals(target))
 		{
-			context.getSource().sendFeedback(Text.translatable("command.ultracraft.block.self"), false);
+			context.getSource().sendFeedback(() -> Text.translatable("command.ultracraft.block.self"), false);
 			return Command.SINGLE_SUCCESS;
 		}
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
@@ -67,7 +67,7 @@ public class UltracraftCommand
 		ServerPlayerEntity target = EntityArgumentType.getPlayer(context, "target");
 		if(context.getSource().getPlayer().equals(target))
 		{
-			context.getSource().sendFeedback(Text.translatable("command.ultracraft.block.self"), false);
+			context.getSource().sendFeedback(() -> Text.translatable("command.ultracraft.block.self"), false);
 			return Command.SINGLE_SUCCESS;
 		}
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
@@ -81,11 +81,11 @@ public class UltracraftCommand
 		int ticks = context.getArgument("ticks", Integer.class);
 		String senderName = context.getSource().getPlayer().getName().getString();
 		if(context.getSource().getWorld().getGameRules().get(GameruleRegistry.TIME_STOP).get().equals(GameruleRegistry.Option.FORCE_OFF))
-			context.getSource().sendFeedback(Text.translatable("command.ultracraft.time-freeze.fail"), false);
+			context.getSource().sendFeedback(() -> Text.translatable("command.ultracraft.time-freeze.fail"), false);
 		else
 		{
 			Ultracraft.freeze(context.getSource().getWorld(), ticks);
-			context.getSource().sendFeedback(Text.translatable("command.ultracraft.time-freeze.success", senderName, ticks), true);
+			context.getSource().sendFeedback(() -> Text.translatable("command.ultracraft.time-freeze.success", senderName, ticks), true);
 		}
 		return Command.SINGLE_SUCCESS;
 	}
@@ -96,10 +96,10 @@ public class UltracraftCommand
 		if(Ultracraft.isTimeFrozen())
 		{
 			Ultracraft.cancelFreeze(context.getSource().getWorld());
-			context.getSource().sendFeedback(Text.translatable("command.ultracraft.time-unfreeze.success", senderName), true);
+			context.getSource().sendFeedback(() -> Text.translatable("command.ultracraft.time-unfreeze.success", senderName), true);
 		}
 		else
-			context.getSource().sendFeedback(Text.translatable("command.ultracraft.time-unfreeze.fail"), false);
+			context.getSource().sendFeedback(() -> Text.translatable("command.ultracraft.time-unfreeze.fail"), false);
 		return Command.SINGLE_SUCCESS;
 	}
 }

@@ -1,7 +1,6 @@
 package absolutelyaya.ultracraft.entity.projectile;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.accessor.ChainParryAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
@@ -91,7 +90,7 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 	@Override
 	public void tick()
 	{
-		if(world.isClient && age == 1)
+		if(getWorld().isClient && age == 1)
 			UltracraftClient.TRAIL_RENDERER.createTrail(uuid,
 					() -> {
 						float deg = (float)Math.toRadians(getYaw() + 90);
@@ -99,7 +98,7 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 						Vector3f right = getTrailPos(deg, 1f);
 						return new Pair<>(left, right);
 					}, new Vector4f(1f, 0.5f, 0f, 0.6f), 30);
-		if(world.isClient && Ultracraft.isTimeFrozen())
+		if(getWorld().isClient && Ultracraft.isTimeFrozen())
 			return;
 		move(MovementType.SELF, getVelocity());
 		
@@ -110,9 +109,9 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 		
 		if(isInStasis() && dataTracker.get(STASIS_TICKS) % 5 == 0)
 		{
-			world.getOtherEntities(this, getBoundingBox().expand(0.5)).forEach(e -> {
+			getWorld().getOtherEntities(this, getBoundingBox().expand(0.5)).forEach(e -> {
 				if(!e.equals(getOwner()))
-					e.damage(DamageSources.get(world, DamageSources.SWORDSMACHINE, getOwner()), 2);
+					e.damage(DamageSources.get(getWorld(), DamageSources.SWORDSMACHINE, getOwner()), 2);
 			});
 		}
 	}
@@ -166,7 +165,7 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 					if(isParried())
 					{
 						sm.onInterrupt(parrier);
-						sm.damage(DamageSources.get(world, DamageSources.PARRY, parrier), 30);
+						sm.damage(DamageSources.get(getWorld(), DamageSources.PARRY, parrier), 30);
 					}
 				}
 				if(getOwner() instanceof PlayerEntity p && tryPickup(p))
@@ -174,7 +173,7 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 					if(!p.giveItemStack(dataTracker.get(SWORD)))
 						dropStack(asItemStack());
 					if(isParried())
-						p.damage(DamageSources.get(world, DamageSources.PARRY, parrier), 12);
+						p.damage(DamageSources.get(getWorld(), DamageSources.PARRY, parrier), 12);
 				}
 				discard();
 			}
@@ -221,7 +220,7 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 			onPlayerCollision(p);
 		if(!isOwner(hit) && !isInStasis())
 		{
-			if(hit.damage(DamageSources.get(world, DamageSources.SWORDSMACHINE, getOwner()), 6) && getOwner() instanceof PlayerEntity playerOwner)
+			if(hit.damage(DamageSources.get(getWorld(), DamageSources.SWORDSMACHINE, getOwner()), 6) && getOwner() instanceof PlayerEntity playerOwner)
 				playerOwner.playSound(SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 0.5f, hitNoisePitch += 0.05);
 		}
 	}
@@ -286,7 +285,7 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 	@Override
 	public boolean isBoostable()
 	{
-		return switch(world.getGameRules().get(GameruleRegistry.PROJ_BOOST).get())
+		return switch(getWorld().getGameRules().get(GameruleRegistry.PROJ_BOOST).get())
 		{
 			case ALLOW_ALL -> true;
 			case ENTITY_TAG -> getType().isIn(EntityRegistry.PROJBOOSTABLE);
@@ -311,7 +310,7 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 	public void onRemoved()
 	{
 		super.onRemoved();
-		if(world.isClient)
+		if(getWorld().isClient)
 			UltracraftClient.TRAIL_RENDERER.removeTrail(uuid);
 	}
 	

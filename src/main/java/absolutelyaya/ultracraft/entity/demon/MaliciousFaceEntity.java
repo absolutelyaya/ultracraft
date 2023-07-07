@@ -115,10 +115,10 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 				double x = random.nextDouble() * dimensions.width - dimensions.width / 2 + getX();
 				double y = random.nextDouble() * dimensions.height - dimensions.height / 2 + getY();
 				double z = random.nextDouble() * dimensions.width - dimensions.width / 2 + getZ();
-				world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.CHISELED_STONE_BRICKS.getDefaultState()),
+				getWorld().addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.CHISELED_STONE_BRICKS.getDefaultState()),
 						x, y, z, 0f, 0f, 0f);
 			}
-			if(world.getDifficulty().equals(Difficulty.HARD) || world.getGameRules().getBoolean(GameruleRegistry.EFFECTIVELY_VIOLENT))
+			if(getWorld().getDifficulty().equals(Difficulty.HARD) || getWorld().getGameRules().getBoolean(GameruleRegistry.EFFECTIVELY_VIOLENT))
 				playSound(SoundEvents.ENTITY_ZOMBIE_VILLAGER_CURE, 1.5f, 0.9f);
 		}
 		else if(data.equals(LANDED) && dataTracker.get(LANDED))
@@ -127,8 +127,8 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 			{
 				float x = (float)((random.nextDouble() * 16) - 8 + getX());
 				float z = (float)((random.nextDouble() * 16) - 8 + getZ());
-				world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK,
-						world.getBlockState(new BlockPos((int)getX(), (int)getY() - 2, (int)getZ()))),
+				getWorld().addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK,
+						getWorld().getBlockState(new BlockPos((int)getX(), (int)getY() - 2, (int)getZ()))),
 						x, getY(), z, 0f, 0f, 0f);
 			}
 		}
@@ -225,7 +225,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 			Vec3d particlePos = getPos().add(getRotationVector().multiply(1f));
 			Vec3d offset = new Vec3d(random.nextDouble() * 1.6, random.nextDouble() * 1.6, random.nextDouble() * 1.6);
 			offset = offset.multiply(random.nextBoolean() ? 1f : -1f);
-			world.addParticle(ParticleRegistry.MALICIOUS_CHARGE, particlePos.x + offset.x, particlePos.y + offset.y, particlePos.z + offset.z,
+			getWorld().addParticle(ParticleRegistry.MALICIOUS_CHARGE, particlePos.x + offset.x, particlePos.y + offset.y, particlePos.z + offset.z,
 					-offset.x * 0.04, -offset.y * 0.04, -offset.z * 0.04);
 		}
 		if(dataTracker.get(CRACKED))
@@ -236,7 +236,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 			double y = random.nextDouble() * dimensions.height + getY();
 			double z = random.nextDouble() * dimensions.width - dimensions.width / 2 + getZ();
 			if(rand.nextFloat() > 0.5f + getHealth() / getMaxHealth())
-				world.addParticle(new GoopStringParticleEffect(new Vec3d(0.56, 0.09, 0.01),
+				getWorld().addParticle(new GoopStringParticleEffect(new Vec3d(0.56, 0.09, 0.01),
 								0.4f + rand.nextFloat() * 0.2f), x, y, z,
 						0f, 0f, 0f);
 		}
@@ -249,7 +249,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 		super.move(movementType, movement);
 		if(movement.lengthSquared() > 0.02)
 		{
-			List<Entity> list = world.getOtherEntities(this, getBoundingBox().expand(0f, 0.1, 0f), e -> !(e instanceof MaliciousFaceEntity));
+			List<Entity> list = getWorld().getOtherEntities(this, getBoundingBox().expand(0f, 0.1, 0f), e -> !(e instanceof MaliciousFaceEntity));
 			list.forEach(e -> e.move(MovementType.SHULKER, movement));
 		}
 	}
@@ -287,7 +287,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 					double x = random.nextDouble() - 0.5 + getX();
 					double y = random.nextDouble() - 0.5 + getY() + 1f;
 					double z = random.nextDouble() - 0.5 + getZ();
-					world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.CHISELED_STONE_BRICKS.getDefaultState()),
+					getWorld().addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, Blocks.CHISELED_STONE_BRICKS.getDefaultState()),
 							x, y, z, 0f, 0f, 0f);
 				}
 			}
@@ -320,18 +320,18 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	{
 		if(dataTracker.get(DEAD) && onGround)
 		{
-			if(!world.isClient)
+			if(!getWorld().isClient)
 			{
-				ShockwaveEntity shockwave = EntityRegistry.SHOCKWAVE.spawn((ServerWorld)world, getBlockPos(), SpawnReason.EVENT);
+				ShockwaveEntity shockwave = EntityRegistry.SHOCKWAVE.spawn((ServerWorld)getWorld(), getBlockPos(), SpawnReason.EVENT);
 				if(shockwave != null)
 				{
 					shockwave.setIgnored(getClass());
 					shockwave.setDamage(0f);
 				}
 			}
-			List<Entity> entities = world.getOtherEntities(this, getBoundingBox(), Entity::isLiving);
+			List<Entity> entities = getWorld().getOtherEntities(this, getBoundingBox(), Entity::isLiving);
 			for (Entity e : entities)
-				e.damage(DamageSources.get(world, DamageSources.MAURICE), 999f);
+				e.damage(DamageSources.get(getWorld(), DamageSources.MAURICE), 999f);
 			dataTracker.set(LANDED, true);
 			setPosition(getPos().subtract(0f, 0.5f, 0f));
 		}
@@ -340,15 +340,15 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	@Override
 	public void kill()
 	{
-		damage(DamageSources.get(world, DamageTypes.STARVE), Float.MAX_VALUE);
+		damage(DamageSources.get(getWorld(), DamageTypes.STARVE), Float.MAX_VALUE);
 	}
 	
 	@Override
 	protected void updatePostDeath()
 	{
-		if(!world.isClient && !isRemoved())
+		if(!getWorld().isClient && !isRemoved())
 		{
-			world.sendEntityStatus(this, EntityStatuses.ADD_DEATH_PARTICLES);
+			getWorld().sendEntityStatus(this, EntityStatuses.ADD_DEATH_PARTICLES);
 			remove(RemovalReason.KILLED);
 		}
 	}
@@ -373,9 +373,9 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	
 	public boolean isEnraged()
 	{
-		if(world.isClient)
-			return isCracked() && (world.getDifficulty().equals(Difficulty.HARD) || UltracraftClient.isViolentFeaturesEnabled(world));
-		return isCracked() && (world.getDifficulty().equals(Difficulty.HARD) || world.getGameRules().getBoolean(GameruleRegistry.EFFECTIVELY_VIOLENT));
+		if(getWorld().isClient)
+			return isCracked() && (getWorld().getDifficulty().equals(Difficulty.HARD) || UltracraftClient.isViolentFeaturesEnabled(getWorld()));
+		return isCracked() && (getWorld().getDifficulty().equals(Difficulty.HARD) || getWorld().getGameRules().getBoolean(GameruleRegistry.EFFECTIVELY_VIOLENT));
 	}
 	
 	@Override
@@ -392,7 +392,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	
 	public void shootBullet(LivingEntity target)
 	{
-		HellBulletEntity bullet = HellBulletEntity.spawn(this, this.world);
+		HellBulletEntity bullet = HellBulletEntity.spawn(this, this.getWorld());
 		double d = target.getEyeY() - 0f;
 		double e = target.getX() - getX();
 		double f = d - bullet.getY();
@@ -400,7 +400,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 		bullet.setVelocity(e, f, g, 1f, 0.0f);
 		bullet.setNoGravity(true);
 		this.playSound(SoundEvents.ENTITY_SNOW_GOLEM_SHOOT, 1.0f, 0.4f / (this.getRandom().nextFloat() * 0.4f + 0.8f));
-		this.world.spawnEntity(bullet);
+		this.getWorld().spawnEntity(bullet);
 	}
 	
 	@Override
@@ -439,8 +439,8 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	@Override
 	public void onInterrupt(PlayerEntity parrier)
 	{
-		if(!world.isClient && getServer() != null)
-			getServer().execute(() -> ExplosionHandler.explosion(parrier, world, new Vec3d(getX(), getY(), getZ()),
+		if(!getWorld().isClient && getServer() != null)
+			getServer().execute(() -> ExplosionHandler.explosion(parrier, getWorld(), new Vec3d(getX(), getY(), getZ()),
 					getDamageSources().explosion(parrier, parrier), 10f, 0f, 5.5f, true));
 		damage(getDamageSources().mobAttack(parrier), 10);
 		dataTracker.set(WAS_INTERRUPTED, true);
@@ -448,7 +448,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	
 	public float getDistanceToGround()
 	{
-		BlockHitResult hit = world.raycast(new RaycastContext(getPos(), getPos().add(0, -25, 0),
+		BlockHitResult hit = getWorld().raycast(new RaycastContext(getPos(), getPos().add(0, -25, 0),
 				RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
 		return getBlockY() - (float)hit.getPos().y;
 	}
@@ -514,7 +514,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 		private boolean willCollide(Vec3d direction)
 		{
 			Box box = face.getBoundingBox().offset(direction.multiply(0.5));
-			return !face.world.isSpaceEmpty(face, box);
+			return !face.getWorld().isSpaceEmpty(face, box);
 		}
 	}
 	
@@ -540,7 +540,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 		
 		public void start()
 		{
-			double y = face.world.getTopY(Heightmap.Type.MOTION_BLOCKING, face.getBlockX(), face.getBlockZ()) + DESIRED_HEIGHT + 1.5;
+			double y = face.getWorld().getTopY(Heightmap.Type.MOTION_BLOCKING, face.getBlockX(), face.getBlockZ()) + DESIRED_HEIGHT + 1.5;
 			if(!face.getMoveControl().isMoving())
 				face.getMoveControl().moveTo(face.getX(), y, face.getZ(), 0.05);
 		}
@@ -576,7 +576,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 			
 			double x = target.getX() + invDir.x;
 			double z = target.getZ() + invDir.z;
-			double y = face.world.getTopY(Heightmap.Type.MOTION_BLOCKING, target.getBlockX(), target.getBlockZ()) + DESIRED_HEIGHT;
+			double y = face.getWorld().getTopY(Heightmap.Type.MOTION_BLOCKING, target.getBlockX(), target.getBlockZ()) + DESIRED_HEIGHT;
 			if(!face.getMoveControl().isMoving())
 				face.getMoveControl().moveTo(x, y, z, 0.05);
 		}
@@ -603,7 +603,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 		{
 			if(face.moveControl.isMoving() || face.random.nextDouble() < 0.9)
 				return false;
-			List<MaliciousFaceEntity> nearby = face.world.getEntitiesByType(TypeFilter.instanceOf(MaliciousFaceEntity.class),
+			List<MaliciousFaceEntity> nearby = face.getWorld().getEntitiesByType(TypeFilter.instanceOf(MaliciousFaceEntity.class),
 					face.getBoundingBox().expand(5f), LivingEntity::isAlive);
 			float closestDistance = Float.MAX_VALUE;
 			for (MaliciousFaceEntity e : nearby)
@@ -629,7 +629,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 			
 			double x = closestOther.getX() + invDir.x;
 			double z = closestOther.getZ() + invDir.z;
-			double y = face.world.getTopY(Heightmap.Type.MOTION_BLOCKING, closestOther.getBlockX(), closestOther.getBlockZ()) + DESIRED_HEIGHT;
+			double y = face.getWorld().getTopY(Heightmap.Type.MOTION_BLOCKING, closestOther.getBlockX(), closestOther.getBlockZ()) + DESIRED_HEIGHT;
 			if(!face.getMoveControl().isMoving())
 				face.getMoveControl().moveTo(x, y, z, 0.05);
 		}

@@ -84,7 +84,7 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 		if(getOwner() instanceof PlayerEntity)
 			super.setVelocity(velocity);
 		else
-			super.setVelocity(velocity.multiply(1f + Math.max(world.getDifficulty().getId() - 1, 0) * 0.1f));
+			super.setVelocity(velocity.multiply(1f + Math.max(getWorld().getDifficulty().getId() - 1, 0) * 0.1f));
 	}
 	
 	@Override
@@ -92,9 +92,9 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 	{
 		if(parrier != null)
 			onParriedCollision(hitResult);
-		if (!world.isClient && !isRemoved())
+		if (!getWorld().isClient && !isRemoved())
 		{
-			world.sendEntityStatus(this, (byte)3);
+			getWorld().sendEntityStatus(this, (byte)3);
 			discard();
 		}
 		super.onCollision(hitResult);
@@ -114,7 +114,7 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 	@Override
 	public void tick()
 	{
-		if(isRemoved() || (world.isClient && Ultracraft.isTimeFrozen()))
+		if(isRemoved() || (getWorld().isClient && Ultracraft.isTimeFrozen()))
 			return;
 		if (!shot) {
 			emitGameEvent(GameEvent.PROJECTILE_SHOOT, getOwner());
@@ -135,15 +135,15 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 		
 		if(age > getMaxAge())
 		{
-			world.addParticle(new ItemStackParticleEffect(ParticleTypes.ITEM, getStack()),
+			getWorld().addParticle(new ItemStackParticleEffect(ParticleTypes.ITEM, getStack()),
 					getX(), getY(), getZ(), 0f, 0f, 0f);
-			if(!world.isClient())
+			if(!getWorld().isClient())
 				discard();
 		}
 		
 		if(age == 1)
 		{
-			List<Entity> entities = world.getOtherEntities(getOwner(), getBoundingBox().stretch(this.getVelocity()), this::canHit);
+			List<Entity> entities = getWorld().getOtherEntities(getOwner(), getBoundingBox().stretch(this.getVelocity()), this::canHit);
 			if(entities.size() > 0)
 				onCollision(new EntityHitResult(entities.get(0)));
 		}
@@ -174,7 +174,7 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 		Entity owner = getOwner();
 		if(owner == null)
 		{
-			ExplosionHandler.explosion(null, world, pos, DamageSources.get(world, DamageSources.PARRYAOE, parrier),
+			ExplosionHandler.explosion(null, getWorld(), pos, DamageSources.get(getWorld(), DamageSources.PARRYAOE, parrier),
 					5f * damageMult, 1f, 3f * rangeMult, true);
 			return;
 		}
@@ -182,8 +182,8 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 		if(hitResult.getType().equals(HitResult.Type.ENTITY))
 			hit = ((EntityHitResult)hitResult).getEntity();
 		if(owner.equals(hit))
-			owner.damage(DamageSources.get(world, DamageSources.PARRY, parrier), 15 * damageMult);
-		ExplosionHandler.explosion(owner.equals(hit) ? hit : null, world, pos, DamageSources.get(world, DamageSources.PARRYAOE, parrier),
+			owner.damage(DamageSources.get(getWorld(), DamageSources.PARRY, parrier), 15 * damageMult);
+		ExplosionHandler.explosion(owner.equals(hit) ? hit : null, getWorld(), pos, DamageSources.get(getWorld(), DamageSources.PARRYAOE, parrier),
 				5f * damageMult, 1f, 3f * rangeMult, true);
 	}
 	
@@ -232,7 +232,7 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 	@Override
 	public boolean isBoostable()
 	{
-		return switch(world.getGameRules().get(GameruleRegistry.PROJ_BOOST).get())
+		return switch(getWorld().getGameRules().get(GameruleRegistry.PROJ_BOOST).get())
 		{
 			case ALLOW_ALL -> true;
 			case ENTITY_TAG -> getType().isIn(EntityRegistry.PROJBOOSTABLE);

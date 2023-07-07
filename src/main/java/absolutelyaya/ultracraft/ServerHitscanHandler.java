@@ -103,7 +103,7 @@ public class ServerHitscanHandler
 				new Vec3d(-0.5f * (user instanceof PlayerEntity player && player.getMainArm().equals(Arm.LEFT) ? -1 : 1), -0.2f, 0.4f)
 						.rotateX(-(float)Math.toRadians(user.getPitch())).rotateY(-(float) Math.toRadians(user.getYaw())));
 		Vec3d dest = user.getEyePos().add(user.getRotationVec(0.5f).multiply(64.0));
-		performHitscan(user, origin, visualOrigin, dest, type, damage, DamageSources.get(user.world, DamageSources.GUN, user), maxHits, explosion);
+		performHitscan(user, origin, visualOrigin, dest, type, damage, DamageSources.get(user.getWorld(), DamageSources.GUN, user), maxHits, explosion);
 	}
 	
 	public static HitscanResult performHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, DamageSource source, int maxHits, @Nullable HitscanExplosionData explosion)
@@ -151,7 +151,7 @@ public class ServerHitscanHandler
 			if(state.getBlock() instanceof BellBlock bell)
 				bell.ring(world, state, bHit, p, false);
 		}
-		sendPacket((ServerWorld)user.world, visualFrom, modifiedTo, type);
+		sendPacket((ServerWorld)user.getWorld(), visualFrom, modifiedTo, type);
 		if(bHit != null && !(entities.size() > 0 && maxHits == 0))
 			return new HitscanResult(bHit, dir, entities.size()); //BlockHit
 		else if(entities.size() > 0 && finalEHit != null)
@@ -167,7 +167,7 @@ public class ServerHitscanHandler
 				new Vec3d(-0.5f * (user instanceof PlayerEntity player && player.getMainArm().equals(Arm.LEFT) ? -1 : 1), -0.2f, 0.4f)
 						.rotateX(-(float)Math.toRadians(user.getPitch())).rotateY(-(float) Math.toRadians(user.getYaw())));
 		Vec3d dest = origin.add(user.getRotationVec(0.5f).normalize().multiply(64));
-		performBouncingHitscan(user, origin, visualOrigin, dest, type, damage, DamageSources.get(user.world, DamageSources.GUN, user), maxHits, bounces);
+		performBouncingHitscan(user, origin, visualOrigin, dest, type, damage, DamageSources.get(user.getWorld(), DamageSources.GUN, user), maxHits, bounces);
 	}
 	
 	public static void performBouncingHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, DamageSource source, int maxHits, int bounces)
@@ -191,7 +191,7 @@ public class ServerHitscanHandler
 			Vec3d lastDir = lastResult.dir;
 			Vec3d hitNormal = new Vec3d(((BlockHitResult)lastResult.finalHit).getSide().getUnitVector());
 			Vec3d dest = hitPos.add(lastDir.subtract(hitNormal.multiply(2 * lastDir.dotProduct(hitNormal))).normalize().multiply(64));
-			scheduleHitscan(user, hitPos, hitPos, dest, type, damage, DamageSources.get(user.world, DamageSources.GUN, user), maxHits, bounces, null, 1);
+			scheduleHitscan(user, hitPos, hitPos, dest, type, damage, DamageSources.get(user.getWorld(), DamageSources.GUN, user), maxHits, bounces, null, 1);
 		}
 	}
 	

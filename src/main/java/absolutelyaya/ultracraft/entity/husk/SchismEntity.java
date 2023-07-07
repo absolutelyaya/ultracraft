@@ -119,7 +119,7 @@ public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Inter
 	
 	private void ShootBullet(float degrees, boolean vertical)
 	{
-		HellBulletEntity bullet = HellBulletEntity.spawn(this, world);
+		HellBulletEntity bullet = HellBulletEntity.spawn(this, getWorld());
 		Vec3d dir = new Vec3d(0f, 0f, 1f);
 		if(vertical)
 			dir = dir.rotateX((float)Math.toRadians(-degrees));
@@ -130,16 +130,16 @@ public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Inter
 		bullet.setNoGravity(true);
 		bullet.setIgnored(getClass());
 		playSound(SoundEvents.ENTITY_SNOW_GOLEM_SHOOT, 1.0f, 0.4f / (getRandom().nextFloat() * 0.4f + 0.8f));
-		world.spawnEntity(bullet);
+		getWorld().spawnEntity(bullet);
 	}
 	
 	@Override
 	public void onInterrupted(PlayerEntity interruptor)
 	{
-		world.playSound(null, interruptor.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
-		Ultracraft.freeze((ServerWorld)world, 10);
-		damage(DamageSources.get(world, DamageSources.INTERRUPT, interruptor), 5f);
-		ExplosionHandler.explosion(interruptor, world, new Vec3d(getX(), getY(), getZ()),
+		getWorld().playSound(null, interruptor.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
+		Ultracraft.freeze((ServerWorld)getWorld(), 10);
+		damage(DamageSources.get(getWorld(), DamageSources.INTERRUPT, interruptor), 5f);
+		ExplosionHandler.explosion(interruptor, getWorld(), new Vec3d(getX(), getY(), getZ()),
 				getDamageSources().explosion(this, interruptor), 5f, 2f, 3f, true);
 	}
 	
@@ -152,7 +152,7 @@ public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Inter
 	
 	private InterruptableCharge addInterruptableCharge()
 	{
-		return InterruptableCharge.spawn(world, this, 11, 0.5f, 1f);
+		return InterruptableCharge.spawn(getWorld(), this, 11, 0.5f, 1f);
 	}
 	
 	static class AttackGoal extends Goal

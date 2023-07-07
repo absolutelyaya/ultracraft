@@ -55,7 +55,7 @@ public class ClientPacketRegistry
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.DASH_S2C_PACKET_ID, (client, handler, buf, sender) -> {
 			if(client.player == null)
 				return;
-			PlayerEntity player = client.player.world.getPlayerByUuid(buf.readUuid());
+			PlayerEntity player = client.player.getWorld().getPlayerByUuid(buf.readUuid());
 			if(player == null)
 				return;
 			Vec3d dir = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
@@ -68,7 +68,7 @@ public class ClientPacketRegistry
 					Vec3d particleVel = new Vec3d(-dir.x, -dir.y, -dir.z).multiply(rand.nextDouble() * 0.33 + 0.1);
 					pos = player.getPos().add((rand.nextDouble() - 0.5) * player.getWidth() * 2,
 							rand.nextDouble() * player.getHeight() + 0.5, (rand.nextDouble() - 0.5) * player.getWidth() * 2).add(dir.multiply(0.25));
-					client.player.world.addParticle(ParticleRegistry.DASH, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
+					client.player.getWorld().addParticle(ParticleRegistry.DASH, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
 				}
 			});
 		});
@@ -79,18 +79,18 @@ public class ClientPacketRegistry
 			Vec3d pos = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
 			double halfheight = buf.readDouble();
 			boolean shotgun = buf.readBoolean();
-			boolean water = client.player.world.getFluidState(new BlockPos((int)pos.x, (int)pos.y, (int)pos.z)).isIn(FluidTags.WATER);
+			boolean water = client.player.getWorld().getFluidState(new BlockPos((int)pos.x, (int)pos.y, (int)pos.z)).isIn(FluidTags.WATER);
 			MinecraftClient.getInstance().execute(() -> {
 				Random rand = client.player.getRandom();
 				for (int i = 0; i < Math.min(3 * amount, 32); i++)
 				{
 					if(!water)
-						client.player.world.addParticle(new GoopDropParticleEffect(
+						client.player.getWorld().addParticle(new GoopDropParticleEffect(
 										UltracraftClient.getConfigHolder().get().danganronpa ? new Vec3d(1.0, 0.32, 0.83) : new Vec3d(0.56, 0.09, 0.01),
 										0.6f + rand.nextFloat() * 0.4f * (amount / 10f)), pos.x, pos.y + halfheight, pos.z,
 								rand.nextDouble() - 0.5, rand.nextDouble() - 0.5, rand.nextDouble() - 0.5);
 					else
-						client.player.world.addParticle(new DustParticleEffect(
+						client.player.getWorld().addParticle(new DustParticleEffect(
 										UltracraftClient.getConfigHolder().get().danganronpa ? new Vector3f(1.0f, 0.32f, 0.83f) : new Vector3f(0.56f, 0.09f, 0.01f),
 										3.6f + rand.nextFloat() * 0.4f * (amount / 10f)),
 								pos.x + (rand.nextDouble() - 0.5) * 0.5, pos.y + halfheight + (rand.nextDouble() - 0.5) * halfheight * 1.5, pos.z + (rand.nextDouble() - 0.5) * 0.5,
@@ -106,7 +106,7 @@ public class ClientPacketRegistry
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.WING_STATE_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)
 				return;
-			PlayerEntity player = client.player.world.getPlayerByUuid(buf.readUuid());
+			PlayerEntity player = client.player.getWorld().getPlayerByUuid(buf.readUuid());
 			if(player == null)
 				return;
 			boolean b = buf.readBoolean();
@@ -119,7 +119,7 @@ public class ClientPacketRegistry
 			if(client.player == null)
 				return;
 			UUID id = buf.readUuid();
-			PlayerEntity player = client.player.world.getPlayerByUuid(id);
+			PlayerEntity player = client.player.getWorld().getPlayerByUuid(id);
 			if(player == null)
 				return;
 			boolean b = buf.readBoolean();
@@ -184,7 +184,7 @@ public class ClientPacketRegistry
 			if(player == null)
 				return;
 			BlockPos pos = buf.readBlockPos();
-			BlockState state = client.player.world.getBlockState(pos);
+			BlockState state = client.player.getWorld().getBlockState(pos);
 			boolean strong = buf.readBoolean();
 			MinecraftClient.getInstance().execute(() -> {
 				Random random = client.player.getRandom();
@@ -192,11 +192,11 @@ public class ClientPacketRegistry
 				{
 					float x = (float)((random.nextDouble() * 6) - 3 + player.getX());
 					float z = (float)((random.nextDouble() * 6) - 3 + player.getZ());
-					client.player.world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), true,
+					client.player.getWorld().addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, state), true,
 							x, pos.up().getY() + 0.1, z, 0f, 1f, 0f);
 				}
 				if(strong)
-					client.player.world.addParticle(ParticleTypes.EXPLOSION, true,
+					client.player.getWorld().addParticle(ParticleTypes.EXPLOSION, true,
 							player.getX(), pos.up().getY() - 0.2, player.getZ(), 0f, 0f, 0f);
 			});
 		}));
@@ -206,20 +206,20 @@ public class ClientPacketRegistry
 			Vec3d pos = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
 			float radius = (float)buf.readDouble();
 			MinecraftClient.getInstance().execute(() -> {
-				ExplosionHandler.explosionClient((ClientWorld)client.player.world,
+				ExplosionHandler.explosionClient((ClientWorld)client.player.getWorld(),
 						pos, radius);
 			});
 		})));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.PRIMARY_SHOT_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)
 				return;
-			PlayerEntity player = client.player.world.getPlayerByUuid(buf.readUuid());
+			PlayerEntity player = client.player.getWorld().getPlayerByUuid(buf.readUuid());
 			if(player == null)
 				return;
 			Vec3d velocity = player.getVelocity();
 			MinecraftClient.getInstance().execute(() -> {
 				if(player.getMainHandStack().getItem() instanceof AbstractWeaponItem gun)
-					gun.onPrimaryFire(player.world, player, velocity);
+					gun.onPrimaryFire(player.getWorld(), player, velocity);
 			});
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.DEBUG, ((client, handler, buf, sender) -> {
@@ -227,14 +227,14 @@ public class ClientPacketRegistry
 				return;
 			Vector3f pos = buf.readVector3f();
 			MinecraftClient.getInstance().execute(() -> {
-				client.player.world.addParticle(ParticleTypes.FLAME, pos.x, pos.y, pos.z, 0f, 0f, 0f);;
+				client.player.getWorld().addParticle(ParticleTypes.FLAME, pos.x, pos.y, pos.z, 0f, 0f, 0f);;
 			});
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SKIM_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)
 				return;
 			Vec3d pos = new Vec3d(buf.readVector3f());
-			MinecraftClient.getInstance().execute(() -> client.player.world.addParticle(ParticleRegistry.RIPPLE, pos.x, pos.y, pos.z, 0, 0, 0));
+			MinecraftClient.getInstance().execute(() -> client.player.getWorld().addParticle(ParticleRegistry.RIPPLE, pos.x, pos.y, pos.z, 0, 0, 0));
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.COIN_PUNCH_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)
@@ -290,8 +290,8 @@ public class ClientPacketRegistry
 				return;
 			Vector3f source = buf.readVector3f();
 			MinecraftClient.getInstance().execute(() -> {
-				client.player.world.addParticle(ParticleRegistry.RICOCHET_WARNING, source.x, source.y, source.z, 0, 0, 0);
-				client.player.world.playSound(null, BlockPos.ofFloored(new Vec3d(source)), SoundEvents.BLOCK_BELL_RESONATE, SoundCategory.PLAYERS, 1f, 1.65f);
+				client.player.getWorld().addParticle(ParticleRegistry.RICOCHET_WARNING, source.x, source.y, source.z, 0, 0, 0);
+				client.player.getWorld().playSound(null, BlockPos.ofFloored(new Vec3d(source)), SoundEvents.BLOCK_BELL_RESONATE, SoundCategory.PLAYERS, 1f, 1.65f);
 			});
 		}));
 	}

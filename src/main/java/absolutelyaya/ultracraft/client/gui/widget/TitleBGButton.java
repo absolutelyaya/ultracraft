@@ -4,8 +4,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.TexturedButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
@@ -24,9 +24,9 @@ public class TitleBGButton extends TexturedButtonWidget
 	}
 	
 	@Override
-	public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta)
+	public void renderButton(DrawContext context, int mouseX, int mouseY, float delta)
 	{
-		drawTexture(matrices, texture, getX(), getY(), u, v, hoveredVOffset, width, height, textureWidth, textureHeight);
+		drawTexture(context, texture, getX(), getY(), u, v, hoveredVOffset, width, height, textureWidth, textureHeight);
 		if(wasLastPressed && !this.equals(lastPressed))
 		{
 			desiredXPos = originalX;
@@ -46,15 +46,15 @@ public class TitleBGButton extends TexturedButtonWidget
 			return;
 		TextRenderer renderer = MinecraftClient.getInstance().textRenderer;
 		int textX = getX() + 34 + renderer.getWidth(getMessage()) / 2;
-		drawCenteredTextWithShadow(matrices, renderer, getMessage(),
+		context.drawCenteredTextWithShadow(renderer, getMessage(),
 				textX, getY() + 12, Color.ofRGBA(1f, 1f, 1f, hoverTime).getColor());
 		hoverTime = MathHelper.clamp(hoverTime + ((isHovered() || isFocused()) ? delta : -delta) / 2f, 0.05f, 1f);
 		setX((int)(actualXPos = MathHelper.lerp(delta / 4f, actualXPos, desiredXPos)));
 	}
 	
 	@Override
-	public void drawTexture(MatrixStack matrices, Identifier texture, int x, int y, int u, int v, int hoveredVOffset, int width, int height, int textureWidth, int textureHeight) {
-		RenderSystem.setShaderTexture(0, texture);
+	public void drawTexture(DrawContext context, Identifier texture, int x, int y, int u, int v, int hoveredVOffset, int width, int height, int textureWidth, int textureHeight)
+	{
 		int i = v;
 		if (isSelected())
 			i += hoveredVOffset * 2;
@@ -62,7 +62,7 @@ public class TitleBGButton extends TexturedButtonWidget
 			i += hoveredVOffset;
 		
 		RenderSystem.enableDepthTest();
-		drawTexture(matrices, x, y, (float)u, (float)i, width, height, textureWidth, textureHeight);
+		context.drawTexture(texture, x, y, (float)u, (float)i, width, height, textureWidth, textureHeight);
 	}
 	
 	@Override

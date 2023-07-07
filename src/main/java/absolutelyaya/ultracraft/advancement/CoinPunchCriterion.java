@@ -8,6 +8,7 @@ import net.minecraft.advancement.criterion.AbstractCriterionConditions;
 import net.minecraft.predicate.entity.AdvancementEntityPredicateDeserializer;
 import net.minecraft.predicate.entity.AdvancementEntityPredicateSerializer;
 import net.minecraft.predicate.entity.EntityPredicate;
+import net.minecraft.predicate.entity.LootContextPredicate;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 
@@ -16,7 +17,7 @@ public class CoinPunchCriterion extends AbstractCriterion<CoinPunchCriterion.Con
 	static final Identifier ID = new Identifier(Ultracraft.MOD_ID, "coin_punching");
 	
 	@Override
-	protected Conditions conditionsFromJson(JsonObject obj, EntityPredicate.Extended playerPredicate, AdvancementEntityPredicateDeserializer predicateDeserializer)
+	protected Conditions conditionsFromJson(JsonObject obj, LootContextPredicate playerPredicate, AdvancementEntityPredicateDeserializer predicateDeserializer)
 	{
 		return new Conditions(obj.get("score").getAsInt());
 	}
@@ -38,7 +39,7 @@ public class CoinPunchCriterion extends AbstractCriterion<CoinPunchCriterion.Con
 		
 		public Conditions(int score)
 		{
-			super(ID, EntityPredicate.Extended.EMPTY);
+			super(ID, LootContextPredicate.EMPTY);
 			this.score = score;
 		}
 		

@@ -63,16 +63,16 @@ public class ShockwaveEntity extends Entity
 		
 		if(affectOnly != null)
 		{
-			world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox(), this::shouldDamage).forEach(e -> {
-				e.damage(DamageSources.get(world, DamageSources.SHOCKWAVE, owner), damage);
+			getWorld().getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox(), this::shouldDamage).forEach(e -> {
+				e.damage(DamageSources.get(getWorld(), DamageSources.SHOCKWAVE, owner), damage);
 				e.setVelocity(0f, velocity, 0f);
 				hits.add(e);
 			});
 		}
 		else
 		{
-			world.getOtherEntities(this, getBoundingBox(), this::shouldDamage).forEach(e -> {
-				e.damage(DamageSources.get(world, DamageSources.SHOCKWAVE, owner), damage);
+			getWorld().getOtherEntities(this, getBoundingBox(), this::shouldDamage).forEach(e -> {
+				e.damage(DamageSources.get(getWorld(), DamageSources.SHOCKWAVE, owner), damage);
 				e.setVelocity(0f, velocity, 0f);
 				hits.add(e);
 			});

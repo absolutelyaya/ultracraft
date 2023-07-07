@@ -119,7 +119,7 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 	
 	private void ThrowBullet(LivingEntity target)
 	{
-		HellBulletEntity bullet = HellBulletEntity.spawn(this, world);
+		HellBulletEntity bullet = HellBulletEntity.spawn(this, getWorld());
 		double d = target.getEyeY() - 0f;
 		double e = target.getX() - getX();
 		double f = d - bullet.getY();
@@ -128,12 +128,12 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 		bullet.setNoGravity(true);
 		bullet.setIgnored(getClass());
 		playSound(SoundEvents.ENTITY_SNOW_GOLEM_SHOOT, 1.0f, 0.4f / (getRandom().nextFloat() * 0.4f + 0.8f));
-		world.spawnEntity(bullet);
+		getWorld().spawnEntity(bullet);
 	}
 	
 	private InterruptableCharge addInterruptableCharge()
 	{
-		return InterruptableCharge.spawn(world, this, 26, 0.5f, 1f);
+		return InterruptableCharge.spawn(getWorld(), this, 26, 0.5f, 1f);
 	}
 	
 	@Override
@@ -156,10 +156,10 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 	@Override
 	public void onInterrupted(PlayerEntity interruptor)
 	{
-		world.playSound(null, interruptor.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
-		Ultracraft.freeze((ServerWorld)world, 10);
-		damage(DamageSources.get(world, DamageSources.INTERRUPT, interruptor), 5f);
-		ExplosionHandler.explosion(interruptor, world, new Vec3d(getX(), getY(), getZ()), getDamageSources().explosion(this, interruptor), 5f, 2f, 3f, true);
+		getWorld().playSound(null, interruptor.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
+		Ultracraft.freeze((ServerWorld)getWorld(), 10);
+		damage(DamageSources.get(getWorld(), DamageSources.INTERRUPT, interruptor), 5f);
+		ExplosionHandler.explosion(interruptor, getWorld(), new Vec3d(getX(), getY(), getZ()), getDamageSources().explosion(this, interruptor), 5f, 2f, 3f, true);
 	}
 	
 	@Override
@@ -186,7 +186,7 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 				return false;
 			else
 				checkTimer = 10;
-			tooClose = stray.world.getClosestEntity(PlayerEntity.class, TargetPredicate.DEFAULT, stray,
+			tooClose = stray.getWorld().getClosestEntity(PlayerEntity.class, TargetPredicate.DEFAULT, stray,
 					stray.getX(), stray.getY(), stray.getZ(), stray.getBoundingBox().expand(5));
 			return tooClose != null && stray.getAnimation() != ANIMATION_ATTACK;
 		}

@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.tooltip.Tooltip;
@@ -63,18 +64,18 @@ public class IntroScreen extends Screen
 	}
 	
 	@Override
-	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta)
+	public void render(DrawContext context, int mouseX, int mouseY, float delta)
 	{
-		super.render(matrices, mouseX, mouseY, delta);
-		renderBackground(matrices);
-		fillGradient(matrices, 0, 0, width, height / 3,
+		super.render(context, mouseX, mouseY, delta);
+		renderBackground(context);
+		context.fillGradient(0, 0, width, height / 3,
 				new Color(0, 0, 0, 150).getRGB(), new Color(0, 0, 0, 0).getRGB());
-		fillGradient(matrices, 0, height - height / 3, width, height,
+		context.fillGradient(0, height - height / 3, width, height,
 				new Color(0, 0, 0, 0).getRGB(), new Color(0, 0, 0, 150).getRGB());
 		
 		if(!RESOURCES_LOADED)
 		{
-			retryButton.render(matrices, mouseX, mouseY, delta);
+			retryButton.render(context, mouseX, mouseY, delta);
 			curText = Text.translatable("message.ultracraft.intro-error").getString();
 		}
 		else if(retryButton != null)
@@ -89,9 +90,9 @@ public class IntroScreen extends Screen
 		closeButton.setAlpha(closeButtonAlpha);
 		List<OrderedText> lines = textRenderer.wrapLines(StringVisitable.plain(curText), width);
 		for (int i = 0; i < lines.size(); i++)
-			textRenderer.drawWithShadow(matrices, lines.get(i), 32, 32 + i * (textRenderer.fontHeight + 2), Color.WHITE.getRGB());
+			context.drawTextWithShadow(textRenderer, lines.get(i), 32, 32 + i * (textRenderer.fontHeight + 2), Color.WHITE.getRGB());
 		if(waitingForInput)
-			drawCenteredTextWithShadow(matrices, textRenderer, Text.translatable("intro.ultracraft.input"), width / 2, height - 25, Color.WHITE.getRGB());
+			context.drawCenteredTextWithShadow(textRenderer, Text.translatable("intro.ultracraft.input"), width / 2, height - 25, Color.WHITE.getRGB());
 		if(popupGrow)
 		{
 			if(popupSize < 1f)
@@ -101,10 +102,10 @@ public class IntroScreen extends Screen
 			popupSize -= 1 / 30f;
 		if(popupSize > 0f)
 		{
-			fill(matrices, (int)(width / 2 - (width / 2 - 25) * popupSize) - 2, (int)(height / 2 - (height / 2 - 35) * popupSize) - 2,
+			context.fill((int)(width / 2 - (width / 2 - 25) * popupSize) - 2, (int)(height / 2 - (height / 2 - 35) * popupSize) - 2,
 					(int)(width / 2 + (width / 2 - 25) * popupSize) + 2, (int)(height / 2 + (height / 2 - 35) * popupSize) + 2,
 					Color.WHITE.getRGB());
-			fill(matrices, (int)(width / 2 - (width / 2 - 25) * popupSize), (int)(height / 2 - (height / 2 - 35) * popupSize),
+			context.fill((int)(width / 2 - (width / 2 - 25) * popupSize), (int)(height / 2 - (height / 2 - 35) * popupSize),
 					(int)(width / 2 + (width / 2 - 25) * popupSize), (int)(height / 2 + (height / 2 - 35) * popupSize),
 					Color.BLACK.getRGB());
 		}
@@ -112,9 +113,9 @@ public class IntroScreen extends Screen
 		{
 			lines = textRenderer.wrapLines(Text.translatable("message.ultracraft.content"), width - 60);
 			for (int i = 0; i < lines.size(); i++)
-				textRenderer.drawWithShadow(matrices, lines.get(i), 28, 38 + i * (textRenderer.fontHeight + 2), Color.WHITE.getRGB());
-			fill(matrices, width / 2 - 51, height - 35, width / 2 + 51, height - 14, Color.WHITE.getRGB());
-			closeButton.render(matrices, mouseX, mouseY, delta);
+				context.drawTextWithShadow(textRenderer, lines.get(i), 28, 38 + i * (textRenderer.fontHeight + 2), Color.WHITE.getRGB());
+			context.fill(width / 2 - 51, height - 35, width / 2 + 51, height - 14, Color.WHITE.getRGB());
+			closeButton.render(context, mouseX, mouseY, delta);
 		}
 	}
 	

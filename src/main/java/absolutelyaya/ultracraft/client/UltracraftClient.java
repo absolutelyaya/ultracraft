@@ -291,7 +291,7 @@ public class UltracraftClient implements ClientModInitializer
 			if(player == null)
 				return;
 			if(message.equals("Press alt to throw it back"))
-				player.world.getEntitiesByType(EntityRegistry.FILTH, player.getBoundingBox().expand(128.0), entity -> true)
+				player.getWorld().getEntitiesByType(EntityRegistry.FILTH, player.getBoundingBox().expand(128.0), entity -> true)
 						.forEach(FilthEntity::throwback);
 		});
 		FluidRenderHandlerRegistry.INSTANCE.register(FluidRegistry.STILL_BLOOD, FluidRegistry.Flowing_BLOOD,

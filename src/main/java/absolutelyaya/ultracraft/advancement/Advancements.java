@@ -8,8 +8,6 @@ import net.minecraft.advancement.AdvancementFrame;
 import net.minecraft.advancement.criterion.TickCriterion;
 import net.minecraft.entity.EntityType;
 import net.minecraft.predicate.entity.EntityPredicate;
-import net.minecraft.predicate.entity.PlayerPredicate;
-import net.minecraft.predicate.entity.TypeSpecificPredicate;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -28,8 +26,8 @@ public class Advancements implements Consumer<Consumer<Advancement>>
 		Advancement.Builder.create().parent(root).display(ItemRegistry.COIN, Text.translatable("advancements.ultracraft.ricochet.title"), Text.translatable("advancements.ultracraft.ricochet.description"), null, AdvancementFrame.TASK, true, true, false).criterion("ricochet", RicochetCriterion.Conditions.create(4)).build(consumer, Ultracraft.MOD_ID + "/ricochet");
 	}
 	
-	EntityPredicate.Extended getTypePredicate(EntityType<?> type)
+	EntityPredicate getTypePredicate(EntityType<?> type)
 	{
-		return EntityPredicate.Extended.ofLegacy(EntityPredicate.Builder.create().type(type).build());
+		return EntityPredicate.Builder.create().type(type).build();
 	}
 }

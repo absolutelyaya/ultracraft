@@ -51,7 +51,7 @@ public class GunCooldownManager
 	
 	public void setCooldown(Item item, int ticks, int idx)
 	{
-		if(!owner.world.isClient)
+		if(!owner.getWorld().isClient)
 		{
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeItemStack(item.getDefaultStack());
@@ -86,7 +86,7 @@ public class GunCooldownManager
 	public boolean isUsable(Item item, int idx)
 	{
 		if(cooldowns.containsKey(item) && idx < cooldowns.get(item).length)
-			return cooldowns.get(item)[idx].get() - (owner.world.isClient ? 1 : 0) <= 0;
+			return cooldowns.get(item)[idx].get() - (owner.getWorld().isClient ? 1 : 0) <= 0;
 		else
 			return true;
 	}

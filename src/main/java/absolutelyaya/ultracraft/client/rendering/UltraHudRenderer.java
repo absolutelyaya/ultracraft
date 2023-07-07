@@ -10,10 +10,10 @@ import absolutelyaya.ultracraft.item.PlushieItem;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.util.RenderingUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.systems.VertexSorter;
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
@@ -34,7 +34,7 @@ import java.lang.Math;
 import java.util.Random;
 
 @SuppressWarnings("SameParameterValue")
-public class UltraHudRenderer extends DrawableHelper
+public class UltraHudRenderer
 {
 	private static final Ultraconfig config = UltracraftClient.getConfigHolder().get();
 	final Identifier GUI_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/ultrahud.png");
@@ -46,6 +46,11 @@ public class UltraHudRenderer extends DrawableHelper
 	static int fishCaught, coinCombo;
 	final String[] fishMania = new String[] {"message.ultracraft.fish.mania1", "message.ultracraft.fish.mania2", "message.ultracraft.fish.mania3", "message.ultracraft.fish.mania4"};
 	final Random rand = new Random();
+	
+	public UltraHudRenderer()
+	{
+		super();
+	}
 	
 	public void render(float tickDelta, Camera cam)
 	{
@@ -69,7 +74,7 @@ public class UltraHudRenderer extends DrawableHelper
 		matrices.peek().getPositionMatrix().perspective(90 * 0.0174f,
 				aspect, 0.05F, client.gameRenderer.getViewDistance() * 4.0F);
 		RenderSystem.backupProjectionMatrix();
-		RenderSystem.setProjectionMatrix(matrices.peek().getPositionMatrix());
+		RenderSystem.setProjectionMatrix(matrices.peek().getPositionMatrix(), VertexSorter.BY_DISTANCE);
 		RenderSystem.enableBlend();
 		
 		//Fishing Joke

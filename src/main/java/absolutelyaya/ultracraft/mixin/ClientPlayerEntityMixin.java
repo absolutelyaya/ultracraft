@@ -144,7 +144,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				{
 					BlockPos pos = posToBlock(getPos().add(Vec3d.fromPolar(0f, getYaw()).normalize()));
 					setSliding((isGrounded(0.79f) || verticalCollision) &&
-										 !world.getBlockState(pos).isSolidBlock(world, pos), lastSprintPressed);
+										 !getWorld().getBlockState(pos).isSolidBlock(getWorld(), pos), lastSprintPressed);
 				}
 				//cancel slide because it shouldn't be possible rn anyways
 				else if(isSprinting())
@@ -180,9 +180,9 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			}
 			//skim on liquids
 			BlockPos belowPos = posToBlock(getPos().subtract(0f, 0.1f, 0f));
-			FluidState fluidBelow = world.getBlockState(belowPos).getFluidState();
+			FluidState fluidBelow = getWorld().getBlockState(belowPos).getFluidState();
 			if(isSprinting() && !fluidBelow.getFluid().equals(Fluids.EMPTY) && !fluidBelow.isIn(TagRegistry.UNSKIMMABLE_FLUIDS)
-					   && world.getFluidState(belowPos.up()).getFluid().equals(Fluids.EMPTY))
+					   && getWorld().getFluidState(belowPos.up()).getFluid().equals(Fluids.EMPTY))
 			{
 				Vec3d vel = getVelocity();
 				setVelocity(new Vec3d(vel.x, Math.max(baseJumpVel / 2f, vel.y * -0.75), vel.z));
@@ -265,7 +265,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					   !isSprinting() && shouldIgnoreSlowdown() && !isDashing())
 				setIgnoreSlowdown(false);
 			//reset walljumps upon landing
-			if(!lastOnGround && onGround)
+			if(!lastOnGround && isOnGround())
 			{
 				if(grounded)
 					coyote = 4;
@@ -274,12 +274,12 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				if(slamming)
 					slamming = false;
 			}
-			if((!onGround || !grounded) && coyote > 0)
+			if((!isOnGround() || !grounded) && coyote > 0)
 				coyote--;
 			//wall sliding / fall slow-down
-			Iterable<VoxelShape> temp = world.getBlockCollisions(this, getBoundingBox().expand(0.1f, 0, 0f));
+			Iterable<VoxelShape> temp = getWorld().getBlockCollisions(this, getBoundingBox().expand(0.1f, 0, 0f));
 			ArrayList<VoxelShape> touchingWalls = new ArrayList<>(StreamSupport.stream(temp.spliterator(), false).toList());
-			temp = world.getBlockCollisions(this, getBoundingBox().expand(0f, 0, 0.1f));
+			temp = getWorld().getBlockCollisions(this, getBoundingBox().expand(0f, 0, 0.1f));
 			touchingWalls.addAll(StreamSupport.stream(temp.spliterator(), false).toList());
 			if(!slamming && !isSprinting() && touchingWalls.size() > 0 && !grounded)
 			{
@@ -325,14 +325,14 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			//update movement data
 			if(ci.isCancelled())
 			{
-				networkHandler.sendPacket(new PlayerMoveC2SPacket.Full(getX(), getY(), getZ(), getYaw(), getPitch(), onGround));
+				networkHandler.sendPacket(new PlayerMoveC2SPacket.Full(getX(), getY(), getZ(), getYaw(), getPitch(), isOnGround()));
 				lastX = getX();
 				lastBaseY = getY();
 				lastZ = getZ();
 				ticksSinceLastPositionPacketSent = 0;
 				lastYaw = getYaw();
 				autoJumpEnabled = client.options.getAutoJump().getValue();
-				lastTouchedWater = world.getBlockState(posToBlock(getPos().subtract(0f, 0.1, 0f))).getBlock() instanceof FluidBlock;
+				lastTouchedWater = getWorld().getBlockState(posToBlock(getPos().subtract(0f, 0.1, 0f))).getBlock() instanceof FluidBlock;
 				if(lastSlamming != slamming)
 				{
 					boolean strong = strongGroundPound && !slamming && consumeStamina();
@@ -351,7 +351,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				slideVelocity = Math.max(0.33f, slideVelocity * 0.995f);
 			lastSprintPressed = client.options.sprintKey.isPressed() && !isDashing() && !wasDashing(2);
 			lastJumping = jumping;
-			lastOnGround = onGround;
+			lastOnGround = isOnGround();
 			if(lastSneaking != isSneaking())
 				networkHandler.sendPacket(new ClientCommandC2SPacket(this,
 						isSneaking() ? ClientCommandC2SPacket.Mode.PRESS_SHIFT_KEY : ClientCommandC2SPacket.Mode.RELEASE_SHIFT_KEY));
@@ -410,8 +410,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	
 	boolean isUnSolid(BlockPos pos)
 	{
-		BlockState state = world.getBlockState(pos);
-		return !state.hasSolidTopSurface(world, pos, this);
+		BlockState state = getWorld().getBlockState(pos);
+		return !state.hasSolidTopSurface(getWorld(), pos, this);
 	}
 	
 	public boolean isGrounded(float distance)
@@ -431,7 +431,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	
 	BlockHitResult groundCheck(Vec3d start, float distance)
 	{
-		return world.raycast(new RaycastContext(start, start.subtract(0, distance, 0),
+		return getWorld().raycast(new RaycastContext(start, start.subtract(0, distance, 0),
 				RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
 	}
 	
@@ -476,7 +476,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	void onCanSprint(CallbackInfoReturnable<Boolean> cir)
 	{
 		WingedPlayerEntity winged = this;
-		if((UltracraftClient.isHiVelEnabled() && !isSprinting() && !onGround) || winged.isDashing())
+		if((UltracraftClient.isHiVelEnabled() && !isSprinting() && !isOnGround()) || winged.isDashing())
 			cir.setReturnValue(false);
 	}
 	

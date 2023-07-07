@@ -9,6 +9,9 @@ import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 public class ItemRegistry
@@ -72,11 +75,12 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "swordsmachine_spawn_egg"),
 			new SpecialSpawnEggItem(EntityRegistry.SWORDSMACHINE, 0xf4b41b, 0x423d40, new FabricItemSettings()));
 	
-	public static final ItemGroup ULTRACRAFT_TAB =
-			FabricItemGroup.builder(new Identifier(Ultracraft.MOD_ID, "item")).icon(() -> new ItemStack(BLUE_SKULL)).build();
+	public static final RegistryKey<ItemGroup> ULTRACRAFT_TAB = RegistryKey.of(RegistryKeys.ITEM_GROUP, new Identifier(Ultracraft.MOD_ID, "item"));
 	
 	public static void register()
 	{
+		Registry.register(Registries.ITEM_GROUP, ULTRACRAFT_TAB,
+				FabricItemGroup.builder().displayName(Text.translatable("itemGroup.ultracraft.item")).icon(() -> new ItemStack(BLUE_SKULL)).build());
 		ItemGroupEvents.modifyEntriesEvent(ULTRACRAFT_TAB).register(content -> {
 			content.add(BLUE_SKULL);
 			content.add(RED_SKULL);
