@@ -277,7 +277,7 @@
   "text.autoconfig.ultracraft.category.debug": "Debug",
 
   "text.autoconfig.ultracraft.option.fancyGoop": "Fancy Goop",
-  "text.autoconfig.ultracraft.option.fancyGoop.@Tooltip": "Disable for better performance, enable for better goop! (currently broken, will fix in v1.1)",
+  "text.autoconfig.ultracraft.option.fancyGoop.@Tooltip": "Disable for better performance, enable for better goop!",
 
   "text.autoconfig.ultracraft.option.wrapToEdges": "Wrap to Edges",
   "text.autoconfig.ultracraft.option.wrapToEdges.@Tooltip": "Whether Goop should wrap to block edges",
@@ -343,5 +343,8 @@
   "text.autoconfig.ultracraft.option.safeVFX.@Tooltip": "Disable VFX that might affect photosensitive people negatively. (like flashing)",
 
   "text.autoconfig.ultracraft.option.repeatIntro": "Repeat Intro",
-  "text.autoconfig.ultracraft.option.neverIntro": "Don't show Intro after switching Versions"
+  "text.autoconfig.ultracraft.option.neverIntro": "Don't show Intro after switching Versions",
+
+  "text.autoconfig.ultracraft.option.goopDebug": "Goop Debug",
+  "text.autoconfig.ultracraft.option.goopDebug.@Tooltip": "[WARNING] VERY LAGGY | Adds extra particles to show vertex info of goop puddles"
 }

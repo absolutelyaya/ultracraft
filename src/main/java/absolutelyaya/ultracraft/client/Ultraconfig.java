@@ -72,6 +72,9 @@ public class Ultraconfig implements ConfigData
 	public boolean trailLines = false;
 	@ConfigEntry.Category("debug")
 	@ConfigEntry.Gui.Tooltip
+	public boolean goopDebug = false;
+	@ConfigEntry.Category("debug")
+	@ConfigEntry.Gui.Tooltip
 	public boolean showPunchArea = false;
 	@ConfigEntry.Gui.Tooltip
 	public boolean safeVFX = true;
