@@ -33,7 +33,7 @@ public class PedestalBlockEntityRenderer implements BlockEntityRenderer<Pedestal
 			matrices.push();
 			matrices.translate(0.5f, 1.25f, 0.5f);
 			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(
-					entity.getCachedState().get(PedestalBlock.FACING).getOpposite().asRotation()), 0f, 1f, 0f)));
+					entity.getCachedState().get(PedestalBlock.FACING).getOpposite().asRotation()), 0f, -1f, 0f)));
 			if(entity.isFancy())
 				applyFloatTransformation(matrices);
 			applyCustomTransformations(stack.getItem(), matrices);
@@ -50,7 +50,6 @@ public class PedestalBlockEntityRenderer implements BlockEntityRenderer<Pedestal
 			matrices.scale(scaleInverse, scaleInverse, scaleInverse);
 			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(90), 1f, 0f, 0f)));
 			matrices.translate(0f, 0.2f, 0.4f);
-			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(180), 0f, 0f, 1f)));
 		}
 		else if (item instanceof AbstractWeaponItem)
 		{
@@ -79,8 +78,6 @@ public class PedestalBlockEntityRenderer implements BlockEntityRenderer<Pedestal
 			else
 				matrices.translate(0f, 0.1f, 0f);
 		}
-		else
-			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(180), 0f, 1f, 0f)));
 	}
 	
 	void applyFloatTransformation(MatrixStack matrices)
