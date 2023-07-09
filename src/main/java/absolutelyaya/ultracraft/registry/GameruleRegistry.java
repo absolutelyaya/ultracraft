@@ -90,6 +90,10 @@ public class GameruleRegistry
 			GameRuleRegistry.register("ultra-parryChaining", GameRules.Category.PLAYER,
 					GameRuleFactory.createBooleanRule(false,
 							(server, rule) -> OnChanged(server, (byte)14, rule.get() ? 1 : 0)));
+	public static final GameRules.Key<GameRules.BooleanRule> TNT_PRIMING =
+			GameRuleRegistry.register("ultra-tntPriming", GameRules.Category.PLAYER,
+					GameRuleFactory.createBooleanRule(true,
+							(server, rule) -> OnChanged(server, (byte)15, rule.get() ? 1 : 0)));
 	
 	public static void OnChanged(MinecraftServer server, byte b, int val)
 	{

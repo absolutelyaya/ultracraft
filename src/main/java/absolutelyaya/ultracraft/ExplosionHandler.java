@@ -7,8 +7,11 @@ import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.block.TntBlock;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -97,6 +100,7 @@ public class ExplosionHandler
 		GameRules rules = world.getGameRules();
 		if(breakBlocks && rules.getBoolean(GameruleRegistry.EXPLOSION_DAMAGE) && (exploder instanceof PlayerEntity || rules.getBoolean(GameRules.DO_MOB_GRIEFING)))
 		{
+			boolean tntPriming = rules.getBoolean(GameruleRegistry.TNT_PRIMING);
 			BlockPos center = new BlockPos((int)Math.floor(pos.x), (int)Math.floor(pos.y), (int)Math.floor(pos.z));
 			for (int y = (int)(-radius); y <= radius; y++)
 			{
@@ -109,7 +113,17 @@ public class ExplosionHandler
 						BlockPos pos1 = new BlockPos(center.getX() + x, center.getY() + y, center.getZ() + z);
 						//explosions with 0 damage can only break fragile blocks, as they don't actually count as explosions
 						//and are used for misc block breaking like the piercer revolvers alt fire
-						if(world.getBlockState(pos1).isIn(damage > 0f ? TagRegistry.EXPLOSION_BREAKABLE : TagRegistry.FRAGILE) && exploder.canModifyAt(world, pos1))
+						if(!exploder.canModifyAt(world, pos1))
+							continue;
+						if (tntPriming && world.getBlockState(pos1).getBlock() instanceof TntBlock)
+						{
+							TntEntity tntEntity = new TntEntity(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,
+									source.getSource() instanceof LivingEntity living ? living : null);
+							tntEntity.setFuse((short)(world.random.nextInt(20 / 4) + 10));
+							world.spawnEntity(tntEntity);
+							world.breakBlock(pos1, false, exploder);
+						}
+						else if(world.getBlockState(pos1).isIn(damage > 0f ? TagRegistry.EXPLOSION_BREAKABLE : TagRegistry.FRAGILE))
 							world.breakBlock(pos1, true, exploder);
 					}
 				}

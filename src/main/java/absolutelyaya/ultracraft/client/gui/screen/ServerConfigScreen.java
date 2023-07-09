@@ -7,7 +7,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
@@ -53,6 +52,7 @@ public class ServerConfigScreen extends Screen
 		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.EXPLOSION_DAMAGE, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
 		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.SM_SAFE_LEDGES, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
 		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.PARRY_CHAINING, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.TNT_PRIMING, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
 	}
 	
 	@Override

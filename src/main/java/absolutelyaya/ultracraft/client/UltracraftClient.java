@@ -72,6 +72,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Uuids;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
@@ -446,6 +447,7 @@ public class UltracraftClient implements ClientModInitializer
 			case 12 -> onExternalRuleUpdate(GameruleRegistry.EXPLOSION_DAMAGE, value == 1);
 			case 13 -> onExternalRuleUpdate(GameruleRegistry.SM_SAFE_LEDGES, value == 1);
 			case 14 -> onExternalRuleUpdate(GameruleRegistry.PARRY_CHAINING, parryChaining = value == 1);
+			case 15 -> onExternalRuleUpdate(GameruleRegistry.TNT_PRIMING, value == 1);
 			case 127 -> gameRuleSyncFinished();
 			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncB] -> " + data);
 		}
@@ -506,7 +508,7 @@ public class UltracraftClient implements ClientModInitializer
 	public static void refreshSupporter()
 	{
 		MinecraftClient client = MinecraftClient.getInstance();
-		UUID uuid = client.player != null ? client.player.getUuid() : UUID.fromString(client.getSession().getUuid());
+		UUID uuid = client.player != null ? client.player.getUuid() : Uuids.getUuidFromProfile(client.getSession().getProfile());
 		supporter = Ultracraft.checkSupporter(uuid, true);
 	}
 	

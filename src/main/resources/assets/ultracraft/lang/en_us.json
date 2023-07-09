@@ -130,6 +130,8 @@
   "gamerule.ultra-swordsmachineSafeLedges.description": "Stops Swordsmachine from falling down ledges",
   "gamerule.ultra-parryChaining": "Parry Chaining",
   "gamerule.ultra-parryChaining.description": "Allows Projectiles to be parried multiple times, increasing Damage, Explosion Radius and Speed on each Parry.",
+  "gamerule.ultra-tntPriming": "TNT Priming",
+  "gamerule.ultra-tntPriming.description": "Whether Ultracraft Explosions can set off TNT.",
 
   "message.ultracraft.join-info-header": "===============[§4Ultracraft§r]===============",
   "message.ultracraft.hi-vel-forced": "This World is forcing §bHigh Velocity Mode§r to be %s",
