@@ -44,7 +44,6 @@ import net.minecraft.loot.context.LootContextParameterSet;
 import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.loot.context.LootContextTypes;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -282,9 +281,9 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		super.readCustomDataFromNbt(nbt);
 		if (hasCustomName())
 			bossBar.setName(Text.translatable("entity.ultracraft.swordsmachine-named", getDisplayName()));
-		if(nbt.contains("shotgun", NbtElement.BYTE_TYPE))
+		if(nbt.contains("shotgun"))
 			dataTracker.set(HAS_SHOTGUN, nbt.getBoolean("shotgun"));
-		if(nbt.contains("sword", NbtElement.BYTE_TYPE))
+		if(nbt.contains("sword"))
 			dataTracker.set(HAS_SWORD, nbt.getBoolean("sword"));
 	}
 	
