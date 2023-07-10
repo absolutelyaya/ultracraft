@@ -54,7 +54,7 @@ public class IntroOverlay extends Overlay
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferBuilder = tessellator.getBuffer();
 		RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
-		RenderSystem.setShaderTexture(0, new Identifier("gui/options_background.png"));
+		RenderSystem.setShaderTexture(0, new Identifier("textures/gui/options_background.png"));
 		bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
 		bufferBuilder.vertex(0, height, 0).texture(0f, height / 32f).color(64, 64, 64, 255).next();
 		bufferBuilder.vertex(width, height, 0).texture(width / 32f, height / 32f).color(64, 64, 64, 255).next();

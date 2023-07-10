@@ -11,10 +11,10 @@ import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.MathHelper;
 
 import java.awt.*;
 import java.util.List;
@@ -27,7 +27,7 @@ public class IntroScreen extends Screen
 	ButtonWidget closeButton, retryButton;
 	boolean waitingForInput, waitingForButton, hurry, popupGrow;
 	int timer, step;
-	String goalText, curText;
+	String goalText, curText = "";
 	float closeButtonAlpha = 0f, popupSize = 0f;
 	Ultraconfig config;
 	
@@ -52,8 +52,10 @@ public class IntroScreen extends Screen
 			config.lastVersion = Ultracraft.VERSION;
 			waitingForButton = false;
 			button.active = false;
+			button.visible = false;
 		}).dimensions(width / 2 - 49, height - 36, 98, 20).build());
 		closeButton.active = waitingForButton;
+		closeButton.visible = waitingForButton;
 		GameOptions options = MinecraftClient.getInstance().options;
 		if(!config.startedBefore && options.swapHandsKey.isDefault())
 		{
@@ -84,8 +86,9 @@ public class IntroScreen extends Screen
 		if(step == 1 && closeButtonAlpha < 1f)
 		{
 			closeButtonAlpha += delta;
-			closeButtonAlpha = Math.min(closeButtonAlpha, 1f);
+			closeButtonAlpha = MathHelper.clamp(closeButtonAlpha, 0.05f, 1f);
 			closeButton.active = true;
+			closeButton.visible = true;
 		}
 		closeButton.setAlpha(closeButtonAlpha);
 		List<OrderedText> lines = textRenderer.wrapLines(StringVisitable.plain(curText), width);
@@ -100,8 +103,10 @@ public class IntroScreen extends Screen
 		}
 		else if (popupSize > 0f)
 			popupSize -= 1 / 30f;
+		context.getMatrices().push();
 		if(popupSize > 0f)
 		{
+			context.getMatrices().translate(0, 0, 10);
 			context.fill((int)(width / 2 - (width / 2 - 25) * popupSize) - 2, (int)(height / 2 - (height / 2 - 35) * popupSize) - 2,
 					(int)(width / 2 + (width / 2 - 25) * popupSize) + 2, (int)(height / 2 + (height / 2 - 35) * popupSize) + 2,
 					Color.WHITE.getRGB());
@@ -111,12 +116,14 @@ public class IntroScreen extends Screen
 		}
 		if(popupSize >= 1f)
 		{
+			context.getMatrices().translate(0, 0, 10);
 			lines = textRenderer.wrapLines(Text.translatable("message.ultracraft.content"), width - 60);
 			for (int i = 0; i < lines.size(); i++)
 				context.drawTextWithShadow(textRenderer, lines.get(i), 28, 38 + i * (textRenderer.fontHeight + 2), Color.WHITE.getRGB());
 			context.fill(width / 2 - 51, height - 35, width / 2 + 51, height - 14, Color.WHITE.getRGB());
 			closeButton.render(context, mouseX, mouseY, delta);
 		}
+		context.getMatrices().pop();
 	}
 	
 	@Override
