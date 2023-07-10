@@ -171,7 +171,13 @@ public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget 
 	{
 		boolean b = false;
 		if(((Element)valueWidget).isMouseOver(mouseX, mouseY))
+		{
 			b = ((Element)valueWidget).mouseClicked(mouseX, mouseY, button);
+			if(valueWidget instanceof TextFieldWidget textField)
+				textField.setFocused(true);
+		}
+		else if(valueWidget instanceof TextFieldWidget textField && textField.isFocused())
+			textField.setFocused(false);
 		if(b)
 		{
 			String text = "";

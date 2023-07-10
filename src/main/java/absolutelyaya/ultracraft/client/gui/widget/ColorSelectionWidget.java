@@ -408,6 +408,16 @@ public class ColorSelectionWidget implements Element, Drawable, Selectable, Widg
 		}
 		
 		@Override
+		protected boolean clicked(double mouseX, double mouseY)
+		{
+			if(isMouseOver(mouseX, mouseY))
+				setFocused(true);
+			else if(isFocused())
+				setFocused(false);
+			return super.clicked(mouseX, mouseY);
+		}
+		
+		@Override
 		public boolean charTyped(char chr, int modifiers)
 		{
 			if (!isActive())
@@ -430,6 +440,16 @@ public class ColorSelectionWidget implements Element, Drawable, Selectable, Widg
 				return SharedConstants.isValidChar(c);
 			else
 				return false;
+		}
+		
+		@Override
+		public void write(String text)
+		{
+			for (char c : text.toCharArray())
+			{
+				if(isValidChar(c))
+					super.write(String.valueOf(c));
+			}
 		}
 	}
 }
