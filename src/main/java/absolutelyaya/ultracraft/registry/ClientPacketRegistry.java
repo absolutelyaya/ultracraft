@@ -291,7 +291,7 @@ public class ClientPacketRegistry
 			Vector3f source = buf.readVector3f();
 			MinecraftClient.getInstance().execute(() -> {
 				client.player.getWorld().addParticle(ParticleRegistry.RICOCHET_WARNING, source.x, source.y, source.z, 0, 0, 0);
-				client.player.getWorld().playSound(null, BlockPos.ofFloored(new Vec3d(source)), SoundEvents.BLOCK_BELL_RESONATE, SoundCategory.PLAYERS, 1f, 1.65f);
+				client.player.getWorld().playSound(source.x, source.y, source.z, SoundEvents.ENTITY_WARDEN_SONIC_CHARGE, SoundCategory.PLAYERS, 0.75f, 1.65f, false);
 			});
 		}));
 	}

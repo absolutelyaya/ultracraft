@@ -11,10 +11,13 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.command.argument.PosArgument;
+import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.Vec3d;
 
 import static net.minecraft.server.command.CommandManager.literal;
 import static net.minecraft.server.command.CommandManager.argument;
@@ -31,7 +34,9 @@ public class UltracraftCommand
 			.then(literal("unblock").then(argument("target", player()).executes(UltracraftCommand::executeUnblock)))
 			.then(literal("time").requires(source -> source.hasPermissionLevel(2))
 				.then(literal("freeze").then(argument("ticks", integer(1)).executes(UltracraftCommand::executeFreeze)))
-				.then(literal("unfreeze").executes(UltracraftCommand::executeUnfreeze))));
+				.then(literal("unfreeze").executes(UltracraftCommand::executeUnfreeze)))
+			.then(literal("debug").requires(source -> source.hasPermissionLevel(2))
+				.then(literal("ricoshot_warn").then(argument("pos", Vec3ArgumentType.vec3()).executes(UltracraftCommand::executeDebugRicoshotWarn)))));
 	}
 	
 	static int executeInfo(CommandContext<ServerCommandSource> context)
@@ -100,6 +105,17 @@ public class UltracraftCommand
 		}
 		else
 			context.getSource().sendFeedback(() -> Text.translatable("command.ultracraft.time-unfreeze.fail"), false);
+		return Command.SINGLE_SUCCESS;
+	}
+	
+	static int executeDebugRicoshotWarn(CommandContext<ServerCommandSource> context)
+	{
+		System.out.println("a");
+		Vec3d v = context.getArgument("pos", PosArgument.class).toAbsolutePos(context.getSource());
+		System.out.println(v);
+		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+		buf.writeVector3f(v.toVector3f());
+		ServerPlayNetworking.send(context.getSource().getPlayer(), PacketRegistry.RICOCHET_WARNING, buf);
 		return Command.SINGLE_SUCCESS;
 	}
 }
