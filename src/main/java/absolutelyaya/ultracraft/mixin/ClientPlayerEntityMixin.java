@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.mixin;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.TagRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import com.mojang.authlib.GameProfile;
@@ -25,11 +26,13 @@ import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.RaycastContext;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -78,6 +81,9 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	
 	@Shadow public abstract boolean damage(DamageSource source, float amount);
 	
+	@Shadow public abstract boolean isUsingItem();
+	
+	@Shadow private @Nullable Hand activeHand;
 	Vec3d dashDir = Vec3d.ZERO;
 	Vec3d slideDir = Vec3d.ZERO;
 	boolean slamming, lastSlamming, strongGroundPound, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored,
@@ -455,6 +461,14 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		//cancel normal sprint triggers when in HiVelMode
 		if(!UltracraftClient.isHiVelEnabled())
 			setSprinting(sprinting);
+	}
+	
+	@Redirect(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;isUsingItem()Z"))
+	boolean redirectIsUsingItem(ClientPlayerEntity instance)
+	{
+		if(activeHand != null && getStackInHand(activeHand).getItem() instanceof AbstractWeaponItem)
+			return false;
+		return isUsingItem();
 	}
 	
 	@Inject(method = "tick", at = @At(value = "HEAD"))
