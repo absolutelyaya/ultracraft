@@ -41,6 +41,7 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 	public PedestalBlock(Settings settings)
 	{
 		super(settings);
+		setDefaultState(getDefaultState().with(TYPE, Type.NONE).with(FACING, Direction.NORTH).with(FANCY, false));
 	}
 	
 	@Nullable
@@ -139,7 +140,7 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 			useDye(world, pos, state, player, stack, Type.RED);
 			return ActionResult.CONSUME;
 		}
-		else if(stack.isOf(Items.WATER_BUCKET) && !state.get(TYPE).equals(Type.NONE) || state.get(FANCY))
+		else if(stack.isOf(Items.WATER_BUCKET) && (!state.get(TYPE).equals(Type.NONE) || state.get(FANCY)))
 		{
 			world.setBlockState(pos, state.with(TYPE, Type.NONE).with(FANCY, false));
 			if(!player.isCreative())
