@@ -53,7 +53,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	boolean wingsActive, groundPounding, ignoreSlowdown, blocked;
 	byte wingState, lastState;
 	float wingAnimTime;
-	int dashingTicks = -2, slamDamageCooldown, stamina, wingHintDisplayTicks, bloodHealCooldown;
+	int dashingTicks = -2, slamDamageCooldown, stamina, wingHintDisplayTicks, bloodHealCooldown, sharpshooterCooldown;
 	GunCooldownManager gunCDM;
 	Multimap<EntityAttribute, EntityAttributeModifier> curSpeedMod;
 	Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f / 255f, 1f, 154f / 255f), new Vec3d(117f / 255f, 154f / 255f, 1f) };
@@ -349,6 +349,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			slamDamageCooldown--;
 		if(bloodHealCooldown > 0)
 			bloodHealCooldown--;
+		if(sharpshooterCooldown > 0)
+			sharpshooterCooldown--;
 	}
 	
 	@Inject(method = "tickMovement", at = @At("TAIL"))
@@ -481,5 +483,17 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public boolean isAirControlIncreased()
 	{
 		return true;
+	}
+	
+	@Override
+	public void setSharpshooterCooldown(int sharpshooterCooldown)
+	{
+		this.sharpshooterCooldown = sharpshooterCooldown;
+	}
+	
+	@Override
+	public int getSharpshooterCooldown()
+	{
+		return sharpshooterCooldown;
 	}
 }

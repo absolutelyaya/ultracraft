@@ -76,4 +76,8 @@ public interface WingedPlayerEntity
 	boolean isBlocked();
 	
 	boolean isAirControlIncreased();
+	
+	void setSharpshooterCooldown(int val);
+	
+	int getSharpshooterCooldown();
 }

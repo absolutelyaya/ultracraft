@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft;
 
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
+import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
@@ -11,6 +12,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
@@ -135,10 +137,16 @@ public class ServerHitscanHandler
 			}
 		}
 		AtomicBoolean disableExplosion = new AtomicBoolean(false);
+		AtomicBoolean explodeProjectile = new AtomicBoolean(type == SHARPSHOOTER && user instanceof WingedPlayerEntity p && p.getSharpshooterCooldown() <= 0);
 		entities.forEach(e -> {
 			e.damage(source, damage);
-			if(type == SHARPSHOOTER && e instanceof ProjectileEntity proj)
+			if(explodeProjectile.get() && e instanceof ProjectileEntity proj && user instanceof WingedPlayerEntity p)
+			{
+				ExplosionHandler.explosion(user, world, proj.getPos(), DamageSources.get(world, DamageTypes.EXPLOSION, user), 5f, 1f, 5f, true);
 				proj.kill();
+				explodeProjectile.set(false);
+				p.setSharpshooterCooldown(5);
+			}
 			if(e instanceof ThrownCoinEntity)
 				disableExplosion.set(true);
 		});
