@@ -56,7 +56,7 @@ public class Ultracraft implements ModInitializer
         
         });
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-            UltracraftCommand.register(dispatcher, registryAccess);
+            UltracraftCommand.register(dispatcher);
         });
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             tickFreeze();

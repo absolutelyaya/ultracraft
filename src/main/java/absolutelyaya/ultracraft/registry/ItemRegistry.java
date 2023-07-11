@@ -39,8 +39,8 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "pitr"), new PitrItem(new FabricItemSettings()));
 	public static final PlushieItem PITR_POIN = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "pitr_poin"), new PitrPoinItem(new FabricItemSettings()));
-	public static final Item COIN = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "coin"), new Item(new FabricItemSettings()));
+	public static final CoinItem COIN = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "coin"), new CoinItem(new FabricItemSettings()));
 	
 	public static final PierceRevolverItem PIERCE_REVOLVER = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "pierce_revolver"), new PierceRevolverItem(new FabricItemSettings().maxCount(1)));

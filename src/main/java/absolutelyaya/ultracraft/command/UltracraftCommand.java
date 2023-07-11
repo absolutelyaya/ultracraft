@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.command;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.item.CoinItem;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import com.mojang.brigadier.Command;
@@ -9,10 +10,10 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.command.argument.EntityArgumentType;
 import net.minecraft.command.argument.PosArgument;
 import net.minecraft.command.argument.Vec3ArgumentType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -26,7 +27,7 @@ import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 
 public class UltracraftCommand
 {
-	public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
+	public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
 		dispatcher.register(literal("ultracraft").requires(ServerCommandSource::isExecutedByPlayer)
 			.then(literal("info").executes(UltracraftCommand::executeInfo))
 			.then(literal("config").requires(source -> source.hasPermissionLevel(2)).executes(UltracraftCommand::executeConfig))
@@ -110,9 +111,7 @@ public class UltracraftCommand
 	
 	static int executeDebugRicoshotWarn(CommandContext<ServerCommandSource> context)
 	{
-		System.out.println("a");
 		Vec3d v = context.getArgument("pos", PosArgument.class).toAbsolutePos(context.getSource());
-		System.out.println(v);
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeVector3f(v.toVector3f());
 		ServerPlayNetworking.send(context.getSource().getPlayer(), PacketRegistry.RICOCHET_WARNING, buf);
