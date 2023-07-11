@@ -41,9 +41,8 @@ public class EpilepsyPopupScreen extends InfoPopupScreen
 	@Override
 	public void render(DrawContext context, int mouseX, int mouseY, float delta)
 	{
+		context.fill(0, 0, width, height, 0x88000000);
 		super.render(context, mouseX, mouseY, delta);
-		
-		client.gameRenderer.loadPostProcessor(new Identifier(Ultracraft.MOD_ID, "shaders/post/blur.json"));
 	}
 	
 	@Override

@@ -41,6 +41,5 @@ public class InfoPopupScreen extends Screen
 	public void close()
 	{
 		client.setScreen(parent);
-		client.gameRenderer.disablePostProcessor();
 	}
 }
