@@ -41,6 +41,7 @@ public class PacketRegistry
 	public static final Identifier GROUND_POUND_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ground_pound_c2s");
 	public static final Identifier REQUEST_WINGED_DATA_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "request_wing_data");
 	public static final Identifier SKIM_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "skim_c2s");
+	public static final Identifier THROW_COIN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "throw_coin");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
@@ -300,6 +301,21 @@ public class PacketRegistry
 			server.execute(() -> {
 				player.playSound(SoundEvents.ENTITY_SALMON_FLOP, SoundCategory.PLAYERS, 1f, 0.8f + player.getRandom().nextFloat() * 0.4f);
 				player.getWorld().addParticle(ParticleRegistry.RIPPLE, pos.x, pos.y, pos.z, 0, 0, 0);
+			});
+		});
+		ServerPlayNetworking.registerGlobalReceiver(THROW_COIN_PACKET_ID, (server, player, handler, buf, sender) -> {
+			if(player == null)
+				return;
+			Vec3d pos = new Vec3d(buf.readVector3f());
+			Vec3d vel = new Vec3d(buf.readVector3f());
+			server.execute(() -> {
+				ThrownCoinEntity coin = ThrownCoinEntity.spawn(player, player.getWorld());
+				coin.setPos(pos.x, pos.y, pos.z);
+				coin.setStartY((float)pos.y);
+				coin.setVelocity(player, player.getPitch(), player.getYaw(), 0.0F, 0.5f, 0f);
+				coin.addVelocity(vel.multiply(1f, 0.25f, 1f));
+				coin.addVelocity(0f, 0.3f, 0f);
+				player.getWorld().spawnEntity(coin);
 			});
 		});
 	}

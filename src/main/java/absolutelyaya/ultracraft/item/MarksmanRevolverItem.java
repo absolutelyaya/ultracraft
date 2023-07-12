@@ -4,19 +4,21 @@ import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.MarksmanRevolverRenderer;
-import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
+import absolutelyaya.ultracraft.registry.PacketRegistry;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.UseAction;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.joml.Vector2i;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -74,14 +76,13 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 			if(coins == 4)
 				cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
 			setCoins(itemStack, coins - 1);
-			ThrownCoinEntity coin = ThrownCoinEntity.spawn(user, world);
-			Vec3d pos = user.getEyePos().add(user.getRotationVector());
-			coin.setPos(pos.x, pos.y, pos.z);
-			coin.setStartY((float)pos.y);
-			coin.setVelocity(user, user.getPitch(), user.getYaw(), 0.0F, 0.5f, 0f);
-			//coin.addVelocity(user.getVelocity().multiply(1f, 0.25f, 1f));
-			coin.addVelocity(0f, 0.3f, 0f);
-			world.spawnEntity(coin);
+		}
+		if(world.isClient && coins > 0)
+		{
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeVector3f(user.getEyePos().add(user.getRotationVector()).toVector3f());
+			buf.writeVector3f(user.getVelocity().toVector3f().mul(2f));
+			ClientPlayNetworking.send(PacketRegistry.THROW_COIN_PACKET_ID, buf);
 		}
 		return TypedActionResult.pass(itemStack);
 	}
