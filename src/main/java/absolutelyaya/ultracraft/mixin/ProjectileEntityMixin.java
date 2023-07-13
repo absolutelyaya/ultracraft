@@ -65,8 +65,6 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	@Inject(method = "onEntityHit", at = @At("HEAD"))
 	void onEntityHit(EntityHitResult entityHitResult, CallbackInfo ci)
 	{
-		if(isParried() && entityHitResult.getEntity().equals(owner) && parrier != null)
-			parrier.heal(6);
 		collide(entityHitResult);
 	}
 	

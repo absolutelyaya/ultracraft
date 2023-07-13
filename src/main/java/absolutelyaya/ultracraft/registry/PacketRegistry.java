@@ -157,10 +157,14 @@ public class PacketRegistry
 					return;
 				if(!((ProjectileEntityAccessor)parried).isParriable())
 					return;
+				boolean heal = true;
 				if(player.equals(parried.getOwner()) && parried.age < 4)
 				{
 					if(((ProjectileEntityAccessor)parried).isBoostable())
+					{
+						heal = false;
 						Ultracraft.freeze((ServerWorld) player.getWorld(), 5); //ProjBoost freezes are shorter
+					}
 					else
 						return;
 				}
@@ -170,6 +174,8 @@ public class PacketRegistry
 				ProjectileEntityAccessor pa = (ProjectileEntityAccessor)parried;
 				pa.setParried(true, player);
 				parried.setVelocity(forward.multiply(chainingAllowed ? 1f + 0.125f * ((ChainParryAccessor)pa).getParryCount() : 2.5f));
+				if(heal && !(parried instanceof ThrownCoinEntity))
+					player.heal(6f);
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(PUNCH_BLOCK_PACKET_ID, (server, player, handler, buf, sender) -> {
