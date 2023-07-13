@@ -21,7 +21,7 @@ public class ChargebackCriterion extends AbstractCriterion<ChargebackCriterion.C
 	@Override
 	protected Conditions conditionsFromJson(JsonObject obj, LootContextPredicate playerPredicate, AdvancementEntityPredicateDeserializer predicateDeserializer)
 	{
-		return new Conditions(playerPredicate, LootContextPredicate.fromJson("entity", predicateDeserializer, obj, LootContextTypes.ENTITY));
+		return new Conditions(playerPredicate, EntityPredicate.contextPredicateFromJson(obj, "entity", predicateDeserializer));
 	}
 	
 	@Override
