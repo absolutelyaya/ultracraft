@@ -173,7 +173,7 @@ public class PacketRegistry
 				world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
 				ProjectileEntityAccessor pa = (ProjectileEntityAccessor)parried;
 				pa.setParried(true, player);
-				parried.setVelocity(forward.multiply(chainingAllowed ? 1f + 0.125f * ((ChainParryAccessor)pa).getParryCount() : 2.5f));
+				parried.setVelocity(forward.multiply(chainingAllowed ? 2f + 0.2f * ((ChainParryAccessor)pa).getParryCount() : 2.5f));
 				if(heal && !(parried instanceof ThrownCoinEntity))
 					player.heal(6f);
 			});
