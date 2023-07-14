@@ -227,7 +227,7 @@ public class ClientPacketRegistry
 				return;
 			Vector3f pos = buf.readVector3f();
 			MinecraftClient.getInstance().execute(() -> {
-				client.player.getWorld().addParticle(ParticleTypes.FLAME, pos.x, pos.y, pos.z, 0f, 0f, 0f);;
+				client.player.getWorld().addParticle(ParticleTypes.FLAME, pos.x, pos.y, pos.z, 0f, 0f, 0f);
 			});
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SKIM_S2C_PACKET_ID, ((client, handler, buf, sender) -> {

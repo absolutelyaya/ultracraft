@@ -8,8 +8,8 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.HashSet;
+import java.util.Queue;
 import java.util.Set;
-import java.util.*;
 
 public class ClientHitscanHandler
 {

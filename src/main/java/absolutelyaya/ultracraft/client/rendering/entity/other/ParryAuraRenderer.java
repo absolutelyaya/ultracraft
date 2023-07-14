@@ -9,9 +9,10 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3i;
-import org.joml.*;
-
-import java.lang.Math;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector2f;
 
 public class ParryAuraRenderer
 {

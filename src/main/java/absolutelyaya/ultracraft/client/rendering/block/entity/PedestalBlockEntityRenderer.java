@@ -2,7 +2,10 @@ package absolutelyaya.ultracraft.client.rendering.block.entity;
 
 import absolutelyaya.ultracraft.block.PedestalBlock;
 import absolutelyaya.ultracraft.block.PedestalBlockEntity;
-import absolutelyaya.ultracraft.item.*;
+import absolutelyaya.ultracraft.item.AbstractRevolverItem;
+import absolutelyaya.ultracraft.item.AbstractShotgunItem;
+import absolutelyaya.ultracraft.item.AbstractWeaponItem;
+import absolutelyaya.ultracraft.item.PlushieItem;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -11,7 +14,10 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.*;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.SwordItem;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 

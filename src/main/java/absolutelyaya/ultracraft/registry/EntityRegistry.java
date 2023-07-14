@@ -1,15 +1,15 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.entity.projectile.*;
-import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
-import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
-import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.demon.CerberusEntity;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.entity.husk.FilthEntity;
 import absolutelyaya.ultracraft.entity.husk.SchismEntity;
 import absolutelyaya.ultracraft.entity.husk.StrayEntity;
+import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
+import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
+import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
+import absolutelyaya.ultracraft.entity.projectile.*;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;

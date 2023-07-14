@@ -1,7 +1,9 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
@@ -11,7 +13,6 @@ import net.minecraft.util.math.Vec3d;
 
 import java.io.IOException;
 import java.nio.file.Files;
-
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Stream;

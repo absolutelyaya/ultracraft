@@ -1,6 +1,5 @@
 package absolutelyaya.ultracraft.client.gui.screen;
 
-import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -8,7 +7,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
 
 public class EpilepsyPopupScreen extends InfoPopupScreen
 {
