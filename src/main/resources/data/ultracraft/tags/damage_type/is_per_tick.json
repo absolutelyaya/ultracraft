@@ -5,6 +5,7 @@
     "minecraft:cactus",
     "minecraft:hot_floor",
     "minecraft:in_fire",
-    "minecraft:sweet_berry_bush"
+    "minecraft:sweet_berry_bush",
+    "minecraft:in_wall"
   ]
 }

@@ -81,7 +81,7 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 		{
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeVector3f(user.getEyePos().add(user.getRotationVector()).toVector3f());
-			buf.writeVector3f(user.getVelocity().toVector3f().mul(2f));
+			buf.writeVector3f(user.getVelocity().toVector3f().mul(1f));
 			ClientPlayNetworking.send(PacketRegistry.THROW_COIN_PACKET_ID, buf);
 		}
 		return TypedActionResult.pass(itemStack);
