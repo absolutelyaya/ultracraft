@@ -26,12 +26,14 @@ public class EpilepsyPopupScreen extends InfoPopupScreen
 			close();
 			config.safeVFX = true;
 			config.showEpilepsyWarning = false;
+			UltracraftClient.getConfigHolder().save();
 		}).dimensions(width / 2 - 105, height / 2 + 50, 100, 20).build());
 		button.setTooltip(Tooltip.of(Text.translatable("screen.ultracraft.info.epilepsy.affected.tooltip")));
 		button = addDrawableChild(ButtonWidget.builder(Text.translatable("screen.ultracraft.info.epilepsy.unaffected"), (b) -> {
 			close();
 			config.safeVFX = false;
 			config.showEpilepsyWarning = false;
+			UltracraftClient.getConfigHolder().save();
 		}).dimensions(width / 2 + 5, height / 2 + 50, 100, 20).build());
 		button.setTooltip(Tooltip.of(Text.translatable("screen.ultracraft.info.epilepsy.unaffected.tooltip")));
 	}
