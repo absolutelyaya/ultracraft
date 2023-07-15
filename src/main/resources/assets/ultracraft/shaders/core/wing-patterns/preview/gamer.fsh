@@ -39,7 +39,7 @@ vec3 rgb2hsv(vec3 c)
 
 vec3 getBlue(float brightness)
 {
-    vec3 colB = rgb2hsv(MetalColor / vec3(255f, 255f, 255f)) * vec3(360, 100, 100);
+    vec3 colB = rgb2hsv(MetalColor / vec3(255, 255, 255)) * vec3(360, 100, 100);
     float step = brightness * 4 - 0.1;
     if(step > 3)
         return colB;
@@ -57,12 +57,12 @@ void main()
     vec4 color = colorIn;
     if (color.a < 0.1)
         discard;
-    vec2 pixelUV = round((texCoord0 + vec2(1f / (76f * 2), 1f / (40f * 2))) * vec2(76f, 40f)) / vec2(76f, 40f) + vec2(1f / (76f * 2), 1f / (40f * 2));
+    vec2 pixelUV = round((texCoord0 + vec2(1 / (76 * 2), 1 / (40 * 2))) * vec2(76, 40)) / vec2(76, 40) + vec2(1 / (76 * 2), 1 / (40 * 2));
     if(color.a < 0.11)
         color.a = WingColor.r; //just so the compiler doesn't complain
-    float time = mod(abs(GameTime * 600) + pixelUV.x * 2 + pixelUV.y, 1f);
-    color.rgb = mix(colorIn.rrr / 4, hsv2rgb(vec3(time, 1f, 1f)), colorIn.r > 0.5f);
-    color.rgb = mix(color.rgb, hsv2rgb(getBlue(colorIn.b).rgb / vec3(360f, 100f, 100f)), colorIn.b > 0f);
-    color.rgb = mix(color.rgb, vec3(colorIn.g, colorIn.g, colorIn.g), colorIn.g > 0f);
+    float time = mod(abs(GameTime * 600) + pixelUV.x * 2 + pixelUV.y, 1);
+    color.rgb = mix(colorIn.rrr / 4, hsv2rgb(vec3(time, 1, 1)), colorIn.r > 0.5 ? 1.0 : 0.0);
+    color.rgb = mix(color.rgb, hsv2rgb(getBlue(colorIn.b).rgb / vec3(360, 100, 100)), colorIn.b > 0 ? 1.0 : 0.0);
+    color.rgb = mix(color.rgb, vec3(colorIn.g, colorIn.g, colorIn.g), colorIn.g > 0 ? 1.0 : 0.0);
     fragColor = color * ColorModulator;
 }

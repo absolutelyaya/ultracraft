@@ -43,7 +43,7 @@ vec3 rgb2hsv(vec3 c)
 
 vec3 getRed(float brightness)
 {
-    vec3 colA = rgb2hsv(WingColor / vec3(255f, 255f, 255f)) * vec3(360, 100, 100);
+    vec3 colA = rgb2hsv(WingColor / vec3(255, 255, 255)) * vec3(360, 100, 100);
     float step = brightness * 4 - 0.1;
     if(step > 3)
         return colA;
@@ -57,7 +57,7 @@ vec3 getRed(float brightness)
 
 vec3 getBlue(float brightness)
 {
-    vec3 colB = rgb2hsv(MetalColor / vec3(255f, 255f, 255f)) * vec3(360, 100, 100);
+    vec3 colB = rgb2hsv(MetalColor / vec3(255, 255, 255)) * vec3(360, 100, 100);
     float step = brightness * 4 - 0.1;
     if(step > 3)
         return colB;
@@ -75,18 +75,18 @@ void main()
     vec4 color = colorIn;
     if (color.a < 0.1)
         discard;
-    float time = sin(abs(GameTime * 600) + (round((texCoord0.g + 1f / 64f) * 32f)) / 32f + (round((texCoord0.r + 1f / 64f) * 32f)) / 32f * (sin(GameTime * 1800)) * 3) / 2f + 0.5f;
-    color.rgb = mix(vec3(0f, 0f, 0f), mix(vec3(0.105f, 0.027f, 0.086f), hsv2rgb(getRed(0.5f) / vec3(360f, 100f, 100f)), pow(time + (mod(round(texCoord0.g * 32f + 0.5f), 2) == 0 ? 0f : 0.5f), 4)), colorIn.r > 0f);
-    color.rgb *= (mod(round(texCoord0.g * 32f + 0.5f), 2) == 0 ? 1f : 0.8f);
+    float time = sin(abs(GameTime * 600) + (round((texCoord0.g + 1 / 64) * 32)) / 32 + (round((texCoord0.r + 1 / 64) * 32)) / 32 * (sin(GameTime * 1800)) * 3) / 2 + 0.5f;
+    color.rgb = mix(vec3(0, 0, 0), mix(vec3(0.105f, 0.027f, 0.086f), hsv2rgb(getRed(0.5) / vec3(360, 100, 100)), pow(time + (mod(round(texCoord0.g * 32 + 0.5f), 2) == 0 ? 0 : 0.5f), 4)), colorIn.r > 0 ? 1.0 : 0.0);
+    color.rgb *= (mod(round(texCoord0.g * 32 + 0.5f), 2) == 0 ? 1 : 0.8f);
 
-    color.rgb = mix(color.rgb, hsv2rgb(getBlue(colorIn.b).rgb / vec3(360f, 100f, 100f)), colorIn.b > 0f);
-    color.rgb = mix(color.rgb, vec3(colorIn.g, colorIn.g, colorIn.g), colorIn.g > 0f);
+    color.rgb = mix(color.rgb, hsv2rgb(getBlue(colorIn.b).rgb / vec3(360, 100, 100)), colorIn.b > 0 ? 1.0 : 0.0);
+    color.rgb = mix(color.rgb, vec3(colorIn.g, colorIn.g, colorIn.g), colorIn.g > 0 ? 1.0 : 0.0);
     vec4 v = vertexColor;
     vec4 light = lightMapColor;
-    if(colorIn.r > 0f)
+    if(colorIn.r > 0)
     {
-        light = vec4(1f, 1f, 1f, 1f);
-        v = vec4(1f, 1f, 1f, 1f);
+        light = vec4(1, 1, 1, 1);
+        v = vec4(1, 1, 1, 1);
     }
     color *= v * ColorModulator;
     color *= light;

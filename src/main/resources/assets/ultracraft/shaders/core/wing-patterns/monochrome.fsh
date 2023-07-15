@@ -27,17 +27,17 @@ void main()
     if (color.a < 0.1)
         discard;
 
-    vec3 col = mix(vec3(0, 0, 0), WingColor / 255f * colorIn.r, colorIn.r > 0);
-    col = mix(col, MetalColor / 255f * colorIn.b, colorIn.b > 0);
-    col = mix(col, vec3(col.g, col.g, col.g), colorIn.g > 0);
-    float brightness = (col.r + col.g + col.b) / 3f;
+    vec3 col = mix(vec3(0, 0, 0), WingColor / 255 * colorIn.r, colorIn.r > 0 ? 1.0 : 0.0);
+    col = mix(col, MetalColor / 255 * colorIn.b, colorIn.b > 0 ? 1.0 : 0.0);
+    col = mix(col, vec3(col.g, col.g, col.g), colorIn.g > 0 ? 1.0 : 0.0);
+    float brightness = (col.r + col.g + col.b) / 3;
     color.rgb = vec3(brightness, brightness, brightness);
     vec4 v = vertexColor;
     vec4 light = lightMapColor;
-    if(colorIn.r > 0f)
+    if(colorIn.r > 0)
     {
-        light = vec4(1f, 1f, 1f, 1f);
-        v = vec4(1f, 1f, 1f, 1f);
+        light = vec4(1, 1, 1, 1);
+        v = vec4(1, 1, 1, 1);
     }
     color *= v * ColorModulator;
     color *= light;

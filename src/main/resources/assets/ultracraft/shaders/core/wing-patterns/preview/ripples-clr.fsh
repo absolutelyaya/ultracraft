@@ -49,21 +49,21 @@ float getRandom(vec2 v)
 
 vec3 getRed(float brightness)
 {
-    vec3 colA = rgb2hsv(WingColor / 255f) * vec3(360, 100, 100);
+    vec3 colA = rgb2hsv(WingColor / 255) * vec3(360, 100, 100);
     float step = brightness * 4 - 0.1;
     if(step > 3)
-    return colA;
+        return colA;
     else if(step > 2)
-    return colA + vec3(-11, 20, 0);
+        return colA + vec3(-11, 20, 0);
     else if(step > 1)
-    return colA + vec3(-22, 40, 0);
+        return colA + vec3(-22, 40, 0);
     else
-    return colA + vec3(-30, 60, 0);
+        return colA + vec3(-30, 60, 0);
 }
 
 vec3 getBlue(float brightness)
 {
-    vec3 colB = rgb2hsv(MetalColor / 255f) * vec3(360, 100, 100);
+    vec3 colB = rgb2hsv(MetalColor / 255) * vec3(360, 100, 100);
     float step = brightness * 4 - 0.1;
     if(step > 3)
         return colB;
@@ -81,16 +81,16 @@ void main()
     vec4 color = colorIn;
     if (color.a < 0.1)
         discard;
-    vec2 pixelUV = round((texCoord0 + vec2(1f / (76f * 2), 1f / (40f * 2))) * vec2(76f, 40f)) / vec2(76f, 40f) + vec2(1f / (76f * 2), 1f / (40f * 2));
-    color.rgb = hsv2rgb(getRed(colorIn.r).rgb / vec3(360f, 100f, 100f));
+    vec2 pixelUV = round((texCoord0 + vec2(1 / (76 * 2), 1 / (40 * 2))) * vec2(76, 40)) / vec2(76, 40) + vec2(1 / (76 * 2), 1 / (40 * 2));
+    color.rgb = hsv2rgb(getRed(colorIn.r).rgb / vec3(360, 100, 100));
     for(int i = 0; i < 3; i++)
     {
-        float time = mod(GameTime * -300 + distance(pixelUV, vec2(-0.25, 0.25)), 2f);
-        color.rgb = mix(color.rgb, MetalColor / 255f, (time > 1.9 - 0.125 * i && time < 2 - 0.15 * i) ? 1 - distance(time, 1.975f - 0.125 * i) * 10: 0f);
-        time = mod(GameTime * -300 + distance(pixelUV, vec2(0.75, 0.25)), 2f);
-        color.rgb = mix(color.rgb, MetalColor / 255f, (time > 0.9 - 0.125 * i && time < 1 - 0.15 * i) ? 1 - distance(time, 0.975f - 0.125 * i) * 10: 0f);
+        float time = mod(GameTime * -300 + distance(pixelUV, vec2(-0.25, 0.25)), 2);
+        color.rgb = mix(color.rgb, MetalColor / 255, (time > 1.9 - 0.125 * i && time < 2 - 0.15 * i) ? 1 - distance(time, 1.975 - 0.125 * i) * 10 : 0);
+        time = mod(GameTime * -300 + distance(pixelUV, vec2(0.75, 0.25)), 2);
+        color.rgb = mix(color.rgb, MetalColor / 255, (time > 0.9 - 0.125 * i && time < 1 - 0.15 * i) ? 1 - distance(time, 0.975 - 0.125 * i) * 10 : 0);
     }
-    color.rgb = mix(color.rgb, hsv2rgb(getBlue(colorIn.b).rgb / vec3(360f, 100f, 100f)), colorIn.b > 0f);
-    color.rgb = mix(color.rgb, vec3(colorIn.g, colorIn.g, colorIn.g), colorIn.g > 0f);
-    fragColor = color* ColorModulator;
+    color.rgb = mix(color.rgb, hsv2rgb(getBlue(colorIn.b).rgb / vec3(360, 100, 100)), colorIn.b > 0 ? 1.0 : 0.0);
+    color.rgb = mix(color.rgb, vec3(colorIn.g, colorIn.g, colorIn.g), colorIn.g > 0 ? 1.0 : 0.0);
+    fragColor = color * ColorModulator;
 }

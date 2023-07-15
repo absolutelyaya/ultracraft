@@ -72,8 +72,8 @@ void main() {
     }
     float time;
 
-    color.rgb = mix(vec3(0f, 0f, 0f), hsv2rgb(getRed(colorIn.r).rgb / vec3(360f, 100f, 100f)), colorIn.r > 0f);
-    color.rgb = mix(color.rgb, hsv2rgb(getBlue(colorIn.b).rgb / vec3(360f, 100f, 100f)), colorIn.b > 0f);
-    color.rgb = mix(color.rgb, vec3(colorIn.g, colorIn.g, colorIn.g), colorIn.g > 0f);
+    color.rgb = mix(vec3(0, 0, 0), hsv2rgb(getRed(colorIn.r).rgb / vec3(360, 100, 100)), colorIn.r > 0 ? 1.0 : 0.0);
+    color.rgb = mix(color.rgb, hsv2rgb(getBlue(colorIn.b).rgb / vec3(360, 100, 100)), colorIn.b > 0 ? 1.0 : 0.0);
+    color.rgb = mix(color.rgb, vec3(colorIn.g, colorIn.g, colorIn.g), colorIn.g > 0 ? 1.0 : 0.0);
     fragColor = color * ColorModulator;
 }

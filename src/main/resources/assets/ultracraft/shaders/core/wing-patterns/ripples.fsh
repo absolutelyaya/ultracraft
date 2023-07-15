@@ -53,7 +53,7 @@ float getRandom(vec2 v)
 
 vec3 getRed(float brightness)
 {
-    vec3 colA = rgb2hsv(WingColor / 255f) * vec3(360, 100, 100);
+    vec3 colA = rgb2hsv(WingColor / 255) * vec3(360, 100, 100);
     float step = brightness * 4 - 0.1;
     if(step > 3)
     return colA;
@@ -67,7 +67,7 @@ vec3 getRed(float brightness)
 
 vec3 getBlue(float brightness)
 {
-    vec3 colB = rgb2hsv(MetalColor / 255f) * vec3(360, 100, 100);
+    vec3 colB = rgb2hsv(MetalColor / 255) * vec3(360, 100, 100);
     float step = brightness * 4 - 0.1;
     if(step > 3)
         return colB;
@@ -85,23 +85,23 @@ void main()
     vec4 color = colorIn;
     if (color.a < 0.1)
         discard;
-    vec2 pixelUV = round((texCoord0 + 1f / 64f) * 32f) / 32f + 1f / 64f;
-    color.rgb = hsv2rgb(getRed(colorIn.r).rgb / vec3(360f, 100f, 100f));
+    vec2 pixelUV = round((texCoord0 + 1 / 64) * 32) / 32 + 1 / 64;
+    color.rgb = hsv2rgb(getRed(colorIn.r).rgb / vec3(360, 100, 100));
     for(int i = 0; i < 3; i++)
     {
-        float time = mod(GameTime * -300 + distance(pixelUV, vec2(0.75, 0.25)), 2f);
-        color.rgb = mix(color.rgb, vec3(1, 1, 1), (time > 1.9 - 0.125 * i && time < 2 - 0.15 * i) ? 1 - distance(time, 1.975f - 0.125 * i) * 10: 0f);
-        time = mod(GameTime * -300 + distance(pixelUV, vec2(0, 0.25)), 2f);
-        color.rgb = mix(color.rgb, vec3(1, 1, 1), (time > 0.9 - 0.125 * i && time < 1 - 0.15 * i) ? 1 - distance(time, 0.975f - 0.125 * i) * 10: 0f);
+        float time = mod(GameTime * -300 + distance(pixelUV, vec2(0.75, 0.25)), 2);
+        color.rgb = mix(color.rgb, vec3(1, 1, 1), (time > 1.9 - 0.125 * i && time < 2 - 0.15 * i) ? 1 - distance(time, 1.975 - 0.125 * i) * 10: 0);
+        time = mod(GameTime * -300 + distance(pixelUV, vec2(0, 0.25)), 2);
+        color.rgb = mix(color.rgb, vec3(1, 1, 1), (time > 0.9 - 0.125 * i && time < 1 - 0.15 * i) ? 1 - distance(time, 0.975 - 0.125 * i) * 10: 0);
     }
-    color.rgb = mix(color.rgb, hsv2rgb(getBlue(colorIn.b).rgb / vec3(360f, 100f, 100f)), colorIn.b > 0f);
-    color.rgb = mix(color.rgb, vec3(colorIn.g, colorIn.g, colorIn.g), colorIn.g > 0f);
+    color.rgb = mix(color.rgb, hsv2rgb(getBlue(colorIn.b).rgb / vec3(360, 100, 100)), colorIn.b > 0 ? 1.0 : 0.0);
+    color.rgb = mix(color.rgb, vec3(colorIn.g, colorIn.g, colorIn.g), colorIn.g > 0 ? 1.0 : 0.0);
     vec4 v = vertexColor;
     vec4 light = lightMapColor;
-    if(colorIn.r > 0f)
+    if(colorIn.r > 0)
     {
-        light = vec4(1f, 1f, 1f, 1f);
-        v = vec4(1f, 1f, 1f, 1f);
+        light = vec4(1, 1, 1, 1);
+        v = vec4(1, 1, 1, 1);
     }
     color *= v * ColorModulator;
     color *= light;
