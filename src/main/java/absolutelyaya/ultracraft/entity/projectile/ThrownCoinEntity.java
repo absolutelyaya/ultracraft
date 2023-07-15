@@ -240,8 +240,13 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 				potentialTargets = getWorld().getOtherEntities(getOwner(), getBoundingBox().expand(32f),
 						e -> !e.equals(this) && (e instanceof LivingEntity) && ((LivingEntityAccessor)e).isRicochetHittable() && !e.isTeammate(getOwner()));
 			else
+			{
 				potentialTargets = getWorld().getOtherEntities(attacker, getBoundingBox().expand(32f),
-						e -> !e.equals(this) && (e instanceof LivingEntity) && ((LivingEntityAccessor)e).isRicochetHittable() && !e.isTeammate(attacker));
+						e -> !e.equals(this) && (e instanceof EjectedCoreEntity));
+				if(potentialTargets.size() == 0)
+					potentialTargets = getWorld().getOtherEntities(attacker, getBoundingBox().expand(32f),
+							e -> !e.equals(this) && (e instanceof LivingEntity) && ((LivingEntityAccessor)e).isRicochetHittable() && !e.isTeammate(attacker));
+			}
 			if (potentialTargets.size() > 0)
 			{
 				if (hitTicks == 0)
@@ -300,8 +305,6 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 				}
 				if(dataTracker.get(SPLITS) > 0)
 					return performSplits(source, amount, attacker, potentialTargets.size() > 1);
-				getWorld().sendEntityStatus(this, (byte) 3);
-				kill();
 			}
 			else
 			{
@@ -309,9 +312,9 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 						getPos().add(Vec3d.fromPolar(random.nextFloat() * 360, random.nextFloat() * 360 - 180).multiply(64)), hitscanType);
 				if(dataTracker.get(SPLITS) > 0)
 					return performSplits(source, amount, attacker, false);
-				getWorld().sendEntityStatus(this, (byte) 3);
-				kill();
 			}
+			getWorld().sendEntityStatus(this, (byte) 3);
+			kill();
 		}
 		return true;
 	}
