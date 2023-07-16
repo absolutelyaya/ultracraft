@@ -140,7 +140,7 @@ public class ServerHitscanHandler
 		AtomicBoolean explodeProjectile = new AtomicBoolean(type == SHARPSHOOTER && user instanceof WingedPlayerEntity p && p.getSharpshooterCooldown() <= 0);
 		entities.forEach(e -> {
 			e.damage(source, damage);
-			if(explodeProjectile.get() && e instanceof ProjectileEntity proj && user instanceof WingedPlayerEntity p)
+			if(explodeProjectile.get() && e instanceof ProjectileEntity proj && !(e instanceof ThrownCoinEntity) && user instanceof WingedPlayerEntity p)
 			{
 				ExplosionHandler.explosion(user, world, proj.getPos(), DamageSources.get(world, DamageTypes.EXPLOSION, user), 5f, 1f, 5f, true);
 				proj.kill();
@@ -251,7 +251,9 @@ public class ServerHitscanHandler
 				{
 					PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 					buf.writeVector3f(visualFrom.toVector3f());
-					ServerPlayNetworking.send(player, PacketRegistry.RICOCHET_WARNING, buf);
+					buf.writeUuid(target.getUuid());
+					player.getServer().getPlayerManager().getPlayerList().forEach(p ->
+						ServerPlayNetworking.send(p, PacketRegistry.RICOCHET_WARNING, buf));
 				}
 				warned = true;
 			}

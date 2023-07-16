@@ -140,7 +140,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			if(damage > 1 && !isDeadCoined() && !dataTracker.get(PUNCHED))
 				hitNext(DamageSources.get(getWorld(), DamageSources.RICOCHET, getOwner()), damage, (LivingEntity)getOwner());
 			if(dataTracker.get(PUNCHED) && punchCounter > 25)
-				dropStack(CoinItem.getStack(getOwner().getDisplayName().getString(), damage));
+				dropStack(CoinItem.getStack(getOwner().getDisplayName().getString(), punchCounter));
 			if (!isRemoved())
 			{
 				getWorld().sendEntityStatus(this, (byte)3);
@@ -263,7 +263,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 				for (Entity e : potentialTargets)
 				{
 					float dist = distanceTo(e) + (e.equals(lastTarget) ? 10f : 0f);
-					if (dist < closestDistance)
+					if (dist < closestDistance && !(getOwner().isPlayer() && e.isPlayer() && !getWorld().getServer().isPvpEnabled()))
 					{
 						closestDistance = dist;
 						closest = e;
@@ -399,7 +399,8 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 					ServerHitscanHandler.RICOCHET);
 			if(damage < 5)
 				damage++;
-			coin = ThrownCoinEntity.spawn(parrier, getWorld(), to.add(normal), damage);
+			if(!hit.getType().equals(HitResult.Type.MISS))
+				coin = ThrownCoinEntity.spawn(parrier, getWorld(), to.add(normal), damage);
 		}
 		if(coin != null)
 			coin.punchCounter = punchCounter + 1;

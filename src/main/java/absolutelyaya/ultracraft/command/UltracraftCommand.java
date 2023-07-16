@@ -112,6 +112,7 @@ public class UltracraftCommand
 		Vec3d v = context.getArgument("pos", PosArgument.class).toAbsolutePos(context.getSource());
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeVector3f(v.toVector3f());
+		buf.writeUuid(context.getSource().getPlayer().getUuid());
 		ServerPlayNetworking.send(context.getSource().getPlayer(), PacketRegistry.RICOCHET_WARNING, buf);
 		return Command.SINGLE_SUCCESS;
 	}
