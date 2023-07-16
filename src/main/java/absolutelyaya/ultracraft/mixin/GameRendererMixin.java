@@ -16,6 +16,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GameRenderer.class)
@@ -50,5 +52,13 @@ public class GameRendererMixin
 			slideViewTilt = MathHelper.lerp(tickDelta, slideViewTilt, f * -side);
 			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(slideViewTilt), 0f, 0f, 1f)));
 		}
+	}
+	
+	@ModifyVariable(method = "tiltViewWhenHurt", at = @At("HEAD"), argsOnly = true)
+	float modifyTickDelta(float tickDelta)
+	{
+		if(Ultracraft.isTimeFrozen())
+			return 0.5f;
+		return tickDelta;
 	}
 }
