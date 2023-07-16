@@ -348,5 +348,8 @@
   "text.autoconfig.ultracraft.option.neverIntro": "Don't show Intro after switching Versions",
 
   "text.autoconfig.ultracraft.option.goopDebug": "Goop Debug",
-  "text.autoconfig.ultracraft.option.goopDebug.@Tooltip": "[WARNING] VERY LAGGY | Adds extra particles to show vertex info of goop puddles"
+  "text.autoconfig.ultracraft.option.goopDebug.@Tooltip": "[WARNING] VERY LAGGY | Adds extra particles to show vertex info of goop puddles",
+
+  "text.autoconfig.ultracraft.option.hideWings": "Hide High Velocity Wings",
+  "text.autoconfig.ultracraft.option.hideWings.@Tooltip": "Lets you hide High Velocity Wings"
 }

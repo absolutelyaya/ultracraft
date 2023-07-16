@@ -22,6 +22,8 @@ public class Ultraconfig implements ConfigData
 	public boolean detailedJoinInfo = false;
 	@ConfigEntry.Gui.Tooltip(count = 2)
 	public boolean freezeVFX = true;
+	@ConfigEntry.Gui.Tooltip
+	public HideWingsSetting hideWings = HideWingsSetting.NONE;
 	@ConfigEntry.Category("ultra-hud")
 	@ConfigEntry.Gui.Tooltip
 	public boolean fishingJoke = true;
