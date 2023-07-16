@@ -55,7 +55,6 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	byte hitTicks, hitscanType = ServerHitscanHandler.RICOCHET;
 	int damage = 1, punchCounter = 0, nextHitDelay = 5, realAge;
 	boolean splitting;
-	float startY;
 	
 	public ThrownCoinEntity(EntityType<? extends ThrownItemEntity> entityType, World world)
 	{
@@ -91,7 +90,6 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	{
 		ThrownCoinEntity coin = new ThrownCoinEntity(owner, world);
 		coin.setPos(pos.x, pos.y, pos.z);
-		coin.startY = (float)coin.getY();
 		coin.setVelocity(0f, 0.4f, 0f);
 		coin.damage = damage;
 		coin.dataTracker.set(PUNCHED, true);
@@ -474,11 +472,6 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	
 	public boolean isSplittable()
 	{
-		return !dataTracker.get(PUNCHED) && !dataTracker.get(CHARGEBACK) && (Math.max(1f - Math.abs(getVelocity().y * 6.5f), 0f) > 0.35f || getY() < startY + 0.25f);
-	}
-	
-	public void setStartY(float val)
-	{
-		startY = val;
+		return !dataTracker.get(PUNCHED) && !dataTracker.get(CHARGEBACK) && (Math.max(1f - Math.abs(getVelocity().y * 6.5f), 0f) > 0.35f || realAge > 20);
 	}
 }
