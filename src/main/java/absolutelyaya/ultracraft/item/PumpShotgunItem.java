@@ -98,7 +98,8 @@ public class PumpShotgunItem extends AbstractShotgunItem
 			((WingedPlayerEntity)user).blockBloodHeal(10);
 			ExplosionHandler.explosion(user, world, user.getPos().add(user.getRotationVector()),
 					DamageSources.get(world, DamageSources.OVERCHARGE, user), 10, 0, 3, true, true);
-			user.damage(DamageSources.get(world, DamageSources.OVERCHARGE_SELF), 4);
+			if(user instanceof WingedPlayerEntity winged && winged.getDashingTicks() <= 0)
+				user.damage(DamageSources.get(world, DamageSources.OVERCHARGE_SELF), 4);
 		}
 		return true;
 	}

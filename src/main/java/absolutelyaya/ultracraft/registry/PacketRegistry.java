@@ -260,6 +260,7 @@ public class PacketRegistry
 			buf.writeDouble(dir.z);
 			for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers())
 				ServerPlayNetworking.send(p, DASH_S2C_PACKET_ID, buf);
+			server.execute(() -> ((WingedPlayerEntity)player).onDash());
 		});
 		ServerPlayNetworking.registerGlobalReceiver(GROUND_POUND_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			boolean start = buf.readBoolean();
