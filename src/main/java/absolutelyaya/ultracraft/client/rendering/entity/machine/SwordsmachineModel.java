@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.client.rendering.entity.machine;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.entity.machine.DestinyBondSwordsmachineEntity;
 import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
@@ -21,6 +22,11 @@ public class SwordsmachineModel extends GeoModel<SwordsmachineEntity>
 	@Override
 	public Identifier getTextureResource(SwordsmachineEntity object)
 	{
+		if(object instanceof DestinyBondSwordsmachineEntity destinyBondSM)
+		{
+			return destinyBondSM.getVariant() == 0 ? new Identifier(Ultracraft.MOD_ID, "textures/entity/swordsmachine_tundra.png") :
+						   new Identifier(Ultracraft.MOD_ID, "textures/entity/swordsmachine_agony.png");
+		}
 		return new Identifier(Ultracraft.MOD_ID, "textures/entity/swordsmachine.png");
 	}
 	
