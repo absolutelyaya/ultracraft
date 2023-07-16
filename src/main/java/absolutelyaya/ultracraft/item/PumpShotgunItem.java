@@ -71,6 +71,7 @@ public class PumpShotgunItem extends AbstractShotgunItem
 			itemStack.getNbt().putInt("charge", Math.min(charge + 1, 3));
 			triggerAnim(user, GeoItem.getOrAssignId(itemStack, (ServerWorld)world), getControllerName(), b ? "pump" : "pump2");
 			b = !b;
+			cdm.setCooldown(this, 21, GunCooldownManager.PRIMARY);
 		}
 		else
 		{
