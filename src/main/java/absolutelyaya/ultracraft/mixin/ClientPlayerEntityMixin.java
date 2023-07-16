@@ -90,7 +90,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	Vec3d slideDir = Vec3d.ZERO;
 	boolean slamming, lastSlamming, strongGroundPound, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored,
 			slideStartedSideways, increaseAirControl;
-	int slamTicks, slamCooldown, slamJumpTimer = -1, slideTicks, wallJumps = 3, coyote, disableJumpTicks;
+	int slamTicks, slamCooldown, slamJumpTimer = -1, slideTicks, wallJumps = 3, coyote, disableJumpTicks, jumpTicks;
 	float slideVelocity;
 	final float baseJumpVel = 0.42f;
 	
@@ -228,6 +228,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					}
 					else
 						setVelocity(0, slamTicks / 20f + getJumpVelocity() * 1.5f + (slamStored ? 3f : 0f), 0);
+					if(slamStored)
+						jumpTicks = 0;
 					slamStored = false;
 					slamTicks = 0;
 					ci.cancel();
@@ -383,6 +385,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		jumping = jumping && disableJumpTicks == 0;
 		if(disableJumpTicks > 0)
 			disableJumpTicks--;
+		if(jumpTicks > 0)
+			jumpTicks--;
 	}
 	
 	Vec3d unhorizontalize(Vec3d in)
@@ -529,5 +533,18 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	public boolean isAirControlIncreased()
 	{
 		return increaseAirControl;
+	}
+	
+	@Override
+	public void jump()
+	{
+		jumpTicks = 20;
+		super.jump();
+	}
+	
+	@Override
+	public boolean hasJustJumped()
+	{
+		return jumpTicks > 0;
 	}
 }
