@@ -248,7 +248,7 @@ public class ServerHitscanHandler
 				{
 					Vec3d originalDir = dest.subtract(from).normalize();
 					Vec3d aimDir = closest.get().getPos().add(0, closest.get().getHeight() / 2, 0).subtract(from).normalize();
-					if(originalDir.distanceTo(aimDir) < 0.5f)
+					if(originalDir.distanceTo(aimDir) < 1f)
 						dest = from.add(originalDir.lerp(aimDir.multiply(64), autoAim));
 				}
 			}
