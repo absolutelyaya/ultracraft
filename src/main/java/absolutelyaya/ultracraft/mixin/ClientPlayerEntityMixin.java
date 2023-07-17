@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.TagRegistry;
+import com.chocohead.mm.api.ClassTinkerers;
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -17,6 +18,7 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -96,7 +98,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	
 	void tryDash()
 	{
-		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying)
+		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying &&
+				   !(isCrawling() || getPose().equals(ClassTinkerers.getEnum(EntityPose.class, "SLIDE")) || !wouldPoseNotCollide(EntityPose.STANDING)))
 		{
 			if(isSneaking() && !lastSneaking)
 			{
