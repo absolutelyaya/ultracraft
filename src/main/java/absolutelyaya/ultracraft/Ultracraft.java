@@ -2,6 +2,8 @@ package absolutelyaya.ultracraft;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.command.UltracraftCommand;
+import absolutelyaya.ultracraft.item.MarksmanRevolverItem;
+import absolutelyaya.ultracraft.item.SharpshooterRevolverItem;
 import absolutelyaya.ultracraft.registry.*;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
@@ -15,6 +17,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.item.Item;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -85,6 +88,15 @@ public class Ultracraft implements ModInitializer
             buf.writeString(((WingedPlayerEntity)oldPlayer).getWingPattern());
             for (ServerPlayerEntity p : ((ServerWorld)newPlayer.getWorld()).getPlayers())
                 ServerPlayNetworking.send(p, PacketRegistry.WING_DATA_S2C_PACKET_ID, buf);
+        });
+        ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
+            newPlayer.getInventory().main.forEach(stack -> {
+                Item item = stack.getItem();
+                if(item instanceof MarksmanRevolverItem marksman && marksman.getCoins(stack) < 4)
+                    marksman.setCoins(stack, 4);
+                else if (item instanceof SharpshooterRevolverItem sharpshooter && sharpshooter.getCharges(stack) < 3)
+                    sharpshooter.setCharges(stack, 3);
+            });
         });
         
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((serverPlayer, lastWorld, newWorld) -> GameruleRegistry.SyncAll(serverPlayer));
