@@ -9,12 +9,16 @@ import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
+import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.hit.EntityHitResult;
@@ -66,22 +70,14 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 		super.onCollision(hitResult);
 		
 		if (!getWorld().isClient)
-		{
-			ExplosionHandler.explosion(null, getWorld(), hitResult.getPos(), getDamageSources().explosion(getOwner(), getOwner()), 5f, 2f, 2f, true);
-			getWorld().sendEntityStatus(this, (byte)3);
-			discard();
-		}
+			explode(getOwner());
 	}
 	
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
 		if(source.isIn(DamageTypeTags.HITSCAN))
-		{
-			ExplosionHandler.explosion(null, getWorld(), getPos(), getDamageSources().explosion(getOwner(), getOwner()), 10f, 4f, 3f, true);
-			getWorld().sendEntityStatus(this, (byte)3);
-			kill();
-		}
+			explode(source.getAttacker());
 		return super.damage(source, amount);
 	}
 	
@@ -89,6 +85,8 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 	public void tick()
 	{
 		super.tick();
+		if(getWorld().getFluidState(getBlockPos()).isIn(FluidTags.LAVA))
+			explode(getOwner());
 		if(getWorld().isClient && UltracraftClient.getConfigHolder().get().safeVFX)
 			return;
 		if(age % 5 == 0)
@@ -150,5 +148,18 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 	public boolean isHitscanHittable()
 	{
 		return true;
+	}
+	
+	@Override
+	public boolean updateMovementInFluid(TagKey<Fluid> tag, double speed)
+	{
+		return false;
+	}
+	
+	void explode(Entity exploder)
+	{
+		ExplosionHandler.explosion(null, getWorld(), getPos(), getDamageSources().explosion(this, exploder), 10f, 4f, 3f, true);
+		getWorld().sendEntityStatus(this, (byte)3);
+		kill();
 	}
 }
