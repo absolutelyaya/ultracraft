@@ -1,22 +1,29 @@
 package absolutelyaya.ultracraft.command;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.entity.machine.DestinyBondSwordsmachineEntity;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.command.argument.PosArgument;
-import net.minecraft.command.argument.Vec3ArgumentType;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.argument.*;
+import net.minecraft.entity.Entity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
+import org.apache.commons.lang3.function.TriFunction;
+
+import java.util.List;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static net.minecraft.command.argument.EntityArgumentType.player;
@@ -36,6 +43,8 @@ public class UltracraftCommand
 				.then(literal("unfreeze").executes(UltracraftCommand::executeUnfreeze)))
 			.then(literal("debug").requires(source -> source.hasPermissionLevel(2))
 				.then(literal("ricoshot_warn").then(argument("pos", Vec3ArgumentType.vec3()).executes(UltracraftCommand::executeDebugRicoshotWarn)))));
+		dispatcher.register(literal("ultracraft")
+				.then(literal("summon").requires(source -> source.hasPermissionLevel(2)).then(argument("type", StringArgumentType.string()).suggests((context, builder) -> CommandSource.suggestMatching(List.of("\"tundra//agony\""), builder)).then(argument("pos", Vec3ArgumentType.vec3()).then(argument("yaw", DoubleArgumentType.doubleArg()).executes(UltracraftCommand::executeSpecialSpawn))))));
 	}
 	
 	static int executeInfo(CommandContext<ServerCommandSource> context)
@@ -114,6 +123,25 @@ public class UltracraftCommand
 		buf.writeVector3f(v.toVector3f());
 		buf.writeUuid(context.getSource().getPlayer().getUuid());
 		ServerPlayNetworking.send(context.getSource().getPlayer(), PacketRegistry.RICOCHET_WARNING, buf);
+		return Command.SINGLE_SUCCESS;
+	}
+	
+	static int executeSpecialSpawn(CommandContext<ServerCommandSource> context)
+	{
+		Vec3d pos = context.getArgument("pos", PosArgument.class).toAbsolutePos(context.getSource());
+		double yaw = context.getArgument("yaw", Double.class);
+		
+		String type = context.getArgument("type", String.class);
+		TriFunction<World, Vec3d, Float, List<Entity>> spawnConsumer = switch(type)
+		{
+			case "tundra//agony" -> DestinyBondSwordsmachineEntity::spawn;
+			default -> {
+				context.getSource().sendError(Text.of("Invalid type: '" + type));
+				yield null;
+			}
+		};
+		if(spawnConsumer != null)
+			spawnConsumer.apply(context.getSource().getWorld(), pos, (float)yaw);
 		return Command.SINGLE_SUCCESS;
 	}
 }

@@ -26,6 +26,8 @@ import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 
+import java.util.List;
+
 public class DestinyBondSwordsmachineEntity extends SwordsmachineEntity implements IDestinyBond
 {
 	protected static final TrackedData<Integer> PARTNER = DataTracker.registerData(DestinyBondSwordsmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
@@ -79,7 +81,7 @@ public class DestinyBondSwordsmachineEntity extends SwordsmachineEntity implemen
 		}
 	}
 	
-	public static void spawn(World world, Vec3d pos, float yaw)
+	public static List<Entity> spawn(World world, Vec3d pos, float yaw)
 	{
 		Vec3d facing = Vec3d.fromPolar(0, yaw);
 		Vec3d right = facing.normalize().rotateY(90).multiply(1f);
@@ -88,18 +90,19 @@ public class DestinyBondSwordsmachineEntity extends SwordsmachineEntity implemen
 		tundra.setPosition(pos.add(right));
 		tundra.dataTracker.set(VARIANT, 0);
 		tundra.setCustomName(Text.of("Tundra").getWithStyle(Style.EMPTY.withColor(TextColor.fromFormatting(Formatting.DARK_BLUE)).withBold(true)).get(0));
-		tundra.setBodyYaw(yaw + 180);
+		tundra.setBodyYaw(yaw);
 		
 		DestinyBondSwordsmachineEntity agony = new DestinyBondSwordsmachineEntity(EntityRegistry.DESTINY_SWORDSMACHINE, world);
 		agony.setPosition(pos.subtract(right));
 		agony.dataTracker.set(VARIANT, 1);
 		agony.setCustomName(Text.of("Agony").getWithStyle(Style.EMPTY.withColor(TextColor.fromFormatting(Formatting.DARK_RED)).withBold(true)).get(0));
-		agony.setBodyYaw(yaw + 180);
+		agony.setBodyYaw(yaw);
 		
 		world.spawnEntity(tundra);
 		world.spawnEntity(agony);
 		tundra.setPartner(agony.getId());
 		agony.setPartner(tundra.getId());
+		return List.of(tundra, agony);
 	}
 	
 	@Override
@@ -169,6 +172,18 @@ public class DestinyBondSwordsmachineEntity extends SwordsmachineEntity implemen
 			}
 			return false;
 		}
+		return b;
+	}
+	
+	@Override
+	public boolean canTakeDamage()
+	{
+		boolean b = super.canTakeDamage();
+		Entity partner = getWorld().getEntityById(dataTracker.get(PARTNER));
+		if(!(partner instanceof DestinyBondSwordsmachineEntity partnerSM))
+			return b;
+		if(getHealth() <= 1 && !partnerSM.isStunned())
+			return false;
 		return b;
 	}
 	

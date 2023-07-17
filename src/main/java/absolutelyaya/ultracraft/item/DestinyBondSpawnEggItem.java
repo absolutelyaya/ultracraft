@@ -11,7 +11,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -27,7 +26,7 @@ public class DestinyBondSpawnEggItem extends SpawnEggItem
 	@Override
 	public ActionResult useOnBlock(ItemUsageContext context)
 	{
-		DestinyBondSwordsmachineEntity.spawn(context.getWorld(), context.getBlockPos().add(context.getSide().getVector()).toCenterPos(), context.getPlayerYaw());
+		DestinyBondSwordsmachineEntity.spawn(context.getWorld(), context.getBlockPos().add(context.getSide().getVector()).toCenterPos(), context.getPlayerYaw() + 180);
 		return ActionResult.CONSUME;
 	}
 	
