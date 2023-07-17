@@ -43,8 +43,7 @@ public class UltracraftCommand
 				.then(literal("unfreeze").executes(UltracraftCommand::executeUnfreeze)))
 			.then(literal("debug").requires(source -> source.hasPermissionLevel(2))
 				.then(literal("ricoshot_warn").then(argument("pos", Vec3ArgumentType.vec3()).executes(UltracraftCommand::executeDebugRicoshotWarn)))));
-		dispatcher.register(literal("ultracraft")
-				.then(literal("summon").requires(source -> source.hasPermissionLevel(2)).then(argument("type", StringArgumentType.string()).suggests((context, builder) -> CommandSource.suggestMatching(List.of("\"tundra//agony\""), builder)).then(argument("pos", Vec3ArgumentType.vec3()).then(argument("yaw", DoubleArgumentType.doubleArg()).executes(UltracraftCommand::executeSpecialSpawn))))));
+		dispatcher.register(literal("ultrasummon").requires(source -> source.hasPermissionLevel(2)).then(argument("type", StringArgumentType.string()).suggests((context, builder) -> CommandSource.suggestMatching(List.of("\"tundra//agony\""), builder)).then(argument("pos", Vec3ArgumentType.vec3()).then(argument("yaw", DoubleArgumentType.doubleArg()).executes(UltracraftCommand::executeSpecialSpawn)))));
 	}
 	
 	static int executeInfo(CommandContext<ServerCommandSource> context)
