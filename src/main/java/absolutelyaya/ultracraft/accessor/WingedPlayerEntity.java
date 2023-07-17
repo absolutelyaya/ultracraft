@@ -80,4 +80,6 @@ public interface WingedPlayerEntity
 	void setSharpshooterCooldown(int val);
 	
 	int getSharpshooterCooldown();
+	
+	boolean hasJustJumped();
 }

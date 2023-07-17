@@ -7,6 +7,7 @@ import absolutelyaya.ultracraft.client.rendering.item.PumpShotgunRenderer;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtElement;
@@ -52,35 +53,60 @@ public class PumpShotgunItem extends AbstractShotgunItem
 	}
 	
 	@Override
+	public void usageTick(World world, LivingEntity user, ItemStack stack, int remainingUseTicks)
+	{
+		pump(world, user, stack, 12);
+	}
+	
+	@Override
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
 	{
-		ItemStack itemStack = user.getStackInHand(hand);
-		if(hand.equals(Hand.OFF_HAND))
-			return TypedActionResult.fail(itemStack);
-		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
-		if(!cdm.isUsable(this, 1))
-			return TypedActionResult.fail(itemStack);
 		user.setCurrentHand(hand);
-		if(!itemStack.hasNbt())
-			itemStack.getOrCreateNbt();
+		ItemStack itemStack = user.getStackInHand(hand);
+		pump(world, user, itemStack, 7);
+		return TypedActionResult.pass(itemStack);
+	}
+	
+	void pump(World world, LivingEntity user, ItemStack stack, int cooldown)
+	{
+		Hand hand = user.getActiveHand();
+		if(hand.equals(Hand.OFF_HAND))
+			return;
+		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
+		if(!cdm.isUsable(this, GunCooldownManager.SECONDARY))
+			return;
+		user.setCurrentHand(hand);
+		if(!stack.hasNbt())
+			stack.getOrCreateNbt();
 		if(!world.isClient)
 		{
 			int charge = 0;
-			if(itemStack.getNbt().contains("charge", NbtElement.INT_TYPE))
-				charge = itemStack.getNbt().getInt("charge");
-			itemStack.getNbt().putInt("charge", Math.min(charge + 1, 3));
-			triggerAnim(user, GeoItem.getOrAssignId(itemStack, (ServerWorld)world), getControllerName(), b ? "pump" : "pump2");
+			if(stack.getNbt().contains("charge", NbtElement.INT_TYPE))
+				charge = stack.getNbt().getInt("charge");
+			stack.getNbt().putInt("charge", Math.min(charge + 1, 3));
+			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), b ? "pump" : "pump2");
 			b = !b;
 		}
 		else
 		{
 			int charge = 0;
-			if(itemStack.getNbt().contains("charge", NbtElement.INT_TYPE))
-				charge = itemStack.getNbt().getInt("charge");
+			if(stack.getNbt().contains("charge", NbtElement.INT_TYPE))
+				charge = stack.getNbt().getInt("charge");
 			user.playSound(SoundEvents.BLOCK_PISTON_CONTRACT, 0.5f, 0.8f + 0.1f * Math.min(charge + 1, 3));
 		}
-		cdm.setCooldown(this, 5, GunCooldownManager.SECONDARY);
-		return TypedActionResult.pass(itemStack);
+		cdm.setCooldown(this, cooldown, GunCooldownManager.SECONDARY);
+	}
+	
+	@Override
+	public boolean isUsedOnRelease(ItemStack stack)
+	{
+		return true;
+	}
+	
+	@Override
+	public int getMaxUseTime(ItemStack stack)
+	{
+		return Integer.MAX_VALUE;
 	}
 	
 	@Override
@@ -89,8 +115,10 @@ public class PumpShotgunItem extends AbstractShotgunItem
 		ItemStack itemStack = user.getMainHandStack();
 		boolean overcharge = getPelletCount(itemStack) == 0;
 		boolean b = super.onPrimaryFire(world, user, userVelocity);
+		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
 		if(!b)
 			return false;
+		cdm.setCooldown(this, 30, GunCooldownManager.PRIMARY);
 		if(itemStack.hasNbt() && itemStack.getNbt().contains("charge"))
 			itemStack.getNbt().putInt("charge", 0);
 		if(overcharge && !world.isClient)
@@ -98,7 +126,8 @@ public class PumpShotgunItem extends AbstractShotgunItem
 			((WingedPlayerEntity)user).blockBloodHeal(10);
 			ExplosionHandler.explosion(user, world, user.getPos().add(user.getRotationVector()),
 					DamageSources.get(world, DamageSources.OVERCHARGE, user), 10, 0, 3, true, true);
-			user.damage(DamageSources.get(world, DamageSources.OVERCHARGE_SELF), 4);
+			if(user instanceof WingedPlayerEntity winged && winged.getDashingTicks() <= 0)
+				user.damage(DamageSources.get(world, DamageSources.OVERCHARGE_SELF), 4);
 		}
 		return true;
 	}

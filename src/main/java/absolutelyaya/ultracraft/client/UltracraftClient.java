@@ -122,6 +122,7 @@ public class UltracraftClient implements ClientModInitializer
 		EntityRendererRegistry.register(EntityRegistry.MALICIOUS_FACE, MaliciousFaceRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.CERBERUS, CerberusRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.SWORDSMACHINE, SwordsmachineRenderer::new);
+		EntityRendererRegistry.register(EntityRegistry.DESTINY_SWORDSMACHINE, SwordsmachineRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.HELL_BULLET, HellBulletRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.CERBERUS_BALL, CerberusBallRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.SHOTGUN_PELLET, ShotgunPelletRenderer::new);

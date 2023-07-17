@@ -21,6 +21,8 @@
   "item.ultracraft.swordsmachine_spawn_egg.special": "Egg that spawns a Swordsmachine named Dan",
   "item.ultracraft.swordsmachine_spawn_egg.special.lore": "§5This Swordsmachine will attack Husks!",
   "item.ultracraft.swordsmachine_spawn_egg.special.hiddenlore": "§8I don't know anyone named Dan, I'm sure Dans are lovely, not overly-agressive people in fact",
+  "item.ultracraft.destiny_swordsmachine_spawn_egg": "Egg of intertwined Destinies",
+  "item.ultracraft.destiny_swordsmachine_spawn_egg.lore": "§1§lTundra§r§5//§4§lAgony",
   "item.ultracraft.coin": "Coin",
   "item.ultracraft.coin.lore": "This Coin was punched %s Times in a Row by %s. Impressive!",
   "item.ultracraft.coin.hiddenlore": "§8I wonder how long it'll take for someone to get this.",
@@ -84,7 +86,7 @@
   "death.attack.overcharge.item": "%1$s felt the full force of %2$ss enthusiasm handling %3$s",
   "death.attack.overcharge-self": "%s got overzealous handling a Pump Shotgun",
   "death.attack.overcharge-self.item": "%1$s got overzealous handling %3$s",
-  "death.attack.overcharge-slf.player": "%1$s got overzealous handling a Pump Shotgun whilst fighting %2$s",
+  "death.attack.overcharge-self.player": "%1$s got overzealous handling a Pump Shotgun whilst fighting %2$s",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 
@@ -348,5 +350,8 @@
   "text.autoconfig.ultracraft.option.neverIntro": "Don't show Intro after switching Versions",
 
   "text.autoconfig.ultracraft.option.goopDebug": "Goop Debug",
-  "text.autoconfig.ultracraft.option.goopDebug.@Tooltip": "[WARNING] VERY LAGGY | Adds extra particles to show vertex info of goop puddles"
+  "text.autoconfig.ultracraft.option.goopDebug.@Tooltip": "[WARNING] VERY LAGGY | Adds extra particles to show vertex info of goop puddles",
+
+  "text.autoconfig.ultracraft.option.hideWings": "Hide High Velocity Wings",
+  "text.autoconfig.ultracraft.option.hideWings.@Tooltip": "Lets you hide High Velocity Wings"
 }

@@ -1,0 +1,25 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#IR",
+    "i  "
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:diamond"
+    },
+    "I": {
+      "item": "minecraft:iron_block"
+    },
+    "R": {
+      "item": "minecraft:redstone_block"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "ultracraft:pierce_revolver",
+    "count": 1
+  }
+}

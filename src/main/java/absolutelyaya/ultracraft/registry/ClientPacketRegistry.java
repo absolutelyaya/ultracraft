@@ -9,6 +9,7 @@ import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
+import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
@@ -289,8 +290,12 @@ public class ClientPacketRegistry
 			if(client.player == null)
 				return;
 			Vector3f source = buf.readVector3f();
+			UUID target = buf.readUuid();
 			MinecraftClient.getInstance().execute(() -> {
-				client.player.getWorld().addParticle(ParticleRegistry.RICOCHET_WARNING, source.x, source.y, source.z, 0, 0, 0);
+				if(client.player.getUuid().equals(target))
+					client.player.getWorld().addParticle(ParticleRegistry.RICOCHET_WARNING, source.x, source.y, source.z, 0, 0, 0);
+				else
+					client.player.getWorld().addParticle(new ParryIndicatorParticleEffect(false), source.x, source.y, source.z, 0, 0, 0);
 				client.player.getWorld().playSound(source.x, source.y, source.z, SoundEvents.ENTITY_WARDEN_SONIC_CHARGE, SoundCategory.PLAYERS, 0.75f, 1.65f, false);
 			});
 		}));

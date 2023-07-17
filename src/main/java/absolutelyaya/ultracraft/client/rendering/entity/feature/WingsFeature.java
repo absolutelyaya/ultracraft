@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.client.rendering.entity.feature;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.client.HideWingsSetting;
 import absolutelyaya.ultracraft.client.RenderLayers;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
@@ -36,6 +37,22 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch)
 	{
 		WingedPlayerEntity winged = ((WingedPlayerEntity)entity);
+		HideWingsSetting hideWings = UltracraftClient.getConfigHolder().get().hideWings;
+		switch(hideWings)
+		{
+			case ALL -> {
+				return;
+			}
+			case ONLY_OWN -> {
+				if(entity.isMainPlayer())
+					return;
+			}
+			case ONLY_OTHERS -> {
+				if(!entity.isMainPlayer())
+					return;
+			}
+			case NONE -> {}
+		}
 		if(winged.isWingsActive() || (entity.isMainPlayer() && WingCustomizationScreen.MenuOpen))
 		{
 			Vec3d[] clrs = winged.getWingColors();

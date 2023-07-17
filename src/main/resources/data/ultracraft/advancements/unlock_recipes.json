@@ -15,7 +15,10 @@
       "ultracraft:pedestal",
       "ultracraft:cerberus_block",
       "ultracraft:ph-gun",
-      "ultracraft:ph-shotgun"
+      "ultracraft:ph-gun-g",
+      "ultracraft:ph-gun-r",
+      "ultracraft:ph-shotgun",
+      "ultracraft:ph-shotgun-g"
     ]
   }
 }

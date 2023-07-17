@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "ultracraft:item/destiny_spawn_egg"
+  }
+}

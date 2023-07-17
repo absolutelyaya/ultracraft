@@ -19,10 +19,7 @@ public class MarksmanRevolverRenderer extends GeoItemRenderer<MarksmanRevolverIt
 	@Override
 	public Identifier getTextureLocation(MarksmanRevolverItem animatable)
 	{
-		int coins = 0;
-		PlayerEntity player = MinecraftClient.getInstance().player;
-		if(player != null && player.getMainHandStack().isOf(ItemRegistry.MARKSMAN_REVOLVER) && player.getMainHandStack().hasNbt())
-			coins = player.getMainHandStack().getNbt().getInt("coins");
+		int coins = animatable.getCoins(currentItemStack);
 		
 		if (coins == 3)
 			return new Identifier(Ultracraft.MOD_ID, "textures/item/marksman_revolver3.png");

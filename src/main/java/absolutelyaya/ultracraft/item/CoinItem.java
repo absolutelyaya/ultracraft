@@ -46,7 +46,5 @@ public class CoinItem extends Item
 			String name = nbt.getString("name");
 			tooltip.add(Text.translatable("item.ultracraft.coin.lore", score, name));
 		}
-		if(context.isAdvanced())
-			tooltip.add(Text.translatable("item.ultracraft.coin.hiddenlore"));
 	}
 }

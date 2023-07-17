@@ -78,7 +78,7 @@ import java.util.UUID;
 
 public class SwordsmachineEntity extends AbstractUltraHostileEntity implements GeoEntity, MeleeInterruptable, Enrageable, ITrailEnjoyer
 {
-	private final ServerBossBar bossBar = new ServerBossBar(this.getDisplayName(), BossBar.Color.RED, BossBar.Style.PROGRESS);
+	protected final ServerBossBar bossBar = new ServerBossBar(this.getDisplayName(), BossBar.Color.RED, BossBar.Style.PROGRESS);
 	private static final Vector4f trailColor = new Vector4f(1f, 0.5f, 0f, 0.6f);
 	private static final int trailLifetime = 40;
 	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
@@ -105,14 +105,14 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	protected static final TrackedData<Integer> BLAST_COOLDOWN = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> THROW_COOLDOWN = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Optional<UUID>> LAST_TRAIL_ID = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
-	private static final byte ANIMATION_IDLE = 0;
-	private static final byte ANIMATION_LOOK = 1;
-	private static final byte ANIMATION_BREAKDOWN = 2;
-	private static final byte ANIMATION_ENRAGE = 3;
-	private static final byte ANIMATION_THROW = 4;
-	private static final byte ANIMATION_SLASH = 5;
-	private static final byte ANIMATION_COMBO = 6;
-	private static final byte ANIMATION_SPIN = 7;
+	protected static final byte ANIMATION_IDLE = 0;
+	protected static final byte ANIMATION_LOOK = 1;
+	protected static final byte ANIMATION_BREAKDOWN = 2;
+	protected static final byte ANIMATION_ENRAGE = 3;
+	protected static final byte ANIMATION_THROW = 4;
+	protected static final byte ANIMATION_SLASH = 5;
+	protected static final byte ANIMATION_COMBO = 6;
+	protected static final byte ANIMATION_SPIN = 7;
 	private final Multimap<EntityAttribute, EntityAttributeModifier> enragedModifiers;
 	int lastTrailStart = -1;
 	float swordVolume = 0f, swordPitch = 1f;
@@ -206,7 +206,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		enrage();
 	}
 	
-	private <E extends GeoEntity> PlayState predicate(AnimationState<E> event)
+	protected <E extends GeoEntity> PlayState predicate(AnimationState<E> event)
 	{
 		byte anim = dataTracker.get(ANIMATION);
 		AnimationController<?> controller = event.getController();
@@ -280,7 +280,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	{
 		super.readCustomDataFromNbt(nbt);
 		if (hasCustomName())
-			bossBar.setName(Text.translatable("entity.ultracraft.swordsmachine-named", getDisplayName()));
+			setCustomName(getDisplayName());
 		if(nbt.contains("shotgun"))
 			dataTracker.set(HAS_SHOTGUN, nbt.getBoolean("shotgun"));
 		if(nbt.contains("sword"))
@@ -340,7 +340,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 			amount *= 1.5;
 		boolean b = super.damage(source, amount);
 		bossBar.setPercent(getHealth() / getMaxHealth());
-		if(dataTracker.get(HAS_SHOTGUN) && getHealth() < 75)
+		if(canLoseShotgun() && dataTracker.get(HAS_SHOTGUN) && getHealth() < 75)
 		{
 			dataTracker.set(BREAKDOWN_TICKS, 60);
 			dataTracker.set(ANIMATION, ANIMATION_BREAKDOWN);
@@ -621,6 +621,11 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		return MathHelper.clamp(swordPitch, 0.5f, 2f);
 	}
 	
+	protected boolean canLoseShotgun()
+	{
+		return true;
+	}
+	
 	static class TargetHuskGoal extends ActiveTargetGoal<LivingEntity>
 	{
 		public TargetHuskGoal(SwordsmachineEntity sm)
@@ -807,7 +812,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 			if(sm.random.nextBetween(0, 4) != 0)
 				return false;
 			target = sm.getTarget();
-			return target != null && sm.isIdle() && !sm.dataTracker.get(HAS_SHOTGUN) && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(THROW_COOLDOWN) == 0;
+			return target != null && sm.isIdle() && (!sm.dataTracker.get(HAS_SHOTGUN) || !sm.canLoseShotgun()) && sm.dataTracker.get(HAS_SWORD) && sm.dataTracker.get(THROW_COOLDOWN) == 0;
 		}
 		
 		@Override

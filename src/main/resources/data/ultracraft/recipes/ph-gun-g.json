@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "#Gi",
+    "i  "
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:diamond"
+    },
+    "G": {
+      "item": "minecraft:gold_block"
+    },
+    "i": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "result": {
+    "item": "ultracraft:pierce_revolver",
+    "count": 1
+  }
+}

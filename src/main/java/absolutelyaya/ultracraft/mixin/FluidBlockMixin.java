@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(FluidBlock.class)
-public class MixinFluidBlock
+public class FluidBlockMixin
 {
 	@Shadow @Final public static IntProperty LEVEL;
 	

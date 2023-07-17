@@ -25,10 +25,12 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
@@ -55,7 +57,6 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	byte hitTicks, hitscanType = ServerHitscanHandler.RICOCHET;
 	int damage = 1, punchCounter = 0, nextHitDelay = 5, realAge;
 	boolean splitting;
-	float startY;
 	
 	public ThrownCoinEntity(EntityType<? extends ThrownItemEntity> entityType, World world)
 	{
@@ -91,7 +92,6 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	{
 		ThrownCoinEntity coin = new ThrownCoinEntity(owner, world);
 		coin.setPos(pos.x, pos.y, pos.z);
-		coin.startY = (float)coin.getY();
 		coin.setVelocity(0f, 0.4f, 0f);
 		coin.damage = damage;
 		coin.dataTracker.set(PUNCHED, true);
@@ -140,7 +140,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			if(damage > 1 && !isDeadCoined() && !dataTracker.get(PUNCHED))
 				hitNext(DamageSources.get(getWorld(), DamageSources.RICOCHET, getOwner()), damage, (LivingEntity)getOwner());
 			if(dataTracker.get(PUNCHED) && punchCounter > 25)
-				dropStack(CoinItem.getStack(getOwner().getDisplayName().getString(), damage));
+				dropStack(CoinItem.getStack(getOwner().getDisplayName().getString(), punchCounter));
 			if (!isRemoved())
 			{
 				getWorld().sendEntityStatus(this, (byte)3);
@@ -263,7 +263,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 				for (Entity e : potentialTargets)
 				{
 					float dist = distanceTo(e) + (e.equals(lastTarget) ? 10f : 0f);
-					if (dist < closestDistance)
+					if (dist < closestDistance && !(getOwner().isPlayer() && e.isPlayer() && !getWorld().getServer().isPvpEnabled()))
 					{
 						closestDistance = dist;
 						closest = e;
@@ -296,7 +296,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 					else
 					{
 						ServerHitscanHandler.performBouncingHitscan(attacker, getPos(), getPos(), closest.getBoundingBox().getCenter(), hitscanType,
-								isDamageRicochet ? 5 * amount : 5, DamageSources.get(getWorld(), DamageSources.RICOCHET, this, getOwner()), 1, 0);
+								isDamageRicochet ? 5 * amount : 5, DamageSources.get(getWorld(), DamageSources.RICOCHET, this, getOwner()), 1, 0, 0f);
 						Ultracraft.freeze((ServerWorld)getWorld(), 3);
 						if(getOwner() instanceof ServerPlayerEntity player)
 							CriteriaRegistry.RICOCHET.trigger(player, damage);
@@ -399,7 +399,8 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 					ServerHitscanHandler.RICOCHET);
 			if(damage < 5)
 				damage++;
-			coin = ThrownCoinEntity.spawn(parrier, getWorld(), to.add(normal), damage);
+			if(!hit.getType().equals(HitResult.Type.MISS))
+				coin = ThrownCoinEntity.spawn(parrier, getWorld(), to.add(normal), damage);
 		}
 		if(coin != null)
 			coin.punchCounter = punchCounter + 1;
@@ -473,11 +474,12 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	
 	public boolean isSplittable()
 	{
-		return !dataTracker.get(PUNCHED) && !dataTracker.get(CHARGEBACK) && (Math.max(1f - Math.abs(getVelocity().y * 6.5f), 0f) > 0.35f || getY() < startY + 0.25f);
+		return !dataTracker.get(PUNCHED) && !dataTracker.get(CHARGEBACK) && (Math.max(1f - Math.abs(getVelocity().y * 6.5f), 0f) > 0.35f || realAge > 20);
 	}
 	
-	public void setStartY(float val)
+	@Override
+	public boolean updateMovementInFluid(TagKey<Fluid> tag, double speed)
 	{
-		startY = val;
+		return false;
 	}
 }

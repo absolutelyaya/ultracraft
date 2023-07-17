@@ -1,0 +1,25 @@
+{
+    "type": "minecraft:crafting_shaped",
+    "pattern": [
+        "#II",
+        "iP "
+    ],
+    "key": {
+        "#": {
+            "item": "minecraft:tnt"
+        },
+        "I": {
+            "item": "minecraft:iron_block"
+        },
+        "i": {
+            "item": "minecraft:iron_ingot"
+        },
+        "P": {
+            "item": "minecraft:piston"
+        }
+    },
+    "result": {
+        "item": "ultracraft:core_shotgun",
+        "count": 1
+    }
+}

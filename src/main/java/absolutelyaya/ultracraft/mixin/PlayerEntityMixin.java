@@ -381,7 +381,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			}
 			fallDistance = 0f;
 		}
-		if(stamina < 90)
+		if(stamina < 90 && !isSprinting())
 		{
 			stamina++;
 			if(stamina % 30 == 0)

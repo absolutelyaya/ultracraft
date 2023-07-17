@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.TagRegistry;
+import com.chocohead.mm.api.ClassTinkerers;
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -17,6 +18,7 @@ import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
@@ -90,13 +92,14 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	Vec3d slideDir = Vec3d.ZERO;
 	boolean slamming, lastSlamming, strongGroundPound, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored,
 			slideStartedSideways, increaseAirControl;
-	int slamTicks, slamCooldown, slamJumpTimer = -1, slideTicks, wallJumps = 3, coyote, disableJumpTicks;
-	float slideVelocity;
+	int slamTicks, slamCooldown, slamJumpTimer = -1, slideTicks, wallJumps = 3, coyote, disableJumpTicks, jumpTicks;
+	float slideVelocity = 0.33f;
 	final float baseJumpVel = 0.42f;
 	
 	void tryDash()
 	{
-		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying)
+		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying &&
+				   !(isCrawling() || getPose().equals(ClassTinkerers.getEnum(EntityPose.class, "SLIDE")) || !wouldPoseNotCollide(EntityPose.STANDING)))
 		{
 			if(isSneaking() && !lastSneaking)
 			{
@@ -130,7 +133,11 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		{
 			boolean grounded = isGrounded(0.1f);
 			if(slamCooldown > 0)
+			{
 				slamCooldown--;
+				if(slamCooldown == 0 && !isSprinting())
+					slideVelocity = 0.33f;
+			}
 			if(wasHiVel != UltracraftClient.isHiVelEnabled() && lastSprintPressed)
 				setSliding(true, false); //when switching into HiVelMode while sprinting, reinitiate sliding
 			if(slamJumpTimer > -1 && slamJumpTimer < 4)
@@ -167,7 +174,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			{
 				if(jumping && (grounded || coyote > 0))
 				{
-					setVelocity(slideDir.multiply(1f + 0.05 * UltracraftClient.speed).multiply(slideVelocity * 1.5));
+					setVelocity(slideDir.multiply(1f + 0.05 * UltracraftClient.speed).multiply(slideVelocity * 1.25));
 					addVelocity(0, baseJumpVel, 0);
 					setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
 				}
@@ -210,6 +217,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					slamming = false;
 					slamJumpTimer = 0;
 					slamCooldown = 5;
+					if(slamStored)
+						slideVelocity = 1f;
 				}
 				if(jumping && lastJumping)
 					disableJumpTicks = 8;
@@ -228,6 +237,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					}
 					else
 						setVelocity(0, slamTicks / 20f + getJumpVelocity() * 1.5f + (slamStored ? 3f : 0f), 0);
+					if(slamStored)
+						jumpTicks = 0;
 					slamStored = false;
 					slamTicks = 0;
 					ci.cancel();
@@ -281,6 +292,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				increaseAirControl = false;
 				if(slamming)
 					slamming = false;
+				if(!isSprinting() && !lastSprintPressed && !slamStored)
+					slideVelocity = 0.33f;
 			}
 			if((!isOnGround() || !grounded) && coyote > 0)
 				coyote--;
@@ -383,6 +396,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		jumping = jumping && disableJumpTicks == 0;
 		if(disableJumpTicks > 0)
 			disableJumpTicks--;
+		if(jumpTicks > 0)
+			jumpTicks--;
 	}
 	
 	Vec3d unhorizontalize(Vec3d in)
@@ -412,7 +427,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			else
 				slideDir = new Vec3d(movementDir.x, 0, movementDir.y).rotateY((float)Math.toRadians(-getRotationClient().y)).normalize();
 		}
-		slideVelocity = Math.max(0.33f, (float)getVelocity().multiply(1.2f, 0f, 1.2f).length());
+		slideVelocity = Math.max(0.33f, Math.max((float)getVelocity().multiply(1f, 0f, 1f).length(), last ? 0f : slideVelocity * 0.75f));
 		slideTicks = 0;
 	}
 	
@@ -529,5 +544,18 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	public boolean isAirControlIncreased()
 	{
 		return increaseAirControl;
+	}
+	
+	@Override
+	public void jump()
+	{
+		jumpTicks = 20;
+		super.jump();
+	}
+	
+	@Override
+	public boolean hasJustJumped()
+	{
+		return jumpTicks > 0;
 	}
 }
