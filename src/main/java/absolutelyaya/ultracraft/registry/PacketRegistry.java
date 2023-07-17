@@ -323,7 +323,6 @@ public class PacketRegistry
 				coin.addVelocity(vel.multiply(1f, justJumped ? 0.25f : 0.75f, 1f));
 				coin.addVelocity(0f, 0.3f, 0f);
 				coin.setPosition(coin.getPos().add(vel));
-				System.out.println(vel + " " + justJumped);
 				player.getWorld().spawnEntity(coin);
 			});
 		});

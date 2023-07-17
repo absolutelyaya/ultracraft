@@ -8,7 +8,7 @@
     "FishingBobberMixin",
     "HungerManagerMixin",
     "LivingEntityMixin",
-    "MixinFluidBlock",
+    "FluidBlockMixin",
     "PlayerEntityMixin",
     "PlayerInventoryMixin",
     "ProjectileEntityMixin",
