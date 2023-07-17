@@ -296,7 +296,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 					else
 					{
 						ServerHitscanHandler.performBouncingHitscan(attacker, getPos(), getPos(), closest.getBoundingBox().getCenter(), hitscanType,
-								isDamageRicochet ? 5 * amount : 5, DamageSources.get(getWorld(), DamageSources.RICOCHET, this, getOwner()), 1, 0);
+								isDamageRicochet ? 5 * amount : 5, DamageSources.get(getWorld(), DamageSources.RICOCHET, this, getOwner()), 1, 0, 0f);
 						Ultracraft.freeze((ServerWorld)getWorld(), 3);
 						if(getOwner() instanceof ServerPlayerEntity player)
 							CriteriaRegistry.RICOCHET.trigger(player, damage);
