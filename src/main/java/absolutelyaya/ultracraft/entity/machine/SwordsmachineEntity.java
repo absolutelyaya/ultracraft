@@ -156,7 +156,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		if(data.equals(BREAKDOWN_TICKS))
 		{
 			int bt = dataTracker.get(BREAKDOWN_TICKS);
-			if(bt == 58)
+			if(bt == 58 && canLoseShotgun())
 				dataTracker.set(HAS_SHOTGUN, false); //second frame of breakdown anim / lose shotgun
 			else if(bt == 0 && getAnimation() == ANIMATION_BREAKDOWN)
 				dataTracker.set(ANIMATION, ANIMATION_IDLE);

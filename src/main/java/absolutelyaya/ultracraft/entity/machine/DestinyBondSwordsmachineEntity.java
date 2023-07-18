@@ -138,7 +138,7 @@ public class DestinyBondSwordsmachineEntity extends SwordsmachineEntity implemen
 	@Override
 	public boolean isStunned()
 	{
-		return getHealth() <= 1;
+		return dataTracker.get(BREAKDOWN_TICKS) > 0;
 	}
 	
 	@Override
@@ -150,24 +150,31 @@ public class DestinyBondSwordsmachineEntity extends SwordsmachineEntity implemen
 			bossBar.setPercent(MathHelper.lerp((10 - dataTracker.get(HEALING)) / 10f, 0f, getHealth() / getMaxHealth()));
 			dataTracker.set(HEALING, dataTracker.get(HEALING) - 1);
 		}
+		if(dataTracker.get(ANIMATION) == ANIMATION_STUN_STOP)
+			dataTracker.set(UN_STUN_TICKS, dataTracker.get(UN_STUN_TICKS) + 1);
 	}
 	
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
-		boolean b = super.damage(source, amount);
+		Entity attacker = source.getAttacker();
+		if(attacker != null && attacker.getId() == dataTracker.get(PARTNER))
+			return false;
 		Entity partner = getWorld().getEntityById(dataTracker.get(PARTNER));
+		if(!(partner instanceof DestinyBondSwordsmachineEntity partnerSM))
+			return super.damage(source, amount);
+		if(isStunned() && !partnerSM.isStunned())
+			return false;
+		boolean b = super.damage(source, amount);
 		if(b && dataTracker.get(HEALING) > 0)
 			dataTracker.set(HEALING, 0);
-		if(!(partner instanceof DestinyBondSwordsmachineEntity partnerSM))
-			return b;
 		if(getHealth() <= 0 && !partnerSM.isStunned())
 		{
 			setHealth(1f);
 			if(!wasStunned)
 			{
 				wasStunned = true;
-				dataTracker.set(BREAKDOWN_TICKS, 400);
+				dataTracker.set(BREAKDOWN_TICKS, 200);
 				dataTracker.set(ANIMATION, ANIMATION_STUN_START);
 			}
 			return false;
@@ -204,10 +211,7 @@ public class DestinyBondSwordsmachineEntity extends SwordsmachineEntity implemen
 		switch (anim)
 		{
 			case ANIMATION_STUN_START -> controller.setAnimation(STUN_START_ANIM);
-			case ANIMATION_STUN_STOP -> {
-				controller.setAnimation(STUN_STOP_ANIM);
-				dataTracker.set(UN_STUN_TICKS, dataTracker.get(UN_STUN_TICKS) + 1);
-			}
+			case ANIMATION_STUN_STOP -> controller.setAnimation(STUN_STOP_ANIM);
 		}
 		return PlayState.CONTINUE;
 	}
