@@ -7,6 +7,7 @@ import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
+import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
 import com.chocohead.mm.api.ClassTinkerers;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -17,6 +18,7 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
@@ -381,7 +383,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			}
 			fallDistance = 0f;
 		}
-		if(stamina < 90 && !isSprinting())
+		StatusEffectInstance chilled = getStatusEffect(StatusEffectRegistry.CHILLED);
+		if(stamina < 90 && !isSprinting() && !(chilled != null && age % (chilled.getAmplifier() + 1) != 0))
 		{
 			stamina++;
 			if(stamina % 30 == 0)

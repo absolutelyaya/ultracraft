@@ -102,7 +102,9 @@ public class ItemRegistry
 			content.add(SHARPSHOOTER_REVOLVER.getStackedSharpshooter());
 			content.add(CORE_SHOTGUN);
 			content.add(PUMP_SHOTGUN);
-			content.add(MACHINE_SWORD);
+			content.add(MACHINE_SWORD.getDefaultStack(MachineSwordItem.Type.NORMAL));
+			content.add(MACHINE_SWORD.getDefaultStack(MachineSwordItem.Type.TUNDRA));
+			content.add(MACHINE_SWORD.getDefaultStack(MachineSwordItem.Type.AGONY));
 			content.add(FILTH_SPAWN_EGG);
 			content.add(STRAY_SPAWN_EGG);
 			content.add(SCHISM_SPAWN_EGG);

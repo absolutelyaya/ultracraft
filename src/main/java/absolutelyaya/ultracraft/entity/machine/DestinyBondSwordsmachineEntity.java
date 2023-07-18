@@ -1,7 +1,9 @@
 package absolutelyaya.ultracraft.entity.machine;
 
 import absolutelyaya.ultracraft.accessor.IDestinyBond;
+import absolutelyaya.ultracraft.item.MachineSwordItem;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
+import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageSource;
@@ -89,12 +91,14 @@ public class DestinyBondSwordsmachineEntity extends SwordsmachineEntity implemen
 		DestinyBondSwordsmachineEntity tundra = new DestinyBondSwordsmachineEntity(EntityRegistry.DESTINY_SWORDSMACHINE, world);
 		tundra.setPosition(pos.add(right));
 		tundra.dataTracker.set(VARIANT, 0);
+		tundra.refreshSword();
 		tundra.setCustomName(Text.of("Tundra").getWithStyle(Style.EMPTY.withColor(TextColor.fromFormatting(Formatting.DARK_BLUE)).withBold(true)).get(0));
 		tundra.setBodyYaw(yaw);
 		
 		DestinyBondSwordsmachineEntity agony = new DestinyBondSwordsmachineEntity(EntityRegistry.DESTINY_SWORDSMACHINE, world);
 		agony.setPosition(pos.subtract(right));
 		agony.dataTracker.set(VARIANT, 1);
+		agony.refreshSword();
 		agony.setCustomName(Text.of("Agony").getWithStyle(Style.EMPTY.withColor(TextColor.fromFormatting(Formatting.DARK_RED)).withBold(true)).get(0));
 		agony.setBodyYaw(yaw);
 		
@@ -235,5 +239,18 @@ public class DestinyBondSwordsmachineEntity extends SwordsmachineEntity implemen
 	public int getVariant()
 	{
 		return dataTracker.get(VARIANT);
+	}
+	
+	@Override
+	protected MachineSwordItem.Type getSwordType()
+	{
+		if(getVariant() > 1)
+			return MachineSwordItem.Type.NORMAL;
+		return MachineSwordItem.Type.values()[getVariant() + 1];
+	}
+	
+	void refreshSword()
+	{
+		dataTracker.set(SWORD_STACK, ItemRegistry.MACHINE_SWORD.getDefaultStack(getSwordType()));
 	}
 }

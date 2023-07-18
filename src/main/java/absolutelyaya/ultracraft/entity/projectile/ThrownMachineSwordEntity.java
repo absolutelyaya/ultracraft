@@ -5,10 +5,13 @@ import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
+import absolutelyaya.ultracraft.item.MachineSwordItem;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
+import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -16,12 +19,15 @@ import net.minecraft.entity.MovementType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.particle.BlockStateParticleEffect;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -112,7 +118,22 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 			getWorld().getOtherEntities(this, getBoundingBox().expand(0.5)).forEach(e -> {
 				if(!e.equals(getOwner()))
 					e.damage(DamageSources.get(getWorld(), DamageSources.SWORDSMACHINE, getOwner()), 2);
+				if(MachineSwordItem.getType(getStack()).equals(MachineSwordItem.Type.AGONY))
+					e.setFireTicks(100);
+				if(MachineSwordItem.getType(getStack()).equals(MachineSwordItem.Type.TUNDRA) && e instanceof LivingEntity living)
+					living.addStatusEffect(new StatusEffectInstance(StatusEffectRegistry.CHILLED, 200, 1));
 			});
+		}
+		MachineSwordItem.Type swordType = MachineSwordItem.getType(dataTracker.get(SWORD));
+		if(!swordType.equals(MachineSwordItem.Type.NORMAL))
+		{
+			Vec3d pos = getPos().addRandom(random, 0.75f);
+			Vec3d vel = new Vec3d(0f, 0f, 0f).addRandom(random, 0.25f);
+			if(swordType.equals(MachineSwordItem.Type.AGONY))
+				getWorld().addParticle(ParticleTypes.FLAME, pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
+			else if(swordType.equals(MachineSwordItem.Type.TUNDRA))
+				getWorld().addParticle(new BlockStateParticleEffect(ParticleTypes.FALLING_DUST, Blocks.SNOW_BLOCK.getDefaultState()),
+						pos.x, pos.y, pos.z, vel.x / 2f, vel.y / 2f, vel.z / 2f);
 		}
 	}
 	
@@ -220,8 +241,15 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 			onPlayerCollision(p);
 		if(!isOwner(hit) && !isInStasis())
 		{
-			if(hit.damage(DamageSources.get(getWorld(), DamageSources.SWORDSMACHINE, getOwner()), 6) && getOwner() instanceof PlayerEntity playerOwner)
+			boolean damaged = hit.damage(DamageSources.get(getWorld(), DamageSources.SWORDSMACHINE, getOwner()), 6);
+			if(!damaged)
+				return;
+			if(getOwner() instanceof PlayerEntity playerOwner)
 				playerOwner.playSound(SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 0.5f, hitNoisePitch += 0.05);
+			if(MachineSwordItem.getType(getStack()).equals(MachineSwordItem.Type.AGONY))
+				hit.setFireTicks(100);
+			if(MachineSwordItem.getType(getStack()).equals(MachineSwordItem.Type.TUNDRA) && hit instanceof LivingEntity living)
+				living.addStatusEffect(new StatusEffectInstance(StatusEffectRegistry.CHILLED, 10, 1));
 		}
 	}
 	

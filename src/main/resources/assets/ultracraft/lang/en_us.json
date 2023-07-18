@@ -12,6 +12,8 @@
   "item.ultracraft.core_shotgun": "Core Eject Shotgun",
   "item.ultracraft.pump_shotgun": "Pump Shotgun",
   "item.ultracraft.machinesword": "Machinesword",
+  "item.ultracraft.machinesword.lore.tundra": "§1§lTUNDRA",
+  "item.ultracraft.machinesword.lore.agony": "§4§lAGONY",
   "item.ultracraft.filth_spawn_egg": "Filth Spawn Egg",
   "item.ultracraft.stray_spawn_egg": "Stray Spawn Egg",
   "item.ultracraft.schism_spawn_egg": "Schism Spawn Egg",
@@ -56,6 +58,8 @@
   "entity.ultracraft.cerberus_ball": "Cerberus Ball",
   "entity.ultracraft.shotgun_pellet": "Shotgun Pellet",
   "entity.ultracraft.ejected_core": "Ejected Core",
+
+  "effect.ultracraft.chilled": "Chilled",
 
   "death.attack.shockwave": "%s got crushed by a shockwave",
   "death.attack.shockwave.player": "%1$s got crushed by a shockwave caused by %2$s",

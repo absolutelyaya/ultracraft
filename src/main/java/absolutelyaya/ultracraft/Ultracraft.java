@@ -56,6 +56,7 @@ public class Ultracraft implements ModInitializer
         GameruleRegistry.register();
         RecipeSerializers.register();
         CriteriaRegistry.register();
+        StatusEffectRegistry.register();
         
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
         
