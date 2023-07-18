@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.mixin;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.TagRegistry;
@@ -398,6 +399,13 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			disableJumpTicks--;
 		if(jumpTicks > 0)
 			jumpTicks--;
+	}
+	
+	@Inject(method = "damage", at = @At("RETURN"))
+	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
+	{
+		if(WingCustomizationScreen.MenuOpen)
+			WingCustomizationScreen.Instance.close();
 	}
 	
 	Vec3d unhorizontalize(Vec3d in)

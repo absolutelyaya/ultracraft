@@ -79,7 +79,6 @@ public class Ultracraft implements ModInitializer
             ((WingedPlayerEntity)newPlayer).setWingsVisible(((WingedPlayerEntity)oldPlayer).isWingsActive());
             ((WingedPlayerEntity)newPlayer).setWingColor(colors[0], 0);
             ((WingedPlayerEntity)newPlayer).setWingColor(colors[1], 1);
-            System.out.println(colors[0] + " " + ((WingedPlayerEntity) oldPlayer).getWingColors()[0] + " " + ((WingedPlayerEntity) oldPlayer).getWingColors()[1]);
             ((WingedPlayerEntity)newPlayer).setWingPattern(((WingedPlayerEntity)oldPlayer).getWingPattern());
             PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
             buf.writeUuid(newPlayer.getUuid());
