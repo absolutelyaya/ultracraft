@@ -103,7 +103,7 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 						Vector3f left =	getTrailPos(deg, 1.5f);
 						Vector3f right = getTrailPos(deg, 1f);
 						return new Pair<>(left, right);
-					}, new Vector4f(1f, 0.5f, 0f, 0.6f), 30);
+					}, getTrailColor(), 30);
 		if(getWorld().isClient && Ultracraft.isTimeFrozen())
 			return;
 		move(MovementType.SELF, getVelocity());
@@ -118,10 +118,8 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 			getWorld().getOtherEntities(this, getBoundingBox().expand(0.5)).forEach(e -> {
 				if(!e.equals(getOwner()))
 					e.damage(DamageSources.get(getWorld(), DamageSources.SWORDSMACHINE, getOwner()), 2);
-				if(MachineSwordItem.getType(getStack()).equals(MachineSwordItem.Type.AGONY))
-					e.setFireTicks(100);
-				if(MachineSwordItem.getType(getStack()).equals(MachineSwordItem.Type.TUNDRA) && e instanceof LivingEntity living)
-					living.addStatusEffect(new StatusEffectInstance(StatusEffectRegistry.CHILLED, 200, 1));
+				if(e instanceof LivingEntity living)
+					MachineSwordItem.applyUniqueHitEffect(getStack(), living, 0.5f);
 			});
 		}
 		MachineSwordItem.Type swordType = MachineSwordItem.getType(dataTracker.get(SWORD));
@@ -246,10 +244,8 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 				return;
 			if(getOwner() instanceof PlayerEntity playerOwner)
 				playerOwner.playSound(SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 0.5f, hitNoisePitch += 0.05);
-			if(MachineSwordItem.getType(getStack()).equals(MachineSwordItem.Type.AGONY))
-				hit.setFireTicks(100);
-			if(MachineSwordItem.getType(getStack()).equals(MachineSwordItem.Type.TUNDRA) && hit instanceof LivingEntity living)
-				living.addStatusEffect(new StatusEffectInstance(StatusEffectRegistry.CHILLED, 10, 1));
+			if(hit instanceof LivingEntity living)
+				MachineSwordItem.applyUniqueHitEffect(getStack(), living, 1f);
 		}
 	}
 	
@@ -352,5 +348,15 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 	public void setParrier(PlayerEntity parrier)
 	{
 		this.parrier = parrier;
+	}
+	
+	Vector4f getTrailColor()
+	{
+		return switch(MachineSwordItem.getType(dataTracker.get(SWORD)))
+		{
+			case NORMAL -> new Vector4f(1f, 0.5f, 0f, 0.6f);
+			case AGONY -> new Vector4f(0.66f, 0.1f, 0.06f, 0.6f);
+			case TUNDRA -> new Vector4f(0.22f, 0.47f, 0.65f, 0.6f);
+		};
 	}
 }

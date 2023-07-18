@@ -80,7 +80,6 @@ import java.util.UUID;
 public class SwordsmachineEntity extends AbstractUltraHostileEntity implements GeoEntity, MeleeInterruptable, Enrageable, ITrailEnjoyer
 {
 	protected final ServerBossBar bossBar = new ServerBossBar(this.getDisplayName(), BossBar.Color.RED, BossBar.Style.PROGRESS);
-	private static final Vector4f trailColor = new Vector4f(1f, 0.5f, 0f, 0.6f);
 	private static final int trailLifetime = 40;
 	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
 	private static final RawAnimation HAND_CLOSED_ANIM = RawAnimation.begin().thenLoop("hand_closed");
@@ -411,7 +410,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		UUID uuid = UUID.randomUUID();
 		dataTracker.set(LAST_TRAIL_ID, Optional.of(uuid));
 		lastTrailStart = data == (byte)0 ? -1 : age;
-		UltracraftClient.TRAIL_RENDERER.createTrail(uuid, () -> nextAttackTrailVertex(data, lastTrailStart), trailColor, trailLifetime);
+		UltracraftClient.TRAIL_RENDERER.createTrail(uuid, () -> nextAttackTrailVertex(data, lastTrailStart), getTrailColor(), trailLifetime);
 		swordVolume = data == 5 ? 4f : 1f;
 		swordPitch = 1.6f;
 	}
@@ -637,6 +636,16 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	protected MachineSwordItem.Type getSwordType()
 	{
 		return MachineSwordItem.Type.NORMAL;
+	}
+	
+	protected Vector4f getTrailColor()
+	{
+		return switch(MachineSwordItem.getType(dataTracker.get(SWORD_STACK)))
+		{
+			case NORMAL -> new Vector4f(1f, 0.5f, 0f, 0.6f);
+			case AGONY -> new Vector4f(0.66f, 0.1f, 0.06f, 0.6f);
+			case TUNDRA -> new Vector4f(0.22f, 0.47f, 0.65f, 0.6f);
+		};
 	}
 	
 	static class TargetHuskGoal extends ActiveTargetGoal<LivingEntity>

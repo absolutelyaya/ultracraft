@@ -158,11 +158,16 @@ public class MachineSwordItem extends SwordItem implements GeoItem
 	@Override
 	public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker)
 	{
-		if(MachineSwordItem.getType(stack).equals(MachineSwordItem.Type.AGONY))
-			target.setFireTicks(100);
-		if(MachineSwordItem.getType(stack).equals(MachineSwordItem.Type.TUNDRA))
-			target.addStatusEffect(new StatusEffectInstance(StatusEffectRegistry.CHILLED, 10, 1));
+		applyUniqueHitEffect(stack, target, 1f);
 		return super.postHit(stack, target, attacker);
+	}
+	
+	public static void applyUniqueHitEffect(ItemStack stack, LivingEntity target, float durationMult)
+	{
+		if(MachineSwordItem.getType(stack).equals(MachineSwordItem.Type.AGONY))
+			target.setFireTicks((int)(100 * durationMult));
+		if(MachineSwordItem.getType(stack).equals(MachineSwordItem.Type.TUNDRA))
+			target.addStatusEffect(new StatusEffectInstance(StatusEffectRegistry.CHILLED, (int)(200 * durationMult), 1));
 	}
 	
 	public enum Type
