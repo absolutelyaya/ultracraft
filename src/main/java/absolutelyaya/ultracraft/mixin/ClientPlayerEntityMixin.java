@@ -7,7 +7,6 @@ import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.TagRegistry;
-import com.chocohead.mm.api.ClassTinkerers;
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -99,8 +98,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	
 	void tryDash()
 	{
-		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying &&
-				   !(isCrawling() || getPose().equals(ClassTinkerers.getEnum(EntityPose.class, "SLIDE")) || !wouldPoseNotCollide(EntityPose.STANDING)))
+		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying && wouldPoseNotCollide(EntityPose.STANDING))
 		{
 			if(isSneaking() && !lastSneaking)
 			{
@@ -122,6 +120,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				setVelocity(dir);
 				dashDir = dir;
 				onDash();
+				if(isSprinting())
+					setSliding(false, true);
 				playSound(SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.5f, 1.6f);
 			}
 		}
@@ -435,7 +435,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			else
 				slideDir = new Vec3d(movementDir.x, 0, movementDir.y).rotateY((float)Math.toRadians(-getRotationClient().y)).normalize();
 		}
-		slideVelocity = Math.max(0.33f, Math.max((float)getVelocity().multiply(1f, 0f, 1f).length(), last ? 0f : slideVelocity * 0.75f));
+		if(!wasDashing())
+			slideVelocity = Math.max(0.33f, Math.max((float)getVelocity().multiply(1f, 0f, 1f).length(), last ? 0f : slideVelocity * 0.75f));
+		else
+			slideVelocity = 0.33f;
 		slideTicks = 0;
 	}
 	
