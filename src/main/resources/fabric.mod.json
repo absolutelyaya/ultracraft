@@ -27,9 +27,12 @@
     "mm:early_risers": [
       "absolutelyaya.ultracraft.EarlyRiser"
       ],
-      "modmenu": [
-        "absolutelyaya.ultracraft.client.ModMenu"
-      ]
+    "modmenu": [
+      "absolutelyaya.ultracraft.client.ModMenu"
+    ],
+    "dynamiclights": [
+      "absolutelyaya.ultracraft.client.DynamicLightManager"
+    ]
   },
   "mixins": [
     "ultracraft.mixins.json"
@@ -42,6 +45,9 @@
   },
   "conflicts": {
     "iris": "*"
+  },
+  "recommends": {
+    "lambdynlights": "*"
   },
   "custom": {
     "modmenu": {
