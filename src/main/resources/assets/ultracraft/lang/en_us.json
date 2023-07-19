@@ -53,9 +53,14 @@
   "entity.ultracraft.malicious_face": "Malicious Face",
   "entity.ultracraft.cerberus": "Cerberus",
   "entity.ultracraft.swordsmachine": "Swordsmachine",
+  "entity.ultracraft.destiny_swordsmachine": "Tundra//Agony",
   "entity.ultracraft.swordsmachine-named": "Swordsmachine [%s]",
   "entity.ultracraft.hell_bullet": "Hell Bullet",
   "entity.ultracraft.cerberus_ball": "Cerberus Ball",
+  "entity.ultracraft.thrown_machinesword": "Thrown Machinesword",
+  "entity.ultracraft.thrown_coin": "Thrown Coin",
+  "entity.ultracraft.shockwave": "Shockwave",
+  "entity.ultracraft.interruptable_charge": "Interruptible Charge",
   "entity.ultracraft.shotgun_pellet": "Shotgun Pellet",
   "entity.ultracraft.ejected_core": "Ejected Core",
 
@@ -236,6 +241,7 @@
   "wing-preset.ultracraft.berry": "Berry",
   "wing-preset.ultracraft.frosty": "Frosty",
   "wing-preset.ultracraft.arcane": "Arcane",
+  "wing-preset.ultracraft.sea-sunset": "Sunset by the Sea",
 
   "pattern.ultracraft.none": "Default",
   "pattern.ultracraft.gamer": "Gamer",
