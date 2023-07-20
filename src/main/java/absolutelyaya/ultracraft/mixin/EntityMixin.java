@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import absolutelyaya.ultracraft.registry.TagRegistry;
@@ -12,6 +13,7 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -22,8 +24,11 @@ import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 @Mixin(Entity.class)
-public abstract class EntityMixin
+public abstract class EntityMixin implements EntityAccessor
 {
 	@Shadow public abstract World getWorld();
 	
@@ -33,7 +38,13 @@ public abstract class EntityMixin
 	
 	@Shadow public abstract Box getBoundingBox();
 	
-	@Shadow public World world;
+	@Shadow private World world;
+	
+	@Shadow public abstract boolean isLiving();
+	
+	Supplier<Boolean> isTargettableSupplier = this::isLiving;
+	Supplier<Vec3d> relativeTargetPointSupplier = () -> getBoundingBox().getCenter();
+	Function<Entity, Integer> targetPriorityFunction = entity -> 0;
 	
 	@Inject(method = "tick", at = @At("HEAD"), cancellable = true)
 	void onTick(CallbackInfo ci)
@@ -100,5 +111,41 @@ public abstract class EntityMixin
 	{
 		float capDelta = Math.abs(beta - alpha) % 360;
 		return capDelta > 180 ? 360 - capDelta : capDelta;
+	}
+	
+	@Override
+	public boolean isTargettable()
+	{
+		return isTargettableSupplier.get();
+	}
+	
+	@Override
+	public void setTargettableSupplier(Supplier<Boolean> supplier)
+	{
+		isTargettableSupplier = supplier;
+	}
+	
+	@Override
+	public Vec3d getRelativeTargetPoint()
+	{
+		return relativeTargetPointSupplier.get();
+	}
+	
+	@Override
+	public void setRelativeTargetPointSupplier(Supplier<Vec3d> supplier)
+	{
+		relativeTargetPointSupplier = supplier;
+	}
+	
+	@Override
+	public int getTargetPriority(Entity source)
+	{
+		return targetPriorityFunction.apply(source);
+	}
+	
+	@Override
+	public void setTargetpriorityFunction(Function<Entity, Integer> function)
+	{
+		targetPriorityFunction = function;
 	}
 }

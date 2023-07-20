@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.mixin;
 
+import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
@@ -52,6 +53,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	
 	@Shadow public abstract void playSound(SoundEvent event, SoundCategory category, float volume, float pitch);
 	
+	@Shadow public abstract boolean isSpectator();
+	
 	boolean wingsActive, groundPounding, ignoreSlowdown, blocked;
 	byte wingState, lastState;
 	float wingAnimTime;
@@ -74,6 +77,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		POSE_DIMENSIONS = new HashMap<>(POSE_DIMENSIONS);
 		POSE_DIMENSIONS.put(ClassTinkerers.getEnum(EntityPose.class, "SLIDE"), EntityDimensions.changing(0.6f, 1f));
 		gunCDM = new GunCooldownManager((PlayerEntity)(Object)this);
+		((EntityAccessor)this).setTargettableSupplier(() -> !isCreative() && !isSpectator());
 	}
 	
 	@Redirect(method = "updatePose", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;setPose(Lnet/minecraft/entity/EntityPose;)V"))

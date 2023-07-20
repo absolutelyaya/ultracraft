@@ -120,7 +120,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	public SwordsmachineEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
 		super(entityType, world);
-		((LivingEntityAccessor)this).SetTakePunchKnockbackSupplier(() -> false); //disable knockback
+		((LivingEntityAccessor)this).setTakePunchKnockbackSupplier(() -> false); //disable knockback
 		if(!world.isClient())
 			dataTracker.set(SWORD_STACK, ItemRegistry.MACHINE_SWORD.getSwordInstance((ServerWorld)world, getSwordType()));
 		

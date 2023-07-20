@@ -58,7 +58,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 	{
 		super(entityType, world);
 		setStepHeight(1f);
-		((LivingEntityAccessor)this).SetTakePunchKnockbackSupplier(() -> false); //disable knockback
+		((LivingEntityAccessor)this).setTakePunchKnockbackSupplier(() -> false); //disable knockback
 	}
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()

@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.entity.other;
 
+import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.Interruptable;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
@@ -28,6 +29,8 @@ public class InterruptableCharge extends Entity
 	public InterruptableCharge(EntityType<?> type, World world)
 	{
 		super(type, world);
+		((EntityAccessor)this).setTargetpriorityFunction(e -> 4);
+		((EntityAccessor)this).setTargettableSupplier(() -> true);
 	}
 	
 	public static InterruptableCharge spawn(World world, Interruptable owner, int lifetime, float startSize, float finalSize)
@@ -63,7 +66,13 @@ public class InterruptableCharge extends Entity
 		boolean result = source.isIn(DamageTypeTags.HITSCAN);
 		if(result)
 		{
-			owner.onInterrupted((PlayerEntity)source.getSource());
+			if(source.getSource() instanceof PlayerEntity p)
+				owner.onInterrupted(p);
+			else if(source.getAttacker() instanceof PlayerEntity p)
+				owner.onInterrupted(p);
+			else
+				owner.onInterrupted(null);
+			
 			discard();
 			return super.damage(source, amount);
 		}

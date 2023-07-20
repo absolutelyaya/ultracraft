@@ -66,7 +66,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 	{
 		super(entityType, world);
 		this.moveControl = new MaliciousMoveControl(this);
-		((LivingEntityAccessor)this).SetTakePunchKnockbackSupplier(() -> false); //disable knockback
+		((LivingEntityAccessor)this).setTakePunchKnockbackSupplier(() -> false); //disable knockback
 	}
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()

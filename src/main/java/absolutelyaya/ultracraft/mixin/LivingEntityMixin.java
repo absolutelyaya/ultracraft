@@ -343,7 +343,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	}
 	
 	@Override
-	public void SetTakePunchKnockbackSupplier(Supplier<Boolean> supplier)
+	public void setTakePunchKnockbackSupplier(Supplier<Boolean> supplier)
 	{
 		takePunchKnockpackSupplier = supplier;
 	}
