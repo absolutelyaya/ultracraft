@@ -35,6 +35,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -110,7 +111,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Inject(method = "damage", at = @At("HEAD"), cancellable = true)
 	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
 	{
-		if(isDashing())
+		if(isDashing() && !source.isIn(DamageTypeTags.UNDODGEABLE))
 			cir.setReturnValue(false);
 		if(wingsActive && source.isOf(DamageTypes.FALL) && ((!getWorld().isClient && !getWorld().getGameRules().get(GameruleRegistry.HIVEL_FALLDAMAGE).get()) ||
 				   getSteppingBlockState().getBlock() instanceof FluidBlock))
