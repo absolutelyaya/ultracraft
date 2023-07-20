@@ -36,8 +36,6 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class ServerHitscanHandler
 {
@@ -140,21 +138,28 @@ public class ServerHitscanHandler
 				entities.add(eHit.getEntity());
 			}
 		}
-		AtomicBoolean disableExplosion = new AtomicBoolean(false);
-		AtomicBoolean explodeProjectile = new AtomicBoolean(type == SHARPSHOOTER && user instanceof WingedPlayerEntity p && p.getSharpshooterCooldown() <= 0);
-		entities.forEach(e -> {
-			e.damage(source, damage);
-			if(explodeProjectile.get() && e instanceof ProjectileEntity proj && !(e instanceof ThrownCoinEntity) && user instanceof WingedPlayerEntity p)
+		boolean disableExplosion = false;
+		boolean explodeProjectile = type == SHARPSHOOTER && user instanceof WingedPlayerEntity p && p.getSharpshooterCooldown() <= 0;
+		for (int i = 0; i < entities.size(); i++)
+		{
+			Entity e = entities.get(i);
+			//hit the last pierced enemy with up to 10 of the remaining pierce shots. A Pierce revolver shot that hits just one enemy, will damage it 3 times.
+			for (int j = 0; j < Math.min(10, i == entities.size() - 1 && maxHits < 16 ? maxHits + 1 : 1); j++)
+			{
+				e.damage(source, damage);
+				System.out.println("hit " + damage + "!");
+			}
+			if(explodeProjectile && e instanceof ProjectileEntity proj && !(e instanceof ThrownCoinEntity) && user instanceof WingedPlayerEntity p)
 			{
 				ExplosionHandler.explosion(user, world, proj.getPos(), DamageSources.get(world, DamageTypes.EXPLOSION, user), 5f, 1f, 5f, true);
 				proj.kill();
-				explodeProjectile.set(false);
+				explodeProjectile = false;
 				p.setSharpshooterCooldown(5);
 			}
 			if(e instanceof ThrownCoinEntity)
-				disableExplosion.set(true);
-		});
-		if(explosion != null && bHit != null && !bHit.getType().equals(HitResult.Type.MISS) && !disableExplosion.get())
+				disableExplosion = true;
+		}
+		if(explosion != null && bHit != null && !bHit.getType().equals(HitResult.Type.MISS) && !disableExplosion)
 			ExplosionHandler.explosion(null, world, new Vec3d(modifiedTo.x, modifiedTo.y, modifiedTo.z), world.getDamageSources().explosion(user, user),
 					explosion.damage, explosion.falloff, explosion.radius, explosion.breakBlocks);
 		if(entities.size() == 0 && user instanceof PlayerEntity p)
