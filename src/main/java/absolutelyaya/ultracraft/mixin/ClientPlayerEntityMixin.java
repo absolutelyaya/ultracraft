@@ -92,7 +92,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	Vec3d slideDir = Vec3d.ZERO;
 	boolean slamming, lastSlamming, strongGroundPound, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored,
 			slideStartedSideways, increaseAirControl;
-	int slamTicks, slamCooldown, slamJumpTimer = -1, slideTicks, wallJumps = 3, coyote, disableJumpTicks, jumpTicks;
+	int slamTicks, slamCooldown, slamJumpTimer = -1, slideTicks, wallJumps = 3, coyote, disableJumpTicks, jumpTicks, slidePreservationTicks;
 	float slideVelocity = 0.33f;
 	final float baseJumpVel = 0.42f;
 	
@@ -191,7 +191,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			{
 				if(isSprinting() != lastSprinting)
 					sendSprintingPacket();
-				setVelocity(slideDir.multiply(1f + 0.2 * UltracraftClient.speed).multiply(slideVelocity / 1.5f).add(0f, getVelocity().y, 0f));
+				setVelocity(slideDir.multiply(1f + 0.2 * UltracraftClient.speed).multiply(slideVelocity / 1.2f).add(0f, getVelocity().y, 0f));
 				ci.cancel();
 			}
 			//skim on liquids
@@ -218,8 +218,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					slamming = false;
 					slamJumpTimer = 0;
 					slamCooldown = 5;
-					if(slamStored)
-						slideVelocity = 1f;
+					slideVelocity = slamStored ? 1f : 0.66f;
 				}
 				if(jumping && lastJumping)
 					disableJumpTicks = 8;
@@ -293,8 +292,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				increaseAirControl = false;
 				if(slamming)
 					slamming = false;
-				if(!isSprinting() && !lastSprintPressed && !slamStored)
-					slideVelocity = 0.33f;
+				slidePreservationTicks = 5;
 			}
 			if((!isOnGround() || !grounded) && coyote > 0)
 				coyote--;
@@ -399,6 +397,12 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			disableJumpTicks--;
 		if(jumpTicks > 0)
 			jumpTicks--;
+		if(slidePreservationTicks > 0)
+		{
+			slidePreservationTicks--;
+			if(slidePreservationTicks == 0)
+				slideVelocity = 0.33f;
+		}
 	}
 	
 	@Inject(method = "damage", at = @At("RETURN"))
@@ -440,6 +444,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		else
 			slideVelocity = 0.33f;
 		slideTicks = 0;
+		slidePreservationTicks = -1;
 	}
 	
 	boolean isUnSolid(BlockPos pos)
