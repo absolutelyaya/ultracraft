@@ -82,7 +82,9 @@ public class ExplosionHandler
 		Box box = new Box(pos.subtract(radius, radius, radius), pos.add(radius, radius, radius));
 		if(damage > 0f)
 		{
+			System.out.println("ignored: " + ignored);
 			world.getOtherEntities(null, box, Entity::isLiving).forEach(e -> {
+				System.out.println(e);
 				float normalizedDistance = (float)e.getPos().distanceTo(pos) / radius;
 				if((e instanceof LivingEntityAccessor living && (applyKnockbackToIgnored || !e.equals(ignored)) && living.takePunchKnockback()) || e instanceof ProjectileEntity)
 					e.addVelocity(e.getPos().subtract(pos).add(0.0, 1f - normalizedDistance, 0.0).normalize()
@@ -108,7 +110,7 @@ public class ExplosionHandler
 				{
 					for (int z = (int)Math.ceil(-radius); z <= Math.ceil(radius); z++)
 					{
-						if(new Vec3d(pos.x + x, pos.y + y, pos.z + z).distanceTo(pos) > radius)
+						if(new Vec3d(pos.x + x, pos.y + y, pos.z + z).distanceTo(pos) + ((random.nextFloat() - 0.5) * 0.5) > radius)
 							continue;
 						BlockPos pos1 = new BlockPos(center.getX() + x, center.getY() + y, center.getZ() + z);
 						//explosions with 0 damage can only break fragile blocks, as they don't actually count as explosions
