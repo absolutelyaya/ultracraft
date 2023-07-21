@@ -810,7 +810,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		@Override
 		public void stop()
 		{
-			sm.dataTracker.set(BLAST_COOLDOWN, 20);
+			sm.dataTracker.set(BLAST_COOLDOWN, (sm instanceof DestinyBondSwordsmachineEntity) ? 80 : 20);
 			sm.dataTracker.set(BLASTING, false);
 			if(sm.isAttacking())
 				sm.setAttacking(false);
