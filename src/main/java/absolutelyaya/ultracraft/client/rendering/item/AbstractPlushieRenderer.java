@@ -19,10 +19,13 @@ public abstract class AbstractPlushieRenderer<P extends PlushieItem & GeoAnimata
 	{
 		return switch(animatable.getType())
 		{
-			default -> new Identifier(Ultracraft.MOD_ID, "textures/item/v1_plush.png");
-			case YAYA -> new Identifier(Ultracraft.MOD_ID, "textures/item/yaya_plush.png");
-			case HAKITA -> new Identifier(Ultracraft.MOD_ID, "textures/item/hakita_plush.png");
-			case PITR, PITRPOIN -> new Identifier(Ultracraft.MOD_ID, "textures/item/pitr_plush.png");
+			default -> new Identifier(Ultracraft.MOD_ID, "textures/item/plushie/v1.png");
+			case YAYA -> new Identifier(Ultracraft.MOD_ID, "textures/item/plushie/yaya.png");
+			case HAKITA -> new Identifier(Ultracraft.MOD_ID, "textures/item/plushie/hakita.png");
+			case PITR, PITRPOIN -> new Identifier(Ultracraft.MOD_ID, "textures/item/plushie/pitr.png");
+			case SWORDSMACHINE -> new Identifier(Ultracraft.MOD_ID, "textures/item/plushie/swordsmachine.png");
+			case SWORDSMACHINE_TUNDRA -> new Identifier(Ultracraft.MOD_ID, "textures/item/plushie/swordsmachine_tundra.png");
+			case SWORDSMACHINE_AGONY -> new Identifier(Ultracraft.MOD_ID, "textures/item/plushie/swordsmachine_agony.png");
 		};
 	}
 }

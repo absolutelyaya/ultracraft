@@ -35,6 +35,9 @@ public class PlushieItem extends Item implements GeoItem
 	final RawAnimation POSE_SLIDE = RawAnimation.begin().thenPlay("slide");
 	final RawAnimation BREAKDANCE = RawAnimation.begin().thenPlay("breakdance");
 	final RawAnimation HELL_NEOW = RawAnimation.begin().thenPlay("hellneow");
+	//Swordsmachine Exclusive Animations
+	final RawAnimation SM_SIT = RawAnimation.begin().thenPlay("sit");
+	final RawAnimation SM_HELD = RawAnimation.begin().thenPlay("held");
 	protected Type defaultType = Type.V1;
 	
 	public PlushieItem(Settings settings)
@@ -87,6 +90,9 @@ public class PlushieItem extends Item implements GeoItem
 			case "hakita" -> Type.HAKITA;
 			case "pitr" -> Type.PITR;
 			case "pitrpoin" -> Type.PITRPOIN;
+			case "swordsmachine" -> Type.SWORDSMACHINE;
+			case "tundra" -> Type.SWORDSMACHINE_TUNDRA;
+			case "agony" -> Type.SWORDSMACHINE_AGONY;
 		};
 	}
 	
@@ -108,7 +114,6 @@ public class PlushieItem extends Item implements GeoItem
 	protected <E extends GeoItem> PlayState predicate(AnimationState<E> event)
 	{
 		AnimationController<?> controller = event.getController();
-		
 		controller.setAnimationSpeed(1f);
 		switch (getType())
 		{
@@ -120,6 +125,13 @@ public class PlushieItem extends Item implements GeoItem
 				controller.setAnimation(BREAKDANCE);
 			}
 			case PITRPOIN -> controller.setAnimation(HELL_NEOW);
+			case SWORDSMACHINE, SWORDSMACHINE_TUNDRA, SWORDSMACHINE_AGONY -> {
+				ItemStack stack = ((AbstractPlushieRenderer<?>)((RenderProvider)getRenderProvider().get()).getCustomRenderer()).getCurrentItemStack();
+				if(stack.hasNbt() && stack.getNbt().getBoolean("holding")) //scuffed, like all plushies so far lol
+					controller.setAnimation(SM_HELD);
+				else
+					controller.setAnimation(SM_SIT);
+			}
 			case V1 -> controller.setAnimation(POSE_SLIDE);
 		}
 		return PlayState.CONTINUE;
@@ -149,7 +161,10 @@ public class PlushieItem extends Item implements GeoItem
 		HAKITA("Hakita", "item.ultracraft.plushie.hakita-lore"),
 		PITR("PITR", "item.ultracraft.plushie.pitr-lore"),
 		V1("V1", "item.ultracraft.plushie.v1-lore"),
-		PITRPOIN("PITR (Hell-Neow Cosplay Edition)", "item.ultracraft.plushie.pitrpoin-lore");
+		PITRPOIN("PITR (Hell-Neow Cosplay Edition)", "item.ultracraft.plushie.pitrpoin-lore"),
+		SWORDSMACHINE("Swordsmachine", "item.ultracraft.plushie.swordsmachine-lore"),
+		SWORDSMACHINE_TUNDRA("Tundra", "item.ultracraft.plushie.swordsmachine.tundra-lore"),
+		SWORDSMACHINE_AGONY("Agony", "item.ultracraft.plushie.swordsmachine.agony-lore");
 		
 		Type(String name, String lore)
 		{

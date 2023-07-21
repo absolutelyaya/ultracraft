@@ -39,6 +39,8 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "pitr"), new PitrItem(new FabricItemSettings()));
 	public static final PlushieItem PITR_POIN = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "pitr_poin"), new PitrPoinItem(new FabricItemSettings()));
+	public static final SwordsmachinePlushieItem SWORDSMACHINE = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "swordsmachine_plushie"), new SwordsmachinePlushieItem(new FabricItemSettings()));
 	public static final CoinItem COIN = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "coin"), new CoinItem(new FabricItemSettings()));
 	
@@ -118,6 +120,9 @@ public class ItemRegistry
 			content.add(PITR.getDefaultStack("pitr"));
 			content.add(PITR_POIN.getDefaultStack("pitrpoin"));
 			content.add(PLUSHIE.getDefaultStack("v1"));
+			content.add(SWORDSMACHINE.getDefaultStack("swordsmachine"));
+			content.add(SWORDSMACHINE.getDefaultStack("tundra"));
+			content.add(SWORDSMACHINE.getDefaultStack("agony"));
 		});
 	}
 }

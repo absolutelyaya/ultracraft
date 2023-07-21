@@ -210,10 +210,7 @@ public class DestinyBondSwordsmachineEntity extends SwordsmachineEntity implemen
 				{
 					setPartner(e.getId());
 					e.setPartner(getId());
-					System.out.println("a");
 				}
-				System.out.println(shipUUID);
-				System.out.println(e.getShipUUID());
 			});
 		}
 	}
