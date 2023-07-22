@@ -57,10 +57,11 @@ public class SwordsmachinePlushieItem extends PlushieItem
 	protected <E extends GeoItem> PlayState predicate(AnimationState<E> event)
 	{
 		AnimationController<?> controller = event.getController();
+		Arm main = MinecraftClient.getInstance().player.getMainArm();
 		switch (event.getData(DataTickets.ITEM_RENDER_PERSPECTIVE))
 		{
-			case FIRST_PERSON_LEFT_HAND -> controller.setAnimation(MinecraftClient.getInstance().player.getMainArm().equals(Arm.LEFT) ? SM_HELD : SM_SIT);
-			case FIRST_PERSON_RIGHT_HAND -> controller.setAnimation(MinecraftClient.getInstance().player.getMainArm().equals(Arm.RIGHT) ? SM_HELD : SM_SIT);
+			case FIRST_PERSON_LEFT_HAND -> controller.setAnimation(main.equals(Arm.LEFT) ? SM_HELD : SM_SIT);
+			case FIRST_PERSON_RIGHT_HAND -> controller.setAnimation(main.equals(Arm.RIGHT) ? SM_HELD : SM_SIT);
 			case THIRD_PERSON_LEFT_HAND, THIRD_PERSON_RIGHT_HAND -> controller.setAnimation(SM_HELD);
 			default -> controller.setAnimation(SM_SIT);
 		}
