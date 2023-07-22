@@ -3,10 +3,10 @@ package absolutelyaya.ultracraft.mixin;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.TagRegistry;
-import com.chocohead.mm.api.ClassTinkerers;
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -92,14 +92,13 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	Vec3d slideDir = Vec3d.ZERO;
 	boolean slamming, lastSlamming, strongGroundPound, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored,
 			slideStartedSideways, increaseAirControl;
-	int slamTicks, slamCooldown, slamJumpTimer = -1, slideTicks, wallJumps = 3, coyote, disableJumpTicks, jumpTicks;
+	int slamTicks, slamCooldown, slamJumpTimer = -1, slideTicks, wallJumps = 3, coyote, disableJumpTicks, jumpTicks, slidePreservationTicks;
 	float slideVelocity = 0.33f;
 	final float baseJumpVel = 0.42f;
 	
 	void tryDash()
 	{
-		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying &&
-				   !(isCrawling() || getPose().equals(ClassTinkerers.getEnum(EntityPose.class, "SLIDE")) || !wouldPoseNotCollide(EntityPose.STANDING)))
+		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying && wouldPoseNotCollide(EntityPose.STANDING))
 		{
 			if(isSneaking() && !lastSneaking)
 			{
@@ -121,6 +120,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				setVelocity(dir);
 				dashDir = dir;
 				onDash();
+				if(isSprinting())
+					setSliding(false, true);
 				playSound(SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.5f, 1.6f);
 			}
 		}
@@ -190,7 +191,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			{
 				if(isSprinting() != lastSprinting)
 					sendSprintingPacket();
-				setVelocity(slideDir.multiply(1f + 0.2 * UltracraftClient.speed).multiply(slideVelocity / 1.5f).add(0f, getVelocity().y, 0f));
+				setVelocity(slideDir.multiply(1f + 0.2 * UltracraftClient.speed).multiply(slideVelocity / 1.2f).add(0f, getVelocity().y, 0f));
 				ci.cancel();
 			}
 			//skim on liquids
@@ -217,8 +218,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					slamming = false;
 					slamJumpTimer = 0;
 					slamCooldown = 5;
-					if(slamStored)
-						slideVelocity = 1f;
+					slideVelocity = slamStored ? 1f : 0.66f;
 				}
 				if(jumping && lastJumping)
 					disableJumpTicks = 8;
@@ -292,8 +292,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				increaseAirControl = false;
 				if(slamming)
 					slamming = false;
-				if(!isSprinting() && !lastSprintPressed && !slamStored)
-					slideVelocity = 0.33f;
+				slidePreservationTicks = 5;
 			}
 			if((!isOnGround() || !grounded) && coyote > 0)
 				coyote--;
@@ -398,6 +397,19 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			disableJumpTicks--;
 		if(jumpTicks > 0)
 			jumpTicks--;
+		if(slidePreservationTicks > 0)
+		{
+			slidePreservationTicks--;
+			if(slidePreservationTicks == 0)
+				slideVelocity = 0.33f;
+		}
+	}
+	
+	@Inject(method = "damage", at = @At("RETURN"))
+	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
+	{
+		if(WingCustomizationScreen.MenuOpen)
+			WingCustomizationScreen.Instance.close();
 	}
 	
 	Vec3d unhorizontalize(Vec3d in)
@@ -427,8 +439,12 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			else
 				slideDir = new Vec3d(movementDir.x, 0, movementDir.y).rotateY((float)Math.toRadians(-getRotationClient().y)).normalize();
 		}
-		slideVelocity = Math.max(0.33f, Math.max((float)getVelocity().multiply(1f, 0f, 1f).length(), last ? 0f : slideVelocity * 0.75f));
+		if(!wasDashing())
+			slideVelocity = Math.max(0.33f, Math.max((float)getVelocity().multiply(1f, 0f, 1f).length(), last ? 0f : slideVelocity * 0.75f));
+		else
+			slideVelocity = 0.33f;
 		slideTicks = 0;
+		slidePreservationTicks = -1;
 	}
 	
 	boolean isUnSolid(BlockPos pos)

@@ -38,7 +38,8 @@ public class Ultracraft implements ModInitializer
     public static final Logger LOGGER = LogUtils.getLogger();
     static final String SUPPORTER_LIST = "https://raw.githubusercontent.com/absolutelyaya/absolutelyaya/main/cool-people.json";
     public static String VERSION;
-    static int freezeTicks;
+	public static boolean DYN_LIGHTS;
+	static int freezeTicks;
     static Map<UUID, Integer> supporterCache = new HashMap<>(), supporterCacheAdditions = new HashMap<>();
     
     @Override
@@ -56,6 +57,7 @@ public class Ultracraft implements ModInitializer
         GameruleRegistry.register();
         RecipeSerializers.register();
         CriteriaRegistry.register();
+        StatusEffectRegistry.register();
         
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
         
@@ -78,7 +80,6 @@ public class Ultracraft implements ModInitializer
             ((WingedPlayerEntity)newPlayer).setWingsVisible(((WingedPlayerEntity)oldPlayer).isWingsActive());
             ((WingedPlayerEntity)newPlayer).setWingColor(colors[0], 0);
             ((WingedPlayerEntity)newPlayer).setWingColor(colors[1], 1);
-            System.out.println(colors[0] + " " + ((WingedPlayerEntity) oldPlayer).getWingColors()[0] + " " + ((WingedPlayerEntity) oldPlayer).getWingColors()[1]);
             ((WingedPlayerEntity)newPlayer).setWingPattern(((WingedPlayerEntity)oldPlayer).getWingPattern());
             PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
             buf.writeUuid(newPlayer.getUuid());
@@ -103,6 +104,7 @@ public class Ultracraft implements ModInitializer
         ServerPlayConnectionEvents.JOIN.register((networkHandler, sender, server) -> GameruleRegistry.SyncAll(networkHandler.player));
         
         FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer -> VERSION = modContainer.getMetadata().getVersion().getFriendlyString());
+        FabricLoader.getInstance().getModContainer("lambdynlights").ifPresent(container -> DYN_LIGHTS = true);
         LOGGER.info("Ultracraft initialized.");
     }
     

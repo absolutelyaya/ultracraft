@@ -108,7 +108,7 @@ public class ExplosionHandler
 				{
 					for (int z = (int)Math.ceil(-radius); z <= Math.ceil(radius); z++)
 					{
-						if(new Vec3d(pos.x + x, pos.y + y, pos.z + z).distanceTo(pos) > radius)
+						if(new Vec3d(pos.x + x, pos.y + y, pos.z + z).distanceTo(pos) + ((random.nextFloat() - 0.5) * 0.5) > radius)
 							continue;
 						BlockPos pos1 = new BlockPos(center.getX() + x, center.getY() + y, center.getZ() + z);
 						//explosions with 0 damage can only break fragile blocks, as they don't actually count as explosions

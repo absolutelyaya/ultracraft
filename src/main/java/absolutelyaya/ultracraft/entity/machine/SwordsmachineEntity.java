@@ -11,6 +11,7 @@ import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.husk.AbstractHuskEntity;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
+import absolutelyaya.ultracraft.item.MachineSwordItem;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
@@ -57,6 +58,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -79,7 +81,6 @@ import java.util.UUID;
 public class SwordsmachineEntity extends AbstractUltraHostileEntity implements GeoEntity, MeleeInterruptable, Enrageable, ITrailEnjoyer
 {
 	protected final ServerBossBar bossBar = new ServerBossBar(this.getDisplayName(), BossBar.Color.RED, BossBar.Style.PROGRESS);
-	private static final Vector4f trailColor = new Vector4f(1f, 0.5f, 0f, 0.6f);
 	private static final int trailLifetime = 40;
 	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
 	private static final RawAnimation HAND_CLOSED_ANIM = RawAnimation.begin().thenLoop("hand_closed");
@@ -120,9 +121,9 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	public SwordsmachineEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
 		super(entityType, world);
-		((LivingEntityAccessor)this).SetTakePunchKnockbackSupplier(() -> false); //disable knockback
+		((LivingEntityAccessor)this).setTakePunchKnockbackSupplier(() -> false); //disable knockback
 		if(!world.isClient())
-			dataTracker.set(SWORD_STACK, ItemRegistry.MACHINE_SWORD.getSwordInstance((ServerWorld)world));
+			dataTracker.set(SWORD_STACK, ItemRegistry.MACHINE_SWORD.getSwordInstance((ServerWorld)world, getSwordType()));
 		
 		enragedModifiers = HashMultimap.create();
 		enragedModifiers.put(EntityAttributes.GENERIC_ATTACK_DAMAGE, new EntityAttributeModifier("atk_up", 0.5f, EntityAttributeModifier.Operation.MULTIPLY_TOTAL));
@@ -133,7 +134,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	protected void initDataTracker()
 	{
 		super.initDataTracker();
-		dataTracker.startTracking(SWORD_STACK, ItemRegistry.MACHINE_SWORD.getDefaultStack());
+		dataTracker.startTracking(SWORD_STACK, ItemRegistry.MACHINE_SWORD.getDefaultStack(getSwordType()));
 		dataTracker.startTracking(ATTACK_COOLDOWN, 20);
 		dataTracker.startTracking(BLAST_COOLDOWN, 0);
 		dataTracker.startTracking(THROW_COOLDOWN, 120);
@@ -156,7 +157,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		if(data.equals(BREAKDOWN_TICKS))
 		{
 			int bt = dataTracker.get(BREAKDOWN_TICKS);
-			if(bt == 58)
+			if(bt == 58 && canLoseShotgun())
 				dataTracker.set(HAS_SHOTGUN, false); //second frame of breakdown anim / lose shotgun
 			else if(bt == 0 && getAnimation() == ANIMATION_BREAKDOWN)
 				dataTracker.set(ANIMATION, ANIMATION_IDLE);
@@ -347,7 +348,8 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 			if(getWorld().getServer() == null || !(source.getAttacker() instanceof PlayerEntity))
 				return b;
 			Advancement advancement = getWorld().getServer().getAdvancementLoader().get(new Identifier(Ultracraft.MOD_ID, "shotgun_get"));
-			if(source.getAttacker() instanceof ServerPlayerEntity p && !p.getAdvancementTracker().getProgress(advancement).isDone())
+			if(getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT) && source.getAttacker() instanceof ServerPlayerEntity p &&
+					   !p.getAdvancementTracker().getProgress(advancement).isDone())
 			{
 				LootTable lootTable = getWorld().getServer().getLootManager().getLootTable(new Identifier(Ultracraft.MOD_ID, "entities/swordsmachine_breakdown"));
 				LootContextParameterSet.Builder builder = (new LootContextParameterSet.Builder((ServerWorld)this.getWorld())).add(LootContextParameters.THIS_ENTITY, this)
@@ -361,9 +363,17 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	}
 	
 	@Override
+	public void onDeath(DamageSource damageSource)
+	{
+		if(getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT))
+			dropStack(dataTracker.get(SWORD_STACK));
+		super.onDeath(damageSource);
+	}
+	
+	@Override
 	protected Identifier getLootTableId()
 	{
-		return new Identifier(Ultracraft.MOD_ID, "entities/swordsmachine_death");
+		return new Identifier(Ultracraft.MOD_ID, shouldHuntHusks() ? "entities/swordsmachine_dan_death" : "entities/swordsmachine_death");
 	}
 	
 	private void enrage()
@@ -403,7 +413,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		UUID uuid = UUID.randomUUID();
 		dataTracker.set(LAST_TRAIL_ID, Optional.of(uuid));
 		lastTrailStart = data == (byte)0 ? -1 : age;
-		UltracraftClient.TRAIL_RENDERER.createTrail(uuid, () -> nextAttackTrailVertex(data, lastTrailStart), trailColor, trailLifetime);
+		UltracraftClient.TRAIL_RENDERER.createTrail(uuid, () -> nextAttackTrailVertex(data, lastTrailStart), getTrailColor(), trailLifetime);
 		swordVolume = data == 5 ? 4f : 1f;
 		swordPitch = 1.6f;
 	}
@@ -495,7 +505,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	private void throwSword(LivingEntity target)
 	{
 		Vec3d dir = target.getPos().subtract(getPos()).normalize();
-		ThrownMachineSwordEntity sword = ThrownMachineSwordEntity.spawn(getWorld(), this, ItemStack.EMPTY, 30);
+		ThrownMachineSwordEntity sword = ThrownMachineSwordEntity.spawn(getWorld(), this, dataTracker.get(SWORD_STACK), 30);
 		sword.setVelocity(dir);
 		sword.setYaw(-(float)Math.toDegrees(Math.atan2(dir.z, dir.x)) - 90);
 		dataTracker.set(HAS_SWORD, false);
@@ -624,6 +634,21 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	protected boolean canLoseShotgun()
 	{
 		return true;
+	}
+	
+	protected MachineSwordItem.Type getSwordType()
+	{
+		return MachineSwordItem.Type.NORMAL;
+	}
+	
+	protected Vector4f getTrailColor()
+	{
+		return switch(MachineSwordItem.getType(dataTracker.get(SWORD_STACK)))
+		{
+			case NORMAL -> new Vector4f(1f, 0.5f, 0f, 0.6f);
+			case AGONY -> new Vector4f(0.66f, 0.1f, 0.06f, 0.6f);
+			case TUNDRA -> new Vector4f(0.22f, 0.47f, 0.65f, 0.6f);
+		};
 	}
 	
 	static class TargetHuskGoal extends ActiveTargetGoal<LivingEntity>
@@ -788,7 +813,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		@Override
 		public void stop()
 		{
-			sm.dataTracker.set(BLAST_COOLDOWN, 20);
+			sm.dataTracker.set(BLAST_COOLDOWN, (sm instanceof DestinyBondSwordsmachineEntity) ? 80 : 20);
 			sm.dataTracker.set(BLASTING, false);
 			if(sm.isAttacking())
 				sm.setAttacking(false);

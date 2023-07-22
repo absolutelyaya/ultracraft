@@ -75,4 +75,10 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	{
 		return getMaxAir();
 	}
+	
+	@Override
+	protected int computeFallDamage(float fallDistance, float damageMultiplier)
+	{
+		return super.computeFallDamage(fallDistance - 3, damageMultiplier);
+	}
 }

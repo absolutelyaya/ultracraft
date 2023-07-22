@@ -112,7 +112,7 @@ public class PierceRevolverItem extends AbstractRevolverItem
 				onAltFire(world, player);
 			}
 			if(!world.isClient)
-				ServerHitscanHandler.performHitscan(user, ServerHitscanHandler.REVOLVER_PIERCE, 1, 3, true);
+				ServerHitscanHandler.performHitscan(user, ServerHitscanHandler.REVOLVER_PIERCE, 2, 3, true);
 		}
 		else if(!world.isClient && user instanceof PlayerEntity)
 			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "stop");

@@ -22,6 +22,17 @@ public class MachineSwordRenderer extends GeoItemRenderer<MachineSwordItem>
 	}
 	
 	@Override
+	public Identifier getTextureLocation(MachineSwordItem animatable)
+	{
+		return switch(animatable.getType(getCurrentItemStack()))
+		{
+			case NORMAL -> new Identifier(Ultracraft.MOD_ID, "textures/item/machinesword.png");
+			case TUNDRA -> new Identifier(Ultracraft.MOD_ID, "textures/item/machinesword_tundra.png");
+			case AGONY -> new Identifier(Ultracraft.MOD_ID, "textures/item/machinesword_agony.png");
+		};
+	}
+	
+	@Override
 	public void render(ItemStack stack, ModelTransformationMode transformType, MatrixStack poseStack, VertexConsumerProvider bufferSource, int packedLight, int packedOverlay)
 	{
 		super.render(stack, transformType, poseStack, bufferSource, packedLight, packedOverlay);

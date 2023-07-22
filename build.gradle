@@ -41,6 +41,7 @@ repositories {
     maven { url 'https://jitpack.io' }
     maven { url "https://maven.shedaniel.me/" }
     maven { url "https://maven.terraformersmc.com/releases/" }
+    maven { url "https://cursemaven.com" }
 }
 
 configurations {
@@ -67,6 +68,9 @@ dependencies {
 
     //ModMenu
     modApi "com.terraformersmc:modmenu:7.1.0"
+
+    //Dynamic Lighting
+    modCompileOnlyApi("curse.maven:lambdynamiclights-393442:4597897")
 }
 
 processResources {

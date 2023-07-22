@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.mixin;
 
+import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
@@ -7,6 +8,7 @@ import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
+import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
 import com.chocohead.mm.api.ClassTinkerers;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -17,6 +19,7 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundCategory;
@@ -32,6 +35,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,6 +53,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Shadow public abstract void playSound(SoundEvent sound, float volume, float pitch);
 	
 	@Shadow public abstract void playSound(SoundEvent event, SoundCategory category, float volume, float pitch);
+	
+	@Shadow public abstract boolean isSpectator();
 	
 	boolean wingsActive, groundPounding, ignoreSlowdown, blocked;
 	byte wingState, lastState;
@@ -72,6 +78,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		POSE_DIMENSIONS = new HashMap<>(POSE_DIMENSIONS);
 		POSE_DIMENSIONS.put(ClassTinkerers.getEnum(EntityPose.class, "SLIDE"), EntityDimensions.changing(0.6f, 1f));
 		gunCDM = new GunCooldownManager((PlayerEntity)(Object)this);
+		((EntityAccessor)this).setTargettableSupplier(() -> !isCreative() && !isSpectator());
 	}
 	
 	@Redirect(method = "updatePose", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;setPose(Lnet/minecraft/entity/EntityPose;)V"))
@@ -104,7 +111,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Inject(method = "damage", at = @At("HEAD"), cancellable = true)
 	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
 	{
-		if(isDashing())
+		if(isDashing() && !source.isIn(DamageTypeTags.UNDODGEABLE))
 			cir.setReturnValue(false);
 		if(wingsActive && source.isOf(DamageTypes.FALL) && ((!getWorld().isClient && !getWorld().getGameRules().get(GameruleRegistry.HIVEL_FALLDAMAGE).get()) ||
 				   getSteppingBlockState().getBlock() instanceof FluidBlock))
@@ -381,7 +388,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			}
 			fallDistance = 0f;
 		}
-		if(stamina < 90 && !isSprinting())
+		StatusEffectInstance chilled = getStatusEffect(StatusEffectRegistry.CHILLED);
+		if(stamina < 90 && !isSprinting() && !(chilled != null && age % (chilled.getAmplifier() + 1) != 0))
 		{
 			stamina++;
 			if(stamina % 30 == 0)

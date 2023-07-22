@@ -153,7 +153,8 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 			}
 			if(!world.isClient)
 				ServerHitscanHandler.performBouncingHitscan(user, ServerHitscanHandler.SHARPSHOOTER, 3, Integer.MAX_VALUE,
-						(int)Math.ceil(Math.min(Math.abs(remainingUseTicks) / 20f, 1f) * 3), 0.5f);
+						(int)Math.ceil(Math.min(Math.abs(remainingUseTicks) / 20f, 1f) * 3),
+						new ServerHitscanHandler.HitscanExplosionData(1.5f, 0f, 0f, true), 30f);
 		}
 		else if(!world.isClient && user instanceof PlayerEntity)
 			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "stop");

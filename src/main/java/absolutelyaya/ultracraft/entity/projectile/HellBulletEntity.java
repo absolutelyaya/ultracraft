@@ -9,6 +9,9 @@ import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
+import dev.lambdaurora.lambdynlights.DynamicLightSource;
+import dev.lambdaurora.lambdynlights.LambDynLights;
+import dev.lambdaurora.lambdynlights.api.DynamicLightHandlers;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -90,7 +93,7 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 	@Override
 	protected void onCollision(HitResult hitResult)
 	{
-		if(parrier != null)
+		if(parrier != null && hitResult.getType().equals(HitResult.Type.ENTITY))
 			onParriedCollision(hitResult);
 		if (!getWorld().isClient && !isRemoved())
 		{
@@ -146,6 +149,19 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 			List<Entity> entities = getWorld().getOtherEntities(getOwner(), getBoundingBox().stretch(this.getVelocity()), this::canHit);
 			if(entities.size() > 0)
 				onCollision(new EntityHitResult(entities.get(0)));
+		}
+		
+		if (Ultracraft.DYN_LIGHTS && getWorld().isClient() && this instanceof DynamicLightSource light)
+		{
+			if (!light.shouldUpdateDynamicLight())
+				light.setDynamicLightEnabled(false);
+			else
+			{
+				light.dynamicLightTick();
+				if (!(Boolean)LambDynLights.get().config.getEntitiesLightSource().get() || !DynamicLightHandlers.canLightUp((Entity)this))
+					light.resetDynamicLight();
+				LambDynLights.updateTracking(light);
+			}
 		}
 	}
 	

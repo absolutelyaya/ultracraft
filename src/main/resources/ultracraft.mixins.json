@@ -6,9 +6,9 @@
   "mixins": [
     "EntityMixin",
     "FishingBobberMixin",
+    "FluidBlockMixin",
     "HungerManagerMixin",
     "LivingEntityMixin",
-    "FluidBlockMixin",
     "PlayerEntityMixin",
     "PlayerInventoryMixin",
     "ProjectileEntityMixin",
@@ -25,6 +25,7 @@
     "EntityRendererMixin",
     "GameRendererMixin",
     "HandRendererMixin",
+    "HeldItemFeatureRendererMixin",
     "ItemOverlayMixin",
     "KeyboardInputMixin",
     "LivingEntityRendererMixin",

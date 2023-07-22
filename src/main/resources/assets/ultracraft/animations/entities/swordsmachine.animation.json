@@ -3387,6 +3387,14 @@
 					"rotation": {
 						"vector": [70, 0, 0]
 					}
+				},
+				"machinesword": {
+					"rotation": {
+						"vector": [-35, 0, 0]
+					},
+					"position": {
+						"vector": [0, -3, 1]
+					}
 				}
 			}
 		},
@@ -3516,10 +3524,20 @@
 				},
 				"machinesword": {
 					"rotation": {
-						"vector": [-35, 0, 0]
+						"0.0": {
+							"vector": [-35, 0, 0]
+						},
+						"0.5": {
+							"vector": [-35, 0, 0]
+						}
 					},
 					"position": {
-						"vector": [0, -3, 1]
+						"0.0": {
+							"vector": [0, -3, 1]
+						},
+						"0.5": {
+							"vector": [0, -3, 1]
+						}
 					}
 				},
 				"left_leg": {

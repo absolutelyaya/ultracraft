@@ -123,6 +123,8 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	@Override
 	public void onParriedCollision(HitResult hitResult)
 	{
+		if(getParryCount() <= 0)
+			return;
 		int parries = getParryCount() - 1;
 		float damageMult = 1f + parries * 0.2f;
 		float rangeMult = 1f + parries * 0.1f;

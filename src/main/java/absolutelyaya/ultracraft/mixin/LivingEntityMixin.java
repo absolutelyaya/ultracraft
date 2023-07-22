@@ -92,7 +92,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	{
 		DamageSource source = args.get(0);
 		float amount = args.get(1);
-		if(source.isIn(DamageTypeTags.ULTRACRAFT) && !source.isOf(DamageSources.SWORDSMACHINE) && !((Object)this instanceof AbstractUltraHostileEntity))
+		if(source.isIn(DamageTypeTags.ULTRACRAFT) && !source.isIn(DamageTypeTags.UNBOOSTED) && !((Object)this instanceof AbstractUltraHostileEntity))
 			args.set(1, amount * 2.5f);
 	}
 	
@@ -343,7 +343,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	}
 	
 	@Override
-	public void SetTakePunchKnockbackSupplier(Supplier<Boolean> supplier)
+	public void setTakePunchKnockbackSupplier(Supplier<Boolean> supplier)
 	{
 		takePunchKnockpackSupplier = supplier;
 	}

@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.mixin;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
+import absolutelyaya.ultracraft.item.SwordsmachinePlushieItem;
 import com.chocohead.mm.api.ClassTinkerers;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelPart;
@@ -94,8 +95,23 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AnimalMode
 	@Inject(method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/BipedEntityModel;animateArms(Lnet/minecraft/entity/LivingEntity;F)V"))
 	void onSetArmAngle(T livingEntity, float f, float g, float h, float headYaw, float headPitch, CallbackInfo ci)
 	{
-		if(!UltracraftClient.applyEntityPoses)
-			return;
+		if(livingEntity.getOffHandStack().getItem() instanceof SwordsmachinePlushieItem)
+		{
+			Vector3f angles;
+			boolean rightHanded = livingEntity.getMainArm().equals(Arm.RIGHT);
+			if(rightHanded || (!rightHanded && livingEntity.getMainHandStack().isEmpty()))
+			{
+				leftArm.resetTransform();
+				angles = new Vector3f(-55, 45, 0).mul(MathHelper.RADIANS_PER_DEGREE);
+				leftArm.setAngles(angles.x, angles.y, angles.z);
+			}
+			if(livingEntity.getMainHandStack().isEmpty())
+			{
+				rightArm.resetTransform();
+				angles = new Vector3f(-45, -30, 0).mul(MathHelper.RADIANS_PER_DEGREE);
+				rightArm.setAngles(angles.x, angles.y, angles.z);
+			}
+		}
 		if(livingEntity.getMainHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldAim())
 		{
 			if(livingEntity.getMainArm().equals(Arm.LEFT))

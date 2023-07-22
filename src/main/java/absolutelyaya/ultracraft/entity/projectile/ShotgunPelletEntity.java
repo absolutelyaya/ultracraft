@@ -114,9 +114,8 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	@Override
 	public void onParriedCollision(HitResult hitResult)
 	{
-		Entity owner = getOwner();
 		Vec3d pos = hitResult.getPos();
-		ExplosionHandler.explosion(owner, getWorld(), pos, DamageSources.get(getWorld(), DamageSources.PROJBOOST, parrier), 3.5f, 2.3f, 3f, true);
+		ExplosionHandler.explosion(null, getWorld(), pos, DamageSources.get(getWorld(), DamageSources.PROJBOOST, parrier), 3.5f, 2.3f, 3f, true);
 	}
 	
 	@Override

@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.entity.projectile;
 
 import absolutelyaya.ultracraft.ExplosionHandler;
+import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
@@ -32,11 +33,13 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 	public EjectedCoreEntity(EntityType<? extends ThrownItemEntity> entityType, World world)
 	{
 		super(entityType, world);
+		((EntityAccessor)this).setTargetpriorityFunction(e -> 5);
 	}
 	
 	private EjectedCoreEntity(LivingEntity owner, World world)
 	{
 		super(EntityRegistry.EJECTED_CORE, owner, world);
+		((EntityAccessor)this).setTargetpriorityFunction(e -> 5);
 	}
 	
 	public static EjectedCoreEntity spawn(LivingEntity owner, World world)

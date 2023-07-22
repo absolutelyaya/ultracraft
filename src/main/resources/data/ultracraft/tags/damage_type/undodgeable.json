@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:out_of_world",
+    "minecraft:outside_border",
+    "minecraft:starve",
+    "ultracraft:overcharge_self"
+  ]
+}

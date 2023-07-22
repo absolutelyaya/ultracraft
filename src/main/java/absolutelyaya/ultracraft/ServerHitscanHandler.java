@@ -1,10 +1,12 @@
 package absolutelyaya.ultracraft;
 
+import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
+import absolutelyaya.ultracraft.util.AutoAimUtil;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BellBlock;
@@ -28,13 +30,12 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2f;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class ServerHitscanHandler
 {
@@ -137,21 +138,25 @@ public class ServerHitscanHandler
 				entities.add(eHit.getEntity());
 			}
 		}
-		AtomicBoolean disableExplosion = new AtomicBoolean(false);
-		AtomicBoolean explodeProjectile = new AtomicBoolean(type == SHARPSHOOTER && user instanceof WingedPlayerEntity p && p.getSharpshooterCooldown() <= 0);
-		entities.forEach(e -> {
-			e.damage(source, damage);
-			if(explodeProjectile.get() && e instanceof ProjectileEntity proj && !(e instanceof ThrownCoinEntity) && user instanceof WingedPlayerEntity p)
+		boolean disableExplosion = false;
+		boolean explodeProjectile = type == SHARPSHOOTER && user instanceof WingedPlayerEntity p && p.getSharpshooterCooldown() <= 0;
+		for (int i = 0; i < entities.size(); i++)
+		{
+			Entity e = entities.get(i);
+			//hit the last pierced enemy with up to 10 of the remaining pierce shots. A Pierce revolver shot that hits just one enemy, will damage it 3 times.
+			for (int j = 0; j < Math.min(10, i == entities.size() - 1 && maxHits < 16 ? maxHits + 1 : 1); j++)
+				e.damage(source, damage);
+			if(explodeProjectile && e instanceof ProjectileEntity proj && !(e instanceof ThrownCoinEntity) && user instanceof WingedPlayerEntity p)
 			{
 				ExplosionHandler.explosion(user, world, proj.getPos(), DamageSources.get(world, DamageTypes.EXPLOSION, user), 5f, 1f, 5f, true);
 				proj.kill();
-				explodeProjectile.set(false);
+				explodeProjectile = false;
 				p.setSharpshooterCooldown(5);
 			}
 			if(e instanceof ThrownCoinEntity)
-				disableExplosion.set(true);
-		});
-		if(explosion != null && bHit != null && !bHit.getType().equals(HitResult.Type.MISS) && !disableExplosion.get())
+				disableExplosion = true;
+		}
+		if(explosion != null && bHit != null && !bHit.getType().equals(HitResult.Type.MISS) && !disableExplosion)
 			ExplosionHandler.explosion(null, world, new Vec3d(modifiedTo.x, modifiedTo.y, modifiedTo.z), world.getDamageSources().explosion(user, user),
 					explosion.damage, explosion.falloff, explosion.radius, explosion.breakBlocks);
 		if(entities.size() == 0 && user instanceof PlayerEntity p)
@@ -171,17 +176,22 @@ public class ServerHitscanHandler
 	
 	public static void performBouncingHitscan(LivingEntity user, byte type, float damage, int maxHits, int bounces, float autoAim)
 	{
+		performBouncingHitscan(user, type, damage, maxHits, bounces, null, autoAim);
+	}
+	
+	public static void performBouncingHitscan(LivingEntity user, byte type, float damage, int maxHits, int bounces, HitscanExplosionData explosion, float autoAim)
+	{
 		Vec3d origin = user.getEyePos();
 		Vec3d visualOrigin = origin.add(
 				new Vec3d(-0.5f * (user instanceof PlayerEntity player && player.getMainArm().equals(Arm.LEFT) ? -1 : 1), -0.2f, 0.4f)
 						.rotateX(-(float)Math.toRadians(user.getPitch())).rotateY(-(float) Math.toRadians(user.getYaw())));
 		Vec3d dest = origin.add(user.getRotationVec(0.5f).normalize().multiply(64));
-		performBouncingHitscan(user, origin, visualOrigin, dest, type, damage, DamageSources.get(user.getWorld(), DamageSources.GUN, user), maxHits, bounces, autoAim);
+		performBouncingHitscan(user, origin, visualOrigin, dest, type, damage, DamageSources.get(user.getWorld(), DamageSources.GUN, user), maxHits, bounces, explosion, autoAim);
 	}
 	
-	public static void performBouncingHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, DamageSource source, int maxHits, int bounces, float autoAim)
+	public static void performBouncingHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, float autoAimThreshold)
 	{
-		HitscanResult lastResult = performHitscan(user, from, visualFrom, to, type, damage, source, maxHits, null);
+		HitscanResult lastResult = performHitscan(user, from, visualFrom, to, type, damage, source, maxHits, explosion);
 		if(bounces > 0)
 		{
 			if(lastResult.finalHit != null)
@@ -202,13 +212,13 @@ public class ServerHitscanHandler
 			Vec3d lastDir = lastResult.dir;
 			Vec3d hitNormal = new Vec3d(((BlockHitResult)lastResult.finalHit).getSide().getUnitVector());
 			Vec3d dest = hitPos.add(lastDir.subtract(hitNormal.multiply(2 * lastDir.dotProduct(hitNormal))).normalize().multiply(64));
-			scheduleHitscan(user, hitPos, hitPos, dest, type, damage, DamageSources.get(user.getWorld(), DamageSources.GUN, user), maxHits, bounces, null, 1, autoAim);
+			scheduleHitscan(user, hitPos, hitPos, dest, type, damage, DamageSources.get(user.getWorld(), DamageSources.GUN, user), maxHits, bounces, explosion, 1, autoAimThreshold);
 		}
 	}
 	
-	public static void scheduleHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, int delay, float autoAim)
+	public static void scheduleHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, int delay, float autoAimThreshold)
 	{
-		scheduleAdditions.add(new ScheduledHitscan(user, from, visualFrom, to, type, damage, source, maxHits, bounces, explosion, time, delay, autoAim));
+		scheduleAdditions.add(new ScheduledHitscan(user, from, visualFrom, to, type, damage, source, maxHits, bounces, explosion, time, delay, autoAimThreshold));
 	}
 	
 	public static void scheduleDelayedAimingHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, LivingEntity target, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, int reAimTime, int delay, boolean warn)
@@ -220,7 +230,7 @@ public class ServerHitscanHandler
 	
 	public record HitscanResult(HitResult finalHit, Vec3d dir, int entitiesHit) {}
 	
-	public record ScheduledHitscan(LivingEntity owner, Vec3d from, Vec3d visualFrom, Vec3d dest, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, long scheduleTime, int delay, float autoAim) implements IScheduledHitscan {
+	public record ScheduledHitscan(LivingEntity owner, Vec3d from, Vec3d visualFrom, Vec3d dest, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, long scheduleTime, int delay, float autoAimThreshold) implements IScheduledHitscan {
 		@Override
 		public boolean isReady(int time)
 		{
@@ -231,30 +241,22 @@ public class ServerHitscanHandler
 		public void perform()
 		{
 			Vec3d dest = this.dest;
-			if(autoAim > 0)
+			if(autoAimThreshold > 0)
 			{
-				AtomicReference<Float> closestDistance = new AtomicReference<>(Float.MAX_VALUE);
-				AtomicReference<Entity> closest = new AtomicReference<>();
-				owner.getWorld().getOtherEntities(owner, new Box(from.add(8, 8, 8), from.subtract(8, 8, 8)),
-						e -> e.isLiving() && !(e.isPlayer() && !owner.getServer().isPvpEnabled()) && !e.isTeammate(owner)).forEach(e -> {
-							float dist = (float)e.getPos().distanceTo(from);
-							if(dist < closestDistance.get())
-							{
-								closest.set(e);
-								closestDistance.set(dist);
-							}
-				});
-				if(closest.get() != null)
+				Entity closest = AutoAimUtil.getTarget(owner, owner, owner.getWorld(), from);
+				if(closest != null)
 				{
 					Vec3d originalDir = dest.subtract(from).normalize();
-					Vec3d aimDir = closest.get().getPos().add(0, closest.get().getHeight() / 2, 0).subtract(from).normalize();
-					if(originalDir.distanceTo(aimDir) < 1f)
-						dest = from.add(originalDir.lerp(aimDir.multiply(64), autoAim));
+					Vector2f originalPolar = AutoAimUtil.dirToPolar(originalDir);
+					Vec3d aimDir = ((EntityAccessor)closest).getRelativeTargetPoint().subtract(from).normalize();
+					Vector2f aimPolar = AutoAimUtil.dirToPolar(aimDir);
+					if(originalPolar.distance(aimPolar) < autoAimThreshold)
+						dest = from.add(aimDir.multiply(64));
 				}
 			}
 			
 			if(bounces > 0)
-				performBouncingHitscan(owner, from, visualFrom, dest, type, damage, source, maxHits, bounces, autoAim);
+				performBouncingHitscan(owner, from, visualFrom, dest, type, damage, source, maxHits, bounces, explosion, autoAimThreshold);
 			else
 				performHitscan(owner, from, visualFrom, dest, type, damage, source, maxHits, explosion);
 		}
@@ -295,7 +297,7 @@ public class ServerHitscanHandler
 		public void perform()
 		{
 			if(bounces > 0)
-				performBouncingHitscan(owner, from, visualFrom, dest, type, damage, source, maxHits, bounces, 0f);
+				performBouncingHitscan(owner, from, visualFrom, dest, type, damage, source, maxHits, bounces, explosion, 0f);
 			else
 				performHitscan(owner, from, visualFrom, dest, type, damage, source, maxHits, explosion);
 			warned = false;

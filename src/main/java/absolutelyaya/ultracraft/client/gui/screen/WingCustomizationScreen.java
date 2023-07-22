@@ -319,7 +319,6 @@ public class WingCustomizationScreen extends Screen
 		if(!UltracraftClient.isSupporter())
 			UltracraftClient.setWingPattern("");
 		client.setScreen(parent);
-		client.gameRenderer.disablePostProcessor();
 		client.options.hudHidden = wasHudHidden;
 		client.options.setPerspective(oldPerspective);
 		if(client.player != null)

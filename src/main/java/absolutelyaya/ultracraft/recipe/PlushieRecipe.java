@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.recipe;
 
+import absolutelyaya.ultracraft.item.PlushieItem;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.RecipeSerializers;
 import com.google.gson.JsonArray;
@@ -7,6 +8,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
 import net.minecraft.inventory.RecipeInputInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.CraftingRecipe;
@@ -126,7 +128,11 @@ public class PlushieRecipe implements CraftingRecipe
 			int i = JsonHelper.getInt(json, "count", 1);
 			if (i < 1)
 				throw new JsonSyntaxException("Invalid output count: " + i);
-			return ItemRegistry.PLUSHIE.getDefaultStack(type);
+			Item item = JsonHelper.getItem(json, "item", ItemRegistry.PLUSHIE);
+			if(item instanceof PlushieItem plushie)
+				return plushie.getDefaultStack(type);
+			else
+				throw new JsonSyntaxException("Not a PlushieItem: " + item);
 		}
 		
 		@Override

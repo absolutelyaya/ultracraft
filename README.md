@@ -4,6 +4,9 @@ This mod is a tribute to the game ULTRAKILL (by Arsi "Hakita" Patala)
 Curseforge: https://legacy.curseforge.com/minecraft/mc-mods/absolute-ultracraft <br>
 Modrinth: https://modrinth.com/mod/absolute-ultracraft
 
+You need to install Geckolib for this Mod to work. I recommend also installing Mod Menu, so you can access the Settings.<br>
+To get dynamic Lighting on skulls, projectiles and appropriate enemies, install LambDynamicLights as well. (this is optional)
+
 ## Content/Featues
 - UltraHUD
 - All Prologue Enemies
