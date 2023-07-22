@@ -7,6 +7,7 @@ import absolutelyaya.ultracraft.entity.projectile.EjectedCoreEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -29,7 +30,12 @@ public class AutoAimUtil
 	
 	static boolean isMarksmanHittable(Entity e)
 	{
-		return ((e instanceof LivingEntity && ((LivingEntityAccessor)e).isRicochetHittable())) || e instanceof EjectedCoreEntity || e instanceof InterruptableCharge;
+		return (!(e instanceof PlayerEntity p && !isPlayerHittable(p)) && ((e instanceof LivingEntity && ((LivingEntityAccessor)e).isRicochetHittable() && ((LivingEntity) e).getHealth() > 0)) || e instanceof EjectedCoreEntity || e instanceof InterruptableCharge);
+	}
+	
+	static boolean isPlayerHittable(PlayerEntity p)
+	{
+		return p.getServer().isPvpEnabled() && !p.isCreative() && !p.isSpectator();
 	}
 	
 	public static Entity getTarget(Entity source, World world, Vec3d origin, List<Entity> targets)

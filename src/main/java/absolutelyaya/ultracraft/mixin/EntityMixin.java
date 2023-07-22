@@ -40,9 +40,9 @@ public abstract class EntityMixin implements EntityAccessor
 	
 	@Shadow private World world;
 	
-	@Shadow public abstract boolean isLiving();
+	@Shadow public abstract boolean isAlive();
 	
-	Supplier<Boolean> isTargettableSupplier = this::isLiving;
+	Supplier<Boolean> isTargettableSupplier = this::isAlive;
 	Supplier<Vec3d> relativeTargetPointSupplier = () -> getBoundingBox().getCenter();
 	Function<Entity, Integer> targetPriorityFunction = entity -> 0;
 	

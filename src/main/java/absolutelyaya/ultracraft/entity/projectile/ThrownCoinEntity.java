@@ -297,8 +297,11 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 					return performSplits(source, amount, attacker, false);
 			}
 		}
-		getWorld().sendEntityStatus(this, (byte) 3);
-		kill();
+		if(!splitting || dataTracker.get(SPLITS) <= 0)
+		{
+			getWorld().sendEntityStatus(this, (byte) 3);
+			kill();
+		}
 		return true;
 	}
 	
@@ -312,13 +315,8 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		}
 		else
 			hitTicks = (byte)nextHitDelay;
-		hitNext(source, amount, attacker);
 		splitting = true;
-		if(dataTracker.get(SPLITS) < 0)
-		{
-			getWorld().sendEntityStatus(this, (byte) 3);
-			kill();
-		}
+		hitNext(source, amount, attacker);
 		return true;
 	}
 	

@@ -151,7 +151,7 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 				onCollision(new EntityHitResult(entities.get(0)));
 		}
 		
-		if (getWorld().isClient() && this instanceof DynamicLightSource light)
+		if (Ultracraft.DYN_LIGHTS && getWorld().isClient() && this instanceof DynamicLightSource light)
 		{
 			if (!light.shouldUpdateDynamicLight())
 				light.setDynamicLightEnabled(false);
