@@ -29,6 +29,7 @@
   "item.ultracraft.coin.lore": "Эта монета была ударена %s Раз Подряд пользователем %s. Впечатляюще!",
   "item.ultracraft.coin.hiddenlore": "§8I Интересно, сколько времени нужно кому то, чтобы получить это.",
   "item.ultracraft.plushie": "Плюшевая Игрушка",
+  "item.ultracraft.plushie.dan": "Маленький Ден",
   "item.ultracraft.plushie.lore": "§7Type: %s",
   "item.ultracraft.plushie.hakita-lore": "§7Hakita - Создатель Ultrakill-а",
   "item.ultracraft.plushie.pitr-lore": "§7PITR - Программист Ultrakill-а",
@@ -37,6 +38,9 @@
   "item.ultracraft.plushie.yaya-lore": "§7Yaya - Великий И Ужасный Создатель Этого Мода",
   "item.ultracraft.plushie.pitrpoin-lore": "§7PITR - Программист Ultrakill-а",
   "item.ultracraft.plushie.pitrpoin-hiddenlore": "§dОтсылка к малоизвестной игре для PS2 \"Poinie's Poin\"",
+  "item.ultracraft.plushie.swordsmachine-lore": "§7Меч-Машина — ничего, кроме (милого) лома",
+  "item.ultracraft.plushie.swordsmachine.tundra-lore": "§7Тундра - Прах к праху!",
+  "item.ultracraft.plushie.swordsmachine.agony-lore": "§7Агония Пепел к пеплу",
   "item.ultracraft.blood_bucket": "Ведро Крови",
 
   "block.ultracraft.elevator": "Корпус Лифта",
