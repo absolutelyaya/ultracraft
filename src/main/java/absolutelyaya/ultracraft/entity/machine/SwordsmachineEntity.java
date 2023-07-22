@@ -58,6 +58,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -347,7 +348,8 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 			if(getWorld().getServer() == null || !(source.getAttacker() instanceof PlayerEntity))
 				return b;
 			Advancement advancement = getWorld().getServer().getAdvancementLoader().get(new Identifier(Ultracraft.MOD_ID, "shotgun_get"));
-			if(source.getAttacker() instanceof ServerPlayerEntity p && !p.getAdvancementTracker().getProgress(advancement).isDone())
+			if(getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT) && source.getAttacker() instanceof ServerPlayerEntity p &&
+					   !p.getAdvancementTracker().getProgress(advancement).isDone())
 			{
 				LootTable lootTable = getWorld().getServer().getLootManager().getLootTable(new Identifier(Ultracraft.MOD_ID, "entities/swordsmachine_breakdown"));
 				LootContextParameterSet.Builder builder = (new LootContextParameterSet.Builder((ServerWorld)this.getWorld())).add(LootContextParameters.THIS_ENTITY, this)
@@ -363,14 +365,15 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	@Override
 	public void onDeath(DamageSource damageSource)
 	{
-		dropStack(dataTracker.get(SWORD_STACK));
+		if(getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT))
+			dropStack(dataTracker.get(SWORD_STACK));
 		super.onDeath(damageSource);
 	}
 	
 	@Override
 	protected Identifier getLootTableId()
 	{
-		return new Identifier(Ultracraft.MOD_ID, "entities/swordsmachine_death");
+		return new Identifier(Ultracraft.MOD_ID, shouldHuntHusks() ? "entities/swordsmachine_dan_death" : "entities/swordsmachine_death");
 	}
 	
 	private void enrage()

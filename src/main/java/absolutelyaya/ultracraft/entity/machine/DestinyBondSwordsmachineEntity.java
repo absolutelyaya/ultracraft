@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.entity.machine;
 
+import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.IDestinyBond;
 import absolutelyaya.ultracraft.item.MachineSwordItem;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
@@ -21,6 +22,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -282,6 +284,13 @@ public class DestinyBondSwordsmachineEntity extends SwordsmachineEntity implemen
 		if(getHealth() <= 1 && !partnerSM.isStunned())
 			return false;
 		return b;
+	}
+	
+	@Override
+	protected Identifier getLootTableId()
+	{
+		return getVariant() == 0 ? new Identifier(Ultracraft.MOD_ID, "entities/swordsmachine_tundra_death") :
+					   new Identifier(Ultracraft.MOD_ID, "entities/swordsmachine_agony_death");
 	}
 	
 	@Override

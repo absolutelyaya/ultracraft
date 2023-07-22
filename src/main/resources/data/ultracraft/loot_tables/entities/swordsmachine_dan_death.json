@@ -1,0 +1,25 @@
+{
+  "pools": [
+    {
+      "rolls": 1,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "ultracraft:swordsmachine_plushie",
+          "conditions": [
+            {
+              "condition": "minecraft:killed_by_player",
+              "inverse": true
+            }
+          ]
+        }
+      ],
+      "functions": [
+        {
+          "function": "minecraft:set_nbt",
+          "tag": "{type:\"swordsmachine\", display:{Name:'[{\"translate\":\"item.ultracraft.plushie.dan\",\"italic\":false}]'}}"
+        }
+      ]
+    }
+  ]
+}
