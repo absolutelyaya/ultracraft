@@ -3,11 +3,13 @@ package absolutelyaya.ultracraft.block;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
@@ -15,6 +17,7 @@ import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Property;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.ItemScatterer;
@@ -31,30 +34,33 @@ import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
+
 @SuppressWarnings("deprecation")
 public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, BlockEntityProvider
 {
 	public static final EnumProperty<Type> TYPE = EnumProperty.of("type", Type.class);
 	public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
-	public static final Property<Boolean> FANCY = BooleanProperty.of("fancy");
+	public static final Property<Boolean> FANCY = BooleanProperty.of("fancy"), LOCKED = BooleanProperty.of("locked");
 	
 	public PedestalBlock(Settings settings)
 	{
 		super(settings);
-		setDefaultState(getDefaultState().with(TYPE, Type.NONE).with(FACING, Direction.NORTH).with(FANCY, false));
+		setDefaultState(getDefaultState().with(TYPE, Type.NONE).with(FACING, Direction.NORTH).with(FANCY, false).with(LOCKED, false));
 	}
 	
 	@Nullable
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx)
 	{
-		return super.getDefaultState().with(TYPE, Type.NONE).with(FACING, ctx.getHorizontalPlayerFacing().getOpposite()).with(FANCY, false);
+		return super.getDefaultState().with(TYPE, Type.NONE).with(FACING, ctx.getHorizontalPlayerFacing().getOpposite())
+					   .with(FANCY, false).with(LOCKED, false);
 	}
 	
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder)
 	{
-		builder.add(TYPE, FACING, FANCY);
+		builder.add(TYPE, FACING, FANCY, LOCKED);
 	}
 	
 	@Override
@@ -89,7 +95,7 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 			BlockEntity entity = world.getBlockEntity(pos);
 			if(entity instanceof PedestalBlockEntity pedestal)
 			{
-				ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), pedestal.getStack());
+				ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), pedestal.getHeld());
 			}
 			super.onStateReplaced(state, world, pos, newState, moved);
 		}
@@ -112,10 +118,20 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 		BlockEntity blockEntity = world.getBlockEntity(pos);
 		if(blockEntity instanceof PedestalBlockEntity pedestal)
 		{
-			ItemStack stack = pedestal.getStack();
-			boolean b = state.get(TYPE).equals(Type.BLUE) && stack.getItem().equals(ItemRegistry.BLUE_SKULL) ||
-								state.get(TYPE).equals(Type.RED) && stack.getItem().equals(ItemRegistry.RED_SKULL);
-			return b ? 15 : 0;
+			ItemStack key = pedestal.getKey();
+			ItemStack held = pedestal.getHeld();
+			if(key.isEmpty())
+			{
+				boolean b = state.get(TYPE).equals(Type.BLUE) && held.getItem().equals(ItemRegistry.BLUE_SKULL) ||
+									state.get(TYPE).equals(Type.RED) && held.getItem().equals(ItemRegistry.RED_SKULL);
+				return b ? 15 : 0;
+			}
+			else
+			{
+				held = held.copy();
+				held.setCount(1);
+				return ItemStack.areEqual(key, held) ? 15 : 0;
+			}
 		}
 		return 0;
 	}
@@ -168,6 +184,16 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 			}
 			return ActionResult.CONSUME;
 		}
+		else if(!state.get(LOCKED) && !player.isSneaking())
+		{
+			if(!world.isClient)
+			{
+				BlockEntity blockEntity = world.getBlockEntity(pos);
+				if(blockEntity instanceof PedestalBlockEntity)
+					player.openHandledScreen((NamedScreenHandlerFactory)blockEntity);
+			}
+			return ActionResult.CONSUME;
+		}
 		else return super.onUse(state, world, pos, player, hand, hit);
 	}
 	
@@ -209,5 +235,13 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 		{
 			return name;
 		}
+	}
+	
+	@Override
+	public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options)
+	{
+		super.appendTooltip(stack, world, tooltip, options);
+		tooltip.add(Text.translatable("block.ultracraft.pedestal.lore1"));
+		tooltip.add(Text.translatable("block.ultracraft.pedestal.lore2"));
 	}
 }

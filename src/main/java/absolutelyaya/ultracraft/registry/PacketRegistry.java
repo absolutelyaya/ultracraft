@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.registry;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.*;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
+import absolutelyaya.ultracraft.block.PedestalBlock;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
@@ -14,6 +15,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.item.Items;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -42,6 +44,7 @@ public class PacketRegistry
 	public static final Identifier REQUEST_WINGED_DATA_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "request_wing_data");
 	public static final Identifier SKIM_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "skim_c2s");
 	public static final Identifier THROW_COIN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "throw_coin");
+	public static final Identifier LOCK_PEDESTAL_ID = new Identifier(Ultracraft.MOD_ID, "lock_pedestal");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
@@ -186,7 +189,7 @@ public class PacketRegistry
 				if(target != null)
 				{
 					BlockState state = world.getBlockState(target);
-					if(state.getBlock() instanceof IPunchableBlock punchable)
+					if(state.getBlock() instanceof IPunchableBlock punchable && !(mainHand && player.getMainHandStack().isOf(Items.DEBUG_STICK)))
 						punchable.onPunch(player, target, mainHand);
 					if(state.getBlock() instanceof BellBlock bell)
 						bell.ring(player, player.getWorld(), target, player.getHorizontalFacing().getOpposite());
@@ -324,6 +327,14 @@ public class PacketRegistry
 				coin.addVelocity(0f, 0.3f, 0f);
 				coin.setPosition(coin.getPos().add(vel));
 				player.getWorld().spawnEntity(coin);
+			});
+		});
+		ServerPlayNetworking.registerGlobalReceiver(LOCK_PEDESTAL_ID, (server, player, handler, buf, sender) -> {
+			BlockPos pos = buf.readBlockPos();
+			Boolean b = buf.readBoolean();
+			server.execute(() -> {
+				if(player.getWorld().getBlockState(pos).isOf(BlockRegistry.PEDESTAL))
+					player.getWorld().setBlockState(pos, player.getWorld().getBlockState(pos).with(PedestalBlock.LOCKED, b));
 			});
 		});
 	}

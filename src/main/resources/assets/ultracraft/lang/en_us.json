@@ -47,6 +47,8 @@
   "block.ultracraft.elevator_wall": "Elevator Room Wall",
   "block.ultracraft.elevator_floor": "Elevator Room Floor",
   "block.ultracraft.pedestal": "Pedestal",
+  "block.ultracraft.pedestal.lore1": "§7Punch to display held Item",
+  "block.ultracraft.pedestal.lore2": "§7Right click with red/blue dye to color",
   "block.ultracraft.cerberus_block": "Cerberus",
   "block.ultracraft.cerberus_block.lore": "§7Power using Redstone to wake up the Cerberus",
   "block.ultracraft.blood": "Blood",
@@ -231,6 +233,9 @@
   "screen.ultracraft.info.epilepsy.affected.tooltip": "Automatically disables said VFX. Please be mindful of your Health regardless.",
   "screen.ultracraft.info.epilepsy.unaffected": "I am Not affected",
   "screen.ultracraft.info.epilepsy.unaffected.tooltip": "Leaves everything as is.",
+  "screen.ultracraft.pedestal.title": "Pedestal",
+  "screen.ultracraft.pedestal.lock": "Locking the Pedestal will prevent right click from opening this menu.",
+  "screen.ultracraft.pedestal.key": "Key ->",
 
   "wing-preset.ultracraft.amethyst": "Amethyst",
   "wing-preset.ultracraft.cyber": "Cyber",
