@@ -6,6 +6,8 @@ import absolutelyaya.ultracraft.item.*;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -45,6 +47,12 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "talon"), new TalonItem(new FabricItemSettings()));
 	public static final CoinItem COIN = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "coin"), new CoinItem(new FabricItemSettings()));
+	public static final KillerFishItem KILLERFISH = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "killerfish"), new KillerFishItem(new FabricItemSettings()));
+	public static final Item BLOOD_RAY = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "bloodray"), new Item(new FabricItemSettings()
+						.food(new FoodComponent.Builder().hunger(4)
+							  .statusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 500, 0), 1f).build())));
 	
 	public static final PierceRevolverItem PIERCE_REVOLVER = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "pierce_revolver"), new PierceRevolverItem(new FabricItemSettings().maxCount(1)));

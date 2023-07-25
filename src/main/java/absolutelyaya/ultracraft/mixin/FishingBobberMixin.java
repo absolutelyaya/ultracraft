@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.mixin;
 
+import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
@@ -69,5 +70,13 @@ public abstract class FishingBobberMixin extends ProjectileEntity
 		else if(effect.equals(ParticleTypes.BUBBLE))
 			return ParticleRegistry.BLOOD_BUBBLE;
 		else return effect;
+	}
+	
+	@ModifyArg(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/loot/LootManager;getLootTable(Lnet/minecraft/util/Identifier;)Lnet/minecraft/loot/LootTable;"))
+	Identifier modifyLootTable(Identifier id)
+	{
+		if(getBlockStateAtPos().isOf(BlockRegistry.BLOOD))
+			return new Identifier(Ultracraft.MOD_ID, "gameplay/blood_fishing");
+		return id;
 	}
 }

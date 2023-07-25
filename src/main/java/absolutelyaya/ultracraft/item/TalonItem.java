@@ -16,7 +16,7 @@ public class TalonItem extends PlushieItem
 	public TalonItem(Settings settings)
 	{
 		super(settings);
-		defaultType = Type.PITR;
+		defaultType = Type.TALON;
 	}
 	
 	@Override
