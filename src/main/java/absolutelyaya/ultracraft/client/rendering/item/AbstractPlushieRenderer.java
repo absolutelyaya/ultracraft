@@ -26,6 +26,7 @@ public abstract class AbstractPlushieRenderer<P extends PlushieItem & GeoAnimata
 			case SWORDSMACHINE -> new Identifier(Ultracraft.MOD_ID, "textures/item/plushie/swordsmachine.png");
 			case SWORDSMACHINE_TUNDRA -> new Identifier(Ultracraft.MOD_ID, "textures/item/plushie/swordsmachine_tundra.png");
 			case SWORDSMACHINE_AGONY -> new Identifier(Ultracraft.MOD_ID, "textures/item/plushie/swordsmachine_agony.png");
+			case TALON -> new Identifier(Ultracraft.MOD_ID, "textures/item/plushie/talon.png");
 		};
 	}
 }

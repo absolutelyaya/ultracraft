@@ -33,6 +33,7 @@ public class PlushieItem extends Item implements GeoItem
 	final RawAnimation POSE_SIT = RawAnimation.begin().thenPlay("sit");
 	final RawAnimation POSE_HAKITA = RawAnimation.begin().thenPlay("hakita");
 	final RawAnimation POSE_SLIDE = RawAnimation.begin().thenPlay("slide");
+	final RawAnimation ANIM_BOW = RawAnimation.begin().thenPlay("bow");
 	final RawAnimation BREAKDANCE = RawAnimation.begin().thenPlay("breakdance");
 	final RawAnimation HELL_NEOW = RawAnimation.begin().thenPlay("hellneow");
 	//Swordsmachine Exclusive Animations
@@ -47,8 +48,14 @@ public class PlushieItem extends Item implements GeoItem
 	
 	public ItemStack getDefaultStack(String type)
 	{
-		ItemStack stack = type.equals("pitr") ? new ItemStack(ItemRegistry.PITR) :
-								  type.equals("pitrpoin") ? new ItemStack(ItemRegistry.PITR_POIN) : new ItemStack(this);
+		
+		ItemStack stack = switch(type)
+		{
+			case "pitr" -> new ItemStack(ItemRegistry.PITR);
+			case "pitrpoin" -> new ItemStack(ItemRegistry.PITR_POIN);
+			case "talon" -> new ItemStack(ItemRegistry.TALON);
+			default -> new ItemStack(this);
+		};
 		NbtCompound nbt = stack.getOrCreateNbt();
 		nbt.put("type", NbtString.of(type));
 		stack.setNbt(nbt);
@@ -93,6 +100,7 @@ public class PlushieItem extends Item implements GeoItem
 			case "swordsmachine" -> Type.SWORDSMACHINE;
 			case "tundra" -> Type.SWORDSMACHINE_TUNDRA;
 			case "agony" -> Type.SWORDSMACHINE_AGONY;
+			case "talon" -> Type.TALON;
 		};
 	}
 	
@@ -133,6 +141,7 @@ public class PlushieItem extends Item implements GeoItem
 					controller.setAnimation(SM_SIT);
 			}
 			case V1 -> controller.setAnimation(POSE_SLIDE);
+			case TALON -> controller.setAnimation(ANIM_BOW);
 		}
 		return PlayState.CONTINUE;
 	}
@@ -164,7 +173,8 @@ public class PlushieItem extends Item implements GeoItem
 		PITRPOIN("PITR (Hell-Neow Cosplay Edition)", "item.ultracraft.plushie.pitrpoin-lore"),
 		SWORDSMACHINE("Swordsmachine", "item.ultracraft.plushie.swordsmachine-lore"),
 		SWORDSMACHINE_TUNDRA("Tundra", "item.ultracraft.plushie.swordsmachine.tundra-lore"),
-		SWORDSMACHINE_AGONY("Agony", "item.ultracraft.plushie.swordsmachine.agony-lore");
+		SWORDSMACHINE_AGONY("Agony", "item.ultracraft.plushie.swordsmachine.agony-lore"),
+		TALON("TalonMC", "item.ultracraft.plushie.talon-lore");
 		
 		Type(String name, String lore)
 		{
