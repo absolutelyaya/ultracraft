@@ -288,6 +288,8 @@
   "advancements.ultracraft.chargeback-malicious.description": "Kill a Malicious Face with its own Beam Attack.",
   "advancements.ultracraft.ricochet.title": "Ricoshot",
   "advancements.ultracraft.ricochet.description": "Hit an Entity with a Ricochet spanning over 4 or more Coins.",
+  "advancements.ultracraft.traitor.title": "Traitor",
+  "advancements.ultracraft.traitor.description": "Kill Tundra or Agony with the Sword of their Counterpart.",
 
   "narrator.button.background.vanilla": "Vanilla BG",
   "narrator.button.background.ultracraft": "Ultracraft BG",

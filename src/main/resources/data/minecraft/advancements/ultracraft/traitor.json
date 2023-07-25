@@ -1,0 +1,89 @@
+{
+  "display": {
+    "icon": {
+      "item": "ultracraft:swordsmachine_plushie",
+      "nbt": "{type:\"agony\"}"
+    },
+    "title": {
+      "translate": "advancements.ultracraft.traitor.title"
+    },
+    "description": {
+      "translate": "advancements.ultracraft.traitor.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "minecraft:ultracraft/root",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "equipment": {
+                "mainhand": {
+                  "items": [
+                    "ultracraft:machinesword"
+                  ],
+                  "nbt": "{type:1}"
+                }
+              }
+            }
+          }
+        ],
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "ultracraft:destiny_swordsmachine",
+              "nbt": "{variant:1}"
+            }
+          }
+        ]
+      }
+    },
+    "tundra": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "equipment": {
+                "mainhand": {
+                  "items": [
+                    "ultracraft:machinesword"
+                  ],
+                  "nbt": "{type:2}"
+                }
+              }
+            }
+          }
+        ],
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "ultracraft:destiny_swordsmachine",
+              "nbt": "{variant:0}"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "requirement",
+      "tundra"
+    ]
+  ]
+}
