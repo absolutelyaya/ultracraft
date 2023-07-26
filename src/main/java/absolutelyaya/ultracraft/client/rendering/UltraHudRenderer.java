@@ -169,11 +169,14 @@ public class UltraHudRenderer
 		matrices.push();
 		matrices.scale(0.8f, -0.5f, 0.5f);
 		
-		float h = MathHelper.lerp(tickDelta, player.lastRenderPitch, player.renderPitch);
-		float i = MathHelper.lerp(tickDelta, player.lastRenderYaw, player.renderYaw);
 		boolean flip = player.getMainArm().equals(Arm.LEFT) ^ config.switchSides;
-		matrices.multiply(new Quaternionf().rotateX((float)Math.toRadians((player.getPitch(tickDelta) - h) * 0.15f)));
-		matrices.multiply(new Quaternionf().rotateY((float)Math.toRadians((player.getYaw(tickDelta) - i) * -0.05f)));
+		if(!UltracraftClient.getConfigHolder().get().ultraHudFixed)
+		{
+			float h = MathHelper.lerp(tickDelta, player.lastRenderPitch, player.renderPitch);
+			float i = MathHelper.lerp(tickDelta, player.lastRenderYaw, player.renderYaw);
+			matrices.multiply(new Quaternionf().rotateX((float)Math.toRadians((player.getPitch(tickDelta) - h) * 0.15f)));
+			matrices.multiply(new Quaternionf().rotateY((float)Math.toRadians((player.getYaw(tickDelta) - i) * -0.05f)));
+		}
 		matrices.multiply(new Quaternionf(new AxisAngle4f(-0.6f * (flip ? -1 : 1), 0f, 1f, 0f)));
 		matrices.translate(-15 * (flip ? -4 : 1), 0, 150);
 		if(config.switchSides)

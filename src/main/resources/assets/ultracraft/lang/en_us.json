@@ -379,5 +379,8 @@
   "text.autoconfig.ultracraft.option.goopDebug.@Tooltip": "[WARNING] VERY LAGGY | Adds extra particles to show vertex info of goop puddles",
 
   "text.autoconfig.ultracraft.option.hideWings": "Hide High Velocity Wings",
-  "text.autoconfig.ultracraft.option.hideWings.@Tooltip": "Lets you hide High Velocity Wings"
+  "text.autoconfig.ultracraft.option.hideWings.@Tooltip": "Lets you hide High Velocity Wings",
+
+  "text.autoconfig.ultracraft.option.ultraHudFixed": "Fixed Rotation",
+  "text.autoconfig.ultracraft.option.ultraHudFixed.@Tooltip": "Prevents the Ultrahud from moving / \"following\" the view"
 }
