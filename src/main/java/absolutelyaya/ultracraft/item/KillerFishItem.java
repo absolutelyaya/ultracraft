@@ -13,10 +13,12 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Random;
 
 public class KillerFishItem extends Item
 {
-	boolean wasSelected;
+	Random rand = new Random();
+	int wasSelected;
 	
 	public KillerFishItem(Settings settings)
 	{
@@ -26,7 +28,9 @@ public class KillerFishItem extends Item
 	@Override
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
 	{
-		user.playSound(SoundRegistry.KILLERFISH_USE.value(), 1, 1);
+		boolean hi = rand.nextInt(500) == 0;
+		boolean lo = rand.nextInt(500) == 0;
+		user.playSound(SoundRegistry.KILLERFISH_USE.value(), 1, hi ? 2f : lo ? 0.5f : 1f);
 		user.getItemCooldownManager().set(this, 10);
 		return TypedActionResult.success(user.getStackInHand(hand));
 	}
@@ -34,11 +38,14 @@ public class KillerFishItem extends Item
 	@Override
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
 	{
-		if(world.isClient && !wasSelected && selected)
+		if(world.isClient && wasSelected <= 0 && selected)
 		{
 			entity.playSound(SoundRegistry.KILLERFISH_SELECT.value(), 1, 1);
 		}
-		wasSelected = selected;
+		if(selected)
+			wasSelected = 12;
+		else if(wasSelected > 0)
+			wasSelected--;
 		super.inventoryTick(stack, world, entity, slot, selected);
 	}
 	

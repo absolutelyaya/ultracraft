@@ -31,7 +31,10 @@
       "absolutelyaya.ultracraft.client.ModMenu"
     ],
     "dynamiclights": [
-      "absolutelyaya.ultracraft.client.DynamicLightManager"
+      "absolutelyaya.ultracraft.compat.DynamicLightManager"
+    ],
+    "rei_client": [
+      "absolutelyaya.ultracraft.compat.REIClientPlugin"
     ]
   },
   "mixins": [
