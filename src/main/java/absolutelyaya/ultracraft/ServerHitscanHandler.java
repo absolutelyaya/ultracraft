@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.entity.other.AbstractOrbEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.util.AutoAimUtil;
@@ -123,7 +124,7 @@ public class ServerHitscanHandler
 		while (searchForEntities)
 		{
 			EntityHitResult eHit = ProjectileUtil.raycast(user, from, modifiedTo, box,
-					(entity) -> (!entities.contains(entity) && (!(entity instanceof ProjectileEntity) || (entity instanceof  ProjectileEntity proj && ((ProjectileEntityAccessor)proj).isHitscanHittable()) || type == SHARPSHOOTER)), 64f * 64f);
+					(entity) -> (!entities.contains(entity) && (!(entity instanceof ProjectileEntity || entity instanceof AbstractOrbEntity) || (entity instanceof  ProjectileEntity proj && ((ProjectileEntityAccessor)proj).isHitscanHittable()) || type == SHARPSHOOTER)), 64f * 64f);
 			if(eHit == null)
 				break;
 			searchForEntities = eHit.getType() != HitResult.Type.MISS && maxHits > 0;

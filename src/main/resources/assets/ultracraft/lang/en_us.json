@@ -74,6 +74,8 @@
   "entity.ultracraft.interruptable_charge": "Interruptible Charge",
   "entity.ultracraft.shotgun_pellet": "Shotgun Pellet",
   "entity.ultracraft.ejected_core": "Ejected Core",
+  "entity.ultracraft.soul_orb": "Soul Orb",
+  "entity.ultracraft.blood_orb": "Blood Orb",
 
   "effect.ultracraft.chilled": "Chilled",
 

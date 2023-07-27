@@ -302,6 +302,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	}
 	
 	@Override
+	public void replenishStamina(int i)
+	{
+		stamina = Math.min(stamina + 30 * i, 100);
+	}
+	
+	@Override
 	public int getWingHintDisplayTicks()
 	{
 		return wingHintDisplayTicks;

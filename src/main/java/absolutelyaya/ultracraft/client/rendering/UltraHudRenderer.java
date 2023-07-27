@@ -40,7 +40,7 @@ public class UltraHudRenderer
 	final Identifier GUI_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/ultrahud.png");
 	final Identifier WEAPONS_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/weapon_icons.png");
 	final Identifier CROSSHAIR_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/crosshair_stats.png");
-	float healthPercent, staminaPercent, yOffset;
+	float healthPercent, staminaPercent, absorptionPercent, yOffset;
 	static float fishTimer, coinTimer, coinRot = 0, coinRotDest = 0;
 	static ItemStack lastCatch;
 	static int fishCaught, coinCombo;
@@ -152,6 +152,7 @@ public class UltraHudRenderer
 		
 		healthPercent = MathHelper.lerp(tickDelta, healthPercent, player.getHealth() / player.getMaxHealth());
 		staminaPercent = MathHelper.lerp(tickDelta, staminaPercent, ((WingedPlayerEntity)player).getStamina() / 90f);
+		absorptionPercent = MathHelper.lerp(tickDelta, absorptionPercent, Math.min(player.getAbsorptionAmount() / 20f, 1f));
 		//Crosshair
 		if(config.ultraHudCrosshair)
 		{
@@ -200,6 +201,9 @@ public class UltraHudRenderer
 		//health
 		RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 2.8125f, -35f + 11.250f, 61.875f * healthPercent, 5.625f), 0f,
 				new Vec2f(80f, 64f), new Vector4f(2f, 48f, 44f * healthPercent, 4f), 1f);
+		if(absorptionPercent > 0f)
+			RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 2.8125f, -35f + 11.250f, 61.875f * absorptionPercent, 5.625f), 0f,
+					new Vec2f(80f, 64f), new Vector4f(2f, 56f, 44f * absorptionPercent, 4f), 1f);
 		//stamina
 		RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 2.8125f, -35f + 2.8125f, 61.875f * staminaPercent, 5.625f), 0f,
 				new Vec2f(80f, 64f), new Vector4f(2f, 52f, 44f * staminaPercent, 4f), 1f);

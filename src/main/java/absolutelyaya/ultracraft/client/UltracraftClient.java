@@ -19,10 +19,7 @@ import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.SchismRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.StrayRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.machine.SwordsmachineRenderer;
-import absolutelyaya.ultracraft.client.rendering.entity.other.InterruptableChargeModel;
-import absolutelyaya.ultracraft.client.rendering.entity.other.InterruptableChargeRenderer;
-import absolutelyaya.ultracraft.client.rendering.entity.other.ShockwaveModel;
-import absolutelyaya.ultracraft.client.rendering.entity.other.ShockwaveRenderer;
+import absolutelyaya.ultracraft.client.rendering.entity.other.*;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.*;
 import absolutelyaya.ultracraft.client.sound.MovingMachineSwordSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingSlideSoundInstance;
@@ -131,6 +128,8 @@ public class UltracraftClient implements ClientModInitializer
 		EntityRendererRegistry.register(EntityRegistry.THROWN_COIN, ThrownCoinRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.SHOCKWAVE, ShockwaveRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.INTERRUPTABLE_CHARGE, InterruptableChargeRenderer::new);
+		EntityRendererRegistry.register(EntityRegistry.SOUL_ORB, OrbRenderer::new);
+		EntityRendererRegistry.register(EntityRegistry.BLOOD_ORB, OrbRenderer::new);
 		//Particles
 		ParticleFactoryRegistry particleRegistry = ParticleFactoryRegistry.getInstance();
 		particleRegistry.register(ParticleRegistry.MALICIOUS_CHARGE, MaliciousChargeParticle.Factory::new);
@@ -147,6 +146,7 @@ public class UltracraftClient implements ClientModInitializer
 		particleRegistry.register(ParticleRegistry.GOOP, GoopParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.GOOP_STRING, GoopStringParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.RICOCHET_WARNING, RicochetWarningParticle.Factory::new);
+		particleRegistry.register(ParticleRegistry.BIG_CIRCLE, BigCircleParticle.Factory::new);
 		//Entity model layers
 		EntityModelLayerRegistry.registerModelLayer(WINGS_LAYER, WingsModel::getTexturedModelData);
 		EntityModelLayerRegistry.registerModelLayer(MALICIOUS_LAYER, MaliciousFaceModel::getTexturedModelData);

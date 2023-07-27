@@ -28,5 +28,10 @@
     "sounds": [
       "ultracraft:item/killer_fish1"
     ]
+  },
+  "entity.barrier_break": {
+    "sounds": [
+      "ultracraft:entity/barrier_break"
+    ]
   }
 }

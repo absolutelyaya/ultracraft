@@ -1,0 +1,103 @@
+package absolutelyaya.ultracraft.entity.other;
+
+import absolutelyaya.ultracraft.registry.ParticleRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.BlockStateParticleEffect;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
+import net.minecraft.world.World;
+
+public abstract class AbstractOrbEntity extends Entity
+{
+	public AbstractOrbEntity(EntityType<?> type, World world)
+	{
+		super(type, world);
+	}
+	
+	@Override
+	protected void initDataTracker()
+	{
+	
+	}
+	
+	@Override
+	protected void readCustomDataFromNbt(NbtCompound nbt)
+	{
+	
+	}
+	
+	@Override
+	protected void writeCustomDataToNbt(NbtCompound nbt)
+	{
+	
+	}
+	
+	@Override
+	public void tick()
+	{
+		super.tick();
+		if(age % 50 == 0)
+			getWorld().addParticle(ParticleRegistry.BIG_CIRCLE, getX(), getY() + 0.5, getZ(), 0, 0, 0);
+		if(getPos().distanceTo(getBlockPos().toCenterPos()) > 0.05f)
+		{
+			Vec3d pos = getPos().lerp(getBlockPos().toCenterPos(), 0.02f);
+			setPos(pos.x, pos.y, pos.z);
+		}
+	}
+	
+	@Override
+	protected void pushOutOfBlocks(double x, double y, double z)
+	{
+	
+	}
+	
+	@Override
+	public void pushAwayFrom(Entity entity)
+	{
+	
+	}
+	
+	@Override
+	public boolean isPushedByFluids()
+	{
+		return false;
+	}
+	
+	@Override
+	public boolean canBeHitByProjectile()
+	{
+		return false;
+	}
+	
+	@Override
+	public void onPlayerCollision(PlayerEntity player)
+	{
+		super.onPlayerCollision(player);
+		for (int i = 0; i < 16; i++)
+		{
+			Vec3d dir = new Vec3d(0, 0, 0).addRandom(random, 1f);
+			getWorld().addParticle(ParticleTypes.END_ROD, getX(), getY(), getZ(), dir.x, dir.y, dir.z);
+			getWorld().addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, getParticleBlockstate()), getX(), getY(), getZ(), dir.x, dir.y, dir.z);
+		}
+		getWorld().playSound(null, getBlockPos(), SoundRegistry.BARRIER_BREAK.value(), SoundCategory.PLAYERS, 0.9f, 1f);
+		discard();
+	}
+	
+	protected BlockState getParticleBlockstate()
+	{
+		return Blocks.AIR.getDefaultState();
+	}
+	
+	public abstract Identifier getTexture();
+	
+	public abstract Vec3i getGlowColor();
+}
