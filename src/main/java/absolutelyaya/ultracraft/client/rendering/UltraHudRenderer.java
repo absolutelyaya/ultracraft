@@ -287,7 +287,7 @@ public class UltraHudRenderer
 			if(item instanceof AbstractWeaponItem weapon)
 				uv = weapon.getHUDTexture();
 			else if (item.equals(ItemRegistry.MACHINE_SWORD))
-				uv = new Vector2i(0, 5);
+				uv = new Vector2i(MachineSwordItem.getType(stack).ordinal(), 5);
 			else if (item instanceof PlushieItem)
 				uv = new Vector2i(3, 0);
 			RenderSystem.setShaderTexture(0, WEAPONS_TEXTURE);

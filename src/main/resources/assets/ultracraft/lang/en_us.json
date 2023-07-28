@@ -156,6 +156,8 @@
   "gamerule.ultra-parryChaining.description": "Allows Projectiles to be parried multiple times, increasing Damage, Explosion Radius and Speed on each Parry.",
   "gamerule.ultra-tntPriming": "TNT Priming",
   "gamerule.ultra-tntPriming.description": "Whether Ultracraft Explosions can set off TNT.",
+  "gamerule.ultra-gunDamage": "Gun Damage Multiplier",
+  "gamerule.ultra-gunDamage.description": "Multiplies all Hitscan Damage by the set Amount.",
 
   "message.ultracraft.join-info-header": "===============[§4Ultracraft§r]===============",
   "message.ultracraft.hi-vel-forced": "This World is forcing §bHigh Velocity Mode§r to be %s",

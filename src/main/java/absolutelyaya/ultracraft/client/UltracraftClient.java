@@ -449,6 +449,7 @@ public class UltracraftClient implements ClientModInitializer
 			case 13 -> onExternalRuleUpdate(GameruleRegistry.SM_SAFE_LEDGES, value == 1);
 			case 14 -> onExternalRuleUpdate(GameruleRegistry.PARRY_CHAINING, parryChaining = value == 1);
 			case 15 -> onExternalRuleUpdate(GameruleRegistry.TNT_PRIMING, value == 1);
+			case 16 -> onExternalRuleUpdate(GameruleRegistry.GUN_DAMAGE, value);
 			case 127 -> gameRuleSyncFinished();
 			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncB] -> " + data);
 		}

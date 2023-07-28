@@ -94,6 +94,10 @@ public class GameruleRegistry
 			GameRuleRegistry.register("ultra-tntPriming", GameRules.Category.PLAYER,
 					GameRuleFactory.createBooleanRule(true,
 							(server, rule) -> OnChanged(server, (byte)15, rule.get() ? 1 : 0)));
+	public static final GameRules.Key<GameRules.IntRule> GUN_DAMAGE =
+			GameRuleRegistry.register("ultra-gunDamage", GameRules.Category.PLAYER,
+					GameRuleFactory.createIntRule(1, 1, 20,
+							(server, rule) -> OnChanged(server, (byte)16, rule.get())));
 	
 	public static void OnChanged(MinecraftServer server, byte b, int val)
 	{
@@ -123,9 +127,14 @@ public class GameruleRegistry
 		OnChanged(player, (byte)6, player.server.getGameRules().getBoolean(HIVEL_FALLDAMAGE) ? 1 : 0);
 		OnChanged(player, (byte)7, player.server.getGameRules().getBoolean(HIVEL_DROWNING) ? 1 : 0);
 		OnChanged(player, (byte)8, player.server.getGameRules().get(BLOODHEAL).get().ordinal());
-		OnChanged(player, (byte)9, player.server.getGameRules().get(HIVEL_SPEED).get());
-		OnChanged(player, (byte)10, player.server.getGameRules().get(HIVEL_SLOWFALL).get());
+		OnChanged(player, (byte)9, player.server.getGameRules().getInt(HIVEL_SPEED));
+		OnChanged(player, (byte)10, player.server.getGameRules().getInt(HIVEL_SLOWFALL));
 		OnChanged(player, (byte)11, player.server.getGameRules().getBoolean(EFFECTIVELY_VIOLENT) ? 1 : 0);
+		OnChanged(player, (byte)12, player.server.getGameRules().getBoolean(EXPLOSION_DAMAGE) ? 1 : 0);
+		OnChanged(player, (byte)13, player.server.getGameRules().getBoolean(SM_SAFE_LEDGES) ? 1 : 0);
+		OnChanged(player, (byte)14, player.server.getGameRules().getBoolean(PARRY_CHAINING) ? 1 : 0);
+		OnChanged(player, (byte)15, player.server.getGameRules().getBoolean(TNT_PRIMING) ? 1 : 0);
+		OnChanged(player, (byte)16, player.server.getGameRules().getInt(GUN_DAMAGE));
 		OnChanged(player, (byte)127, 0); //sync finished indicator
 	}
 	
