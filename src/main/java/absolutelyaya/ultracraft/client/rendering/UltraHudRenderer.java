@@ -91,9 +91,11 @@ public class UltraHudRenderer
 			drawText(matrices, t = Text.translatable("message.ultracraft.fish.size", fishCaught == 69 ? "1.5" : "1"),
 					-render.getWidth(t) / 2f, 16f, 1f);
 			float fishManiaLevel = Math.max(0, fishCaught - 10) / 32f;
+			float shake = config.safeVFX ? 0f : 1f;
 			drawText(matrices, t = fishCaught == 69 ? Text.translatable("message.ultracraft.fish.mania5") :
 										   Text.translatable(fishMania[fishCaught % fishMania.length]),
-					-render.getWidth(t) / 2f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f, 32f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f,
+					-render.getWidth(t) / 2f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f * shake,
+					32f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f * shake,
 					MathHelper.clamp(0.5f * fishManiaLevel, 0.05f, 1f));
 			matrices.scale(0.5f, 0.5f, 0.5f);
 			if(fishCaught < 5)
