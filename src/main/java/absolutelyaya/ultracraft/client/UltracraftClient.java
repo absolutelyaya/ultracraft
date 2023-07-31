@@ -158,6 +158,7 @@ public class UltracraftClient implements ClientModInitializer
 		BlockEntityRendererFactories.register(BlockEntityRegistry.CERBERUS, context -> new CerberusBlockRenderer());
 		
 		ModelPredicateRegistry.registerModels();
+		ScreenHandlerRegistry.register();
 		
 		WingColorPresetManager.restoreDefaults();
 		

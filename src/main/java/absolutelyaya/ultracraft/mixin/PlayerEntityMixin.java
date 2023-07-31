@@ -304,7 +304,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Override
 	public void replenishStamina(int i)
 	{
-		stamina = Math.min(stamina + 30 * i, 100);
+		stamina = Math.min(stamina + 30 * i, 90);
 	}
 	
 	@Override
