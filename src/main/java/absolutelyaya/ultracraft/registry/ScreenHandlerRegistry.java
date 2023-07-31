@@ -15,8 +15,13 @@ public class ScreenHandlerRegistry
 	public static final ScreenHandlerType<PedestalScreenHandler> PEDESTAL = Registry.register(Registries.SCREEN_HANDLER,
 			new Identifier(Ultracraft.MOD_ID,  "pedestal"), new ScreenHandlerType<>(PedestalScreenHandler::createPedestalHandler, FeatureSet.empty()));
 	
-	public static void register()
+	public static void registerClient()
 	{
 		HandledScreens.register(PEDESTAL, PedestalScreen::new);
+	}
+	
+	public static void registerServer()
+	{
+	
 	}
 }
