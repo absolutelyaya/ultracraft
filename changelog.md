@@ -1,26 +1,22 @@
 ## Major Changes
-- Tundra and Agony now behave like in the Original (+ a tiny original addition)
-- Added Special Tundra//Agony Machineswords
-  - Added Chilled Status Effect (Reduces Rate of Energy Regeneration)
-- Added Swordsmachine, Tundra and Agony Plushies
-- Fixed Weapon Variant Recipes
-- Fixed Camera Freaking out when dying while the Wing Customization Menu is open
-- Added LambDynLights as an optional dependency
-  - Appropriate Projectiles, Enemies and Items will give off light if you also download that mod!
-- Added Russian Translation (provided by Liskanyme)
-- Completely rewrote Auto-Aiming for both Sharpshooter and Marksman
+- Improved Pedestals
+  - Added Item Lore to make their usage more clear
+  - Right-Clicking them now opens a Menu in which you can set a "Key" Item. If an Item of that type is placed on the Pedestal, it gives off a redstone Signal.
+- Added TalonMC Plushie (Happy Birthday :D)
+- Added Soul and Blood Orbs
+  - Soul Orbs replenish 30 Energy upon pickup (equal to one dash)
+  - Blood Orbs heal to full Health and give 10 Absorption Hearts upon Pickup
+  - Props to my Sister for making the pickup SFX
+## Settings & Gamerules
+- Added "Fix UltraHUD" Setting
+  - Fixes the UltraHUD in place to help against motion sickness
+- Added ultra-GunDamage Gamerule
+  - Multiplies ALL Hitscan Damage by the set value. Meant to be used if other mods armor renders weapons too weak to be fun
+- SafeVFX Setting now disables the shaking of Fish-Mania Popups
 ## Tweaks
-- Nerfed Tundra//Agony 
-- Improved Slide Jumping
-- All Slams (not just Slam Storage) now give a starting slide speed boost
-- Nerfed Sharpshooter Auto-Aim down to 30° angle tolerance
-- Nerfed Overcharge Damage done to others (there was actually a Math error that made it do 3.75 times the damage it was supposed to. Sorry lmao)
-- Made Overcharge self-damage undodgeable again
-- Buffed Piercer Revolver alt-fire
-  - Piercer Revolver alt-fire now works more like in the game
-- All Mod Entities have a higher starting height for fall damage now (+3 Blocks)
+- The Blood Fluid is now replaceable by other Blocks
 ## Minor Changes
-- Overhauled Swordsmachine Texture; the color are a lot better now, and it's less noisy.
-- Added two missing Apostrophes to english death messages
-- Fixed most Projectile Boosts not damaging the Booster
-- Sharpshooter alt-fire now breaks fragile blocks
+- Added 2 Fishes
+- Added "Top 10 Anime Betrayals" Advancement
+- Hid some Items in REI (mainly unobtainable utility items)
+- Up to Ten Absorption Hearts are now displayed on the UltraHUD health bar
