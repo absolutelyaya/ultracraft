@@ -41,12 +41,19 @@
   "item.ultracraft.plushie.swordsmachine-lore": "§7Swordsmachine - Nothing but (cute) Scrap",
   "item.ultracraft.plushie.swordsmachine.tundra-lore": "§7Tundra - Dust to dust!",
   "item.ultracraft.plushie.swordsmachine.agony-lore": "§7Agony - Ashes to ashes!",
+  "item.ultracraft.plushie.talon-lore": "§7TalonMC - Minecraft Youtuber and Skinwalker",
+  "item.ultracraft.plushie.talon-hiddenlore": "§dYou just lost the Game.",
   "item.ultracraft.blood_bucket": "Blood Bucket",
+  "item.ultracraft.killerfish": "Killer Fish",
+  "item.ultracraft.killerfish-hiddenlore": "Probably from Sandiego.",
+  "item.ultracraft.bloodray": "Blood Ray",
 
   "block.ultracraft.elevator": "Elevator Casing",
   "block.ultracraft.elevator_wall": "Elevator Room Wall",
   "block.ultracraft.elevator_floor": "Elevator Room Floor",
   "block.ultracraft.pedestal": "Pedestal",
+  "block.ultracraft.pedestal.lore1": "§7Punch to display held Item",
+  "block.ultracraft.pedestal.lore2": "§7Right click with red/blue dye to color",
   "block.ultracraft.cerberus_block": "Cerberus",
   "block.ultracraft.cerberus_block.lore": "§7Power using Redstone to wake up the Cerberus",
   "block.ultracraft.blood": "Blood",
@@ -67,6 +74,8 @@
   "entity.ultracraft.interruptable_charge": "Interruptible Charge",
   "entity.ultracraft.shotgun_pellet": "Shotgun Pellet",
   "entity.ultracraft.ejected_core": "Ejected Core",
+  "entity.ultracraft.soul_orb": "Soul Orb",
+  "entity.ultracraft.blood_orb": "Blood Orb",
 
   "effect.ultracraft.chilled": "Chilled",
 
@@ -147,6 +156,8 @@
   "gamerule.ultra-parryChaining.description": "Allows Projectiles to be parried multiple times, increasing Damage, Explosion Radius and Speed on each Parry.",
   "gamerule.ultra-tntPriming": "TNT Priming",
   "gamerule.ultra-tntPriming.description": "Whether Ultracraft Explosions can set off TNT.",
+  "gamerule.ultra-gunDamage": "Gun Damage Multiplier",
+  "gamerule.ultra-gunDamage.description": "Multiplies all Hitscan Damage by the set Amount.",
 
   "message.ultracraft.join-info-header": "===============[§4Ultracraft§r]===============",
   "message.ultracraft.hi-vel-forced": "This World is forcing §bHigh Velocity Mode§r to be %s",
@@ -231,6 +242,9 @@
   "screen.ultracraft.info.epilepsy.affected.tooltip": "Automatically disables said VFX. Please be mindful of your Health regardless.",
   "screen.ultracraft.info.epilepsy.unaffected": "I am Not affected",
   "screen.ultracraft.info.epilepsy.unaffected.tooltip": "Leaves everything as is.",
+  "screen.ultracraft.pedestal.title": "Pedestal",
+  "screen.ultracraft.pedestal.lock": "Locking the Pedestal will prevent right click from opening this menu.",
+  "screen.ultracraft.pedestal.key": "Key ->",
 
   "wing-preset.ultracraft.amethyst": "Amethyst",
   "wing-preset.ultracraft.cyber": "Cyber",
@@ -281,6 +295,8 @@
   "advancements.ultracraft.chargeback-malicious.description": "Kill a Malicious Face with its own Beam Attack.",
   "advancements.ultracraft.ricochet.title": "Ricoshot",
   "advancements.ultracraft.ricochet.description": "Hit an Entity with a Ricochet spanning over 4 or more Coins.",
+  "advancements.ultracraft.traitor.title": "Top 10 Anime Betrayals",
+  "advancements.ultracraft.traitor.description": "Kill Tundra or Agony with the Sword of their Counterpart.",
 
   "narrator.button.background.vanilla": "Vanilla BG",
   "narrator.button.background.ultracraft": "Ultracraft BG",
@@ -367,5 +383,8 @@
   "text.autoconfig.ultracraft.option.goopDebug.@Tooltip": "[WARNING] VERY LAGGY | Adds extra particles to show vertex info of goop puddles",
 
   "text.autoconfig.ultracraft.option.hideWings": "Hide High Velocity Wings",
-  "text.autoconfig.ultracraft.option.hideWings.@Tooltip": "Lets you hide High Velocity Wings"
+  "text.autoconfig.ultracraft.option.hideWings.@Tooltip": "Lets you hide High Velocity Wings",
+
+  "text.autoconfig.ultracraft.option.ultraHudFixed": "Fixed Rotation",
+  "text.autoconfig.ultracraft.option.ultraHudFixed.@Tooltip": "Prevents the Ultrahud from moving / \"following\" the view"
 }

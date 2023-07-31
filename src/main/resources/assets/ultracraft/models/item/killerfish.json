@@ -1,0 +1,18 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "ultracraft:item/fish/silver_carp"
+  },
+  "display": {
+    "firstperson_righthand": {
+      "rotation": [0, -75.25, -62.25],
+      "translation": [1.38, 3.2, 1.38],
+      "scale": [0.68, 0.68, 0.68]
+    },
+    "firstperson_lefthand": {
+      "rotation": [159.97, 70.14, -112.18],
+      "translation": [1.63, 3.95, 1.63],
+      "scale": [0.68, 0.68, 0.68]
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "type": "minecraft:fishing",
+  "pools": [
+    {
+      "bonus_rolls": 0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:cod",
+          "weight": 20
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:salmon",
+          "weight": 10
+        },
+        {
+          "type": "minecraft:item",
+          "name": "ultracraft:bloodray",
+          "weight": 5
+        },
+        {
+          "type": "minecraft:item",
+          "name": "ultracraft:killerfish",
+          "weight": 2
+        },
+        {
+          "type": "minecraft:item",
+          "name": "ultracraft:talon",
+          "weight": 1
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "minecraft:gameplay/fishing/fish"
+}

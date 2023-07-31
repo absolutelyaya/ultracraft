@@ -18,5 +18,20 @@
     "sounds": [
         "ultracraft:misc/lawn_mower_seemless"
     ]
+  },
+  "item.killerfish.select": {
+    "sounds": [
+      "ultracraft:item/killer_fish2"
+    ]
+  },
+  "item.killerfish.use": {
+    "sounds": [
+      "ultracraft:item/killer_fish1"
+    ]
+  },
+  "entity.barrier_break": {
+    "sounds": [
+      "ultracraft:entity/barrier_break"
+    ]
   }
 }

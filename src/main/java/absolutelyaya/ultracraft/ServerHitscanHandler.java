@@ -4,7 +4,9 @@ import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.entity.other.AbstractOrbEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
+import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.util.AutoAimUtil;
 import io.netty.buffer.Unpooled;
@@ -123,7 +125,7 @@ public class ServerHitscanHandler
 		while (searchForEntities)
 		{
 			EntityHitResult eHit = ProjectileUtil.raycast(user, from, modifiedTo, box,
-					(entity) -> (!entities.contains(entity) && (!(entity instanceof ProjectileEntity) || (entity instanceof  ProjectileEntity proj && ((ProjectileEntityAccessor)proj).isHitscanHittable()) || type == SHARPSHOOTER)), 64f * 64f);
+					(entity) -> (!entities.contains(entity) && (!(entity instanceof ProjectileEntity || entity instanceof AbstractOrbEntity) || (entity instanceof  ProjectileEntity proj && ((ProjectileEntityAccessor)proj).isHitscanHittable()) || type == SHARPSHOOTER)), 64f * 64f);
 			if(eHit == null)
 				break;
 			searchForEntities = eHit.getType() != HitResult.Type.MISS && maxHits > 0;
@@ -145,7 +147,7 @@ public class ServerHitscanHandler
 			Entity e = entities.get(i);
 			//hit the last pierced enemy with up to 10 of the remaining pierce shots. A Pierce revolver shot that hits just one enemy, will damage it 3 times.
 			for (int j = 0; j < Math.min(10, i == entities.size() - 1 && maxHits < 16 ? maxHits + 1 : 1); j++)
-				e.damage(source, damage);
+				e.damage(source, damage * world.getGameRules().getInt(GameruleRegistry.GUN_DAMAGE));
 			if(explodeProjectile && e instanceof ProjectileEntity proj && !(e instanceof ThrownCoinEntity) && user instanceof WingedPlayerEntity p)
 			{
 				ExplosionHandler.explosion(user, world, proj.getPos(), DamageSources.get(world, DamageTypes.EXPLOSION, user), 5f, 1f, 5f, true);

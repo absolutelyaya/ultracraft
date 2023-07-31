@@ -1,10 +1,13 @@
 package absolutelyaya.ultracraft.advancement;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.item.SwordsmachinePlushieItem;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.advancement.Advancement;
 import net.minecraft.advancement.AdvancementFrame;
+import net.minecraft.advancement.criterion.CriterionConditions;
+import net.minecraft.advancement.criterion.OnKilledCriterion;
 import net.minecraft.advancement.criterion.TickCriterion;
 import net.minecraft.entity.EntityType;
 import net.minecraft.predicate.entity.EntityPredicate;
@@ -24,6 +27,7 @@ public class Advancements implements Consumer<Consumer<Advancement>>
 		Advancement.Builder.create().parent(coinpunch_medium).display(ItemRegistry.COIN, Text.translatable("advancements.ultracraft.coinpunch-hard.title"), Text.translatable("advancements.ultracraft.coinpunch-hard.description"), null, AdvancementFrame.CHALLENGE, true, true, false).criterion("punch", CoinPunchCriterion.Conditions.create(50)).build(consumer, Ultracraft.MOD_ID + "/coinpunch_hard");
 		Advancement.Builder.create().parent(root).display(ItemRegistry.COIN, Text.translatable("advancements.ultracraft.chargeback-malicious.title"), Text.translatable("advancements.ultracraft.chargeback-malicious.description"), null, AdvancementFrame.CHALLENGE, true, true, false).criterion("chargeback", ChargebackCriterion.Conditions.create(getTypePredicate(EntityRegistry.MALICIOUS_FACE))).build(consumer, Ultracraft.MOD_ID + "/chargeback_malicious");
 		Advancement.Builder.create().parent(root).display(ItemRegistry.COIN, Text.translatable("advancements.ultracraft.ricochet.title"), Text.translatable("advancements.ultracraft.ricochet.description"), null, AdvancementFrame.TASK, true, true, false).criterion("ricochet", RicochetCriterion.Conditions.create(4)).build(consumer, Ultracraft.MOD_ID + "/ricochet");
+		//Advancement.Builder.create().parent(root).display(ItemRegistry.SWORDSMACHINE.getDefaultStack("agony"), Text.translatable("advancements.ultracraft.title"), Text.translatable("advancements.ultracraft.description"), null, AdvancementFrame.TASK, true, true, false).criterion("agony", OnKilledCriterion.Conditions.create).requirements(new String[][]{new String[]{"agony"}, new String[]{"tundra"}});
 	}
 	
 	EntityPredicate getTypePredicate(EntityType<?> type)

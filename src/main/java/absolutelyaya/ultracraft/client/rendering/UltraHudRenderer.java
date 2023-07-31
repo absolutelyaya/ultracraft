@@ -40,7 +40,7 @@ public class UltraHudRenderer
 	final Identifier GUI_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/ultrahud.png");
 	final Identifier WEAPONS_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/weapon_icons.png");
 	final Identifier CROSSHAIR_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/crosshair_stats.png");
-	float healthPercent, staminaPercent, yOffset;
+	float healthPercent, staminaPercent, absorptionPercent, yOffset;
 	static float fishTimer, coinTimer, coinRot = 0, coinRotDest = 0;
 	static ItemStack lastCatch;
 	static int fishCaught, coinCombo;
@@ -91,9 +91,11 @@ public class UltraHudRenderer
 			drawText(matrices, t = Text.translatable("message.ultracraft.fish.size", fishCaught == 69 ? "1.5" : "1"),
 					-render.getWidth(t) / 2f, 16f, 1f);
 			float fishManiaLevel = Math.max(0, fishCaught - 10) / 32f;
+			float shake = config.safeVFX ? 0f : 1f;
 			drawText(matrices, t = fishCaught == 69 ? Text.translatable("message.ultracraft.fish.mania5") :
 										   Text.translatable(fishMania[fishCaught % fishMania.length]),
-					-render.getWidth(t) / 2f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f, 32f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f,
+					-render.getWidth(t) / 2f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f * shake,
+					32f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f * shake,
 					MathHelper.clamp(0.5f * fishManiaLevel, 0.05f, 1f));
 			matrices.scale(0.5f, 0.5f, 0.5f);
 			if(fishCaught < 5)
@@ -152,6 +154,7 @@ public class UltraHudRenderer
 		
 		healthPercent = MathHelper.lerp(tickDelta, healthPercent, player.getHealth() / player.getMaxHealth());
 		staminaPercent = MathHelper.lerp(tickDelta, staminaPercent, ((WingedPlayerEntity)player).getStamina() / 90f);
+		absorptionPercent = MathHelper.lerp(tickDelta, absorptionPercent, Math.min(player.getAbsorptionAmount() / 20f, 1f));
 		//Crosshair
 		if(config.ultraHudCrosshair)
 		{
@@ -169,11 +172,14 @@ public class UltraHudRenderer
 		matrices.push();
 		matrices.scale(0.8f, -0.5f, 0.5f);
 		
-		float h = MathHelper.lerp(tickDelta, player.lastRenderPitch, player.renderPitch);
-		float i = MathHelper.lerp(tickDelta, player.lastRenderYaw, player.renderYaw);
 		boolean flip = player.getMainArm().equals(Arm.LEFT) ^ config.switchSides;
-		matrices.multiply(new Quaternionf().rotateX((float)Math.toRadians((player.getPitch(tickDelta) - h) * 0.15f)));
-		matrices.multiply(new Quaternionf().rotateY((float)Math.toRadians((player.getYaw(tickDelta) - i) * -0.05f)));
+		if(!UltracraftClient.getConfigHolder().get().ultraHudFixed)
+		{
+			float h = MathHelper.lerp(tickDelta, player.lastRenderPitch, player.renderPitch);
+			float i = MathHelper.lerp(tickDelta, player.lastRenderYaw, player.renderYaw);
+			matrices.multiply(new Quaternionf().rotateX((float)Math.toRadians((player.getPitch(tickDelta) - h) * 0.15f)));
+			matrices.multiply(new Quaternionf().rotateY((float)Math.toRadians((player.getYaw(tickDelta) - i) * -0.05f)));
+		}
 		matrices.multiply(new Quaternionf(new AxisAngle4f(-0.6f * (flip ? -1 : 1), 0f, 1f, 0f)));
 		matrices.translate(-15 * (flip ? -4 : 1), 0, 150);
 		if(config.switchSides)
@@ -197,6 +203,9 @@ public class UltraHudRenderer
 		//health
 		RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 2.8125f, -35f + 11.250f, 61.875f * healthPercent, 5.625f), 0f,
 				new Vec2f(80f, 64f), new Vector4f(2f, 48f, 44f * healthPercent, 4f), 1f);
+		if(absorptionPercent > 0f)
+			RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 2.8125f, -35f + 11.250f, 61.875f * absorptionPercent, 5.625f), 0f,
+					new Vec2f(80f, 64f), new Vector4f(2f, 56f, 44f * absorptionPercent, 4f), 1f);
 		//stamina
 		RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 2.8125f, -35f + 2.8125f, 61.875f * staminaPercent, 5.625f), 0f,
 				new Vec2f(80f, 64f), new Vector4f(2f, 52f, 44f * staminaPercent, 4f), 1f);
@@ -280,7 +289,7 @@ public class UltraHudRenderer
 			if(item instanceof AbstractWeaponItem weapon)
 				uv = weapon.getHUDTexture();
 			else if (item.equals(ItemRegistry.MACHINE_SWORD))
-				uv = new Vector2i(0, 5);
+				uv = new Vector2i(MachineSwordItem.getType(stack).ordinal(), 5);
 			else if (item instanceof PlushieItem)
 				uv = new Vector2i(3, 0);
 			RenderSystem.setShaderTexture(0, WEAPONS_TEXTURE);

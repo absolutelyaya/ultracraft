@@ -15,6 +15,7 @@ import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.sound.MusicType;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.item.Items;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.resource.ResourceReload;
@@ -70,7 +71,7 @@ public abstract class MinecraftClientMixin
 		boolean pedestal = hit instanceof BlockHitResult bhit && player.getWorld().getBlockState(bhit.getBlockPos()).isOf(BlockRegistry.PEDESTAL);
 		if(player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldCancelPunching())
 		{
-			if(options.sneakKey.isPressed() && pedestal)
+			if(options.sneakKey.isPressed() && pedestal && !player.getMainHandStack().isOf(Items.DEBUG_STICK))
 			{
 				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 				buf.writeBlockPos(((BlockHitResult)hit).getBlockPos());

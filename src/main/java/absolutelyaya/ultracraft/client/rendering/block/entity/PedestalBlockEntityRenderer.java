@@ -33,7 +33,7 @@ public class PedestalBlockEntityRenderer implements BlockEntityRenderer<Pedestal
 	@Override
 	public void render(PedestalBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay)
 	{
-		ItemStack stack = entity.getStack();
+		ItemStack stack = entity.getHeld();
 		if(!stack.isEmpty())
 		{
 			matrices.push();

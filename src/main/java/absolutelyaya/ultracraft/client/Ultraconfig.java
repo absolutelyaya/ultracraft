@@ -42,6 +42,9 @@ public class Ultraconfig implements ConfigData
 	@ConfigEntry.Category("ultra-hud")
 	@ConfigEntry.Gui.Tooltip
 	public boolean switchSides = false;
+	@ConfigEntry.Category("ultra-hud")
+	@ConfigEntry.Gui.Tooltip
+	public boolean ultraHudFixed = false;
 	@ConfigEntry.Gui.Tooltip
 	@ConfigEntry.BoundedDiscrete(min = 16, max = 128)
 	public int maxTrails = 64;

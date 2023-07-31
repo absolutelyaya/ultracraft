@@ -40,6 +40,8 @@ public interface WingedPlayerEntity
 	
 	boolean consumeStamina();
 	
+	void replenishStamina(int i);
+	
 	int getWingHintDisplayTicks();
 	
 	@NotNull

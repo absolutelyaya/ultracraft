@@ -53,6 +53,7 @@ public class ServerConfigScreen extends Screen
 		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.SM_SAFE_LEDGES, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
 		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.PARRY_CHAINING, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
 		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.TNT_PRIMING, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.GUN_DAMAGE, GameRuleWidget.ValueType.INT, ruleWidgets.size())));
 	}
 	
 	@Override

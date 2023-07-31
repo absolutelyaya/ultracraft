@@ -37,6 +37,8 @@ import org.joml.Vector3f;
 
 import java.util.UUID;
 
+import static absolutelyaya.ultracraft.registry.PacketRegistry.REPLENISH_STAMINA;
+
 @SuppressWarnings("CodeBlock2Expr")
 @Environment(EnvType.CLIENT)
 public class ClientPacketRegistry
@@ -299,5 +301,12 @@ public class ClientPacketRegistry
 				client.player.getWorld().playSound(source.x, source.y, source.z, SoundEvents.ENTITY_WARDEN_SONIC_CHARGE, SoundCategory.PLAYERS, 0.75f, 1.65f, false);
 			});
 		}));
+		ClientPlayNetworking.registerGlobalReceiver(REPLENISH_STAMINA, (client, handler, buf, sender) -> {
+			int i = buf.readInt();
+			client.execute(() -> {
+				if(client.player instanceof WingedPlayerEntity winged)
+					winged.replenishStamina(i);
+			});
+		});
 	}
 }

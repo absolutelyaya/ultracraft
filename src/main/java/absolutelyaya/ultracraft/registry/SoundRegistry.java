@@ -13,6 +13,9 @@ public class SoundRegistry
 	public static final RegistryEntry.Reference<SoundEvent> ELEVATOR_FALL = registerReference(new Identifier(Ultracraft.MOD_ID, "misc.elevator_fall"));
 	public static final RegistryEntry.Reference<SoundEvent> WIND_LOOP = registerReference(new Identifier(Ultracraft.MOD_ID, "misc.wind_loop"));
 	public static final RegistryEntry.Reference<SoundEvent> MACHINESWORD_LOOP = registerReference(new Identifier(Ultracraft.MOD_ID, "entity.machinesword_loop"));
+	public static final RegistryEntry.Reference<SoundEvent> KILLERFISH_SELECT = registerReference(new Identifier(Ultracraft.MOD_ID, "item.killerfish.select"));
+	public static final RegistryEntry.Reference<SoundEvent> KILLERFISH_USE = registerReference(new Identifier(Ultracraft.MOD_ID, "item.killerfish.use"));
+	public static final RegistryEntry.Reference<SoundEvent> BARRIER_BREAK = registerReference(new Identifier(Ultracraft.MOD_ID, "entity.barrier_break"));
 	
 	public static void register()
 	{
