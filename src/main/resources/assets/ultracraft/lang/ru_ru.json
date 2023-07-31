@@ -41,12 +41,19 @@
   "item.ultracraft.plushie.swordsmachine-lore": "§7Меч-Машина — ничего, кроме (милого) лома",
   "item.ultracraft.plushie.swordsmachine.tundra-lore": "§7Тундра - Прах к праху!",
   "item.ultracraft.plushie.swordsmachine.agony-lore": "§7Агония Пепел к пеплу",
+  "item.ultracraft.plushie.talon-lore": "§7TalonMC - Майнкрафтер-Ютубер И Перевёртыш (Skinwalker используйте поисковик)",
+  "item.ultracraft.plushie.talon-hiddenlore": "§dВы только что проиграли игру.",
   "item.ultracraft.blood_bucket": "Ведро Крови",
+  "item.ultracraft.killerfish": "Рыба-Убийца",
+  "item.ultracraft.killerfish-hiddenlore": "Вероятно, из Сандиего..",
+  "item.ultracraft.bloodray": "Кровавый Луч",
 
   "block.ultracraft.elevator": "Корпус Лифта",
   "block.ultracraft.elevator_wall": "Стена Комнаты Лифта",
   "block.ultracraft.elevator_floor": "Пол Комнаты Лифта",
   "block.ultracraft.pedestal": "Пьедестал",
+  "block.ultracraft.pedestal.lore1": "§7Ударьте, чтобы отобразить удерживаемый предмет",
+  "block.ultracraft.pedestal.lore2": "§7Щелкните правой кнопкой мыши красным/синим красителем, чтобы раскрасить",
   "block.ultracraft.cerberus_block": "Цербер",
   "block.ultracraft.cerberus_block.lore": "§7Используйте Редстоун, чтобы разбудить Цербера",
   "block.ultracraft.blood": "Кровь",
@@ -67,6 +74,8 @@
   "entity.ultracraft.interruptable_charge": "Preryvayemyy zaryad",
   "entity.ultracraft.shotgun_pellet": "Дробь",
   "entity.ultracraft.ejected_core": "Выпущенное  Ядро",
+  "entity.ultracraft.soul_orb": "Сфера Души",
+  "entity.ultracraft.blood_orb": "Сфкера Крови",
 
   "effect.ultracraft.chilled": "Прохладно",
 
@@ -147,6 +156,8 @@
   "gamerule.ultra-parryChaining.description": "Позволяет несколько раз парировать снаряды, увеличивая урон, радиус взрыва и скорость при каждом парировании.",
   "gamerule.ultra-tntPriming": "подрыв tnt",
   "gamerule.ultra-tntPriming.description": "Могут ли Ultracraft взрывы активировать TNT.",
+  "gamerule.ultra-gunDamage": "Множитель Урона Оружия",
+  "gamerule.ultra-gunDamage.description": "Умножает весь Урон от Хитскан Оружия на заданное значение.",
 
   "message.ultracraft.join-info-header": "===============[§4Ultracraft§r]===============",
   "message.ultracraft.hi-vel-forced": "Этот мир вынуждает §bрежим высокой мобильности§r быть %s",
@@ -165,8 +176,8 @@
   "message.ultracraft.disabled-handswap": "Ручная быстрая замена отключена.",
   "message.ultracraft.disabled-slamstorage": "Slam Storage is Disabled.",
   "message.ultracraft.join-info": "§7Вы можете отключить это сообщение в конфигурации мода.",
-  "message.ultracraft.hi-vel.enable": "Активированы крылья высокой мобильности!",
-  "message.ultracraft.hi-vel.disable": "Деактивированы крылья высокой мобильности!",
+  "message.ultracraft.hi-vel.enable": "Активированы крылья скорости!",
+  "message.ultracraft.hi-vel.disable": "Деактивированы крылья скорости!",
   "message.ultracraft.server.freeze-enable-warning": "[§4Ultracraft§r] эй, ты только что включил эффект заморозки! Имейте в виду, что этот эффект распространяется §4НА ВСЕМ СЕРВЕРЕ§r, поэтому любое замораживание времени влияет на ВСЕХ. Если у вас много игроков, лучше отключите эту функцию",
   "message.ultracraft.server.projboost-all": "[§4Ultracraft§r] Все снаряды теперь могут быть усилены. Сюда входят Стрелы, Трезубцы, жемчуг Края и даже Ракеты.",
   "message.ultracraft.server.projboost-limited": "[§4Ultracraft§r] Только основной огонь дробовика теперь может быть усилен.",
@@ -231,6 +242,9 @@
   "screen.ultracraft.info.epilepsy.affected.tooltip": "Автоматически отключает указанные визуальные эффекты. Пожалуйста, помните о своем здоровье, несмотря ни на что.",
   "screen.ultracraft.info.epilepsy.unaffected": "меня не затрагивает",
   "screen.ultracraft.info.epilepsy.unaffected.tooltip": "Оставляет все как есть.",
+  "screen.ultracraft.pedestal.title": "Пьедестал",
+  "screen.ultracraft.pedestal.lock": "Блокировка пьедестала не позволит больше открывать правой кнопкой мыши это меню..",
+  "screen.ultracraft.pedestal.key": "Ключ ->",
 
   "wing-preset.ultracraft.amethyst": "Аметист",
   "wing-preset.ultracraft.cyber": "Кибер",
@@ -281,6 +295,8 @@
   "advancements.ultracraft.chargeback-malicious.description": "Убейте вредоносное лицо его собственной лучевой атакой.",
   "advancements.ultracraft.ricochet.title": "Рикошет",
   "advancements.ultracraft.ricochet.description": "Поразите Сущность Рикошетом, попавшим на 4 или более Монет.",
+  "advancements.ultracraft.traitor.title": "Топ 10 Лучших Аниме Предательств",
+  "advancements.ultracraft.traitor.description": "Убейте Тундру или Агонию мечом её напарника.",
 
   "narrator.button.background.vanilla": "Ванильный BG",
   "narrator.button.background.ultracraft": "Ultracraft BG",
@@ -367,5 +383,8 @@
   "text.autoconfig.ultracraft.option.goopDebug.@Tooltip": "[ВНИМАНИЕ] ОЧЕНЬ ЛАГАЕТ | Добавляет дополнительные частицы, чтобы показать информацию о вершинах луж слизи.",
 
   "text.autoconfig.ultracraft.option.hideWings": "Скрыть Крылья Высокой Мобильности",
-  "text.autoconfig.ultracraft.option.hideWings.@Tooltip": "Позволяет скрыть Крылья Высокой Мобильности"
+  "text.autoconfig.ultracraft.option.hideWings.@Tooltip": "Позволяет скрыть Крылья Высокой Мобильности",
+
+  "text.autoconfig.ultracraft.option.ultraHudFixed": "Зафиксированный Худ",
+  "text.autoconfig.ultracraft.option.ultraHudFixed.@Tooltip": "Предотвращает движение / «следование» Ultraхуда за изображением"
 }
