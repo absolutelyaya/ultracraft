@@ -38,6 +38,9 @@ public class KillerFishItem extends Item
 	@Override
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
 	{
+		super.inventoryTick(stack, world, entity, slot, selected);
+		if(slot < 0 || slot > 9)
+			return;
 		if(world.isClient && wasSelected <= 0 && selected)
 		{
 			entity.playSound(SoundRegistry.KILLERFISH_SELECT.value(), 1, 1);
@@ -46,7 +49,6 @@ public class KillerFishItem extends Item
 			wasSelected = 12;
 		else if(wasSelected > 0)
 			wasSelected--;
-		super.inventoryTick(stack, world, entity, slot, selected);
 	}
 	
 	@Override
