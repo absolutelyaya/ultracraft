@@ -15,6 +15,7 @@
 - SafeVFX Setting now disables the shaking of Fish-Mania Popups
 ## Tweaks
 - The Blood Fluid is now replaceable by other Blocks
+- Buffed Sharpshooter auto-aim (30°->45°)
 ## Minor Changes
 - Added 2 Fishes
 - Added "Top 10 Anime Betrayals" Advancement
