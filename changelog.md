@@ -16,6 +16,7 @@
 ## Tweaks
 - The Blood Fluid is now replaceable by other Blocks
 - Buffed Sharpshooter auto-aim (30°->45°)
+- Auto-aim now doesn't target Items and Experience Orbs anymore
 ## Minor Changes
 - Added 2 Fishes
 - Added "Top 10 Anime Betrayals" Advancement

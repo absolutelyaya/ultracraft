@@ -6,6 +6,8 @@ import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
 import absolutelyaya.ultracraft.entity.projectile.EjectedCoreEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.ExperienceOrbEntity;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
@@ -47,6 +49,8 @@ public class AutoAimUtil
 			float closestDistance = Float.MAX_VALUE;
 			for (Entity e : targets)
 			{
+				if(e instanceof ItemEntity || e instanceof ExperienceOrbEntity)
+					continue;
 				int priority = ((EntityAccessor)e).getTargetPriority(source);
 				if(priority < highestPriority)
 					continue;
