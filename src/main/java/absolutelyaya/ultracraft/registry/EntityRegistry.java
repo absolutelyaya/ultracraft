@@ -7,6 +7,7 @@ import absolutelyaya.ultracraft.entity.husk.FilthEntity;
 import absolutelyaya.ultracraft.entity.husk.SchismEntity;
 import absolutelyaya.ultracraft.entity.husk.StrayEntity;
 import absolutelyaya.ultracraft.entity.machine.DestinyBondSwordsmachineEntity;
+import absolutelyaya.ultracraft.entity.machine.DroneEntity;
 import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
 import absolutelyaya.ultracraft.entity.other.BloodOrbEntity;
 import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
@@ -44,6 +45,10 @@ public class EntityRegistry
 			EntityType.Builder.create(SwordsmachineEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2.5F).maxTrackingRange(8).build("swordsmachine"));
 	public static final EntityType<DestinyBondSwordsmachineEntity> DESTINY_SWORDSMACHINE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "destiny_swordsmachine"),
+			EntityType.Builder.create(DestinyBondSwordsmachineEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2.5F).maxTrackingRange(8).disableSummon().build("destiny_swordsmachine"));
+	public static final EntityType<DroneEntity> DRONE = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "drone"),
+			EntityType.Builder.create(DroneEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 0.6F).maxTrackingRange(8).build("drone"));
 			EntityType.Builder.create(DestinyBondSwordsmachineEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2.5F).maxTrackingRange(8).build("destiny_swordsmachine"));
 	
 	public static final EntityType<HellBulletEntity> HELL_BULLET = Registry.register(Registries.ENTITY_TYPE,
@@ -98,5 +103,6 @@ public class EntityRegistry
 		FabricDefaultAttributeRegistry.register(CERBERUS, CerberusEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(SWORDSMACHINE, SwordsmachineEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(DESTINY_SWORDSMACHINE, SwordsmachineEntity.getDefaultAttributes());
+		FabricDefaultAttributeRegistry.register(DRONE, DroneEntity.getDefaultAttributes());
 	}
 }

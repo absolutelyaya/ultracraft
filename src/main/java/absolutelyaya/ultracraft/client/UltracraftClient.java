@@ -18,6 +18,7 @@ import absolutelyaya.ultracraft.client.rendering.entity.feature.WingsModel;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.SchismRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.StrayRenderer;
+import absolutelyaya.ultracraft.client.rendering.entity.machine.DroneEntityRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.machine.SwordsmachineRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.other.*;
 import absolutelyaya.ultracraft.client.rendering.entity.projectile.*;
@@ -132,6 +133,7 @@ public class UltracraftClient implements ClientModInitializer
 		EntityRendererRegistry.register(EntityRegistry.INTERRUPTABLE_CHARGE, InterruptableChargeRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.SOUL_ORB, OrbRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.BLOOD_ORB, OrbRenderer::new);
+		EntityRendererRegistry.register(EntityRegistry.DRONE, DroneEntityRenderer::new);
 		//Particles
 		ParticleFactoryRegistry particleRegistry = ParticleFactoryRegistry.getInstance();
 		particleRegistry.register(ParticleRegistry.MALICIOUS_CHARGE, MaliciousChargeParticle.Factory::new);
