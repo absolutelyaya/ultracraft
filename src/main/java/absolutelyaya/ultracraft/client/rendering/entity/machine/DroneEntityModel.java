@@ -2,8 +2,10 @@ package absolutelyaya.ultracraft.client.rendering.entity.machine;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.entity.machine.DroneEntity;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import software.bernie.geckolib.constant.DataTickets;
 import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
 import software.bernie.geckolib.core.animation.AnimationState;
@@ -38,8 +40,21 @@ public class DroneEntityModel extends GeoModel<DroneEntity>
 		EntityModelData extraData = (EntityModelData)animationState.getExtraData().get(DataTickets.ENTITY_MODEL_DATA);
 		if(root != null)
 		{
-			root.setRotX(root.getRotX() + extraData.headPitch() * MathHelper.RADIANS_PER_DEGREE);
-			root.setRotY(extraData.netHeadYaw() * MathHelper.RADIANS_PER_DEGREE);
+			float f = ((float) Math.PI / 180F);
+			root.setRotX(extraData.headPitch() * f);
+			if(animatable.getTarget() != null)
+				root.setRotY((animatable.getYaw() - animatable.getHeadYaw()) * -f);
+			else
+				root.setRotY(extraData.netHeadYaw() * f);
+			root.setRotZ(0f);
+			if(animatable.isFalling())
+			{
+				float deltaTick = MinecraftClient.getInstance().getTickDelta();
+				Vec3d rot = animatable.getFallRot().normalize().multiply(animatable.getFallingTicks() + deltaTick);
+				root.setRotX((float)(root.getRotX() + rot.x * 0.25));
+				root.setRotY((float)(root.getRotY() + rot.y * 0.25));
+				root.setRotZ((float)(root.getRotZ() + rot.z * 0.25));
+			}
 		}
 	}
 }
