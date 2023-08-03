@@ -1,0 +1,8 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "ultracraft:item/drone_spawn_egg",
+    "layer1": "ultracraft:item/drone_spawn_egg_overlay",
+    "layer2": "ultracraft:item/drone_spawn_egg_overlay2"
+  }
+}

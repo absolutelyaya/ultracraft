@@ -90,6 +90,9 @@ public class ItemRegistry
 	public static final DestinyBondSpawnEggItem DESTINY_SWORDSMACHINE_SPAWN_EGG = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "destiny_swordsmachine_spawn_egg"),
 			new DestinyBondSpawnEggItem(new FabricItemSettings()));
+	public static final MultiColorSpawnEggItem DRONE_SPAWN_EGG = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "drone_spawn_egg"),
+			new MultiColorSpawnEggItem(EntityRegistry.DRONE, new int[] {0x813ec6, 0x1b182d, 0xee42ff}, new FabricItemSettings()));
 	
 	public static final RegistryKey<ItemGroup> ULTRACRAFT_TAB = RegistryKey.of(RegistryKeys.ITEM_GROUP, new Identifier(Ultracraft.MOD_ID, "item"));
 	
@@ -130,6 +133,7 @@ public class ItemRegistry
 			content.add(SWORDSMACHINE_SPAWN_EGG);
 			content.add(SWORDSMACHINE_SPAWN_EGG.getDefaultStack("item.ultracraft.swordsmachine_spawn_egg.special", "Dan"));
 			content.add(DESTINY_SWORDSMACHINE_SPAWN_EGG);
+			content.add(DRONE_SPAWN_EGG);
 			content.add(PLUSHIE.getDefaultStack("yaya"));
 			content.add(PLUSHIE.getDefaultStack("hakita"));
 			content.add(PITR.getDefaultStack("pitr"));
