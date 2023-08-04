@@ -36,6 +36,8 @@ public class ParticleRegistry
 			new Identifier(Ultracraft.MOD_ID, "ricochet_warning"), FabricParticleTypes.simple());
 	public static final DefaultParticleType BIG_CIRCLE = Registry.register(Registries.PARTICLE_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "bigcircle"), FabricParticleTypes.simple());
+	public static final DefaultParticleType DRONE_CHARGE = Registry.register(Registries.PARTICLE_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "drone_charge"), FabricParticleTypes.simple());
 	//complex
 	public static final ParticleType<ParryIndicatorParticleEffect> PARRY_INDICATOR = Registry.register(Registries.PARTICLE_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "parry_indicator"), FabricParticleTypes.complex(new ParryIndicatorParticleEffect.Factory()));

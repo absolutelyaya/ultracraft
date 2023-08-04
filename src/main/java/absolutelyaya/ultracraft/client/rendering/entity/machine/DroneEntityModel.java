@@ -51,7 +51,7 @@ public class DroneEntityModel extends GeoModel<DroneEntity>
 			{
 				float deltaTick = MinecraftClient.getInstance().getTickDelta();
 				Vec3d rot = animatable.getFallRot().normalize()
-									.multiply(((animatable.getFallingTicks() + deltaTick) * Math.min((animatable.getFallingTicks() + deltaTick) / 30f, 1f)));
+									.multiply(((animatable.getFallingTicks() + deltaTick) * Math.min((animatable.getFallingTicks() + deltaTick) / 20f, 2f)));
 				root.setRotX((float)(root.getRotX() + rot.x * 0.25));
 				root.setRotY((float)(root.getRotY() + rot.y * 0.25));
 				root.setRotZ((float)(root.getRotZ() + rot.z * 0.25));
