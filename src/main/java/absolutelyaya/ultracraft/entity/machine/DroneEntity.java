@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraFlyingEntity;
+import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -20,6 +21,7 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
@@ -39,11 +41,12 @@ import software.bernie.geckolib.core.object.PlayState;
 public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity, MeleeInterruptable
 {
 	private final AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
-	public static final TrackedData<Integer> FALLING = DataTracker.registerData(DroneEntity.class, TrackedDataHandlerRegistry.INTEGER);
-	public static final TrackedData<Vector3f> FALLROT = DataTracker.registerData(DroneEntity.class, TrackedDataHandlerRegistry.VECTOR3F);
-	public static final TrackedData<Integer> MOVE_COOLDOWN = DataTracker.registerData(DroneEntity.class, TrackedDataHandlerRegistry.INTEGER);
-	public static final TrackedData<Integer> INVULERABLE = DataTracker.registerData(DroneEntity.class, TrackedDataHandlerRegistry.INTEGER);
-	public static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(DroneEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Vector3f> FALLROT = DataTracker.registerData(DroneEntity.class, TrackedDataHandlerRegistry.VECTOR3F);
+	protected static final TrackedData<Vector3f> FALLDIR = DataTracker.registerData(DroneEntity.class, TrackedDataHandlerRegistry.VECTOR3F);
+	protected static final TrackedData<Integer> FALLING = DataTracker.registerData(DroneEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Integer> MOVE_COOLDOWN = DataTracker.registerData(DroneEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(DroneEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Boolean> KEEP_HEIGHT = DataTracker.registerData(DroneEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	
 	public DroneEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -55,11 +58,12 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 	protected void initDataTracker()
 	{
 		super.initDataTracker();
-		dataTracker.startTracking(FALLING, 0);
 		dataTracker.startTracking(FALLROT, new Vector3f());
+		dataTracker.startTracking(FALLDIR, new Vector3f());
+		dataTracker.startTracking(FALLING, 0);
 		dataTracker.startTracking(MOVE_COOLDOWN, 40);
-		dataTracker.startTracking(INVULERABLE, 0);
 		dataTracker.startTracking(ATTACK_COOLDOWN, 60);
+		dataTracker.startTracking(KEEP_HEIGHT, false);
 	}
 	
 	@Override
@@ -83,8 +87,6 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
-		if(dataTracker.get(INVULERABLE) > 0)
-			return false;
 		if(isFalling() && !source.isOf(DamageSources.INTERRUPT))
 		{
 			explode(source);
@@ -96,11 +98,37 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 			{
 				dataTracker.set(FALLING, 1);
 				dataTracker.set(FALLROT, new Vec3d(0f, 0f, 0f).addRandom(random, 0.5f).toVector3f());
-				dataTracker.set(INVULERABLE, 2);
+				if(getTarget() != null)
+				{
+					dataTracker.set(KEEP_HEIGHT, true);
+					LivingEntity t = getTarget();
+					dataTracker.set(FALLDIR, t.getPos().add(0f, t.getHeight() / 2f, 0f).subtract(getPos()).normalize().toVector3f());
+				}
+				else
+					dataTracker.set(FALLDIR, getRotationVector().toVector3f());
+				setHealth(0.5f);
+				return super.damage(source, 0.001f);
 			}
 			return false;
 		}
 		return super.damage(source, amount);
+	}
+	
+	public void fire()
+	{
+		float zRot = random.nextFloat() * 180 * MathHelper.RADIANS_PER_DEGREE;
+		for (int i = 0; i < 3; i++)
+		{
+			HellBulletEntity bullet = HellBulletEntity.spawn(this, getWorld());
+			Vec3d dir = new Vec3d(0, 0, 1)
+								.add(new Vec3d((i - 1), 0f, 0f).rotateZ(zRot))
+								.rotateX(getPitch() * MathHelper.RADIANS_PER_DEGREE).rotateY(-getHeadYaw() * MathHelper.RADIANS_PER_DEGREE);
+			Vec3d pos = getPos().add(dir);
+			bullet.setPos(pos.x, pos.y, pos.z);
+			bullet.setVelocity(new Vec3d(0f, 0f, 0.2).rotateX(-getPitch() * MathHelper.RADIANS_PER_DEGREE)
+									   .rotateY(-getHeadYaw() * MathHelper.RADIANS_PER_DEGREE));
+			getWorld().spawnEntity(bullet);
+		}
 	}
 	
 	@Override
@@ -109,12 +137,19 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 		super.tickMovement();
 		if(isFalling())
 		{
-			if(getWorld().getOtherEntities(this, getBoundingBox(), e -> e instanceof LivingEntity && collidesWith(e)).size() > 0)
-				damage(DamageSources.get(getWorld(), DamageTypes.FLY_INTO_WALL), 10);
+			if(getWorld().getOtherEntities(this, getBoundingBox().shrink(0.6f, 0.6f, 0.6), e -> e instanceof LivingEntity).size() > 0)
+				damage(DamageSources.get(getWorld(), DamageTypes.PLAYER_ATTACK), 10);
 			dataTracker.set(FALLING, dataTracker.get(FALLING) + 1);
 			Vec3d particlePos = getPos().addRandom(random, 0.5f);
-			Vec3d vel = getVelocity();
-			getWorld().addParticle(ParticleTypes.LARGE_SMOKE, particlePos.x, particlePos.y, particlePos.z, -vel.x, -vel.y, -vel.z);
+			getWorld().addParticle(ParticleTypes.LARGE_SMOKE, particlePos.x, particlePos.y, particlePos.z, 0f, 0f, 0f);
+		}
+		if(super.isAttacking())
+		{
+			Vec3d particlePos = getPos().add(getRotationVector().multiply(1f));
+			Vec3d offset = new Vec3d(0f, 0f, 0f).addRandom(random, 2f);
+			getWorld().addParticle(new DustParticleEffect(new Vector3f(1f, 0.9f, 0.2f), 0.5f),
+					particlePos.x + offset.x, particlePos.y + offset.y, particlePos.z + offset.z,
+					-offset.x * 0.04, -offset.y * 0.04, -offset.z * 0.04);
 		}
 		if(getTarget() != null && !isFalling())
 		{
@@ -126,8 +161,6 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 		}
 		if(dataTracker.get(MOVE_COOLDOWN) > 0)
 			dataTracker.set(MOVE_COOLDOWN, dataTracker.get(MOVE_COOLDOWN) - (getTarget() != null && distanceTo(getTarget()) < 3f ? 20 : 1));
-		if(dataTracker.get(INVULERABLE) > 0)
-			dataTracker.set(INVULERABLE, dataTracker.get(INVULERABLE) - 1);
 		if(dataTracker.get(ATTACK_COOLDOWN) > 0 && getTarget() != null)
 			dataTracker.set(ATTACK_COOLDOWN, dataTracker.get(ATTACK_COOLDOWN) - 1);
 	}
@@ -187,13 +220,21 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 	public void onInterrupt(PlayerEntity interrupter)
 	{
 		setRotation(interrupter.getYaw(), interrupter.getPitch());
-		dataTracker.set(FALLING, 1);
+		dataTracker.set(FALLDIR, interrupter.getRotationVector().toVector3f());
+		dataTracker.set(FALLING, isFalling() ? 70 : 1);
+		dataTracker.set(KEEP_HEIGHT, true);
 	}
 	
 	@Override
 	public boolean isAttacking()
 	{
 		return super.isAttacking() || isFalling();
+	}
+	
+	@Override
+	public boolean isFireImmune()
+	{
+		return true;
 	}
 	
 	static class DroneMoveControl extends MoveControl
@@ -212,11 +253,9 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 			if(drone.isFalling())
 			{
 				int fallTicks = drone.dataTracker.get(FALLING);
-				Vec3d dir = drone.getRotationVector();
-				//if(drone.getTarget() != null)
-				//	dir = dir.lerp(drone.getTarget().getPos().subtract(drone.getPos()).normalize(), Math.max(1.4f - fallTicks / 20f, 0f));
-				//else
-					dir = dir.subtract(0f, 0.1f * Math.min(fallTicks / 10f, 5f), 0f); //TODO: disable if parried
+				Vec3d dir = new Vec3d(drone.dataTracker.get(FALLDIR));
+				if(drone.getTarget() == null && !drone.dataTracker.get(KEEP_HEIGHT))
+					dir = dir.subtract(0f, 0.1f * Math.min(fallTicks / 10f, 5f), 0f);
 				Vec3d movement = dir.multiply(Math.min(fallTicks / 30f, 2f));
 				HitResult hit = drone.getWorld().raycast(new RaycastContext(drone.getPos(), drone.getPos().add(movement),
 						RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, drone));
@@ -301,7 +340,7 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 		@Override
 		public boolean canStart()
 		{
-			return drone.dataTracker.get(ATTACK_COOLDOWN) <= 0 && drone.getTarget() != null;
+			return drone.dataTracker.get(ATTACK_COOLDOWN) <= 0 && drone.getTarget() != null && !drone.isFalling();
 		}
 		
 		@Override
@@ -316,10 +355,15 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 		public void tick()
 		{
 			super.tick();
+			if(drone.isFalling())
+			{
+				stop();
+				return;
+			}
 			ticks++;
 			if(ticks >= 30)
 			{
-				//shoot
+				drone.fire();
 				stop();
 			}
 		}
