@@ -23,5 +23,9 @@ To get dynamic Lighting on skulls, projectiles and appropriate enemies, install 
 - A few Blocks and Items for Decoration and Map-Making
 - A few Secrets and Jokes
 
+## ULTRACRAFT Discord
+Join our community-run Discord Server to connect with other fans of the mod and discover Modpacks and Servers using it!
+https://discord.gg/qxzr2vN5Ey
+
 ## Note
 This Project uses two licenses. All the Code is licensed under MIT. All Assets are licensed under CC-BY-NC 4.0
