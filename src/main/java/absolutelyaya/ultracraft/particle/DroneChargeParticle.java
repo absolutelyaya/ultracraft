@@ -31,8 +31,8 @@ public class DroneChargeParticle extends BillboardStripeParticle
 		{
 			DroneChargeParticle particle = new DroneChargeParticle(world, x, y, z);
 			particle.setSprite(spriteProvider);
-			particle.width = 0.1f;
-			particle.maxLength = 0.2f;
+			particle.width = 0.2f;
+			particle.maxLength = 0.075f;
 			particle.maxAge = 20;
 			particle.setColor(1f, 1f, 1f);
 			particle.setVelocity(velocityX, velocityY, velocityZ);

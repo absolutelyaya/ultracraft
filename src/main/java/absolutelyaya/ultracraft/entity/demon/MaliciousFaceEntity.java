@@ -39,12 +39,10 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.TypeFilter;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.Heightmap;
-import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
 import java.util.EnumSet;
@@ -444,13 +442,6 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 					getDamageSources().explosion(parrier, parrier), 10f, 0f, 5.5f, true));
 		damage(getDamageSources().mobAttack(parrier), 10);
 		dataTracker.set(WAS_INTERRUPTED, true);
-	}
-	
-	public float getDistanceToGround()
-	{
-		BlockHitResult hit = getWorld().raycast(new RaycastContext(getPos(), getPos().add(0, -25, 0),
-				RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
-		return getBlockY() - (float)hit.getPos().y;
 	}
 	
 	@Override

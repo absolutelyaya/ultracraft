@@ -5,8 +5,10 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
 public class AbstractUltraFlyingEntity extends AbstractUltraHostileEntity
@@ -38,5 +40,12 @@ public class AbstractUltraFlyingEntity extends AbstractUltraHostileEntity
 	
 	@Override
 	protected void fall(double heightDifference, boolean onGround, BlockState state, BlockPos landedPosition) {
+	}
+	
+	public float getDistanceToGround()
+	{
+		BlockHitResult hit = getWorld().raycast(new RaycastContext(getPos(), getPos().add(0, -25, 0),
+				RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
+		return getBlockY() - (float)hit.getPos().y;
 	}
 }

@@ -23,7 +23,6 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.util.TypeFilter;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -154,7 +153,7 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 			Vec3d particlePos = getPos().addRandom(random, 0.5f);
 			getWorld().addParticle(ParticleTypes.LARGE_SMOKE, particlePos.x, particlePos.y, particlePos.z, 0f, 0f, 0f);
 		}
-		if(super.isAttacking())
+		if(super.isAttacking() && age % 3 == 0)
 		{
 			Vec3d particlePos = getBoundingBox().getCenter().add(getRotationVector().multiply(0.5f));
 			Vec3d offset = new Vec3d(0f, 0f, 0f).addRandom(random, 1f);
@@ -274,9 +273,8 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 				if(hit != null && hit.getType().equals(HitResult.Type.BLOCK))
 					drone.damage(DamageSources.get(drone.getWorld(), DamageTypes.FLY_INTO_WALL), 10);
 				drone.setVelocity(movement);
-				return;
 			}
-			if(state.equals(State.MOVE_TO))
+			else if(state.equals(State.MOVE_TO))
 			{
 				Vec3d dest = new Vec3d(targetX, targetY, targetZ);
 				Vec3d dir = dest.subtract(drone.getPos()).normalize();
@@ -285,8 +283,14 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 						dir.multiply(drone.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) * Math.min(distance / 1.5f, 1f)));
 				if(drone.getTarget() == null)
 					drone.lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, dest);
-				if(distance < 0.01f)
+				if(distance < 0.1f)
 					state = State.WAIT;
+			}
+			else if(drone.getTarget() != null && drone.distanceTo(drone.getTarget()) > 6f)
+			{
+				Vec3d dir = drone.getTarget().getEyePos().subtract(drone.getPos()).normalize()
+							  .multiply(drone.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) * 0.1f);
+				drone.move(MovementType.SELF, dir);
 			}
 		}
 	}
@@ -309,24 +313,27 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 		@Override
 		public void tick()
 		{
+			LivingEntity target = drone.getTarget();
 			super.tick();
+			if(drone.getDistanceToGround() < 1f)
+			{
+				Vec3d pos = drone.getPos();
+				drone.moveControl.moveTo(pos.x, pos.y + 1, pos.z, drone.speed);
+			}
 			if(drone.dataTracker.get(MOVE_COOLDOWN) <= 0)
 			{
-				float radius = 4f;
-				radius += drone.getWorld().getEntitiesByType(TypeFilter.instanceOf(DroneEntity.class), drone.getBoundingBox().expand(6), e -> true).size() - 1;
-				Vec3d origin;
-				if(drone.getTarget() != null)
-					origin = drone.getTarget().getPos().add(drone.getTarget().getRotationVector().multiply(6.5f))
-									 .multiply(1f, 0, 1f).add(0, drone.getTarget().getY() + 4.5f, 0);
-				else
-					origin = drone.getPos();
 				for (int i = 0; i < 5; i++)
 				{
 					Vec3d dest;
-					if(drone.getTarget() != null)
-						dest = origin.addRandom(drone.random, radius);
+					if(target != null)
+					{
+						if(drone.distanceTo(target) < 3f)
+							dest = drone.getPos().add(drone.getPos().subtract(target.getEyePos()).normalize().multiply(3f));
+						else
+							dest = drone.getPos().add(Vec3d.fromPolar(0f, drone.getYaw() + 90f).multiply((drone.random.nextFloat() - 0.5) * 6));
+					}
 					else
-						dest = origin.addRandom(drone.random, 15f);
+						dest = drone.getPos().addRandom(drone.random, 15f);
 					HitResult hit = drone.getWorld().raycast(new RaycastContext(dest, drone.getPos(), RaycastContext.ShapeType.COLLIDER,
 							RaycastContext.FluidHandling.ANY, drone));
 					if(hit == null || hit.getType().equals(HitResult.Type.MISS))
@@ -335,7 +342,7 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 						break;
 					}
 				}
-				drone.dataTracker.set(MOVE_COOLDOWN, drone.random.nextBetween(50, 100));
+				drone.dataTracker.set(MOVE_COOLDOWN, (int)(drone.random.nextBetween(50, 100) * (target == null ? 1f : 0.5f)));
 			}
 		}
 		
@@ -391,7 +398,7 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 		public void stop()
 		{
 			super.stop();
-			drone.dataTracker.set(ATTACK_COOLDOWN, 40 + drone.random.nextInt(30));
+			drone.dataTracker.set(ATTACK_COOLDOWN, 80 + drone.random.nextInt(60));
 			drone.setAttacking(false);
 		}
 		
