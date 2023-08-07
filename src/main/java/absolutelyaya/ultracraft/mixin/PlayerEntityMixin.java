@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
+import absolutelyaya.ultracraft.compat.PlayerAnimator;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
@@ -35,7 +36,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,6 +64,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	Multimap<EntityAttribute, EntityAttributeModifier> curSpeedMod;
 	Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f / 255f, 1f, 154f / 255f), new Vec3d(117f / 255f, 154f / 255f, 1f) };
 	String wingPattern = "";
+	EntityPose lastPose;
 	
 	private final Vec3d[] curWingPose = new Vec3d[] {new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f)};
 	
@@ -89,14 +90,29 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		if(hiVelMode)
 		{
 			if(winged.isDashing())
-				setPose(ClassTinkerers.getEnum(EntityPose.class, "DASH"));
+				updatePose(ClassTinkerers.getEnum(EntityPose.class, "DASH"));
 			else if(isSprinting())
-				setPose(ClassTinkerers.getEnum(EntityPose.class, "SLIDE"));
+				updatePose(ClassTinkerers.getEnum(EntityPose.class, "SLIDE"));
 			else
-				setPose(entityPose);
+				updatePose(entityPose);
 		}
 		else
-			setPose(entityPose);
+			updatePose(entityPose);
+	}
+	
+	private void updatePose(EntityPose pose)
+	{
+		if(pose.equals(lastPose))
+			return;
+		setPose(pose);
+		System.out.println(pose);
+		if(pose.equals(ClassTinkerers.getEnum(EntityPose.class, "DASH")))
+			PlayerAnimator.playAnimation(0, 5);
+		else if(pose.equals(ClassTinkerers.getEnum(EntityPose.class, "SLIDE")))
+			PlayerAnimator.playAnimation(1, 5);
+		else
+			PlayerAnimator.playAnimation(-1, 15);
+		lastPose = pose;
 	}
 	
 	@Inject(method = "getActiveEyeHeight", at = @At("HEAD"), cancellable = true)

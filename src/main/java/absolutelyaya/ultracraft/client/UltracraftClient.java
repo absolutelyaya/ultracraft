@@ -25,6 +25,7 @@ import absolutelyaya.ultracraft.client.sound.MovingMachineSwordSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingSlideSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingSwordsmachineSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingWindSoundInstance;
+import absolutelyaya.ultracraft.compat.PlayerAnimator;
 import absolutelyaya.ultracraft.entity.husk.FilthEntity;
 import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
@@ -34,6 +35,12 @@ import absolutelyaya.ultracraft.particle.goop.GoopParticle;
 import absolutelyaya.ultracraft.particle.goop.GoopStringParticle;
 import absolutelyaya.ultracraft.registry.*;
 import com.mojang.blaze3d.systems.RenderSystem;
+import dev.kosmx.playerAnim.api.layered.IAnimation;
+import dev.kosmx.playerAnim.api.layered.ModifierLayer;
+import dev.kosmx.playerAnim.api.layered.modifier.MirrorModifier;
+import dev.kosmx.playerAnim.api.layered.modifier.SpeedModifier;
+import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
+import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
 import io.netty.buffer.Unpooled;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
@@ -56,6 +63,7 @@ import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.particle.WaterBubbleParticle;
 import net.minecraft.client.particle.WaterSplashParticle;
 import net.minecraft.client.render.RenderLayer;
@@ -153,9 +161,11 @@ public class UltracraftClient implements ClientModInitializer
 		EntityModelLayerRegistry.registerModelLayer(ENRAGE_LAYER, EnragedModel::getTexturedModelData);
 		EntityModelLayerRegistry.registerModelLayer(SHOCKWAVE_LAYER, ShockwaveModel::getTexturedModelData);
 		EntityModelLayerRegistry.registerModelLayer(INTERRUPTABLE_CHARGE_LAYER, InterruptableChargeModel::getTexturedModelData);
-		
+		//BlockEntityRenderers
 		BlockEntityRendererFactories.register(BlockEntityRegistry.PEDESTAL, PedestalBlockEntityRenderer::new);
 		BlockEntityRendererFactories.register(BlockEntityRegistry.CERBERUS, context -> new CerberusBlockRenderer());
+		//Player Animations
+		PlayerAnimator.init();
 		
 		ModelPredicateRegistry.registerModels();
 		ScreenHandlerRegistry.registerClient();

@@ -65,7 +65,7 @@ public class ItemRegistry
 	public static final PumpShotgunItem PUMP_SHOTGUN = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "pump_shotgun"), new PumpShotgunItem(new FabricItemSettings().maxCount(1)));
 	public static final MachineSwordItem MACHINE_SWORD = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "machinesword"), new MachineSwordItem(ToolMaterials.IRON, 4, -1.8f,
+			new Identifier(Ultracraft.MOD_ID, "machinesword"), new MachineSwordItem(ToolMaterials.IRON, 4, -2.4f,
 					new FabricItemSettings().maxCount(1)));
 	
 	public static final SpawnEggItem FILTH_SPAWN_EGG = Registry.register(Registries.ITEM,
