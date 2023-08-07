@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
+import absolutelyaya.ultracraft.compat.PlayerAnimator;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.TagRegistry;
@@ -88,6 +89,9 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Shadow public abstract boolean isUsingItem();
 	
 	@Shadow private @Nullable Hand activeHand;
+	
+	@Shadow public abstract boolean isMainPlayer();
+	
 	Vec3d dashDir = Vec3d.ZERO;
 	Vec3d slideDir = Vec3d.ZERO;
 	boolean slamming, lastSlamming, strongGroundPound, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored,
@@ -112,17 +116,20 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				if(dir.lengthSquared() < 0.9f)
 					dir = Vec3d.fromPolar(0f, getYaw()).normalize();
 				
-				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-				buf.writeDouble(dir.x);
-				buf.writeDouble(dir.y);
-				buf.writeDouble(dir.z);
-				ClientPlayNetworking.send(PacketRegistry.DASH_C2S_PACKET_ID, buf);
+				if(isMainPlayer())
+				{
+					PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+					buf.writeDouble(dir.x);
+					buf.writeDouble(dir.y);
+					buf.writeDouble(dir.z);
+					ClientPlayNetworking.send(PacketRegistry.DASH_C2S_PACKET_ID, buf);
+					PlayerAnimator.playAnimation(client.player, forwardSpeed >= 0 ? PlayerAnimator.DASH_FORWARD : PlayerAnimator.DASH_BACK, 5, false);
+				}
 				setVelocity(dir);
 				dashDir = dir;
 				onDash();
 				if(isSprinting())
 					setSliding(false, true);
-				playSound(SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.5f, 1.6f);
 			}
 		}
 	}
@@ -438,7 +445,11 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				slideDir = Vec3d.fromPolar(0f, getYaw()).normalize();
 			else
 				slideDir = new Vec3d(movementDir.x, 0, movementDir.y).rotateY((float)Math.toRadians(-getRotationClient().y)).normalize();
+			if(isMainPlayer())
+				PlayerAnimator.playAnimation(client.player, PlayerAnimator.START_SLIDE, 0, false);
 		}
+		else if(!sliding && last && isMainPlayer())
+			PlayerAnimator.playAnimation(client.player, PlayerAnimator.STOP_SLIDE, 0, false);
 		if(!wasDashing())
 			slideVelocity = Math.max(0.33f, Math.max((float)getVelocity().multiply(1f, 0f, 1f).length(), last ? 0f : slideVelocity * 0.75f));
 		else

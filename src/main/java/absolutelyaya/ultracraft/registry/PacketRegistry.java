@@ -45,6 +45,7 @@ public class PacketRegistry
 	public static final Identifier SKIM_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "skim_c2s");
 	public static final Identifier THROW_COIN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "throw_coin");
 	public static final Identifier LOCK_PEDESTAL_ID = new Identifier(Ultracraft.MOD_ID, "lock_pedestal");
+	public static final Identifier ANIMATION_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "animation_c2s");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
@@ -68,6 +69,7 @@ public class PacketRegistry
 	public static final Identifier OPEN_SERVER_CONFIG_MENU = new Identifier(Ultracraft.MOD_ID, "server_config");
 	public static final Identifier RICOCHET_WARNING = new Identifier(Ultracraft.MOD_ID, "warn_ricochet");
 	public static final Identifier REPLENISH_STAMINA = new Identifier(Ultracraft.MOD_ID, "replenish_stamina");
+	public static final Identifier ANIMATION_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "animation_s2c");
 	
 	public static void registerC2S()
 	{
@@ -337,6 +339,14 @@ public class PacketRegistry
 				if(player.getWorld().getBlockState(pos).isOf(BlockRegistry.PEDESTAL))
 					player.getWorld().setBlockState(pos, player.getWorld().getBlockState(pos).with(PedestalBlock.LOCKED, b));
 			});
+		});
+		ServerPlayNetworking.registerGlobalReceiver(ANIMATION_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
+			buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeUuid(player.getUuid()); //target
+			buf.writeInt(buf.readInt()); //animID
+			buf.writeInt(buf.readInt()); //fade
+			buf.writeBoolean(buf.readBoolean()); //firstPerson
+			ServerPlayNetworking.send(player, ANIMATION_S2C_PACKET_ID, buf);
 		});
 	}
 	

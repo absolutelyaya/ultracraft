@@ -90,29 +90,14 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		if(hiVelMode)
 		{
 			if(winged.isDashing())
-				updatePose(ClassTinkerers.getEnum(EntityPose.class, "DASH"));
+				setPose(ClassTinkerers.getEnum(EntityPose.class, "DASH"));
 			else if(isSprinting())
-				updatePose(ClassTinkerers.getEnum(EntityPose.class, "SLIDE"));
+				setPose(ClassTinkerers.getEnum(EntityPose.class, "SLIDE"));
 			else
-				updatePose(entityPose);
+				setPose(entityPose);
 		}
 		else
-			updatePose(entityPose);
-	}
-	
-	private void updatePose(EntityPose pose)
-	{
-		if(pose.equals(lastPose))
-			return;
-		setPose(pose);
-		System.out.println(pose);
-		if(pose.equals(ClassTinkerers.getEnum(EntityPose.class, "DASH")))
-			PlayerAnimator.playAnimation(0, 5);
-		else if(pose.equals(ClassTinkerers.getEnum(EntityPose.class, "SLIDE")))
-			PlayerAnimator.playAnimation(1, 5);
-		else
-			PlayerAnimator.playAnimation(-1, 15);
-		lastPose = pose;
+			setPose(entityPose);
 	}
 	
 	@Inject(method = "getActiveEyeHeight", at = @At("HEAD"), cancellable = true)

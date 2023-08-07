@@ -8,6 +8,7 @@ import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
+import absolutelyaya.ultracraft.compat.PlayerAnimator;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
@@ -17,6 +18,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -37,7 +39,7 @@ import org.joml.Vector3f;
 
 import java.util.UUID;
 
-import static absolutelyaya.ultracraft.registry.PacketRegistry.REPLENISH_STAMINA;
+import static absolutelyaya.ultracraft.registry.PacketRegistry.*;
 
 @SuppressWarnings("CodeBlock2Expr")
 @Environment(EnvType.CLIENT)
@@ -59,7 +61,7 @@ public class ClientPacketRegistry
 			if(client.player == null)
 				return;
 			PlayerEntity player = client.player.getWorld().getPlayerByUuid(buf.readUuid());
-			if(player == null)
+			if(player == null || player.equals(client.player))
 				return;
 			Vec3d dir = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
 			MinecraftClient.getInstance().execute(() -> {
@@ -306,6 +308,18 @@ public class ClientPacketRegistry
 			client.execute(() -> {
 				if(client.player instanceof WingedPlayerEntity winged)
 					winged.replenishStamina(i);
+			});
+		});
+		ClientPlayNetworking.registerGlobalReceiver(ANIMATION_S2C_PACKET_ID, (client, handler, buf, sender) -> {
+			UUID targetID = buf.readUuid();
+			ClientPlayerEntity target = (ClientPlayerEntity)client.player.getWorld().getPlayerByUuid(targetID);
+			if(target == null || target.equals(client.player))
+				return;
+			int animID = buf.readInt();
+			int fade = buf.readInt();
+			boolean firstperson = buf.readBoolean();
+			client.execute(() -> {
+				PlayerAnimator.playAnimation(target, animID, fade, firstperson);
 			});
 		});
 	}

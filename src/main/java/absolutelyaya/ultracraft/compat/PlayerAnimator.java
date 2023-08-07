@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.compat;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.registry.PacketRegistry;
 import dev.kosmx.playerAnim.api.firstPerson.FirstPersonConfiguration;
 import dev.kosmx.playerAnim.api.firstPerson.FirstPersonMode;
 import dev.kosmx.playerAnim.api.layered.IAnimation;
@@ -8,22 +9,21 @@ import dev.kosmx.playerAnim.api.layered.KeyframeAnimationPlayer;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.api.layered.modifier.AbstractFadeModifier;
 import dev.kosmx.playerAnim.api.layered.modifier.MirrorModifier;
-import dev.kosmx.playerAnim.api.layered.modifier.SpeedModifier;
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.core.data.gson.AnimationJson;
 import dev.kosmx.playerAnim.core.util.Ease;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
-import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
-import org.spongepowered.include.com.google.gson.JsonDeserializationContext;
-import org.spongepowered.include.com.google.gson.JsonElement;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,20 +31,25 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
-import java.util.stream.Stream;
 
 public class PlayerAnimator
 {
+	public static final int DASH_FORWARD = 0;
+	public static final int DASH_BACK = 1;
+	public static final int DASH_LEFT = 2;
+	public static final int DASH_RIGHT = 3;
+	public static final int START_SLIDE = 4;
+	public static final int STOP_SLIDE = 5;
+	
 	static List<KeyframeAnimation> ANIMATIONS;
 	
 	public static void init()
 	{
 		PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(new Identifier(Ultracraft.MOD_ID, "animation"), 42, (player) -> {
-			if (player instanceof ClientPlayerEntity) {
-				//animationStack.addAnimLayer(42, testAnimation); //Add and save the animation container for later use.
+			if (player instanceof ClientPlayerEntity)
+			{
 				ModifierLayer<IAnimation> testAnimation =  new ModifierLayer<>();
-				testAnimation.addModifierBefore(new MirrorModifier(player.getMainArm().equals(Arm.LEFT))); //Mirror the animation
+				testAnimation.addModifierBefore(new MirrorModifier(player.getMainArm().equals(Arm.LEFT)));
 				return testAnimation;
 			}
 			return null;
@@ -53,7 +58,7 @@ public class PlayerAnimator
 		PlayerAnimationAccess.REGISTER_ANIMATION_EVENT.register((player, animationStack) -> {
 			ModifierLayer<IAnimation> layer = new ModifierLayer<>();
 			animationStack.addAnimLayer(69, layer);
-			PlayerAnimationAccess.getPlayerAssociatedData(player).set(new Identifier(Ultracraft.MOD_ID, "test"), layer);
+			PlayerAnimationAccess.getPlayerAssociatedData(player).set(new Identifier(Ultracraft.MOD_ID, "modify"), layer);
 		});
 		
 		Optional<ModContainer> optionalContainer = FabricLoader.getInstance().getModContainer(Ultracraft.MOD_ID);
@@ -73,17 +78,12 @@ public class PlayerAnimator
 		}
 	}
 	
-	public static void playAnimation(int animID, int fade)
+	public static void playAnimation(ClientPlayerEntity player, int animID, int fade, boolean firstPerson)
 	{
 		if(MinecraftClient.getInstance().player == null)
 			return;
-		ModifierLayer<IAnimation> testAnimation;
-		if (new Random().nextBoolean())
-			testAnimation = (ModifierLayer<IAnimation>)PlayerAnimationAccess.getPlayerAssociatedData(MinecraftClient.getInstance().player)
+		ModifierLayer<IAnimation> testAnimation = (ModifierLayer<IAnimation>)PlayerAnimationAccess.getPlayerAssociatedData(player)
 															   .get(new Identifier(Ultracraft.MOD_ID, "animation"));
-		else
-			testAnimation = (ModifierLayer<IAnimation>)PlayerAnimationAccess.getPlayerAssociatedData(MinecraftClient.getInstance().player)
-															   .get(new Identifier(Ultracraft.MOD_ID, "test"));
 		
 		KeyframeAnimation anim;
 		if(animID >= 0)
@@ -92,18 +92,17 @@ public class PlayerAnimator
 			anim = null;
 		
 		if (testAnimation.getAnimation() != null && anim == null)
-		{
-			//It will fade out from the current animation, null as newAnimation means no animation.
 			testAnimation.replaceAnimationWithFade(AbstractFadeModifier.standardFadeIn(fade, Ease.LINEAR), null);
-		}
 		else if(anim != null)
 		{
-			//Fade from current animation to a new one.
-			//Will not fade if there is no animation currently.
 			testAnimation.replaceAnimationWithFade(AbstractFadeModifier.functionalFadeIn(fade, (modelName, type, value) -> value),
 					new KeyframeAnimationPlayer(anim).setFirstPersonMode(FirstPersonMode.THIRD_PERSON_MODEL)
-							.setFirstPersonConfiguration(new FirstPersonConfiguration().setShowRightArm(true).setShowLeftItem(false))
+							.setFirstPersonConfiguration(new FirstPersonConfiguration().setShowRightArm(firstPerson).setShowLeftItem(false))
 			);
 		}
+		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+		buf.writeInt(animID);
+		buf.writeInt(fade);
+		ClientPlayNetworking.send(PacketRegistry.ANIMATION_C2S_PACKET_ID, buf);
 	}
 }
