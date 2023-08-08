@@ -283,7 +283,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				addVelocity(0f, baseJumpVel, 0f);
 				setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
 				if(isMainPlayer())
-					PlayerAnimator.playAnimation(client.player, PlayerAnimator.DASH_JUMP, 0, false);
+					PlayerAnimator.playAnimation(client.player, forwardSpeed >= 0 ? PlayerAnimator.DASH_FORWARD : PlayerAnimator.DASH_BACK, 5, false);
 			}
 			//stop dashing
 			if(wasDashing() && !isDashing())

@@ -29,7 +29,6 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AnimalMode
 	@Shadow @Final public ModelPart leftArm;
 	@Shadow @Final public ModelPart rightArm;
 	
-	@Shadow @Final public ModelPart hat;
 	boolean justSlid;
 	
 	@Inject(method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At("HEAD"), cancellable = true)

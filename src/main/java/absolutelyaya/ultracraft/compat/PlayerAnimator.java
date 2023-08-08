@@ -80,17 +80,31 @@ public class PlayerAnimator
 		ModContainer container = optionalContainer.get();
 		Optional<Path> internalPresetsDir = container.findPath("assets/ultracraft/player_animation");
 		
-		try
+		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener()
 		{
-			ANIMATIONS = new AnimationJson().deserialize(JsonHelper.deserialize(Files.readString(Paths.get(internalPresetsDir.get() + "/player.animation.json"))),
-					null, null);
-		}
-		catch (IOException e)
-		{
-			Ultracraft.LOGGER.error("Error while loading Player Animations", e);
-		}
+			@Override
+			public Identifier getFabricId() {
+				return new Identifier(Ultracraft.MOD_ID, "player_anim");
+			}
+			
+			@Override
+			public void reload(ResourceManager manager)
+			{
+				try
+				{
+					ANIMATIONS = new AnimationJson().deserialize(JsonHelper.deserialize(Files.readString(Paths.get(internalPresetsDir.get() + "/player.animation.json"))),
+							null, null);
+				}
+				catch (IOException e)
+				{
+					Ultracraft.LOGGER.error("Error while loading Player Animations", e);
+				}
+			}
+		});
+		
 	}
 	
+	//TODO: Animations don't pause during Time-Freeze
 	public static void playAnimation(ClientPlayerEntity player, int animID, int fade, boolean firstPerson)
 	{
 		if(player == null)
