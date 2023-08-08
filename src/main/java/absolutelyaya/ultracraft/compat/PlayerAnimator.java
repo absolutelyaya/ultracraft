@@ -35,11 +35,17 @@ import java.util.Optional;
 public class PlayerAnimator
 {
 	public static final int DASH_FORWARD = 0;
-	public static final int DASH_BACK = 1;
-	public static final int DASH_LEFT = 2;
-	public static final int DASH_RIGHT = 3;
-	public static final int START_SLIDE = 4;
-	public static final int STOP_SLIDE = 5;
+	public static final int DASH_JUMP = 1;
+	public static final int DASH_BACK = 2;
+	public static final int DASH_LEFT = 3;
+	public static final int DASH_RIGHT = 4;
+	public static final int START_SLIDE = 5;
+	public static final int STOP_SLIDE = 6;
+	public static final int SLAM_LOOP = 7;
+	public static final int SLAM_IMPACT = 8;
+	public static final int SLAM_JUMP = 9;
+	public static final int SLAM_DIVE = 10;
+	public static final int SLAMSTORE_DIVE = 11;
 	
 	static List<KeyframeAnimation> ANIMATIONS;
 	

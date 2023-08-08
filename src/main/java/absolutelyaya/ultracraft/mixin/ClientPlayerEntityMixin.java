@@ -28,7 +28,6 @@ import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -161,6 +160,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					slamming = true;
 					strongGroundPound = true;
 					setSprinting(false);
+					if(isMainPlayer())
+						PlayerAnimator.playAnimation(client.player, PlayerAnimator.SLAM_LOOP, 5, false);
 				}
 				//start slide
 				else if(!horizontalCollision && !jumping && !isDashing() && !wasDashing(2))
@@ -226,6 +227,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					slamJumpTimer = 0;
 					slamCooldown = 5;
 					slideVelocity = slamStored ? 1f : 0.66f;
+					if(isMainPlayer())
+						PlayerAnimator.playAnimation(client.player, PlayerAnimator.SLAM_IMPACT, 0, false);
 				}
 				if(jumping && lastJumping)
 					disableJumpTicks = 8;
@@ -241,9 +244,16 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					{
 						setIgnoreSlowdown(true);
 						setVelocity(Vec3d.fromPolar(0, getYaw()).multiply(slamStored ? 4f : 1.5f).add(0, getJumpVelocity(), 0));
+						if(isMainPlayer())
+							PlayerAnimator.playAnimation(client.player,
+									slamStored ? PlayerAnimator.SLAMSTORE_DIVE : PlayerAnimator.SLAM_DIVE, 0, false);
 					}
 					else
+					{
 						setVelocity(0, slamTicks / 20f + getJumpVelocity() * 1.5f + (slamStored ? 3f : 0f), 0);
+						if(isMainPlayer())
+							PlayerAnimator.playAnimation(client.player, PlayerAnimator.SLAM_JUMP, 0, false);
+					}
 					if(slamStored)
 						jumpTicks = 0;
 					slamStored = false;
@@ -272,7 +282,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					setVelocity(dashDir.multiply(0.3));
 				addVelocity(0f, baseJumpVel, 0f);
 				setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
-				playSound(SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.5f, 1.8f);
+				if(isMainPlayer())
+					PlayerAnimator.playAnimation(client.player, PlayerAnimator.DASH_JUMP, 0, false);
 			}
 			//stop dashing
 			if(wasDashing() && !isDashing())

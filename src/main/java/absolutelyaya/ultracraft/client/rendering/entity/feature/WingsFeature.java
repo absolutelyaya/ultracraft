@@ -20,8 +20,6 @@ import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
@@ -71,9 +69,11 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 			matrices.push();
 			wings.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, winged);
 			VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayers.getWingsPattern(TEXTURE, patternID));
-			ModelTransform tansform = getContextModel().body.getTransform();
-			matrices.translate(tansform.pivotX / 16, tansform.pivotY / 16, tansform.pivotZ / 16);
-			matrices.multiply(new Quaternionf(new AxisAngle4f(MathHelper.RADIANS_PER_DEGREE, tansform.pitch, tansform.yaw, tansform.roll)));
+			ModelTransform transform = getContextModel().body.getTransform();
+			matrices.translate(transform.pivotX / 16, transform.pivotY / 16, transform.pivotZ / 16);
+			matrices.multiply(new Quaternionf(new AxisAngle4f(transform.pitch, 1f, 0f, 0f)));
+			matrices.multiply(new Quaternionf(new AxisAngle4f(transform.yaw, 0f, 1f, 0f)));
+			matrices.multiply(new Quaternionf(new AxisAngle4f(transform.roll, 0f, 0f, 1f)));
 			wings.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
 			matrices.pop();
 		}
