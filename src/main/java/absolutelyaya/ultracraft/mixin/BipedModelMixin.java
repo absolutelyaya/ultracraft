@@ -26,8 +26,6 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AnimalMode
 {
 	@Shadow @Final public ModelPart head;
 	@Shadow @Final public ModelPart body;
-	@Shadow @Final public ModelPart leftLeg;
-	@Shadow @Final public ModelPart rightLeg;
 	@Shadow @Final public ModelPart leftArm;
 	@Shadow @Final public ModelPart rightArm;
 	
@@ -66,8 +64,6 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AnimalMode
 			rightArm.resetTransform();
 			justSlid = false;
 		}
-		//TODO: add Dash Pose... pose.
-		//TODO: add Slam Pose..? could be epic
 	}
 	
 	@Inject(method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/model/BipedEntityModel;animateArms(Lnet/minecraft/entity/LivingEntity;F)V"))

@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
+import absolutelyaya.ultracraft.compat.PlayerAnimator;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -63,6 +64,8 @@ public class KeybindRegistry
 				ClientPlayerEntity player = client.player;
 				if(player == null || !((LivingEntityAccessor)player).punch() || player.isSpectator())
 					continue;
+				if(player.isMainPlayer())
+					PlayerAnimator.playAnimation(player, PlayerAnimator.PUNCH, 0, false);
 				
 				HitResult crosshairTarget = client.crosshairTarget;
 				Entity entity = null;

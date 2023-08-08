@@ -14,16 +14,22 @@ import dev.kosmx.playerAnim.core.data.gson.AnimationJson;
 import dev.kosmx.playerAnim.core.util.Ease;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
+import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -46,6 +52,7 @@ public class PlayerAnimator
 	public static final int SLAM_JUMP = 9;
 	public static final int SLAM_DIVE = 10;
 	public static final int SLAMSTORE_DIVE = 11;
+	public static final int PUNCH = 12;
 	
 	static List<KeyframeAnimation> ANIMATIONS;
 	
@@ -86,7 +93,9 @@ public class PlayerAnimator
 	
 	public static void playAnimation(ClientPlayerEntity player, int animID, int fade, boolean firstPerson)
 	{
-		if(MinecraftClient.getInstance().player == null)
+		if(player == null)
+			return;
+		if(!firstPerson && player.isMainPlayer() && !MinecraftClient.getInstance().gameRenderer.getCamera().isThirdPerson())
 			return;
 		ModifierLayer<IAnimation> testAnimation = (ModifierLayer<IAnimation>)PlayerAnimationAccess.getPlayerAssociatedData(player)
 															   .get(new Identifier(Ultracraft.MOD_ID, "animation"));
@@ -103,7 +112,7 @@ public class PlayerAnimator
 		{
 			testAnimation.replaceAnimationWithFade(AbstractFadeModifier.functionalFadeIn(fade, (modelName, type, value) -> value),
 					new KeyframeAnimationPlayer(anim).setFirstPersonMode(FirstPersonMode.THIRD_PERSON_MODEL)
-							.setFirstPersonConfiguration(new FirstPersonConfiguration().setShowRightArm(firstPerson).setShowLeftItem(false))
+							.setFirstPersonConfiguration(new FirstPersonConfiguration())
 			);
 		}
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
