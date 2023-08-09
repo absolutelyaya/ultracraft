@@ -1,0 +1,144 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"pose": {
+			"loop": true,
+			"bones": {
+				"Torso": {
+					"position": {
+						"vector": [0, 0, 0]
+					}
+				},
+				"TorsoUpper": {
+					"rotation": {
+						"vector": [10, 0, 0]
+					}
+				},
+				"rightArm": {
+					"rotation": {
+						"vector": [3.41343, 24.93126, -58.2231]
+					}
+				},
+				"rightArmLower": {
+					"rotation": {
+						"vector": [15.67285, -54.94193, -25.78469]
+					}
+				},
+				"Head": {
+					"rotation": {
+						"vector": [30, 0, 0]
+					}
+				},
+				"rightLeg": {
+					"rotation": {
+						"vector": [-10.15375, 12.42297, -0.88796]
+					}
+				},
+				"rightLegLower": {
+					"rotation": {
+						"vector": [10, 0, 0]
+					}
+				},
+				"leftLeg": {
+					"rotation": {
+						"vector": [-5, -7.5, 0]
+					}
+				},
+				"leftLegLower": {
+					"rotation": {
+						"vector": [7.5, 0, 0]
+					}
+				},
+				"foot2": {
+					"rotation": {
+						"vector": [-2.47856, 0.02128, 0.3256]
+					}
+				},
+				"leftRobe": {
+					"rotation": {
+						"vector": [0, 0, -2.5]
+					}
+				},
+				"rightRobe": {
+					"rotation": {
+						"vector": [0, 0, 2.5]
+					}
+				},
+				"rightHand": {
+					"rotation": {
+						"vector": [93.26206, -39.95426, -2.09615]
+					}
+				},
+				"rightFinger1": {
+					"rotation": {
+						"vector": [0, -42.5, 0]
+					}
+				},
+				"rightFinger2": {
+					"rotation": {
+						"vector": [0, -40, 0]
+					}
+				},
+				"rightFinger3": {
+					"rotation": {
+						"vector": [4.98107, -44.78238, -7.05323]
+					}
+				},
+				"rightThumb": {
+					"rotation": {
+						"vector": [0, -45, 0]
+					}
+				},
+				"leftArm": {
+					"rotation": {
+						"vector": [38.83347, 49.64829, 88.32118]
+					}
+				},
+				"leftArmLower": {
+					"rotation": {
+						"vector": [21.19748, 25.23098, 42.29628]
+					}
+				},
+				"leftHand": {
+					"rotation": {
+						"vector": [-2.5, 0, 0]
+					}
+				},
+				"leftFinger1": {
+					"rotation": {
+						"vector": [0, 17.5, 0]
+					}
+				},
+				"leftFinger2": {
+					"rotation": {
+						"vector": [0, 22.5, 0]
+					}
+				},
+				"leftFinger3": {
+					"rotation": {
+						"vector": [0, 27.5, 0]
+					}
+				},
+				"leftThumb": {
+					"rotation": {
+						"vector": [-2.66399, 14.76689, -10.34527]
+					},
+					"position": {
+						"vector": [0, 0.5, 0]
+					}
+				},
+				"thingie2": {
+					"rotation": {
+						"vector": [0, -12.5, 0]
+					}
+				},
+				"thingie": {
+					"rotation": {
+						"vector": [0, 12.5, 0]
+					}
+				}
+			}
+		}
+	},
+	"geckolib_format_version": 2
+}
