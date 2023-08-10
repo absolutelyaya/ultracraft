@@ -18,8 +18,15 @@ import software.bernie.geckolib.core.object.PlayState;
 
 public class StreetCleanerEntity extends AbstractUltraHostileEntity implements GeoEntity
 {
-	static final RawAnimation PoseAnimation = RawAnimation.begin().thenLoop("pose");
+	static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
+	static final RawAnimation RUN_ANIM = RawAnimation.begin().thenLoop("run");
+	static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("walk");
+	static final RawAnimation DODGE_ANIM = RawAnimation.begin().thenLoop("dodge");
+	static final RawAnimation COUNTER_ANIM = RawAnimation.begin().thenLoop("counter");
 	AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
+	static final byte ANIMATION_IDLE = 0;
+	static final byte ANIMATION_DODGE = 1;
+	static final byte ANIMATION_COUNTER = 2;
 	
 	public StreetCleanerEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -37,7 +44,19 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 	
 	private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> event)
 	{
-		event.setAnimation(PoseAnimation);
+		byte anim = dataTracker.get(ANIMATION);
+		
+		switch(anim)
+		{
+			case ANIMATION_IDLE -> {
+				if(event.isMoving())
+					event.setAnimation((getTarget() != null && distanceTo(getTarget()) < 6f ? WALK_ANIM : RUN_ANIM));
+				else
+					event.setAnimation(IDLE_ANIM);
+			}
+			case ANIMATION_DODGE -> event.setAnimation(DODGE_ANIM);
+			case ANIMATION_COUNTER -> event.setAnimation(COUNTER_ANIM);
+		}
 		return PlayState.CONTINUE;
 	}
 	
