@@ -18,6 +18,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
@@ -312,14 +313,14 @@ public class ClientPacketRegistry
 		});
 		ClientPlayNetworking.registerGlobalReceiver(ANIMATION_S2C_PACKET_ID, (client, handler, buf, sender) -> {
 			UUID targetID = buf.readUuid();
-			ClientPlayerEntity target = (ClientPlayerEntity)client.player.getWorld().getPlayerByUuid(targetID);
+			AbstractClientPlayerEntity target = (AbstractClientPlayerEntity)client.player.getWorld().getPlayerByUuid(targetID);
 			if(target == null || target.equals(client.player))
 				return;
 			int animID = buf.readInt();
 			int fade = buf.readInt();
 			boolean firstperson = buf.readBoolean();
 			client.execute(() -> {
-				PlayerAnimator.playAnimation(target, animID, fade, firstperson);
+				PlayerAnimator.playAnimation(target, animID, fade, firstperson, true);
 			});
 		});
 	}

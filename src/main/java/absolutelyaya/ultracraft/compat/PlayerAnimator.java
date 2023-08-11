@@ -21,7 +21,7 @@ import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
@@ -31,7 +31,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 
 import java.io.InputStreamReader;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,13 +56,9 @@ public class PlayerAnimator
 	public static void init()
 	{
 		PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(new Identifier(Ultracraft.MOD_ID, "animation"), 42, (player) -> {
-			if (player instanceof ClientPlayerEntity)
-			{
-				ModifierLayer<IAnimation> testAnimation =  new ModifierLayer<>();
-				testAnimation.addModifierBefore(new MirrorModifier(player.getMainArm().equals(Arm.LEFT)));
-				return testAnimation;
-			}
-			return null;
+			ModifierLayer<IAnimation> animationLayer = new ModifierLayer<>();
+			animationLayer.addModifierBefore(new MirrorModifier(player.getMainArm().equals(Arm.LEFT)));
+			return animationLayer;
 		});
 		
 		PlayerAnimationAccess.REGISTER_ANIMATION_EVENT.register((player, animationStack) -> {
@@ -104,15 +99,28 @@ public class PlayerAnimator
 	}
 	
 	//TODO: Animations don't pause during Time-Freeze
-	public static void playAnimation(ClientPlayerEntity player, int animID, int fade, boolean firstPerson)
+	public static void playAnimation(AbstractClientPlayerEntity player, int animID, int fade, boolean firstPerson)
 	{
-		if(DISABLED)
-			return;
+		playAnimation(player, animID, fade, firstPerson, false);
+	}
+	
+	public static void playAnimation(AbstractClientPlayerEntity player, int animID, int fade, boolean firstPerson, boolean fromServer)
+	{
 		if(player == null)
+			return;
+		if(!fromServer)
+		{
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeInt(animID);
+			buf.writeInt(fade);
+			buf.writeBoolean(firstPerson);
+			ClientPlayNetworking.send(PacketRegistry.ANIMATION_C2S_PACKET_ID, buf);
+		}
+		if(DISABLED)
 			return;
 		if(!firstPerson && player.isMainPlayer() && !MinecraftClient.getInstance().gameRenderer.getCamera().isThirdPerson())
 			return;
-		ModifierLayer<IAnimation> testAnimation = (ModifierLayer<IAnimation>)PlayerAnimationAccess.getPlayerAssociatedData(player)
+		ModifierLayer<IAnimation> animationLayer = (ModifierLayer<IAnimation>)PlayerAnimationAccess.getPlayerAssociatedData(player)
 															   .get(new Identifier(Ultracraft.MOD_ID, "animation"));
 		
 		KeyframeAnimation anim;
@@ -121,18 +129,14 @@ public class PlayerAnimator
 		else
 			anim = null;
 		
-		if (testAnimation.getAnimation() != null && anim == null)
-			testAnimation.replaceAnimationWithFade(AbstractFadeModifier.standardFadeIn(fade, Ease.LINEAR), null);
+		if (animationLayer.getAnimation() != null && anim == null)
+			animationLayer.replaceAnimationWithFade(AbstractFadeModifier.standardFadeIn(fade, Ease.LINEAR), null);
 		else if(anim != null)
 		{
-			testAnimation.replaceAnimationWithFade(AbstractFadeModifier.functionalFadeIn(fade, (modelName, type, value) -> value),
+			animationLayer.replaceAnimationWithFade(AbstractFadeModifier.functionalFadeIn(fade, (modelName, type, value) -> value),
 					new KeyframeAnimationPlayer(anim).setFirstPersonMode(FirstPersonMode.THIRD_PERSON_MODEL)
 							.setFirstPersonConfiguration(new FirstPersonConfiguration())
 			);
 		}
-		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-		buf.writeInt(animID);
-		buf.writeInt(fade);
-		ClientPlayNetworking.send(PacketRegistry.ANIMATION_C2S_PACKET_ID, buf);
 	}
 }

@@ -341,12 +341,15 @@ public class PacketRegistry
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(ANIMATION_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
-			buf = new PacketByteBuf(Unpooled.buffer());
-			buf.writeUuid(player.getUuid()); //target
-			buf.writeInt(buf.readInt()); //animID
-			buf.writeInt(buf.readInt()); //fade
-			buf.writeBoolean(buf.readBoolean()); //firstPerson
-			ServerPlayNetworking.send(player, ANIMATION_S2C_PACKET_ID, buf);
+			PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
+			cbuf.writeUuid(player.getUuid()); //target
+			cbuf.writeInt(buf.readInt()); //animID
+			cbuf.writeInt(buf.readInt()); //fade
+			cbuf.writeBoolean(buf.readBoolean()); //firstPerson
+			player.getWorld().getPlayers().forEach(p -> {
+				if(p != player)
+					ServerPlayNetworking.send((ServerPlayerEntity)p, ANIMATION_S2C_PACKET_ID, cbuf);
+			});
 		});
 	}
 	
