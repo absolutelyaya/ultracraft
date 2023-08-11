@@ -527,7 +527,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		else
 		{
 			if(lastPrimaryWeapon != null)
-				lastPrimaryWeapon.onPrimaryFireStop();
+				lastPrimaryWeapon.onPrimaryFireStop(getWorld(), (PlayerEntity)(Object)this);
 			lastPrimaryWeapon = null;
 		}
 	}

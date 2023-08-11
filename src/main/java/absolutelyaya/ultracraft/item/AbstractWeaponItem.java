@@ -40,7 +40,7 @@ public abstract class AbstractWeaponItem extends Item
 		return true;
 	}
 	
-	public void onPrimaryFireStop()
+	public void onPrimaryFireStop(World world, PlayerEntity user)
 	{
 	
 	}
@@ -107,5 +107,10 @@ public abstract class AbstractWeaponItem extends Item
 	public boolean allowNbtUpdateAnimation(PlayerEntity player, Hand hand, ItemStack oldStack, ItemStack newStack)
 	{
 		return false;
+	}
+	
+	public boolean hasVariantBG()
+	{
+		return true;
 	}
 }

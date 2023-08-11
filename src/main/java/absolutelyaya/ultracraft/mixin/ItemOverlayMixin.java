@@ -31,7 +31,7 @@ public abstract class ItemOverlayMixin
 	@Inject(method = "drawItemInSlot(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V", at = @At(value = "HEAD"))
 	void onRenderOverlay(TextRenderer textRenderer, ItemStack stack, int x, int y, String countOverride, CallbackInfo ci)
 	{
-		if(stack.getItem() instanceof AbstractWeaponItem weapon)
+		if(stack.getItem() instanceof AbstractWeaponItem weapon && weapon.hasVariantBG())
 		{
 			matrices.push();
 			RenderSystem.enableBlend();

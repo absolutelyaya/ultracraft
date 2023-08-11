@@ -68,6 +68,8 @@ public class ItemRegistry
 	public static final MachineSwordItem MACHINE_SWORD = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "machinesword"), new MachineSwordItem(ToolMaterials.IRON, 4, -2.4f,
 					new FabricItemSettings().maxCount(1)));
+	public static final FlamethrowerItem FLAMETHROWER = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "flamethrower"), new FlamethrowerItem(new FabricItemSettings().maxCount(1), 0, 0));
 	
 	public static final SpawnEggItem FILTH_SPAWN_EGG = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "filth_spawn_egg"),
@@ -128,6 +130,7 @@ public class ItemRegistry
 			content.add(MACHINE_SWORD.getDefaultStack(MachineSwordItem.Type.NORMAL));
 			content.add(MACHINE_SWORD.getDefaultStack(MachineSwordItem.Type.TUNDRA));
 			content.add(MACHINE_SWORD.getDefaultStack(MachineSwordItem.Type.AGONY));
+			content.add(FLAMETHROWER);
 			content.add(FILTH_SPAWN_EGG);
 			content.add(STRAY_SPAWN_EGG);
 			content.add(SCHISM_SPAWN_EGG);
