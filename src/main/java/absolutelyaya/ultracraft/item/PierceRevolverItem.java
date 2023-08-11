@@ -57,6 +57,7 @@ public class PierceRevolverItem extends AbstractRevolverItem
 	@Override
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
 	{
+		super.inventoryTick(stack, world, entity, slot, selected);
 		if(stack.hasNbt() && stack.getNbt().contains("charging"))
 		{
 			if(!selected)

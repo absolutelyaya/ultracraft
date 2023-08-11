@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.accessor;
 
 import absolutelyaya.ultracraft.client.GunCooldownManager;
+import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 
@@ -84,4 +85,10 @@ public interface WingedPlayerEntity
 	int getSharpshooterCooldown();
 	
 	boolean hasJustJumped();
+	
+	void setPrimaryFiring(boolean firing);
+	
+	boolean isPrimaryFiring();
+	
+	AbstractWeaponItem getLastPrimaryWeapon();
 }

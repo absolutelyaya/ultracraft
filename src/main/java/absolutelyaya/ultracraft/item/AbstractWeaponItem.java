@@ -3,11 +3,15 @@ package absolutelyaya.ultracraft.item;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
+import absolutelyaya.ultracraft.registry.PacketRegistry;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -30,6 +34,11 @@ public abstract class AbstractWeaponItem extends Item
 		return true;
 	}
 	
+	public void onPrimaryFireStop()
+	{
+	
+	}
+	
 	public void onAltFire(World world, PlayerEntity user)
 	{
 		((LivingEntityAccessor)user).addRecoil(altRecoil);
@@ -39,6 +48,14 @@ public abstract class AbstractWeaponItem extends Item
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
 	{
 		super.inventoryTick(stack, world, entity, slot, selected);
+		if(world.isClient && entity instanceof WingedPlayerEntity winged && winged.isPrimaryFiring() && selected &&
+				   onPrimaryFire(world, (PlayerEntity)entity, entity.getVelocity()))
+		{
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeByte(2);
+			buf.writeVector3f(entity.getVelocity().toVector3f());
+			ClientPlayNetworking.send(PacketRegistry.PRIMARY_SHOT_PACKET_ID_C2S, buf);
+		}
 	}
 	
 	public abstract Vector2i getHUDTexture();

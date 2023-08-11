@@ -4,9 +4,9 @@ import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
-import absolutelyaya.ultracraft.compat.PlayerAnimator;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
+import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
@@ -23,6 +23,7 @@ import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -56,7 +57,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	
 	@Shadow public abstract boolean isSpectator();
 	
-	boolean wingsActive, groundPounding, ignoreSlowdown, blocked;
+	@Shadow public abstract PlayerInventory getInventory();
+	
+	boolean wingsActive, groundPounding, ignoreSlowdown, blocked, primaryFiring;
 	byte wingState, lastState;
 	float wingAnimTime;
 	int dashingTicks = -2, slamDamageCooldown, stamina, wingHintDisplayTicks, bloodHealCooldown, sharpshooterCooldown;
@@ -64,7 +67,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	Multimap<EntityAttribute, EntityAttributeModifier> curSpeedMod;
 	Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f / 255f, 1f, 154f / 255f), new Vec3d(117f / 255f, 154f / 255f, 1f) };
 	String wingPattern = "";
-	EntityPose lastPose;
+	AbstractWeaponItem lastPrimaryWeapon;
 	
 	private final Vec3d[] curWingPose = new Vec3d[] {new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f)};
 	
@@ -510,5 +513,34 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public int getSharpshooterCooldown()
 	{
 		return sharpshooterCooldown;
+	}
+	
+	@Override
+	public void setPrimaryFiring(boolean firing)
+	{
+		primaryFiring = firing;
+		if(firing)
+		{
+			if(getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w)
+				lastPrimaryWeapon = w;
+		}
+		else
+		{
+			if(lastPrimaryWeapon != null)
+				lastPrimaryWeapon.onPrimaryFireStop();
+			lastPrimaryWeapon = null;
+		}
+	}
+	
+	@Override
+	public boolean isPrimaryFiring()
+	{
+		return primaryFiring;
+	}
+	
+	@Override
+	public AbstractWeaponItem getLastPrimaryWeapon()
+	{
+		return lastPrimaryWeapon;
 	}
 }
