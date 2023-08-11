@@ -14,7 +14,6 @@ import dev.kosmx.playerAnim.core.data.gson.AnimationJson;
 import dev.kosmx.playerAnim.core.util.Ease;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
 import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
-import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -24,17 +23,15 @@ import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
-import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,6 +52,7 @@ public class PlayerAnimator
 	public static final int PUNCH = 12;
 	
 	static List<KeyframeAnimation> ANIMATIONS;
+	static boolean DISABLED = false;
 	
 	public static void init()
 	{
@@ -77,9 +75,6 @@ public class PlayerAnimator
 		Optional<ModContainer> optionalContainer = FabricLoader.getInstance().getModContainer(Ultracraft.MOD_ID);
 		if(optionalContainer.isEmpty())
 			return;
-		ModContainer container = optionalContainer.get();
-		Optional<Path> internalPresetsDir = container.findPath("assets/ultracraft/player_animation");
-		
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new SimpleSynchronousResourceReloadListener()
 		{
 			@Override
@@ -92,21 +87,27 @@ public class PlayerAnimator
 			{
 				try
 				{
-					ANIMATIONS = new AnimationJson().deserialize(JsonHelper.deserialize(Files.readString(Paths.get(internalPresetsDir.get() + "/player.animation.json"))),
-							null, null);
+					Optional<Resource> r = manager.getResource(new Identifier(Ultracraft.MOD_ID, "player_animation/player.animation.json"));
+					if(r.isEmpty())
+						throw new Exception("Internal player Animation File wasn't found.");
+					ANIMATIONS = new AnimationJson().deserialize(JsonHelper.deserialize(new InputStreamReader(r.get().getInputStream())), null, null);
+					DISABLED = false;
+					r.stream().close();
 				}
-				catch (IOException e)
+				catch (Exception e)
 				{
 					Ultracraft.LOGGER.error("Error while loading Player Animations", e);
+					DISABLED = true;
 				}
 			}
 		});
-		
 	}
 	
 	//TODO: Animations don't pause during Time-Freeze
 	public static void playAnimation(ClientPlayerEntity player, int animID, int fade, boolean firstPerson)
 	{
+		if(DISABLED)
+			return;
 		if(player == null)
 			return;
 		if(!firstPerson && player.isMainPlayer() && !MinecraftClient.getInstance().gameRenderer.getCamera().isThirdPerson())
