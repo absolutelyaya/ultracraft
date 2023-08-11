@@ -180,10 +180,7 @@
 				{
 					"name": "FlameThrower",
 					"parent": "TorsoUpper",
-					"pivot": [-17, 24.5, 0],
-					"cubes": [
-						{"origin": [-18, 24.5, -15], "size": [2, 2, 16], "uv": [-14, -14]}
-					]
+					"pivot": [-17, 24.5, 0]
 				},
 				{
 					"name": "rightLeg",

@@ -103,7 +103,8 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 		super.inventoryTick(stack, world, entity, slot, selected);
 		int heat = getHeat(stack);
 		if(heat > 0 && entity.age % 2 == 0 && (entity instanceof WingedPlayerEntity winged &&
-													   (!winged.isPrimaryFiring() || winged.getGunCooldownManager().getCooldown(this, GunCooldownManager.PRIMARY) > 5)))
+													   (!winged.isPrimaryFiring() ||
+																winged.getGunCooldownManager().getCooldown(this, GunCooldownManager.PRIMARY) > 5)))
 			setHeat(stack, heat - 1);
 	}
 	

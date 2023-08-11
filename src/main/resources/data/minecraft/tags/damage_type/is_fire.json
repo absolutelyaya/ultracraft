@@ -1,8 +1,6 @@
 {
   "replace": false,
   "values": [
-    "ultracraft:overcharge",
-    "ultracraft:swordsmachine",
     "ultracraft:flamethrower"
   ]
 }

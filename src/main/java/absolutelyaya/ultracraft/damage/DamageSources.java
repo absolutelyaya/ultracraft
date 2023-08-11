@@ -26,6 +26,7 @@ public class DamageSources
 	public static final RegistryKey<DamageType> CHARGEBACK = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "chargeback"));
 	public static final RegistryKey<DamageType> OVERCHARGE = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "overcharge"));
 	public static final RegistryKey<DamageType> OVERCHARGE_SELF = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "overcharge_self"));
+	public static final RegistryKey<DamageType> FLAMETHROWER = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "flamethrower"));
 	
 	public static DamageSource get(World world, RegistryKey<DamageType> type)
 	{

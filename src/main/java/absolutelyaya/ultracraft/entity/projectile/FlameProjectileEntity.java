@@ -6,7 +6,6 @@ import absolutelyaya.ultracraft.registry.EntityRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
-import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
 import net.minecraft.fluid.Fluid;
@@ -25,8 +24,11 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
+//TODO: replace fireball with a big flame particle texture
 public class FlameProjectileEntity extends ThrownItemEntity implements ProjectileEntityAccessor
 {
+	boolean griefing = true;
+	
 	public FlameProjectileEntity(EntityType<? extends ThrownItemEntity> entityType, World world)
 	{
 		super(entityType, world);
@@ -58,9 +60,8 @@ public class FlameProjectileEntity extends ThrownItemEntity implements Projectil
 	{
 		if(!isOwner(target))
 		{
-			target.damage(DamageSources.get(getWorld(), DamageTypes.MOB_PROJECTILE, this, getOwner()), 4f);
-			if(target instanceof LivingEntity entity)
-				entity.setFireTicks(200);
+			if(target instanceof LivingEntity entity && entity.damage(DamageSources.get(getWorld(), DamageSources.FLAMETHROWER, this, getOwner()), 2f))
+				entity.setFireTicks(getOwner() instanceof PlayerEntity ? 100 : 50);
 		}
 	}
 	
@@ -104,7 +105,7 @@ public class FlameProjectileEntity extends ThrownItemEntity implements Projectil
 		Box box = getBoundingBox();
 		Vec3d pos = getPos().add(randomParticleOffset(box.getXLength()), randomParticleOffset(box.getYLength()),
 				randomParticleOffset(box.getZLength()));
-		Vec3d v = getVelocity().multiply(0.1).add(random.nextDouble() * 0.05 - 0.025, random.nextDouble() * 0.05 - 0.025,
+		Vec3d v = getVelocity().multiply(0.33).add(random.nextDouble() * 0.05 - 0.025, random.nextDouble() * 0.05 - 0.025,
 				random.nextDouble() * 0.05 - 0.025);
 		getWorld().addParticle(ParticleTypes.FLAME, pos.x, pos.y, pos.z, v.x, v.y, v.z);
 		List<LivingEntity> collide = getWorld().getNonSpectatingEntities(LivingEntity.class, getBoundingBox());
@@ -116,7 +117,7 @@ public class FlameProjectileEntity extends ThrownItemEntity implements Projectil
 			kill();
 		
 		World world = getWorld();
-		if(!world.isClient && world.getGameRules().getBoolean(GameRules.DO_FIRE_TICK) &&
+		if(!world.isClient && griefing && world.getGameRules().getBoolean(GameRules.DO_FIRE_TICK) &&
 				   world.getBlockState(getBlockPos()).isAir() && random.nextInt(5) == 0)
 			world.setBlockState(getBlockPos(), Block.postProcessState(Blocks.FIRE.getDefaultState(), world, getBlockPos()));
 	}
@@ -125,6 +126,11 @@ public class FlameProjectileEntity extends ThrownItemEntity implements Projectil
 	public EntityDimensions getDimensions(EntityPose pose)
 	{
 		return super.getDimensions(pose);
+	}
+	
+	public void setGriefing(boolean b)
+	{
+		griefing = b;
 	}
 	
 	@Override

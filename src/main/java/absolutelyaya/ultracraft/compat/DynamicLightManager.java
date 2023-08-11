@@ -14,10 +14,11 @@ public class DynamicLightManager implements DynamicLightsInitializer
 		DynamicLightHandlers.registerDynamicLightHandler(EntityRegistry.CERBERUS_BALL, entity -> 8);
 		DynamicLightHandlers.registerDynamicLightHandler(EntityRegistry.THROWN_COIN, entity -> 4);
 		DynamicLightHandlers.registerDynamicLightHandler(EntityRegistry.INTERRUPTABLE_CHARGE, entity -> 6);
-		DynamicLightHandlers.registerDynamicLightHandler(EntityRegistry.CERBERUS, DynamicLightHandler.makeHandler(blaze -> 10, blaze -> true));
+		DynamicLightHandlers.registerDynamicLightHandler(EntityRegistry.CERBERUS, entity -> 10);
+		DynamicLightHandlers.registerDynamicLightHandler(EntityRegistry.STREET_CLEANER, entity -> 2);
+		DynamicLightHandlers.registerDynamicLightHandler(EntityRegistry.FLAME, entity -> 6);
 		//TODO: Add Stalker -> 6
 		//TODO: Add Ferryman -> 3
-		//TODO: Add Street Cleaner -> 2
 		//TODO: Add Mindflayer -> 9
 		//TODO: Add Homing Projectile -> 7
 		//TODO: Add Sentry -> 7
