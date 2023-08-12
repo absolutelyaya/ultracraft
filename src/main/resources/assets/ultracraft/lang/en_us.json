@@ -124,6 +124,7 @@
   "command.ultracraft.time-unfreeze.success": "[Ultracraft] %s unfroze Time.",
   "command.ultracraft.time-unfreeze.fail": "[Ultracraft] Time isn't Frozen.",
 
+  "gamerule.ultracraft.category.general": "ULTRACRAFT",
   "gamerule.ultra-projBoost": "Projectile Boosting",
   "gamerule.ultra-projBoost.description": "Restricts what Projectiles can be boosted (aka self-parried immediately when shot, for example hitting your own arrow, making it do a lot more damage).",
   "gamerule.ultra-hiVelMode": "High Velocity Mode",
