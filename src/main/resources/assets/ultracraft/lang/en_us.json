@@ -56,6 +56,7 @@
   "block.ultracraft.pedestal.lore2": "§7Right click with red/blue dye to color",
   "block.ultracraft.cerberus_block": "Cerberus",
   "block.ultracraft.cerberus_block.lore": "§7Power using Redstone to wake up the Cerberus",
+  "block.ultracraft.cerberus_block.proximity": "Cerberus (Proximity activated)",
   "block.ultracraft.blood": "Blood",
 
   "entity.ultracraft.filth": "Filth",

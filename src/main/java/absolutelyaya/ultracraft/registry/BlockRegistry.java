@@ -30,7 +30,7 @@ public class BlockRegistry
 			true);
 	public static final Block CERBERUS = register("cerberus_block",
 			new CerberusBlock(AbstractBlock.Settings.copy(Blocks.COBBLESTONE).mapColor(MapColor.DEEPSLATE_GRAY).nonOpaque()
-									  .requiresTool().strength(5f, 6f)), true);
+									  .requiresTool().strength(5f, 6f).luminance(b -> 6)), true);
 	public static final Block BLOOD = register("blood", new FluidBlock(FluidRegistry.STILL_BLOOD,
 			FabricBlockSettings.copyOf(Blocks.WATER).replaceable()), false);
 	

@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.block.CerberusBlock;
 import absolutelyaya.ultracraft.item.SkullItem;
 import absolutelyaya.ultracraft.item.*;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
@@ -106,6 +107,7 @@ public class ItemRegistry
 			content.add(BlockRegistry.ELEVATOR_FLOOR.asItem());
 			content.add(BlockRegistry.PEDESTAL.asItem());
 			content.add(BlockRegistry.CERBERUS.asItem());
+			content.add(((CerberusBlock)BlockRegistry.CERBERUS).getProximityStack());
 			content.add(BLOOD_BUCKET);
 			content.add(PIERCE_REVOLVER);
 			content.add(MARKSMAN_REVOLVER);
