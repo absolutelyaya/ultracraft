@@ -13,4 +13,5 @@ public class DamageTypeTags
 	public static final TagKey<DamageType> IS_PER_TICK = TagKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "is_per_tick"));
 	public static final TagKey<DamageType> UNDODGEABLE = TagKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "undodgeable"));
 	public static final TagKey<DamageType> UNBOOSTED = TagKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "unboosted"));
+	public static final TagKey<DamageType> NO_BLEEDING = TagKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "no_bleeding"));
 }

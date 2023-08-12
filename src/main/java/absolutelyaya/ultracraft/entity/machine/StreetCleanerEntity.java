@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.entity.machine;
 
+import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.projectile.FlameProjectileEntity;
 import net.minecraft.entity.EntityType;
@@ -9,12 +10,14 @@ import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.MathHelper;
@@ -93,7 +96,7 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 				FlameProjectileEntity fireball = FlameProjectileEntity.spawn(this, getWorld());
 				fireball.setPosition(getBoundingBox().getCenter());
 				Vec3d dir = getRotationVector();
-				fireball.setVelocity(dir.x, dir.y, dir.z, 0.75f + getRandom().nextFloat() * 0.5f, 15);
+				fireball.setVelocity(dir.x, dir.y, dir.z, 0.6f + getRandom().nextFloat() * 0.5f, 15);
 				fireball.setGriefing(false);
 				getWorld().spawnEntity(fireball);
 			}
@@ -110,6 +113,16 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 					SoundCategory.HOSTILE, 1f, 0.75f + random.nextFloat() * 0.15f);
 		}
 		setBodyYaw(headYaw);
+		if(touchingWater)
+			damage(DamageSources.get(getWorld(), DamageSources.SHORT_CIRCUIT), 999f);
+	}
+	
+	@Override
+	public boolean damage(DamageSource source, float amount)
+	{
+		if(source.isOf(DamageSources.FLAMETHROWER))
+			return false;
+		return super.damage(source, source.isIn(DamageTypeTags.IS_EXPLOSION) ? amount * 0.5f : amount);
 	}
 	
 	private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> event)

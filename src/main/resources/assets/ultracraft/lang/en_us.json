@@ -85,6 +85,7 @@
   "entity.ultracraft.ejected_core": "Ejected Core",
   "entity.ultracraft.soul_orb": "Soul Orb",
   "entity.ultracraft.blood_orb": "Blood Orb",
+  "entity.ultracraft.flame": "Flame",
 
   "effect.ultracraft.chilled": "Chilled",
 
@@ -120,6 +121,7 @@
   "death.attack.overcharge-self.player": "%1$s got overzealous handling a Pump Shotgun whilst fighting %2$s",
   "death.attack.flamethrower": "%1$s was roasted like a marshmallow by %2$s",
   "death.attack.flamethrower.item": "%1$s was roasted like a marshmallow by %2$s using %3$s",
+  "death.attack.short_circuit": "%1$s got fried like a Toaster in a Bathtub",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 

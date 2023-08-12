@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.entity.projectile;
 
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -58,7 +59,7 @@ public class FlameProjectileEntity extends ThrownItemEntity implements Projectil
 	
 	void damageEntity(Entity target)
 	{
-		if(!isOwner(target))
+		if(!isOwner(target) && !(getOwner() instanceof AbstractUltraHostileEntity && target instanceof AbstractUltraHostileEntity))
 		{
 			if(target instanceof LivingEntity entity && entity.damage(DamageSources.get(getWorld(), DamageSources.FLAMETHROWER, this, getOwner()), 2f))
 				entity.setFireTicks(getOwner() instanceof PlayerEntity ? 100 : 50);
@@ -101,11 +102,11 @@ public class FlameProjectileEntity extends ThrownItemEntity implements Projectil
 	public void tick()
 	{
 		super.tick();
-		setBoundingBox(getBoundingBox().expand(age / 30f));
+		setBoundingBox(getBoundingBox().expand(age / (getOwner() instanceof PlayerEntity ? 30f : 60f)));
 		Box box = getBoundingBox();
 		Vec3d pos = getPos().add(randomParticleOffset(box.getXLength()), randomParticleOffset(box.getYLength()),
 				randomParticleOffset(box.getZLength()));
-		Vec3d v = getVelocity().multiply(0.33).add(random.nextDouble() * 0.05 - 0.025, random.nextDouble() * 0.05 - 0.025,
+		Vec3d v = getVelocity().multiply(0.66f).add(random.nextDouble() * 0.05 - 0.025, random.nextDouble() * 0.05 - 0.025,
 				random.nextDouble() * 0.05 - 0.025);
 		getWorld().addParticle(ParticleTypes.FLAME, pos.x, pos.y, pos.z, v.x, v.y, v.z);
 		List<LivingEntity> collide = getWorld().getNonSpectatingEntities(LivingEntity.class, getBoundingBox());
@@ -117,9 +118,15 @@ public class FlameProjectileEntity extends ThrownItemEntity implements Projectil
 			kill();
 		
 		World world = getWorld();
-		if(!world.isClient && griefing && world.getGameRules().getBoolean(GameRules.DO_FIRE_TICK) &&
+		if(age > 2 && !world.isClient && griefing && world.getGameRules().getBoolean(GameRules.DO_FIRE_TICK) &&
 				   world.getBlockState(getBlockPos()).isAir() && random.nextInt(5) == 0)
 			world.setBlockState(getBlockPos(), Block.postProcessState(Blocks.FIRE.getDefaultState(), world, getBlockPos()));
+	}
+	
+	@Override
+	public boolean isOnFire()
+	{
+		return false;
 	}
 	
 	@Override
