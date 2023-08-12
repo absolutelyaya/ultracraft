@@ -281,7 +281,7 @@ public class ServerHitscanHandler
 					buf.writeVector3f(visualFrom.toVector3f());
 					buf.writeUuid(target.getUuid());
 					player.getServer().getPlayerManager().getPlayerList().forEach(p ->
-						ServerPlayNetworking.send(p, PacketRegistry.RICOCHET_WARNING, buf));
+						ServerPlayNetworking.send(p, PacketRegistry.RICOCHET_WARNING_PACKET_ID, buf));
 				}
 				warned = true;
 			}

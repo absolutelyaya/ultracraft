@@ -1,11 +1,15 @@
 package absolutelyaya.ultracraft.item;
 
+import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -42,9 +46,7 @@ public class KillerFishItem extends Item
 		if(slot < 0 || slot > 9)
 			return;
 		if(world.isClient && wasSelected <= 0 && selected)
-		{
-			entity.playSound(SoundRegistry.KILLERFISH_SELECT.value(), 1, 1);
-		}
+			ClientPlayNetworking.send(PacketRegistry.KILLER_FISH_PACKET_ID, new PacketByteBuf(Unpooled.buffer()));
 		if(selected)
 			wasSelected = 12;
 		else if(wasSelected > 0)

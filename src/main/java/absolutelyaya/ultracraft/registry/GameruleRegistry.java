@@ -108,7 +108,7 @@ public class GameruleRegistry
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeByte(b);
 			buf.writeInt(val);
-			ServerPlayNetworking.send(p, PacketRegistry.SYNC_RULE, buf);
+			ServerPlayNetworking.send(p, PacketRegistry.SYNC_RULE_PACKET_ID, buf);
 		});
 	}
 	
@@ -117,7 +117,7 @@ public class GameruleRegistry
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeByte(b);
 		buf.writeInt(val);
-		ServerPlayNetworking.send(player, PacketRegistry.SYNC_RULE, buf);
+		ServerPlayNetworking.send(player, PacketRegistry.SYNC_RULE_PACKET_ID, buf);
 	}
 	
 	public static void SyncAll(ServerPlayerEntity player)

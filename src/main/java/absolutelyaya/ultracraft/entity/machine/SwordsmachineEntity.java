@@ -402,7 +402,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		buf.writeInt(getId());
 		buf.writeBoolean(attack != 0);
 		buf.writeInt(attack);
-		players.forEach(p -> ServerPlayNetworking.send(p, PacketRegistry.ENTITY_TRAIL, buf));
+		players.forEach(p -> ServerPlayNetworking.send(p, PacketRegistry.ENTITY_TRAIL_PACKET_ID, buf));
 	}
 	
 	@Override

@@ -54,7 +54,7 @@ public abstract class AbstractWeaponItem extends Item
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeByte(2);
 			buf.writeVector3f(entity.getVelocity().toVector3f());
-			ClientPlayNetworking.send(PacketRegistry.PRIMARY_SHOT_PACKET_ID_C2S, buf);
+			ClientPlayNetworking.send(PacketRegistry.PRIMARY_SHOT_C2S_PACKET_ID, buf);
 		}
 	}
 	

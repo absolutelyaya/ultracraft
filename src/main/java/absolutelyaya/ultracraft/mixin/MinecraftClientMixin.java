@@ -81,7 +81,7 @@ public abstract class MinecraftClientMixin
 				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 				buf.writeByte(options.attackKey.isPressed() ? 1 : 0);
 				buf.writeVector3f(player.getVelocity().toVector3f());
-				ClientPlayNetworking.send(PacketRegistry.PRIMARY_SHOT_PACKET_ID_C2S, buf);
+				ClientPlayNetworking.send(PacketRegistry.PRIMARY_SHOT_C2S_PACKET_ID, buf);
 				w.onPrimaryFire(world, player, player.getVelocity());
 				isShooting = options.attackKey.isPressed();
 				((WingedPlayerEntity)player).setPrimaryFiring(isShooting);
@@ -95,7 +95,7 @@ public abstract class MinecraftClientMixin
 	{
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeByte(0);
-		ClientPlayNetworking.send(PacketRegistry.PRIMARY_SHOT_PACKET_ID_C2S, buf);
+		ClientPlayNetworking.send(PacketRegistry.PRIMARY_SHOT_C2S_PACKET_ID, buf);
 		isShooting = false;
 		((WingedPlayerEntity)player).setPrimaryFiring(false);
 	}

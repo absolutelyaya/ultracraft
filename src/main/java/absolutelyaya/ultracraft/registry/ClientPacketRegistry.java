@@ -19,7 +19,6 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -160,14 +159,14 @@ public class ClientPacketRegistry
 					((WingedPlayerEntity)client.player).getGunCooldownManager().setCooldown(item, ticks, idx);
 			});
 		}));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.CATCH_FISH_ID, ((client, handler, buf, sender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.CATCH_FISH_PACKET_ID, ((client, handler, buf, sender) -> {
 			UltraHudRenderer.onCatchFish(buf.readItemStack());
 		}));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SYNC_RULE, ((client, handler, buf, sender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SYNC_RULE_PACKET_ID, ((client, handler, buf, sender) -> {
 			byte b = buf.readByte();
 			UltracraftClient.syncGameRule(b, buf.readInt());
 		}));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.ENTITY_TRAIL, ((client, handler, buf, sender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.ENTITY_TRAIL_PACKET_ID, ((client, handler, buf, sender) -> {
 			Entity e = client.world.getEntityById(buf.readInt());
 			boolean b = buf.readBoolean();
 			int data = buf.readInt();
@@ -228,7 +227,7 @@ public class ClientPacketRegistry
 					gun.onPrimaryFire(player.getWorld(), player, velocity);
 			});
 		}));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.DEBUG, ((client, handler, buf, sender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.DEBUG_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)
 				return;
 			Vector3f pos = buf.readVector3f();
@@ -283,7 +282,7 @@ public class ClientPacketRegistry
 				client.player.sendMessage(Text.translatable("command.ultracraft.unblock.client-" + (b ? "success" : "fail")));
 			});
 		}));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.OPEN_SERVER_CONFIG_MENU, ((client, handler, buf, sender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.OPEN_SERVER_CONFIG_MENU_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)
 				return;
 			NbtCompound rules = buf.readNbt();
@@ -291,7 +290,7 @@ public class ClientPacketRegistry
 				client.setScreen(new ServerConfigScreen(rules));
 			});
 		}));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.RICOCHET_WARNING, ((client, handler, buf, sender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.RICOCHET_WARNING_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)
 				return;
 			Vector3f source = buf.readVector3f();
@@ -304,7 +303,7 @@ public class ClientPacketRegistry
 				client.player.getWorld().playSound(source.x, source.y, source.z, SoundEvents.ENTITY_WARDEN_SONIC_CHARGE, SoundCategory.PLAYERS, 0.75f, 1.65f, false);
 			});
 		}));
-		ClientPlayNetworking.registerGlobalReceiver(REPLENISH_STAMINA, (client, handler, buf, sender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(REPLENISH_STAMINA_PACKET_ID, (client, handler, buf, sender) -> {
 			int i = buf.readInt();
 			client.execute(() -> {
 				if(client.player instanceof WingedPlayerEntity winged)

@@ -51,7 +51,7 @@ public abstract class FishingBobberMixin extends ProjectileEntity
 		player.increaseStat(Stats.FISH_CAUGHT, 1);
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeItemStack(lastCatch);
-		ServerPlayNetworking.send((ServerPlayerEntity)player, PacketRegistry.CATCH_FISH_ID, buf);
+		ServerPlayNetworking.send((ServerPlayerEntity)player, PacketRegistry.CATCH_FISH_PACKET_ID, buf);
 	}
 	
 	@Redirect(method = "tickFishingLogic", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isOf(Lnet/minecraft/block/Block;)Z"))

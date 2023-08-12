@@ -1,9 +1,7 @@
 package absolutelyaya.ultracraft.effects;
 
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.AttributeContainer;
@@ -27,7 +25,7 @@ public class InstantEnergyStatusEffect extends InstantStatusEffect
 		{
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeInt(amplifier + 1);
-			ServerPlayNetworking.send(player, PacketRegistry.REPLENISH_STAMINA, buf);
+			ServerPlayNetworking.send(player, PacketRegistry.REPLENISH_STAMINA_PACKET_ID, buf);
 		}
 	}
 }
