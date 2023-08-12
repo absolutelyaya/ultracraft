@@ -75,6 +75,8 @@ public class PedestalBlockEntity extends BlockEntity implements NamedScreenHandl
 			inventory.setStack(1, ItemStack.fromNbt(nbt.getCompound("key")));
 		else
 			inventory.setStack(1, ItemStack.EMPTY);
+		if(nbt.contains("locked", NbtElement.BYTE_TYPE))
+			world.setBlockState(getPos(), getCachedState().with(PedestalBlock.LOCKED, nbt.getBoolean("locked")));
 		if(nbt.contains("type", NbtElement.STRING_TYPE) && world != null)
 		{
 			type = nbt.getString("type");
@@ -103,6 +105,7 @@ public class PedestalBlockEntity extends BlockEntity implements NamedScreenHandl
 		nbt.put("key", getKey().writeNbt(new NbtCompound()));
 		nbt.putString("type", getCachedState().get(PedestalBlock.TYPE).name);
 		nbt.putBoolean("fancy", getCachedState().get(PedestalBlock.FANCY));
+		nbt.putBoolean("locked", getCachedState().get(PedestalBlock.LOCKED));
 	}
 	
 	public ItemStack getHeld()

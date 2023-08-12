@@ -30,6 +30,7 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
@@ -93,10 +94,8 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 		if(state.getBlock() != newState.getBlock())
 		{
 			BlockEntity entity = world.getBlockEntity(pos);
-			if(entity instanceof PedestalBlockEntity pedestal)
-			{
+			if(entity instanceof PedestalBlockEntity pedestal && world.getGameRules().getBoolean(GameRules.DO_TILE_DROPS))
 				ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), pedestal.getHeld());
-			}
 			super.onStateReplaced(state, world, pos, newState, moved);
 		}
 		world.updateNeighbors(pos.down(), this);
