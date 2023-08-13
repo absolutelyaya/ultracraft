@@ -101,7 +101,7 @@ public class CerberusBlockEntity extends BlockEntity implements GeoBlockEntity
 	public void readNbt(NbtCompound nbt)
 	{
 		super.readNbt(nbt);
-		if(nbt.contains("proximity", NbtElement.INT_TYPE))
+		if(nbt.contains("proximity", NbtElement.INT_TYPE) && world != null)
 			world.setBlockState(getPos(), getCachedState().with(CerberusBlock.PROXIMITY, nbt.getInt("proximity")));
 	}
 	
