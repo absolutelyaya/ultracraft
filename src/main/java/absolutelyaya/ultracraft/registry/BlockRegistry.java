@@ -25,6 +25,15 @@ public class BlockRegistry
 	public static final Block ELEVATOR_FLOOR = register("elevator_floor",
 			new ElevatorFloorBlock(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK).mapColor(MapColor.DULL_RED).requiresTool()),
 			true);
+	public static final Block SECRET_ELEVATOR = register("secret_elevator",
+			new ElevatorBlock(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK).mapColor(MapColor.TERRACOTTA_GRAY).requiresTool()),
+			true);
+	public static final Block SECRET_ELEVATOR_WALL = register("secret_elevator_wall",
+			new ElevatorBlock(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK).mapColor(MapColor.TERRACOTTA_GRAY).requiresTool()),
+			true);
+	public static final Block SECRET_ELEVATOR_FLOOR = register("secret_elevator_floor",
+			new ElevatorFloorBlock(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK).mapColor(MapColor.TERRACOTTA_GRAY).requiresTool()),
+			true);
 	public static final Block PEDESTAL = register("pedestal",
 			new PedestalBlock(AbstractBlock.Settings.copy(Blocks.COBBLESTONE).mapColor(MapColor.GRAY).nonOpaque().requiresTool()),
 			true);

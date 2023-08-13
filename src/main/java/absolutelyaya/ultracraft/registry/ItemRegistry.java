@@ -105,6 +105,9 @@ public class ItemRegistry
 			content.add(BlockRegistry.ELEVATOR.asItem());
 			content.add(BlockRegistry.ELEVATOR_WALL.asItem());
 			content.add(BlockRegistry.ELEVATOR_FLOOR.asItem());
+			content.add(BlockRegistry.SECRET_ELEVATOR.asItem());
+			content.add(BlockRegistry.SECRET_ELEVATOR_WALL.asItem());
+			content.add(BlockRegistry.SECRET_ELEVATOR_FLOOR.asItem());
 			content.add(BlockRegistry.PEDESTAL.asItem());
 			content.add(BlockRegistry.CERBERUS.asItem());
 			content.add(((CerberusBlock)BlockRegistry.CERBERUS).getProximityStack());
