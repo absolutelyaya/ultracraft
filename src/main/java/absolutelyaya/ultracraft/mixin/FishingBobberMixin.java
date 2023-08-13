@@ -75,7 +75,7 @@ public abstract class FishingBobberMixin extends ProjectileEntity
 	@ModifyArg(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/loot/LootManager;getLootTable(Lnet/minecraft/util/Identifier;)Lnet/minecraft/loot/LootTable;"))
 	Identifier modifyLootTable(Identifier id)
 	{
-		if(getBlockStateAtPos().isOf(BlockRegistry.BLOOD))
+		if(getWorld().getStatesInBoxIfLoaded(getBoundingBox()).anyMatch(state -> state.isOf(BlockRegistry.BLOOD)))
 			return new Identifier(Ultracraft.MOD_ID, "gameplay/blood_fishing");
 		return id;
 	}
