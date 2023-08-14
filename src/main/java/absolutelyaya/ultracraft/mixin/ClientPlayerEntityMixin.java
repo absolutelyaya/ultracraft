@@ -399,7 +399,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		{
 			if (shouldIgnoreSlowdown())
 				setIgnoreSlowdown(false);
-			if((!wasHiVel && UltracraftClient.isHiVelEnabled() || (getAbilities().flying || isSpectator())) && isSprinting())
+			if((!wasHiVel || getAbilities().flying || isSpectator()) && UltracraftClient.isHiVelEnabled() && isSprinting())
 				setSliding(false, true);
 			if(slamming)
 				cancelGroundPound();

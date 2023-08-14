@@ -35,12 +35,6 @@ import absolutelyaya.ultracraft.particle.goop.GoopParticle;
 import absolutelyaya.ultracraft.particle.goop.GoopStringParticle;
 import absolutelyaya.ultracraft.registry.*;
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.kosmx.playerAnim.api.layered.IAnimation;
-import dev.kosmx.playerAnim.api.layered.ModifierLayer;
-import dev.kosmx.playerAnim.api.layered.modifier.MirrorModifier;
-import dev.kosmx.playerAnim.api.layered.modifier.SpeedModifier;
-import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationAccess;
-import dev.kosmx.playerAnim.minecraftApi.PlayerAnimationFactory;
 import io.netty.buffer.Unpooled;
 import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigHolder;
@@ -63,7 +57,6 @@ import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
-import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.particle.WaterBubbleParticle;
 import net.minecraft.client.particle.WaterSplashParticle;
 import net.minecraft.client.render.RenderLayer;
@@ -110,6 +103,7 @@ public class UltracraftClient implements ClientModInitializer
 	static float screenblood;
 	static Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f, 255f, 154f), new Vec3d(117f, 154f, 255f) };
 	static final Vec3d[] defaultWingColors = new Vec3d[] { new Vec3d(247f, 255f, 154f), new Vec3d(117f, 154f, 255f) };
+	static int visualFreezeTicks;
 	
 	static UltraHudRenderer hudRenderer;
 	static ConfigHolder<Ultraconfig> config;
@@ -179,7 +173,11 @@ public class UltracraftClient implements ClientModInitializer
 				FabricLoader.getInstance().getModContainer(Ultracraft.MOD_ID).orElseThrow(), Text.literal("ULTRACRAFT Non-Essential"),
 				ResourcePackActivationType.DEFAULT_ENABLED);
 		
-		ClientTickEvents.END_WORLD_TICK.register((client) -> HITSCAN_HANDLER.tick());
+		ClientTickEvents.END_WORLD_TICK.register((client) -> {
+			HITSCAN_HANDLER.tick();
+			if(visualFreezeTicks > 0)
+				visualFreezeTicks--;
+		});
 		
 		hudRenderer = new UltraHudRenderer();
 		WorldRenderEvents.END.register((context) -> hudRenderer.render(context.tickDelta(), context.camera()));
@@ -254,7 +252,7 @@ public class UltracraftClient implements ClientModInitializer
 						Math.min(screenblood - 0.75f, 0.6f));
 				screenblood = Math.max(0f, screenblood - delta / 120);
 			}
-			if(Ultracraft.isTimeFrozen())
+			if(visualFreezeTicks > 0)
 				MinecraftClient.getInstance().inGameHud.renderOverlay(matrices, new Identifier(Ultracraft.MOD_ID, "textures/misc/time_freeze_overlay.png"),
 						0.25f);
 		});
@@ -528,5 +526,15 @@ public class UltracraftClient implements ClientModInitializer
 	public static boolean isSupporter()
 	{
 		return supporter;
+	}
+	
+	public static void freezeVFX(int ticks)
+	{
+		visualFreezeTicks += ticks;
+	}
+	
+	public static boolean isParryVisualsActive()
+	{
+		return visualFreezeTicks > 0;
 	}
 }

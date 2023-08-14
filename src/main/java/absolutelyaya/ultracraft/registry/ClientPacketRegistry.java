@@ -48,8 +48,13 @@ public class ClientPacketRegistry
 	public static void registerS2C()
 	{
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.FREEZE_PACKET_ID, ((client, handler, buf, sender) -> {
-			if(UltracraftClient.isFreezeEnabled())
-				Ultracraft.freeze(null, buf.readInt());
+			int ticks = buf.readInt();
+			boolean freezePhysicsDisabled = buf.readBoolean();
+			if(!UltracraftClient.getConfigHolder().get().freezeVFX)
+				return;
+			if(!freezePhysicsDisabled)
+				Ultracraft.freeze(null, ticks);
+			UltracraftClient.freezeVFX(ticks);
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.HITSCAN_PACKET_ID, ((client, handler, buf, sender) -> {
 			UltracraftClient.HITSCAN_HANDLER.addEntry(
