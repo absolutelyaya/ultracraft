@@ -125,7 +125,7 @@ public class ServerHitscanHandler
 		while (searchForEntities)
 		{
 			EntityHitResult eHit = ProjectileUtil.raycast(user, from, modifiedTo, box,
-					(entity) -> (!entities.contains(entity) && (!(entity instanceof ProjectileEntity || entity instanceof AbstractOrbEntity) || (entity instanceof  ProjectileEntity proj && ((ProjectileEntityAccessor)proj).isHitscanHittable()) || type == SHARPSHOOTER)), 64f * 64f);
+					(entity) -> !entities.contains(entity) && isValidTarget(entity, type), 64f * 64f);
 			if(eHit == null)
 				break;
 			searchForEntities = eHit.getType() != HitResult.Type.MISS && maxHits > 0;
@@ -147,7 +147,7 @@ public class ServerHitscanHandler
 			Entity e = entities.get(i);
 			//hit the last pierced enemy with up to 10 of the remaining pierce shots. A Pierce revolver shot that hits just one enemy, will damage it 3 times.
 			for (int j = 0; j < Math.min(10, i == entities.size() - 1 && maxHits < 16 ? maxHits + 1 : 1); j++)
-				e.damage(source, damage * world.getGameRules().getInt(GameruleRegistry.GUN_DAMAGE));
+				e.damage(source, damage * getDamageMultipier(world, type));
 			if(explodeProjectile && e instanceof ProjectileEntity proj && !(e instanceof ThrownCoinEntity) && user instanceof WingedPlayerEntity p)
 			{
 				ExplosionHandler.explosion(user, world, proj.getPos(), DamageSources.get(world, DamageTypes.EXPLOSION, user), 5f, 1f, 5f, true);
@@ -176,6 +176,20 @@ public class ServerHitscanHandler
 			return null; //miss
 	}
 	
+	static boolean isValidTarget(Entity entity, byte type)
+	{
+		if(entity instanceof ProjectileEntity proj && ((ProjectileEntityAccessor)proj).isHitscanHittable(type))
+			return true;
+		if(entity.isSpectator())
+			return false;
+		return !(entity instanceof ProjectileEntity || entity instanceof AbstractOrbEntity);
+	}
+	
+	static float getDamageMultipier(World world, byte type)
+	{
+		return world.getGameRules().getInt(GameruleRegistry.GUN_DAMAGE); //TODO: check if type is revolver
+	}
+	
 	public static void performBouncingHitscan(LivingEntity user, byte type, float damage, int maxHits, int bounces, float autoAim)
 	{
 		performBouncingHitscan(user, type, damage, maxHits, bounces, null, autoAim);
@@ -193,7 +207,7 @@ public class ServerHitscanHandler
 	
 	public static void performBouncingHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, float autoAimThreshold)
 	{
-		HitscanResult lastResult = performHitscan(user, from, visualFrom, to, type, damage, source, maxHits, explosion);
+		HitscanResult lastResult = performHitscan(user, from, visualFrom, to, type, damage * getDamageMultipier(user.getWorld(), type), source, maxHits, explosion);
 		if(bounces > 0)
 		{
 			if(lastResult.finalHit != null)
@@ -209,12 +223,12 @@ public class ServerHitscanHandler
 			else
 				return; //no hit at all! So, no bounces.
 			if(lastResult.entitiesHit > 0 && type == SHARPSHOOTER && user instanceof ServerPlayerEntity)
-				Ultracraft.freeze((ServerWorld)user.getWorld(), 2);
+				Ultracraft.freeze((ServerWorld)user.getWorld(), Math.round(2 * (damage / 3f)));
 			Vec3d hitPos = lastResult.finalHit.getPos();
 			Vec3d lastDir = lastResult.dir;
 			Vec3d hitNormal = new Vec3d(((BlockHitResult)lastResult.finalHit).getSide().getUnitVector());
 			Vec3d dest = hitPos.add(lastDir.subtract(hitNormal.multiply(2 * lastDir.dotProduct(hitNormal))).normalize().multiply(64));
-			scheduleHitscan(user, hitPos, hitPos, dest, type, damage, DamageSources.get(user.getWorld(), DamageSources.GUN, user), maxHits, bounces, explosion, 1, autoAimThreshold);
+			scheduleHitscan(user, hitPos, hitPos, dest, type, damage + (type == SHARPSHOOTER && damage < 6 ? 2 : 0), DamageSources.get(user.getWorld(), DamageSources.GUN, user), maxHits, bounces, explosion, 1, autoAimThreshold);
 		}
 	}
 	
