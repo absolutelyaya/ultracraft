@@ -68,7 +68,7 @@ public class ClientHitscanHandler
 		
 		public enum HitscanType
 		{
-			REVOLVER_SHOT(0xdff6f5, 5, 0.1f),
+			REVOLVER_SHOT(0xdff6f5, 3, 0.1f),
 			REVOLVER_PIERCE(0x8aebf1, 20, 0.2f),
 			RAILGUN_ELEC(0x2ee9ff, 60, 0.3f),
 			RAILGUN_DRILL(0x30ff72, 60, 0.3f),
