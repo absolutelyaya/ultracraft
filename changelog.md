@@ -47,3 +47,4 @@
     - It can still be disabled using the client Setting however
   - Added slight FoV effect to time stops
 - changed some assets slightly
+- Tundra//Agony is now /summon-able

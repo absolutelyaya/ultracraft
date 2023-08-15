@@ -29,6 +29,7 @@ import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
@@ -53,7 +54,7 @@ public class ClientPacketRegistry
 			if(!UltracraftClient.getConfigHolder().get().freezeVFX)
 				return;
 			if(!freezePhysicsDisabled)
-				Ultracraft.freeze(null, ticks);
+				Ultracraft.freeze((ServerWorld)null, ticks);
 			UltracraftClient.freezeVFX(ticks);
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.HITSCAN_PACKET_ID, ((client, handler, buf, sender) -> {

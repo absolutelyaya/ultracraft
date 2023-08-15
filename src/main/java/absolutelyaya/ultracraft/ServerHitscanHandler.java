@@ -222,8 +222,8 @@ public class ServerHitscanHandler
 			}
 			else
 				return; //no hit at all! So, no bounces.
-			if(lastResult.entitiesHit > 0 && type == SHARPSHOOTER && user instanceof ServerPlayerEntity)
-				Ultracraft.freeze((ServerWorld)user.getWorld(), Math.round(2 * (damage / 3f)));
+			if(lastResult.entitiesHit > 0 && type == SHARPSHOOTER && user instanceof ServerPlayerEntity sp)
+				Ultracraft.freeze(sp, Math.round(2 * (damage / 3f)));
 			Vec3d hitPos = lastResult.finalHit.getPos();
 			Vec3d lastDir = lastResult.dir;
 			Vec3d hitNormal = new Vec3d(((BlockHitResult)lastResult.finalHit).getSide().getUnitVector());

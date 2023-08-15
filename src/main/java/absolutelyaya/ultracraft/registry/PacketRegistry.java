@@ -95,7 +95,7 @@ public class PacketRegistry
 						target.setFireTicks(100);
 					if (target instanceof MeleeInterruptable mp && (!(mp instanceof MobEntity) || ((MobEntity)mp).isAttacking()))
 					{
-						Ultracraft.freeze((ServerWorld) player.getWorld(), 10);
+						Ultracraft.freeze(player, 10);
 						target.damage(DamageSources.get(world, DamageSources.INTERRUPT, player), 6);
 						mp.onInterrupt(player);
 						world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
@@ -170,13 +170,13 @@ public class PacketRegistry
 					if(((ProjectileEntityAccessor)parried).isBoostable())
 					{
 						heal = false;
-						Ultracraft.freeze((ServerWorld) player.getWorld(), 5); //ProjBoost freezes are shorter
+						Ultracraft.freeze(player, 5); //ProjBoost freezes are shorter
 					}
 					else
 						return;
 				}
 				else if(!(parried instanceof ThrownCoinEntity))
-					Ultracraft.freeze((ServerWorld) player.getWorld(), 10);
+					Ultracraft.freeze(player, 10);
 				world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
 				ProjectileEntityAccessor pa = (ProjectileEntityAccessor)parried;
 				pa.setParried(true, player);

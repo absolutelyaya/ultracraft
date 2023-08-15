@@ -17,14 +17,12 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
-import net.minecraft.client.resource.language.TranslationStorage;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.BannerItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -45,7 +43,7 @@ public class UltraHudRenderer
 	float healthPercent, staminaPercent, absorptionPercent, yOffset;
 	static float fishTimer, coinTimer, coinRot = 0, coinRotDest = 0;
 	static ItemStack lastCatch;
-	static int fishCaught = 67, coinCombo;
+	static int fishCaught, coinCombo;
 	final String[] fishMania = new String[] {"message.ultracraft.fish.mania1", "message.ultracraft.fish.mania2", "message.ultracraft.fish.mania3", "message.ultracraft.fish.mania4"};
 	final Random rand = new Random();
 	

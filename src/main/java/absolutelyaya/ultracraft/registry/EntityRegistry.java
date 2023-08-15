@@ -44,7 +44,7 @@ public class EntityRegistry
 			EntityType.Builder.create(SwordsmachineEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2.5F).maxTrackingRange(8).build("swordsmachine"));
 	public static final EntityType<DestinyBondSwordsmachineEntity> DESTINY_SWORDSMACHINE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "destiny_swordsmachine"),
-			EntityType.Builder.create(DestinyBondSwordsmachineEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2.5F).maxTrackingRange(8).disableSummon().build("destiny_swordsmachine"));
+			EntityType.Builder.create(DestinyBondSwordsmachineEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2.5F).maxTrackingRange(8).build("destiny_swordsmachine"));
 	
 	public static final EntityType<HellBulletEntity> HELL_BULLET = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "hell_bullet"),
