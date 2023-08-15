@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
@@ -29,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(FishingBobberEntity.class)
-public abstract class FishingBobberMixin extends ProjectileEntity
+public abstract class FishingBobberMixin extends ProjectileEntity implements ProjectileEntityAccessor
 {
 	ItemStack lastCatch;
 	
@@ -78,5 +79,11 @@ public abstract class FishingBobberMixin extends ProjectileEntity
 		if(getWorld().getStatesInBoxIfLoaded(getBoundingBox()).anyMatch(state -> state.isOf(BlockRegistry.BLOOD)))
 			return new Identifier(Ultracraft.MOD_ID, "gameplay/blood_fishing");
 		return id;
+	}
+	
+	@Override
+	public boolean isParriable()
+	{
+		return age < 4;
 	}
 }
