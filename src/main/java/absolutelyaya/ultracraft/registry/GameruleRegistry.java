@@ -29,7 +29,7 @@ public class GameruleRegistry
 					}
 					OnChanged(server, (byte)0, rule.get().ordinal());
 				}));
-	public static final GameRules.Key<EnumRule<Option>> HI_VEL_MODE =
+	public static final GameRules.Key<EnumRule<Option>> HIVEL_MODE =
 			GameRuleRegistry.register("ultra-hiVelMode", ULTRACATEGORY, GameRuleFactory.createEnumRule(Option.FREE,
 					(server, rule) -> {
 						if(server.isRemote() && rule.get().equals(Option.FORCE_ON))
@@ -101,6 +101,10 @@ public class GameruleRegistry
 			GameRuleRegistry.register("ultra-gunDamage", ULTRACATEGORY,
 					GameRuleFactory.createIntRule(1, 1, 20,
 							(server, rule) -> OnChanged(server, (byte)16, rule.get())));
+	public static final GameRules.Key<GameRules.IntRule> INVINCIBILITY =
+			GameRuleRegistry.register("ultra-iFrames", ULTRACATEGORY,
+					GameRuleFactory.createIntRule(4, 0, 20,
+							(server, rule) -> OnChanged(server, (byte)17, rule.get())));
 	
 	public static void OnChanged(MinecraftServer server, byte b, int val)
 	{
@@ -122,7 +126,7 @@ public class GameruleRegistry
 	
 	public static void SyncAll(ServerPlayerEntity player)
 	{
-		OnChanged(player, (byte)1, player.server.getGameRules().get(HI_VEL_MODE).get().ordinal());
+		OnChanged(player, (byte)1, player.server.getGameRules().get(HIVEL_MODE).get().ordinal());
 		OnChanged(player, (byte)2, player.server.getGameRules().get(TIME_STOP).get().ordinal());
 		OnChanged(player, (byte)3, player.server.getGameRules().getBoolean(DISABLE_HANDSWAP) ? 1 : 0);
 		OnChanged(player, (byte)4, player.server.getGameRules().getInt(HIVEL_JUMP_BOOST));

@@ -105,7 +105,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		if(!cir.getReturnValue() || getWorld().isClient)
 			return;
 		if(source.isOf(DamageSources.RICOCHET))
-			ricochetCooldown = 5; //after ricochet hit, cant ricochet to this enemy again for 3 seconds
+			ricochetCooldown = 5; //after ricochet hit, cant ricochet to this enemy again for 5 ticks
 		if(!IsCanBleed())
 			return;
 		List<PlayerEntity> nearby = getWorld().getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(32), e -> !e.equals(this));

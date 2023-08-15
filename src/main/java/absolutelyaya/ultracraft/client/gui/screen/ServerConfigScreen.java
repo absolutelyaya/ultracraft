@@ -37,23 +37,39 @@ public class ServerConfigScreen extends Screen
 		ruleWidgets.forEach(this::remove);
 		ruleWidgets.clear();
 		Vector2i pos = new Vector2i(width / 2 - 100, 40);
-		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.PROJ_BOOST, GameruleRegistry.ProjectileBoostSetting.values(), ruleWidgets.size())));
-		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.HI_VEL_MODE,GameruleRegistry.Option.values(), ruleWidgets.size())));
-		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.TIME_STOP, new String[] { GameruleRegistry.Option.FORCE_ON.toString(), GameruleRegistry.Option.FORCE_OFF.toString() }, ruleWidgets.size())));
-		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.DISABLE_HANDSWAP, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
-		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.HIVEL_JUMP_BOOST, GameRuleWidget.ValueType.INT, ruleWidgets.size())));
-		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.SLAM_STORAGE, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
-		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.HIVEL_FALLDAMAGE, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
-		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.HIVEL_DROWNING, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
-		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.BLOODHEAL, GameruleRegistry.RegenOption.values(), ruleWidgets.size())));
-		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.HIVEL_SPEED, GameRuleWidget.ValueType.INT, ruleWidgets.size())));
-		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.HIVEL_SLOWFALL, GameRuleWidget.ValueType.INT, ruleWidgets.size())));
-		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.EFFECTIVELY_VIOLENT, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
-		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.EXPLOSION_DAMAGE, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
-		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.SM_SAFE_LEDGES, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
-		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.PARRY_CHAINING, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
-		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.TNT_PRIMING, GameRuleWidget.ValueType.BOOL, ruleWidgets.size())));
-		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, GameruleRegistry.GUN_DAMAGE, GameRuleWidget.ValueType.INT, ruleWidgets.size())));
+		addRule(GameruleRegistry.PROJ_BOOST, pos, GameruleRegistry.ProjectileBoostSetting.values());
+		addRule(GameruleRegistry.HIVEL_MODE, pos, GameruleRegistry.Option.values());
+		addRule(GameruleRegistry.TIME_STOP, pos, new String[] { GameruleRegistry.Option.FORCE_ON.toString(), GameruleRegistry.Option.FORCE_OFF.toString() });
+		addRule(GameruleRegistry.DISABLE_HANDSWAP, pos, GameRuleWidget.ValueType.BOOL);
+		addRule(GameruleRegistry.HIVEL_JUMP_BOOST, pos, GameRuleWidget.ValueType.INT);
+		addRule(GameruleRegistry.SLAM_STORAGE, pos, GameRuleWidget.ValueType.BOOL);
+		addRule(GameruleRegistry.HIVEL_FALLDAMAGE, pos, GameRuleWidget.ValueType.BOOL);
+		addRule(GameruleRegistry.HIVEL_DROWNING, pos, GameRuleWidget.ValueType.BOOL);
+		addRule(GameruleRegistry.BLOODHEAL, pos, GameruleRegistry.RegenOption.values());
+		addRule(GameruleRegistry.HIVEL_SPEED, pos, GameRuleWidget.ValueType.INT);
+		addRule(GameruleRegistry.HIVEL_SLOWFALL, pos, GameRuleWidget.ValueType.INT);
+		addRule(GameruleRegistry.EFFECTIVELY_VIOLENT, pos, GameRuleWidget.ValueType.BOOL);
+		addRule(GameruleRegistry.EXPLOSION_DAMAGE, pos, GameRuleWidget.ValueType.BOOL);
+		addRule(GameruleRegistry.SM_SAFE_LEDGES, pos, GameRuleWidget.ValueType.BOOL);
+		addRule(GameruleRegistry.PARRY_CHAINING, pos, GameRuleWidget.ValueType.BOOL);
+		addRule(GameruleRegistry.TNT_PRIMING, pos, GameRuleWidget.ValueType.BOOL);
+		addRule(GameruleRegistry.GUN_DAMAGE, pos, GameRuleWidget.ValueType.INT);
+		addRule(GameruleRegistry.INVINCIBILITY, pos, GameRuleWidget.ValueType.INT);
+	}
+	
+	<K extends GameRules.Key<?>> void addRule(K key, Vector2i pos, String[] values)
+	{
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, key, values, ruleWidgets.size())));
+	}
+	
+	<K extends GameRules.Key<?>> void addRule(K key, Vector2i pos, Enum<?>[] values)
+	{
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, key, values, ruleWidgets.size())));
+	}
+	
+	<K extends GameRules.Key<?>> void addRule(K key, Vector2i pos, GameRuleWidget.ValueType valueType)
+	{
+		ruleWidgets.add(addDrawableChild(new GameRuleWidget<>(rules, pos, key, valueType, ruleWidgets.size())));
 	}
 	
 	@Override

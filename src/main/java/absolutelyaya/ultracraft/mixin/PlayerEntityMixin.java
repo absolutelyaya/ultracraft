@@ -130,7 +130,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			if(source.isOf(DamageSources.GUN) || source.isOf(DamageSources.SHOTGUN))
 				timeUntilRegen = 9;
 			else
-				timeUntilRegen = 11;
+				timeUntilRegen = 11 + getWorld().getGameRules().getInt(GameruleRegistry.INVINCIBILITY);
 		}
 		bloodHealCooldown = 4;
 	}

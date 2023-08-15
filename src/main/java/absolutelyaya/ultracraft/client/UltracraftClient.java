@@ -440,7 +440,7 @@ public class UltracraftClient implements ClientModInitializer
 			case 0 -> onExternalRuleUpdate(GameruleRegistry.PROJ_BOOST, (projBoost = GameruleRegistry.ProjectileBoostSetting.values()[value]).name());
 			case 1 ->
 			{
-				onExternalRuleUpdate(GameruleRegistry.HI_VEL_MODE, (HiVelOption = GameruleRegistry.Option.values()[value]).name());
+				onExternalRuleUpdate(GameruleRegistry.HIVEL_MODE, (HiVelOption = GameruleRegistry.Option.values()[value]).name());
 				if(HiVelOption != GameruleRegistry.Option.FREE)
 					setHiVel(HiVelOption == GameruleRegistry.Option.FORCE_ON, false);
 			}
@@ -459,6 +459,7 @@ public class UltracraftClient implements ClientModInitializer
 			case 14 -> onExternalRuleUpdate(GameruleRegistry.PARRY_CHAINING, parryChaining = value == 1);
 			case 15 -> onExternalRuleUpdate(GameruleRegistry.TNT_PRIMING, value == 1);
 			case 16 -> onExternalRuleUpdate(GameruleRegistry.GUN_DAMAGE, value);
+			case 17 -> onExternalRuleUpdate(GameruleRegistry.INVINCIBILITY, value);
 			case 127 -> gameRuleSyncFinished();
 			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncB] -> " + data);
 		}
