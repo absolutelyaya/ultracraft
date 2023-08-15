@@ -28,6 +28,12 @@ public abstract class AbstractWeaponItem extends Item
 		this.altRecoil = altRecoil;
 	}
 	
+	protected boolean isCanFirePrimary(PlayerEntity user)
+	{
+		return user.getAttackCooldownProgress(0.3f) >= 1f &&
+					   (user instanceof WingedPlayerEntity winged && winged.getGunCooldownManager().isUsable(this, GunCooldownManager.PRIMARY));
+	}
+	
 	public boolean onPrimaryFire(World world, PlayerEntity user, Vec3d userVelocity)
 	{
 		((LivingEntityAccessor)user).addRecoil(recoil);

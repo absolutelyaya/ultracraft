@@ -37,7 +37,7 @@ public abstract class AbstractShotgunItem extends AbstractWeaponItem implements 
 		Vec3d dir = new Vec3d(0f, 0f, 1f);
 		dir = dir.rotateX((float)Math.toRadians(-user.getPitch()));
 		dir = dir.rotateY((float)Math.toRadians(-user.getHeadYaw()));
-		if(!cdm.isUsable(this, 0) || user.getItemCooldownManager().isCoolingDown(this))
+		if(!isCanFirePrimary(user) || user.getItemCooldownManager().isCoolingDown(this))
 			return false;
 		super.onPrimaryFire(world, user, userVelocity);
 		if(!world.isClient)
