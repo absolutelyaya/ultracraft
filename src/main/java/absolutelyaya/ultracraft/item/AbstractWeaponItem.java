@@ -30,7 +30,7 @@ public abstract class AbstractWeaponItem extends Item
 	
 	protected boolean isCanFirePrimary(PlayerEntity user)
 	{
-		return user.getAttackCooldownProgress(0.3f) >= 1f &&
+		return /*user.getAttackCooldownProgress(0.3f) >= 1f &&*/
 					   (user instanceof WingedPlayerEntity winged && winged.getGunCooldownManager().isUsable(this, GunCooldownManager.PRIMARY));
 	}
 	
