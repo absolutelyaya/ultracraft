@@ -67,7 +67,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	
 	final int punchDuration = 6;
 	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
-	int punchTicks, ricochetCooldown;
+	int punchTicks, ricochetCooldown, fatique;
 	boolean punching, timeFrozen;
 	float punchProgress, prevPunchProgress, recoil;
 	
@@ -85,6 +85,8 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		recoil = MathHelper.lerp(0.3f, recoil, 0f);
 		if(ricochetCooldown > 0)
 			ricochetCooldown--;
+		if(fatique > 0 && !punching)
+			fatique--;
 	}
 	
 	@ModifyArgs(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;applyDamage(Lnet/minecraft/entity/damage/DamageSource;F)V"))
@@ -269,7 +271,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	
 	void punchTick()
 	{
-		int i = punchDuration;
+		int i = Math.round(punchDuration * (fatique > 30 ? 1.5f : 1f));
 		if (punching)
 		{
 			++punchTicks;
@@ -297,6 +299,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		{
 			punchTicks = 0;
 			punching = true;
+			fatique = Math.min(fatique + 10, 40);
 			if(!getWorld().isClient)
 				swingHand(Hand.OFF_HAND);
 			return true;
