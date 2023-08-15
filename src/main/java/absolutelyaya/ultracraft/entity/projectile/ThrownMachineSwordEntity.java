@@ -119,9 +119,11 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 		{
 			getWorld().getOtherEntities(this, getBoundingBox().expand(0.5)).forEach(e -> {
 				if(!e.equals(getOwner()))
+				{
 					e.damage(DamageSources.get(getWorld(), DamageSources.SWORDSMACHINE, getOwner()), 2);
-				if(e instanceof LivingEntity living)
-					MachineSwordItem.applyUniqueHitEffect(getStack(), living, 0.5f);
+					if(e instanceof LivingEntity living)
+						MachineSwordItem.applyUniqueHitEffect(getStack(), living, 0.5f);
+				}
 			});
 		}
 		MachineSwordItem.Type swordType = MachineSwordItem.getType(dataTracker.get(SWORD));

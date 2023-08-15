@@ -573,7 +573,10 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	public boolean tryAttack(Entity target)
 	{
 		float f = (float)this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
-		return target.damage(DamageSources.get(getWorld(), DamageSources.SWORDSMACHINE, this), f);
+		boolean b = target.damage(DamageSources.get(getWorld(), DamageSources.SWORDSMACHINE, this), f);
+		if(b && target instanceof LivingEntity living)
+			MachineSwordItem.applyUniqueHitEffect(dataTracker.get(SWORD_STACK), living, 1f);
+		return b;
 	}
 	
 	@Override
