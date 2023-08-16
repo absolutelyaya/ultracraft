@@ -167,7 +167,10 @@ public class MachineSwordItem extends SwordItem implements GeoItem
 		if(MachineSwordItem.getType(stack).equals(MachineSwordItem.Type.AGONY))
 			target.setFireTicks((int)(100 * durationMult));
 		if(MachineSwordItem.getType(stack).equals(MachineSwordItem.Type.TUNDRA))
+		{
 			target.addStatusEffect(new StatusEffectInstance(StatusEffectRegistry.CHILLED, (int)(200 * durationMult), 1));
+			target.setFrozenTicks(Math.round(target.getFrozenTicks() + 150 * durationMult));
+		}
 	}
 	
 	public enum Type

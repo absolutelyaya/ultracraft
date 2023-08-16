@@ -84,26 +84,25 @@ public class UltraHudRenderer
 			matrices.scale(aspect, 1f, 1f);
 			matrices.push();
 			matrices.scale(0.001f, -0.001f, 0.001f);
-			TextRenderer render = client.textRenderer;
-			Text t;
-			drawText(matrices, t = Text.translatable("message.ultracraft.fish.caught", lastCatch.getName()),
-					-render.getWidth(t) / 2f, -32f, 1f);
-			drawText(matrices, t = Text.translatable("message.ultracraft.fish.size", fishCaught == 69 ? "1.5" : "1"),
-					-render.getWidth(t) / 2f, 16f, 1f);
+			drawText(matrices, Text.translatable("message.ultracraft.fish.caught", lastCatch.getName()),
+					0, -32f, 1f, true);
+			drawText(matrices, Text.translatable("message.ultracraft.fish.size", fishCaught == 69 ? "1.5" : "1"),
+					0, 16f, 1f, true);
 			float fishManiaLevel = Math.max(0, fishCaught - 10) / 32f;
 			float shake = config.safeVFX ? 0f : 1f;
-			drawText(matrices, t = fishCaught == 69 ? Text.translatable("message.ultracraft.fish.mania5") :
+			drawText(matrices, fishCaught == 69 ? Text.translatable("message.ultracraft.fish.mania5") :
 										   Text.translatable(fishMania[fishCaught % fishMania.length]),
-					-render.getWidth(t) / 2f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f * shake,
+					(rand.nextFloat() - 0.5f) * fishManiaLevel / 2f * shake,
 					32f + (rand.nextFloat() - 0.5f) * fishManiaLevel / 2f * shake,
-					MathHelper.clamp(0.5f * fishManiaLevel, 0.05f, 1f));
+					MathHelper.clamp(0.5f * fishManiaLevel, 0.05f, 1f), true);
 			matrices.scale(0.5f, 0.5f, 0.5f);
 			if(fishCaught < 5)
-				drawText(matrices, t = Text.translatable("message.ultracraft.fish.disable"),
-						-render.getWidth(t) / 2f, 128f, 0.5f);
+				drawText(matrices, Text.translatable("message.ultracraft.fish.disable"),
+						0, 128f, 0.5f, true);
 			matrices.pop();
 			matrices.push();
-			matrices.translate(0f, 0f, 3f);
+			matrices.translate(0f, 0f, 0.1f);
+			matrices.scale(0.1f, 0.1f, 0.1f);
 			matrices.multiply(new Quaternionf(new AxisAngle4f(-fishTimer / 0.75f, 0f, 1f, 0f)));
 			matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(-45.0), 0f, 0f, 1f)));
 			VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
@@ -267,7 +266,7 @@ public class UltraHudRenderer
 			matrices.translate(5, 0, 150);
 			drawText(matrices, Text.translatable(
 					UltracraftClient.isHiVelEnabled() ? "message.ultracraft.hi-vel.enable" : "message.ultracraft.hi-vel.disable"),
-					-80 + (flip ? -40 : 0), -10, Math.min(hdt / 20f, 1f));
+					-80 + (flip ? -40 : 0), -10, Math.min(hdt / 20f, 1f), false);
 		}
 		matrices.pop();
 		RenderSystem.restoreProjectionMatrix();
@@ -308,16 +307,22 @@ public class UltraHudRenderer
 		}
 	}
 	
-	void drawText(MatrixStack matrices, Text text, float x, float y, float alpha)
+	void drawText(MatrixStack matrices, Text text, float x, float y, float alpha, boolean centered)
 	{
 		MinecraftClient client = MinecraftClient.getInstance();
 		VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
-		Matrix4f matrix = matrices.peek().getPositionMatrix();
-		client.textRenderer.draw(text, x, y, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
-				matrix, immediate, TextRenderer.TextLayerType.NORMAL, Color.ofRGBA(0f, 0f, 0f, 0.5f * alpha).getColor(), 15728880);
-		matrix.translate(0f, 0f, -0.1f);
-		client.textRenderer.draw(text, x, y, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
-				matrix, immediate, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
+		String[] lines = text.getString().split("\n");
+		for (int i = 0; i < lines.length; i++)
+		{
+			Matrix4f matrix = matrices.peek().getPositionMatrix();
+			float x1 = x - (centered ? client.textRenderer.getWidth(lines[i]) / 2f : 0);
+			float y1 = y + (client.textRenderer.fontHeight + 2) * i;
+			client.textRenderer.draw(Text.of(lines[i]), x1, y1, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
+					matrix, immediate, TextRenderer.TextLayerType.NORMAL, Color.ofRGBA(0f, 0f, 0f, 0.5f * alpha).getColor(), 15728880);
+			matrix.translate(0f, 0f, -0.1f);
+			client.textRenderer.draw(Text.of(lines[i]), x1, y1, Color.ofRGBA(1f, 1f, 1f, alpha).getColor(), false,
+					matrix, immediate, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
+		}
 	}
 	
 	void drawOutlinedText(MatrixStack matrices, Text text, float x, float y, float alpha)

@@ -346,7 +346,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			damage = 1;
 		ThrownCoinEntity coin = null;
 		List<Entity> potentialTargets = getWorld().getOtherEntities(parrier, getBoundingBox().expand(16f),
-				e -> !e.equals(this) && e.isAlive() && !e.isTeammate(parrier) && (e instanceof LivingEntity));
+				e -> isValidCoinPunchTarget(e, parrier));
 		if(potentialTargets.size() > 0)
 		{
 			Entity closest = null;
@@ -396,6 +396,15 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		kill();
 	}
 	
+	boolean isValidCoinPunchTarget(Entity e, LivingEntity puncher)
+	{
+		if(e.equals(this) || e.isSpectator() || !(e instanceof LivingEntity))
+			return false;
+		if(e instanceof PlayerEntity player && (player.isCreative() || !getServer().isPvpEnabled()))
+			return false;
+		return e.isAlive() && !e.isTeammate(puncher);
+	}
+	
 	@Override
 	public boolean isParried()
 	{
@@ -433,7 +442,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	}
 	
 	@Override
-	public boolean isHitscanHittable()
+	public boolean isHitscanHittable(byte type)
 	{
 		return hitTicks == 0 && realAge > 2;
 	}

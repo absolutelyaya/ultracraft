@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.entity.projectile;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.damage.DamageSources;
@@ -9,7 +10,6 @@ import absolutelyaya.ultracraft.item.MachineSwordItem;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
-import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -19,7 +19,6 @@ import net.minecraft.entity.MovementType;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
@@ -43,7 +42,10 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implements ProjectileEntityAccessor
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implements ProjectileEntityAccessor, EntityAccessor
 {
 	protected static final TrackedData<ItemStack> SWORD = DataTracker.registerData(ThrownMachineSwordEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	protected static final TrackedData<Float> DISTANCE = DataTracker.registerData(ThrownMachineSwordEntity.class, TrackedDataHandlerRegistry.FLOAT);
@@ -117,9 +119,11 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 		{
 			getWorld().getOtherEntities(this, getBoundingBox().expand(0.5)).forEach(e -> {
 				if(!e.equals(getOwner()))
+				{
 					e.damage(DamageSources.get(getWorld(), DamageSources.SWORDSMACHINE, getOwner()), 2);
-				if(e instanceof LivingEntity living)
-					MachineSwordItem.applyUniqueHitEffect(getStack(), living, 0.5f);
+					if(e instanceof LivingEntity living)
+						MachineSwordItem.applyUniqueHitEffect(getStack(), living, 0.5f);
+				}
 			});
 		}
 		MachineSwordItem.Type swordType = MachineSwordItem.getType(dataTracker.get(SWORD));
@@ -325,7 +329,7 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 	}
 	
 	@Override
-	public boolean isHitscanHittable()
+	public boolean isHitscanHittable(byte type)
 	{
 		return false;
 	}
@@ -358,5 +362,42 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 			case AGONY -> new Vector4f(0.66f, 0.1f, 0.06f, 0.6f);
 			case TUNDRA -> new Vector4f(0.22f, 0.47f, 0.65f, 0.6f);
 		};
+	}
+	
+	//TODO: find a better way to make things untargettable because having to implement all of the following shit is kinda dumb
+	@Override
+	public int getTargetPriority(Entity source)
+	{
+		return 0;
+	}
+	
+	@Override
+	public void setTargetpriorityFunction(Function<Entity, Integer> function)
+	{
+	
+	}
+	
+	@Override
+	public boolean isTargettable()
+	{
+		return false;
+	}
+	
+	@Override
+	public void setTargettableSupplier(Supplier<Boolean> supplier)
+	{
+	
+	}
+	
+	@Override
+	public Vec3d getRelativeTargetPoint()
+	{
+		return null;
+	}
+	
+	@Override
+	public void setRelativeTargetPointSupplier(Supplier<Vec3d> supplier)
+	{
+	
 	}
 }

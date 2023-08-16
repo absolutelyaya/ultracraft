@@ -114,18 +114,40 @@ public class Ultracraft implements ModInitializer
         return freezeTicks > 0;
     }
     
+    public static void freeze(ServerPlayerEntity player, int ticks)
+    {
+        if(player != null)
+        {
+            boolean freezeDisabled = player.getServer().isRemote() &&
+                                             player.getWorld().getGameRules().get(GameruleRegistry.TIME_STOP).get().equals(GameruleRegistry.Option.FORCE_OFF);
+            PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+            buf.writeInt(ticks);
+            buf.writeBoolean(freezeDisabled);
+            if(freezeDisabled)
+            {
+                ServerPlayNetworking.send(player, PacketRegistry.FREEZE_PACKET_ID, buf);
+                return;
+            }
+            for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers())
+                ServerPlayNetworking.send(p, PacketRegistry.FREEZE_PACKET_ID, buf);
+        }
+        freezeTicks += ticks;
+        LOGGER.info("Stopping time for " + ticks + " ticks.");
+    }
+    
     public static void freeze(ServerWorld world, int ticks)
     {
         if(world != null)
         {
-            if(world.getServer().isRemote() && world.getGameRules().get(GameruleRegistry.TIME_STOP).get().equals(GameruleRegistry.Option.FORCE_OFF))
+            boolean freezeDisabled = world.getServer().isRemote() &&
+                                             world.getGameRules().get(GameruleRegistry.TIME_STOP).get().equals(GameruleRegistry.Option.FORCE_OFF);
+            PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+            buf.writeInt(ticks);
+            buf.writeBoolean(freezeDisabled);
+            if(freezeDisabled)
                 return;
-            for (ServerPlayerEntity player : world.getPlayers())
-            {
-                PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-                buf.writeInt(ticks);
-                ServerPlayNetworking.send(player, PacketRegistry.FREEZE_PACKET_ID, buf);
-            }
+            for (ServerPlayerEntity p : world.getPlayers())
+                ServerPlayNetworking.send(p, PacketRegistry.FREEZE_PACKET_ID, buf);
         }
         freezeTicks += ticks;
         LOGGER.info("Stopping time for " + ticks + " ticks.");

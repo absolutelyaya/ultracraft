@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.ExplosionHandler;
+import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ChainParryAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
@@ -182,9 +183,9 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	}
 	
 	@Override
-	public boolean isHitscanHittable()
+	public boolean isHitscanHittable(byte type)
 	{
-		return false;
+		return type == ServerHitscanHandler.SHARPSHOOTER;
 	}
 	
 	@Override

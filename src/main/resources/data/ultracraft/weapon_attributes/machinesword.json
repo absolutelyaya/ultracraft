@@ -1,0 +1,39 @@
+{
+  "parent": "bettercombat:sword",
+  "attributes": {
+    "attack_range": 3.5,
+    "hitbox": "VERTICAL_PLANE",
+    "two_handed": true,
+    "pose": "bettercombat:pose_two_handed_sword",
+    "attacks": [
+      {
+        "angle": 100,
+        "hitbox": "HORIZONTAL_PLANE",
+        "animation": "bettercombat:two_handed_slash_horizontal_right",
+        "upswing": 0.25,
+        "swing_sound": {
+          "id": "ultracraft:item.machinesword_attack"
+        }
+      },
+      {
+        "damageMultiplier": 0.4,
+        "hitbox": "HORIZONTAL_PLANE",
+        "animation": "bettercombat:two_handed_slash_horizontal_left",
+        "upswing": 0.25,
+        "swing_sound": {
+          "id": "ultracraft:item.machinesword_attack"
+        }
+      },
+      {
+        "hitbox": "VERTICAL_PLANE",
+        "damageMultiplier": 0.3,
+        "angle": 150,
+        "animation": "bettercombat:two_handed_slam",
+        "upswing": 0.5,
+        "swing_sound": {
+          "id": "ultracraft:item.machinesword_attack"
+        }
+      }
+    ]
+  }
+}

@@ -2,6 +2,11 @@
   "replace": false,
   "values": [
     "ultracraft:elevator",
+    "ultracraft:elevator_wall",
+    "ultracraft:elevator_floor",
+    "ultracraft:secret_elevator",
+    "ultracraft:secret_elevator_wall",
+    "ultracraft:secret_elevator_floor",
     "ultracraft:pedestal",
     "ultracraft:cerberus_block"
   ]

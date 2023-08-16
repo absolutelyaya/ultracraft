@@ -9,6 +9,7 @@ import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import absolutelyaya.ultracraft.registry.WingPatterns;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gl.ShaderProgram;
+import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -19,8 +20,9 @@ import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
 
 public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>> extends FeatureRenderer<T, M>
 {
@@ -67,16 +69,11 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 			matrices.push();
 			wings.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, winged);
 			VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayers.getWingsPattern(TEXTURE, patternID));
-			if(entity.isSneaking())
-			{
-				matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(20f));
-				matrices.translate(0f , 0.15f, 0f);
-			}
-			if(entity.isSprinting())
-			{
-				matrices.translate(0f , 13f / 16f, 8f / 16f);
-				matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-45f));
-			}
+			ModelTransform transform = getContextModel().body.getTransform();
+			matrices.translate(transform.pivotX / 16, transform.pivotY / 16, transform.pivotZ / 16);
+			matrices.multiply(new Quaternionf(new AxisAngle4f(transform.pitch, 1f, 0f, 0f)));
+			matrices.multiply(new Quaternionf(new AxisAngle4f(transform.yaw, 0f, 1f, 0f)));
+			matrices.multiply(new Quaternionf(new AxisAngle4f(transform.roll, 0f, 0f, 1f)));
 			wings.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
 			matrices.pop();
 		}

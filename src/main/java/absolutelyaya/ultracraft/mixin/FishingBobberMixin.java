@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
@@ -29,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 @Mixin(FishingBobberEntity.class)
-public abstract class FishingBobberMixin extends ProjectileEntity
+public abstract class FishingBobberMixin extends ProjectileEntity implements ProjectileEntityAccessor
 {
 	ItemStack lastCatch;
 	
@@ -51,7 +52,7 @@ public abstract class FishingBobberMixin extends ProjectileEntity
 		player.increaseStat(Stats.FISH_CAUGHT, 1);
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeItemStack(lastCatch);
-		ServerPlayNetworking.send((ServerPlayerEntity)player, PacketRegistry.CATCH_FISH_ID, buf);
+		ServerPlayNetworking.send((ServerPlayerEntity)player, PacketRegistry.CATCH_FISH_PACKET_ID, buf);
 	}
 	
 	@Redirect(method = "tickFishingLogic", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/BlockState;isOf(Lnet/minecraft/block/Block;)Z"))
@@ -75,8 +76,14 @@ public abstract class FishingBobberMixin extends ProjectileEntity
 	@ModifyArg(method = "use", at = @At(value = "INVOKE", target = "Lnet/minecraft/loot/LootManager;getLootTable(Lnet/minecraft/util/Identifier;)Lnet/minecraft/loot/LootTable;"))
 	Identifier modifyLootTable(Identifier id)
 	{
-		if(getBlockStateAtPos().isOf(BlockRegistry.BLOOD))
+		if(getWorld().getStatesInBoxIfLoaded(getBoundingBox()).anyMatch(state -> state.isOf(BlockRegistry.BLOOD)))
 			return new Identifier(Ultracraft.MOD_ID, "gameplay/blood_fishing");
 		return id;
+	}
+	
+	@Override
+	public boolean isParriable()
+	{
+		return age < 4;
 	}
 }

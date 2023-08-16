@@ -1,24 +1,50 @@
 ## Major Changes
-- Improved Pedestals
-  - Added Item Lore to make their usage more clear
-  - Right-Clicking them now opens a Menu in which you can set a "Key" Item. If an Item of that type is placed on the Pedestal, it gives off a redstone Signal.
-- Added TalonMC Plushie (Happy Birthday :D)
-- Added Soul and Blood Orbs
-  - Soul Orbs replenish 30 Energy upon pickup (equal to one dash)
-  - Blood Orbs heal to full Health and give 10 Absorption Hearts upon Pickup
-  - Props to my Sister for making the pickup SFX
+- Added Better Combat Support
+  - Install that mod as well to get better Melee Weapons (Only Machinesword atm)!
+- Integrated Player Animator
+  - No extra download required, it's included with the mod
+- Primary Fire can now be held down
+- Guns now have a short cooldown after switching
+- Added Secret Level Elevator blocks
+- Added Recipes to all Elevator Blocks
+- Added Proximity Activated Cerberus Statues
+- Swordsmachine can now Damage its target with melee attacks regardless of type
+- Tundra Machinesword now causes Freezing Damage
+- Blood now turns into Blocks when making contact with other fluids
+  - water -> Netherrack
+  - lava -> Red Netherwart Blocks (Placeholder)
+- Hitscan Improvements
+  - Hitscans cannot hit Spectators anymore
+  - Thrown Machinesword won't get targeted by Sharpshooter auto-aim anymore
+  - Coin Punches now respect PvP being turned off and ignore spectators
+  - Sharpshooter bounces increase in damage each bounce
+    - emulates the "multiple hits" per hitscan thingie
+- Added fatigue to discourage parry spamming
+  - Punches slow down by 75% after performing 3 in quick succession
+- Tundra Machinesword now freezes Targets
+- Fishing Bobber is no longer parriable due to Balance concerns and general weirdness
+  - It can still be Projectile Boosted if the ultra-projBoost Gamerule permits it
 ## Settings & Gamerules
-- Added "Fix UltraHUD" Setting
-  - Fixes the UltraHUD in place to help against motion sickness
-- Added ultra-GunDamage Gamerule
-  - Multiplies ALL Hitscan Damage by the set value. Meant to be used if other mods armor renders weapons too weak to be fun
-- SafeVFX Setting now disables the shaking of Fish-Mania Popups
+- Moved all mod Gamerules to a new Category
+- Added ultra-iFrames Gamerule
+  - Defines how many ticks of Invincibility players in HiVel Mode after getting hit
 ## Tweaks
-- The Blood Fluid is now replaceable by other Blocks
-- Buffed Sharpshooter auto-aim (30°->45°)
-- Auto-aim now doesn't target Items and Experience Orbs anymore
+- Set the default I-Frames for Players in HiVel Mode to 4 (previously 0)
 ## Minor Changes
-- Added 2 Fishes
-- Added "Top 10 Anime Betrayals" Advancement
-- Hid some Items in REI (mainly unobtainable utility items)
-- Up to Ten Absorption Hearts are now displayed on the UltraHUD health bar
+- Thrown Machineswords can't afflict their owner with their type effect anymore
+- ??? now greets everyone
+- NBT block-picking Pedestals now saves their Lock State correctly
+- Elevator Blocks now have break particles with a pixel density of x16
+- Fixed Z-Fighting on Swordsmachine entity and plushies
+- Fixed missing wires on Tundra//Agony Plushies
+- Elevator Wall/Floor Blocks are now properly mineable in survival
+- Fixed Broken line breaks in Fishing Popup
+- Improved Special Fishing Reliability
+- Hopefully fixed Cerberus Blocks sometimes being invisible after joining a world
+- Reduced Revolver primary fire visual hitscan lifetime
+- Improved Time Stop VFX slightly
+  - Timestop VFX will now show regardless of Time Stop gamerule
+    - It can still be disabled using the client Setting however
+  - Added slight FoV effect to time stops
+- changed some assets slightly
+- Tundra//Agony is now /summon-able

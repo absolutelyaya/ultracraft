@@ -13,6 +13,7 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtType;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
@@ -60,21 +61,19 @@ public class PedestalBlockEntity extends BlockEntity implements NamedScreenHandl
 		return true;
 	}
 	
-	public boolean copyItemDataRequiresOperator() {
-		return true;
-	}
-	
 	public void readNbt(NbtCompound nbt)
 	{
 		super.readNbt(nbt);
-		if (nbt.contains("holding", 10))
+		if (nbt.contains("holding", NbtElement.COMPOUND_TYPE))
 			inventory.setStack(0, ItemStack.fromNbt(nbt.getCompound("holding")));
 		else
 			inventory.setStack(0, ItemStack.EMPTY);
-		if (nbt.contains("key", 10))
+		if (nbt.contains("key", NbtElement.COMPOUND_TYPE))
 			inventory.setStack(1, ItemStack.fromNbt(nbt.getCompound("key")));
 		else
 			inventory.setStack(1, ItemStack.EMPTY);
+		if(nbt.contains("locked", NbtElement.BYTE_TYPE) && world != null)
+			world.setBlockState(getPos(), getCachedState().with(PedestalBlock.LOCKED, nbt.getBoolean("locked")));
 		if(nbt.contains("type", NbtElement.STRING_TYPE) && world != null)
 		{
 			type = nbt.getString("type");
@@ -82,6 +81,16 @@ public class PedestalBlockEntity extends BlockEntity implements NamedScreenHandl
 		}
 		else
 			type = "none";
+	}
+	
+	protected void writeNbt(NbtCompound nbt)
+	{
+		super.writeNbt(nbt);
+		nbt.put("holding", getHeld().writeNbt(new NbtCompound()));
+		nbt.put("key", getKey().writeNbt(new NbtCompound()));
+		nbt.putString("type", getCachedState().get(PedestalBlock.TYPE).name);
+		nbt.putBoolean("fancy", getCachedState().get(PedestalBlock.FANCY));
+		nbt.putBoolean("locked", getCachedState().get(PedestalBlock.LOCKED));
 	}
 	
 	@Override
@@ -94,15 +103,6 @@ public class PedestalBlockEntity extends BlockEntity implements NamedScreenHandl
 	public NbtCompound toInitialChunkDataNbt()
 	{
 		return createNbt();
-	}
-	
-	protected void writeNbt(NbtCompound nbt)
-	{
-		super.writeNbt(nbt);
-		nbt.put("holding", getHeld().writeNbt(new NbtCompound()));
-		nbt.put("key", getKey().writeNbt(new NbtCompound()));
-		nbt.putString("type", getCachedState().get(PedestalBlock.TYPE).name);
-		nbt.putBoolean("fancy", getCachedState().get(PedestalBlock.FANCY));
 	}
 	
 	public ItemStack getHeld()

@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.mixin;
 
+import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.IntroScreen;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
@@ -9,6 +10,8 @@ import absolutelyaya.ultracraft.registry.SoundRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Mouse;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
@@ -46,6 +49,12 @@ public abstract class MinecraftClientMixin
 	
 	@Shadow @Nullable public ClientPlayerInteractionManager interactionManager;
 	
+	@Shadow @Final public Mouse mouse;
+	
+	@Shadow @Nullable public Screen currentScreen;
+	
+	boolean isShooting;
+	
 	@Redirect(method = "handleInputEvents()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/packet/Packet;)V"))
 	void OnHandSwap(ClientPlayNetworkHandler networkHandler, Packet<?> packet)
 	{
@@ -60,6 +69,35 @@ public abstract class MinecraftClientMixin
 	{
 		if (cir.getReturnValue().equals(MusicType.MENU) && UltracraftClient.REPLACE_MENU_MUSIC)
 			cir.setReturnValue(new MusicSound(SoundRegistry.THE_FIRE_IS_GONE, 20, 600, true));
+	}
+	
+	@Inject(method = "handleInputEvents", at = @At("TAIL"))
+	void onHandleInputs(CallbackInfo ci)
+	{
+		if(currentScreen == null && mouse.isCursorLocked())
+		{
+			if(options.attackKey.isPressed() != isShooting && player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w)
+			{
+				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+				buf.writeByte(options.attackKey.isPressed() ? 1 : 0);
+				buf.writeVector3f(player.getVelocity().toVector3f());
+				ClientPlayNetworking.send(PacketRegistry.PRIMARY_SHOT_C2S_PACKET_ID, buf);
+				w.onPrimaryFire(world, player, player.getVelocity());
+				isShooting = options.attackKey.isPressed();
+				((WingedPlayerEntity)player).setPrimaryFiring(isShooting);
+			}
+		}
+		else if(isShooting)
+			stopShooting();
+	}
+	
+	void stopShooting()
+	{
+		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+		buf.writeByte(0);
+		ClientPlayNetworking.send(PacketRegistry.PRIMARY_SHOT_C2S_PACKET_ID, buf);
+		isShooting = false;
+		((WingedPlayerEntity)player).setPrimaryFiring(false);
 	}
 	
 	@Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
@@ -81,10 +119,6 @@ public abstract class MinecraftClientMixin
 				cir.setReturnValue(false);
 				return;
 			}
-			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-			buf.writeVector3f(player.getVelocity().toVector3f());
-			ClientPlayNetworking.send(PacketRegistry.PRIMARY_SHOT_PACKET_ID_C2S, buf);
-			w.onPrimaryFire(world, player, player.getVelocity());
 			cir.setReturnValue(false);
 			return;
 		}

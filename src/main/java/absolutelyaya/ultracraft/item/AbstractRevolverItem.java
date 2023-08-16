@@ -32,7 +32,7 @@ public abstract class AbstractRevolverItem extends AbstractWeaponItem implements
 	public boolean onPrimaryFire(World world, PlayerEntity user, Vec3d userVelocity)
 	{
 		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
-		if(cdm.isUsable(this, 0))
+		if(isCanFirePrimary(user))
 		{
 			if(world.isClient)
 			{

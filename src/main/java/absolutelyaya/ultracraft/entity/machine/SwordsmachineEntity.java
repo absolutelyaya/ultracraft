@@ -402,7 +402,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		buf.writeInt(getId());
 		buf.writeBoolean(attack != 0);
 		buf.writeInt(attack);
-		players.forEach(p -> ServerPlayNetworking.send(p, PacketRegistry.ENTITY_TRAIL, buf));
+		players.forEach(p -> ServerPlayNetworking.send(p, PacketRegistry.ENTITY_TRAIL_PACKET_ID, buf));
 	}
 	
 	@Override
@@ -573,7 +573,10 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	public boolean tryAttack(Entity target)
 	{
 		float f = (float)this.getAttributeValue(EntityAttributes.GENERIC_ATTACK_DAMAGE);
-		return target.damage(DamageSources.get(getWorld(), DamageSources.SWORDSMACHINE, this), f);
+		boolean b = target.damage(DamageSources.get(getWorld(), DamageSources.SWORDSMACHINE, this), f);
+		if(b && target instanceof LivingEntity living)
+			MachineSwordItem.applyUniqueHitEffect(dataTracker.get(SWORD_STACK), living, 1f);
+		return b;
 	}
 	
 	@Override
@@ -935,7 +938,8 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 			{
 				sm.setVelocity(direction.multiply(0.75f));
 				List<Entity> hit = sm.getWorld().getOtherEntities(sm, sm.getBoundingBox().expand(2f, 0f, 2f),
-						e -> (e instanceof PlayerEntity || (sm.shouldHuntHusks() && e instanceof AbstractHuskEntity)) && !damaged.contains(e));
+						e -> (e instanceof PlayerEntity || (sm.shouldHuntHusks() && e instanceof AbstractHuskEntity) || e.equals(sm.getTarget())) &&
+									 !damaged.contains(e));
 				hit.forEach(e -> {
 					if(sm.tryAttack(e))
 						damaged.add(e);
@@ -1042,7 +1046,8 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 			{
 				sm.setVelocity(direction.multiply(timer == 62 ? 0.75f : 1f));
 				List<Entity> hit = sm.getWorld().getOtherEntities(sm, sm.getBoundingBox().expand(3f, 0f, 3f),
-						e -> (e instanceof PlayerEntity || (sm.shouldHuntHusks() && e instanceof AbstractHuskEntity)) && !damaged.contains(e));
+						e -> (e instanceof PlayerEntity || (sm.shouldHuntHusks() && e instanceof AbstractHuskEntity) || e.equals(sm.getTarget())) &&
+									 !damaged.contains(e));
 				hit.forEach(e -> {
 					if(sm.tryAttack(e))
 						damaged.add(e);
@@ -1136,7 +1141,8 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 			{
 				float time = (timer - 12) / 48f * 3f;
 				List<Entity> hit = sm.getWorld().getOtherEntities(sm, sm.getBoundingBox().expand(1f + time, 0f, 1f + time),
-						e -> (e instanceof PlayerEntity || (sm.shouldHuntHusks() && e instanceof AbstractHuskEntity)) && !damaged.contains(e));
+						e -> (e instanceof PlayerEntity || (sm.shouldHuntHusks() && e instanceof AbstractHuskEntity) || e.equals(sm.getTarget())) &&
+									 !damaged.contains(e));
 				hit.forEach(e -> {
 					if(sm.tryAttack(e))
 						damaged.add(e);

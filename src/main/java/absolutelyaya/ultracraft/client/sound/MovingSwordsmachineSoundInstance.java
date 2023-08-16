@@ -2,12 +2,13 @@ package absolutelyaya.ultracraft.client.sound;
 
 import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
+import net.minecraft.sound.SoundCategory;
 
 public class MovingSwordsmachineSoundInstance extends MovingPlayerSoundInstance
 {
 	public MovingSwordsmachineSoundInstance(SwordsmachineEntity owner)
 	{
-		super(SoundRegistry.MACHINESWORD_LOOP.value(), owner);
+		super(SoundRegistry.MACHINESWORD_LOOP.value(), SoundCategory.HOSTILE, owner);
 		pitch = 1.5f;
 		volume = 1f;
 	}

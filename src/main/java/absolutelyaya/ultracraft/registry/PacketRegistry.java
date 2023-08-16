@@ -36,7 +36,7 @@ public class PacketRegistry
 {
 	public static final Identifier PUNCH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "parry");
 	public static final Identifier PUNCH_BLOCK_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_block");
-	public static final Identifier PRIMARY_SHOT_PACKET_ID_C2S = new Identifier(Ultracraft.MOD_ID, "primary_shot_c2s");
+	public static final Identifier PRIMARY_SHOT_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "primary_shot_c2s");
 	public static final Identifier SEND_WING_STATE_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_winged_state_c2s");
 	public static final Identifier SEND_WINGED_DATA_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_winged_data_c2s");
 	public static final Identifier DASH_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_c2s");
@@ -45,6 +45,8 @@ public class PacketRegistry
 	public static final Identifier SKIM_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "skim_c2s");
 	public static final Identifier THROW_COIN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "throw_coin");
 	public static final Identifier LOCK_PEDESTAL_ID = new Identifier(Ultracraft.MOD_ID, "lock_pedestal");
+	public static final Identifier ANIMATION_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "animation_c2s");
+	public static final Identifier KILLER_FISH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "killerfish");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
@@ -53,21 +55,22 @@ public class PacketRegistry
 	public static final Identifier WING_STATE_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "wing_state_s2c");
 	public static final Identifier WING_DATA_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "wing_data_s2c");
 	public static final Identifier SET_GUNCD_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_gcd");
-	public static final Identifier CATCH_FISH_ID = new Identifier(Ultracraft.MOD_ID, "fish");
-	public static final Identifier SYNC_RULE = new Identifier(Ultracraft.MOD_ID, "sync_rule");
-	public static final Identifier ENTITY_TRAIL = new Identifier(Ultracraft.MOD_ID, "entity_trail");
+	public static final Identifier CATCH_FISH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "fish");
+	public static final Identifier SYNC_RULE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "sync_rule");
+	public static final Identifier ENTITY_TRAIL_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "entity_trail");
 	public static final Identifier GROUND_POUND_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ground_pound_s2c");
 	public static final Identifier EXPLOSION_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "explosion");
 	public static final Identifier PRIMARY_SHOT_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "primary_shot_s2c");
-	public static final Identifier DEBUG = new Identifier(Ultracraft.MOD_ID, "debug");
+	public static final Identifier DEBUG_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "debug");
 	public static final Identifier SKIM_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "skim_s2c");
 	public static final Identifier COIN_PUNCH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "coinpunch");
 	public static final Identifier WORLD_INFO_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "world-info");
 	public static final Identifier BLOCK_PLAYER_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "block");
 	public static final Identifier UNBLOCK_PLAYER_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "unblock");
-	public static final Identifier OPEN_SERVER_CONFIG_MENU = new Identifier(Ultracraft.MOD_ID, "server_config");
-	public static final Identifier RICOCHET_WARNING = new Identifier(Ultracraft.MOD_ID, "warn_ricochet");
-	public static final Identifier REPLENISH_STAMINA = new Identifier(Ultracraft.MOD_ID, "replenish_stamina");
+	public static final Identifier OPEN_SERVER_CONFIG_MENU_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "server_config");
+	public static final Identifier RICOCHET_WARNING_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "warn_ricochet");
+	public static final Identifier REPLENISH_STAMINA_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "replenish_stamina");
+	public static final Identifier ANIMATION_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "animation_s2c");
 	
 	public static void registerC2S()
 	{
@@ -92,7 +95,7 @@ public class PacketRegistry
 						target.setFireTicks(100);
 					if (target instanceof MeleeInterruptable mp && (!(mp instanceof MobEntity) || ((MobEntity)mp).isAttacking()))
 					{
-						Ultracraft.freeze((ServerWorld) player.getWorld(), 10);
+						Ultracraft.freeze(player, 10);
 						target.damage(DamageSources.get(world, DamageSources.INTERRUPT, player), 6);
 						mp.onInterrupt(player);
 						world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
@@ -167,13 +170,13 @@ public class PacketRegistry
 					if(((ProjectileEntityAccessor)parried).isBoostable())
 					{
 						heal = false;
-						Ultracraft.freeze((ServerWorld) player.getWorld(), 5); //ProjBoost freezes are shorter
+						Ultracraft.freeze(player, 5); //ProjBoost freezes are shorter
 					}
 					else
 						return;
 				}
 				else if(!(parried instanceof ThrownCoinEntity))
-					Ultracraft.freeze((ServerWorld) player.getWorld(), 10);
+					Ultracraft.freeze(player, 10);
 				world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
 				ProjectileEntityAccessor pa = (ProjectileEntityAccessor)parried;
 				pa.setParried(true, player);
@@ -199,20 +202,24 @@ public class PacketRegistry
 				}
 			});
 		});
-		ServerPlayNetworking.registerGlobalReceiver(PRIMARY_SHOT_PACKET_ID_C2S, (server, player, handler, buf, sender) -> {
-			Vec3d velocity = new Vec3d(buf.readVector3f());
+		ServerPlayNetworking.registerGlobalReceiver(PRIMARY_SHOT_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
+			byte action = buf.readByte();
+			Vec3d velocity = action > 0 ? new Vec3d(buf.readVector3f()) : Vec3d.ZERO;
 			server.execute(() -> {
 				if (player.getMainHandStack().getItem() instanceof AbstractWeaponItem gun)
 				{
-					if (!gun.onPrimaryFire(player.getWorld(), player, velocity))
+					((WingedPlayerEntity)player).setPrimaryFiring(action > 0);
+					if (action == 0 || !gun.onPrimaryFire(player.getWorld(), player, velocity))
 						return;
-					for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers())
+					for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers(p -> player.distanceTo(p) < 128f))
 					{
 						PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
 						cbuf.writeUuid(player.getUuid());
 						ServerPlayNetworking.send(p, PRIMARY_SHOT_S2C_PACKET_ID, cbuf);
 					}
 				}
+				else if(action == 0)
+					((WingedPlayerEntity)player).setPrimaryFiring(false);
 				else
 					Ultracraft.LOGGER.warn(player + " tried to use primary fire action but is holding a non-weapon Item!");
 			});
@@ -338,6 +345,21 @@ public class PacketRegistry
 					player.getWorld().setBlockState(pos, player.getWorld().getBlockState(pos).with(PedestalBlock.LOCKED, b));
 			});
 		});
+		ServerPlayNetworking.registerGlobalReceiver(ANIMATION_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
+			PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
+			cbuf.writeUuid(player.getUuid()); //target
+			cbuf.writeInt(buf.readInt()); //animID
+			cbuf.writeInt(buf.readInt()); //fade
+			cbuf.writeBoolean(buf.readBoolean()); //firstPerson
+			player.getWorld().getPlayers().forEach(p -> {
+				if(p != player)
+					ServerPlayNetworking.send((ServerPlayerEntity)p, ANIMATION_S2C_PACKET_ID, cbuf);
+			});
+		});
+		ServerPlayNetworking.registerGlobalReceiver(KILLER_FISH_PACKET_ID, (server, player, handler, buf, sender) -> {
+			server.execute(() -> player.getWorld().playSound(null, player.getBlockPos(),
+					SoundRegistry.KILLERFISH_SELECT.value(), SoundCategory.PLAYERS, 1f, 1f));
+		});
 	}
 	
 	static ProjectileEntity getNearestProjectile(List<ProjectileEntity> projectiles, Vec3d to)
@@ -361,6 +383,6 @@ public class PacketRegistry
 	{
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeVector3f(pos.toVector3f());
-		ServerPlayNetworking.send(p, DEBUG, buf);
+		ServerPlayNetworking.send(p, DEBUG_PACKET_ID, buf);
 	}
 }

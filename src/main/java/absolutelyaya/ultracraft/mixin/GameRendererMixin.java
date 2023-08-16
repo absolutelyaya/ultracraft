@@ -16,9 +16,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(GameRenderer.class)
 public class GameRendererMixin
@@ -27,7 +27,7 @@ public class GameRendererMixin
 	
 	@Shadow @Final private Camera camera;
 	
-	float slideViewTilt = 0f;
+	float slideViewTilt = 0f, lastFovBonus = 0f;
 	
 	@Inject(method = "bobView", at = @At("HEAD"), cancellable = true)
 	public void onBobView(MatrixStack matrices, float tickDelta, CallbackInfo ci)
@@ -60,5 +60,20 @@ public class GameRendererMixin
 		if(Ultracraft.isTimeFrozen())
 			return 0.5f;
 		return tickDelta;
+	}
+	
+	@Inject(method = "getFov", at = @At("RETURN"), cancellable = true)
+	void onGetFov(Camera camera, float tickDelta, boolean changingFov, CallbackInfoReturnable<Double> cir)
+	{
+		if(UltracraftClient.isParryVisualsActive())
+		{
+			lastFovBonus = 5;
+			cir.setReturnValue(cir.getReturnValueD() + 5);
+		}
+		else if(lastFovBonus > 0f)
+		{
+			lastFovBonus = MathHelper.lerp(tickDelta / 4f, lastFovBonus, 0f);
+			cir.setReturnValue(cir.getReturnValueD() + lastFovBonus);
+		}
 	}
 }

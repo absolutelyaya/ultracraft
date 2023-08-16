@@ -33,5 +33,10 @@
     "sounds": [
       "ultracraft:entity/barrier_break"
     ]
+  },
+  "item.machinesword_attack": {
+    "sounds": [
+      "ultracraft:item/machinesword_attack"
+    ]
   }
 }

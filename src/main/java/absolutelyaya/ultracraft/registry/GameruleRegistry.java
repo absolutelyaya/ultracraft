@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import com.chocohead.mm.api.ClassTinkerers;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleRegistry;
@@ -14,8 +15,10 @@ import net.minecraft.world.GameRules;
 
 public class GameruleRegistry
 {
+	static final GameRules.Category ULTRACATEGORY = ClassTinkerers.getEnum(GameRules.Category.class, "ULTRACRAFT");
+	
 	public static final GameRules.Key<EnumRule<ProjectileBoostSetting>> PROJ_BOOST =
-			GameRuleRegistry.register("ultra-projBoost", GameRules.Category.PLAYER, GameRuleFactory.createEnumRule(ProjectileBoostSetting.LIMITED,
+			GameRuleRegistry.register("ultra-projBoost", ULTRACATEGORY, GameRuleFactory.createEnumRule(ProjectileBoostSetting.LIMITED,
 				(server, rule) -> {
 					switch(rule.get())
 					{
@@ -26,43 +29,43 @@ public class GameruleRegistry
 					}
 					OnChanged(server, (byte)0, rule.get().ordinal());
 				}));
-	public static final GameRules.Key<EnumRule<Option>> HI_VEL_MODE =
-			GameRuleRegistry.register("ultra-hiVelMode", GameRules.Category.PLAYER, GameRuleFactory.createEnumRule(Option.FREE,
+	public static final GameRules.Key<EnumRule<Option>> HIVEL_MODE =
+			GameRuleRegistry.register("ultra-hiVelMode", ULTRACATEGORY, GameRuleFactory.createEnumRule(Option.FREE,
 					(server, rule) -> {
 						if(server.isRemote() && rule.get().equals(Option.FORCE_ON))
 							sendAdminMessage(server, Text.translatable("message.ultracraft.server.freeze-enable-warning"));
 						OnChanged(server, (byte)1, rule.get().ordinal());
 					}));
 	public static final GameRules.Key<EnumRule<Option>> TIME_STOP =
-			GameRuleRegistry.register("ultra-timeStopEffect", GameRules.Category.PLAYER,
+			GameRuleRegistry.register("ultra-timeStopEffect", ULTRACATEGORY,
 				GameRuleFactory.createEnumRule(Option.FORCE_OFF, new Option[] { Option.FORCE_ON, Option.FORCE_OFF },
 					(server, rule) -> OnChanged(server, (byte)2, rule.get().ordinal())));
 	public static final GameRules.Key<GameRules.BooleanRule> DISABLE_HANDSWAP =
-			GameRuleRegistry.register("ultra-disableHandSwap", GameRules.Category.PLAYER,
+			GameRuleRegistry.register("ultra-disableHandSwap", ULTRACATEGORY,
 				GameRuleFactory.createBooleanRule(false,
 					(server, rule) -> OnChanged(server, (byte)3, (rule.get() ? 1 : 0))));
 	public static final GameRules.Key<GameRules.IntRule> HIVEL_JUMP_BOOST =
-			GameRuleRegistry.register("ultra-hivelJumpBoost", GameRules.Category.PLAYER,
+			GameRuleRegistry.register("ultra-hivelJumpBoost", ULTRACATEGORY,
 					GameRuleFactory.createIntRule(2,
 							(server, rule) -> OnChanged(server, (byte)4, rule.get())));
 	public static final GameRules.Key<GameRules.BooleanRule> SLAM_STORAGE =
-			GameRuleRegistry.register("ultra-allowSlamStorage", GameRules.Category.PLAYER,
+			GameRuleRegistry.register("ultra-allowSlamStorage", ULTRACATEGORY,
 					GameRuleFactory.createBooleanRule(true,
 							(server, rule) -> OnChanged(server, (byte)5, (rule.get() ? 1 : 0))));
 	public static final GameRules.Key<GameRules.BooleanRule> HIVEL_FALLDAMAGE =
-			GameRuleRegistry.register("ultra-hivelFallDamage", GameRules.Category.PLAYER,
+			GameRuleRegistry.register("ultra-hivelFallDamage", ULTRACATEGORY,
 			GameRuleFactory.createBooleanRule(false,
 					(server, rule) -> OnChanged(server, (byte)6, (rule.get() ? 1 : 0))));
 	public static final GameRules.Key<GameRules.BooleanRule> HIVEL_DROWNING =
-			GameRuleRegistry.register("ultra-hivelDrowning", GameRules.Category.PLAYER,
+			GameRuleRegistry.register("ultra-hivelDrowning", ULTRACATEGORY,
 					GameRuleFactory.createBooleanRule(false,
 							(server, rule) -> OnChanged(server, (byte)7, (rule.get() ? 1 : 0))));
 	public static final GameRules.Key<EnumRule<RegenOption>> BLOODHEAL =
-			GameRuleRegistry.register("ultra-bloodHealing", GameRules.Category.PLAYER,
+			GameRuleRegistry.register("ultra-bloodHealing", ULTRACATEGORY,
 					GameRuleFactory.createEnumRule(RegenOption.ALWAYS,
 							(server, rule) -> OnChanged(server, (byte)8, (rule.get().ordinal()))));
 	public static final GameRules.Key<GameRules.IntRule> HIVEL_SPEED =
-			GameRuleRegistry.register("ultra-speed", GameRules.Category.PLAYER,
+			GameRuleRegistry.register("ultra-speed", ULTRACATEGORY,
 					GameRuleFactory.createIntRule(2,
 							(server, rule) -> {
 						OnChanged(server, (byte)9, rule.get());
@@ -71,33 +74,37 @@ public class GameruleRegistry
 						});
 					}));
 	public static final GameRules.Key<GameRules.IntRule> HIVEL_SLOWFALL =
-			GameRuleRegistry.register("ultra-gravityReduction", GameRules.Category.PLAYER,
+			GameRuleRegistry.register("ultra-gravityReduction", ULTRACATEGORY,
 					GameRuleFactory.createIntRule(4, 0, 10,
 							(server, rule) -> OnChanged(server, (byte)10, rule.get())));
 	public static final GameRules.Key<GameRules.BooleanRule> EFFECTIVELY_VIOLENT =
-			GameRuleRegistry.register("ultra-effectivelyViolent", GameRules.Category.MOBS,
+			GameRuleRegistry.register("ultra-effectivelyViolent", ULTRACATEGORY,
 					GameRuleFactory.createBooleanRule(false,
 							(server, rule) -> OnChanged(server, (byte)11, rule.get() ? 1 : 0)));
 	public static final GameRules.Key<GameRules.BooleanRule> EXPLOSION_DAMAGE =
-			GameRuleRegistry.register("ultra-explosionBlockBreaking", GameRules.Category.PLAYER,
+			GameRuleRegistry.register("ultra-explosionBlockBreaking", ULTRACATEGORY,
 					GameRuleFactory.createBooleanRule(true,
 							(server, rule) -> OnChanged(server, (byte)12, rule.get() ? 1 : 0)));
 	public static final GameRules.Key<GameRules.BooleanRule> SM_SAFE_LEDGES =
-			GameRuleRegistry.register("ultra-swordsmachineSafeLedges", GameRules.Category.MOBS,
+			GameRuleRegistry.register("ultra-swordsmachineSafeLedges", ULTRACATEGORY,
 					GameRuleFactory.createBooleanRule(false,
 							(server, rule) -> OnChanged(server, (byte)13, rule.get() ? 1 : 0)));
 	public static final GameRules.Key<GameRules.BooleanRule> PARRY_CHAINING =
-			GameRuleRegistry.register("ultra-parryChaining", GameRules.Category.PLAYER,
+			GameRuleRegistry.register("ultra-parryChaining", ULTRACATEGORY,
 					GameRuleFactory.createBooleanRule(false,
 							(server, rule) -> OnChanged(server, (byte)14, rule.get() ? 1 : 0)));
 	public static final GameRules.Key<GameRules.BooleanRule> TNT_PRIMING =
-			GameRuleRegistry.register("ultra-tntPriming", GameRules.Category.PLAYER,
+			GameRuleRegistry.register("ultra-tntPriming", ULTRACATEGORY,
 					GameRuleFactory.createBooleanRule(true,
 							(server, rule) -> OnChanged(server, (byte)15, rule.get() ? 1 : 0)));
 	public static final GameRules.Key<GameRules.IntRule> GUN_DAMAGE =
-			GameRuleRegistry.register("ultra-gunDamage", GameRules.Category.PLAYER,
+			GameRuleRegistry.register("ultra-gunDamage", ULTRACATEGORY,
 					GameRuleFactory.createIntRule(1, 1, 20,
 							(server, rule) -> OnChanged(server, (byte)16, rule.get())));
+	public static final GameRules.Key<GameRules.IntRule> INVINCIBILITY =
+			GameRuleRegistry.register("ultra-iFrames", ULTRACATEGORY,
+					GameRuleFactory.createIntRule(4, 0, 20,
+							(server, rule) -> OnChanged(server, (byte)17, rule.get())));
 	
 	public static void OnChanged(MinecraftServer server, byte b, int val)
 	{
@@ -105,7 +112,7 @@ public class GameruleRegistry
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeByte(b);
 			buf.writeInt(val);
-			ServerPlayNetworking.send(p, PacketRegistry.SYNC_RULE, buf);
+			ServerPlayNetworking.send(p, PacketRegistry.SYNC_RULE_PACKET_ID, buf);
 		});
 	}
 	
@@ -114,12 +121,12 @@ public class GameruleRegistry
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeByte(b);
 		buf.writeInt(val);
-		ServerPlayNetworking.send(player, PacketRegistry.SYNC_RULE, buf);
+		ServerPlayNetworking.send(player, PacketRegistry.SYNC_RULE_PACKET_ID, buf);
 	}
 	
 	public static void SyncAll(ServerPlayerEntity player)
 	{
-		OnChanged(player, (byte)1, player.server.getGameRules().get(HI_VEL_MODE).get().ordinal());
+		OnChanged(player, (byte)1, player.server.getGameRules().get(HIVEL_MODE).get().ordinal());
 		OnChanged(player, (byte)2, player.server.getGameRules().get(TIME_STOP).get().ordinal());
 		OnChanged(player, (byte)3, player.server.getGameRules().getBoolean(DISABLE_HANDSWAP) ? 1 : 0);
 		OnChanged(player, (byte)4, player.server.getGameRules().getInt(HIVEL_JUMP_BOOST));

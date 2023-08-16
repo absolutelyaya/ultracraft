@@ -148,7 +148,7 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 	}
 	
 	@Override
-	public boolean isHitscanHittable()
+	public boolean isHitscanHittable(byte type)
 	{
 		return true;
 	}

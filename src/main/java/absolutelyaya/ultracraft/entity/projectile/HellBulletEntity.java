@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.entity.projectile;
 
 import absolutelyaya.ultracraft.ExplosionHandler;
+import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ChainParryAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
@@ -204,9 +205,9 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 	}
 	
 	@Override
-	public boolean isHitscanHittable()
+	public boolean isHitscanHittable(byte type)
 	{
-		return false;
+		return type == ServerHitscanHandler.SHARPSHOOTER;
 	}
 	
 	@Override

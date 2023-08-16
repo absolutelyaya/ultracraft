@@ -23,6 +23,19 @@ public abstract class MovingPlayerSoundInstance extends MovingSoundInstance
 		z = owner.getZ();
 	}
 	
+	public MovingPlayerSoundInstance(SoundEvent event, SoundCategory category, Entity owner)
+	{
+		super(event, category, SoundInstance.createRandom());
+		this.owner = owner;
+		repeat = true;
+		repeatDelay = 0;
+		volume = 0;
+		pitch = 1f;
+		x = owner.getX();
+		y = owner.getY();
+		z = owner.getZ();
+	}
+	
 	@Override
 	public boolean shouldAlwaysPlay()
 	{

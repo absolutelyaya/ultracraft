@@ -8,6 +8,7 @@ import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
+import absolutelyaya.ultracraft.compat.PlayerAnimator;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
@@ -17,6 +18,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -27,6 +29,7 @@ import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
@@ -37,7 +40,7 @@ import org.joml.Vector3f;
 
 import java.util.UUID;
 
-import static absolutelyaya.ultracraft.registry.PacketRegistry.REPLENISH_STAMINA;
+import static absolutelyaya.ultracraft.registry.PacketRegistry.*;
 
 @SuppressWarnings("CodeBlock2Expr")
 @Environment(EnvType.CLIENT)
@@ -46,8 +49,13 @@ public class ClientPacketRegistry
 	public static void registerS2C()
 	{
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.FREEZE_PACKET_ID, ((client, handler, buf, sender) -> {
-			if(UltracraftClient.isFreezeEnabled())
-				Ultracraft.freeze(null, buf.readInt());
+			int ticks = buf.readInt();
+			boolean freezePhysicsDisabled = buf.readBoolean();
+			if(!UltracraftClient.getConfigHolder().get().freezeVFX)
+				return;
+			if(!freezePhysicsDisabled)
+				Ultracraft.freeze((ServerWorld)null, ticks);
+			UltracraftClient.freezeVFX(ticks);
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.HITSCAN_PACKET_ID, ((client, handler, buf, sender) -> {
 			UltracraftClient.HITSCAN_HANDLER.addEntry(
@@ -59,7 +67,7 @@ public class ClientPacketRegistry
 			if(client.player == null)
 				return;
 			PlayerEntity player = client.player.getWorld().getPlayerByUuid(buf.readUuid());
-			if(player == null)
+			if(player == null || player.equals(client.player))
 				return;
 			Vec3d dir = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
 			MinecraftClient.getInstance().execute(() -> {
@@ -157,14 +165,14 @@ public class ClientPacketRegistry
 					((WingedPlayerEntity)client.player).getGunCooldownManager().setCooldown(item, ticks, idx);
 			});
 		}));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.CATCH_FISH_ID, ((client, handler, buf, sender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.CATCH_FISH_PACKET_ID, ((client, handler, buf, sender) -> {
 			UltraHudRenderer.onCatchFish(buf.readItemStack());
 		}));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SYNC_RULE, ((client, handler, buf, sender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SYNC_RULE_PACKET_ID, ((client, handler, buf, sender) -> {
 			byte b = buf.readByte();
 			UltracraftClient.syncGameRule(b, buf.readInt());
 		}));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.ENTITY_TRAIL, ((client, handler, buf, sender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.ENTITY_TRAIL_PACKET_ID, ((client, handler, buf, sender) -> {
 			Entity e = client.world.getEntityById(buf.readInt());
 			boolean b = buf.readBoolean();
 			int data = buf.readInt();
@@ -225,7 +233,7 @@ public class ClientPacketRegistry
 					gun.onPrimaryFire(player.getWorld(), player, velocity);
 			});
 		}));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.DEBUG, ((client, handler, buf, sender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.DEBUG_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)
 				return;
 			Vector3f pos = buf.readVector3f();
@@ -280,7 +288,7 @@ public class ClientPacketRegistry
 				client.player.sendMessage(Text.translatable("command.ultracraft.unblock.client-" + (b ? "success" : "fail")));
 			});
 		}));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.OPEN_SERVER_CONFIG_MENU, ((client, handler, buf, sender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.OPEN_SERVER_CONFIG_MENU_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)
 				return;
 			NbtCompound rules = buf.readNbt();
@@ -288,7 +296,7 @@ public class ClientPacketRegistry
 				client.setScreen(new ServerConfigScreen(rules));
 			});
 		}));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.RICOCHET_WARNING, ((client, handler, buf, sender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.RICOCHET_WARNING_PACKET_ID, ((client, handler, buf, sender) -> {
 			if(client.player == null)
 				return;
 			Vector3f source = buf.readVector3f();
@@ -301,11 +309,23 @@ public class ClientPacketRegistry
 				client.player.getWorld().playSound(source.x, source.y, source.z, SoundEvents.ENTITY_WARDEN_SONIC_CHARGE, SoundCategory.PLAYERS, 0.75f, 1.65f, false);
 			});
 		}));
-		ClientPlayNetworking.registerGlobalReceiver(REPLENISH_STAMINA, (client, handler, buf, sender) -> {
+		ClientPlayNetworking.registerGlobalReceiver(REPLENISH_STAMINA_PACKET_ID, (client, handler, buf, sender) -> {
 			int i = buf.readInt();
 			client.execute(() -> {
 				if(client.player instanceof WingedPlayerEntity winged)
 					winged.replenishStamina(i);
+			});
+		});
+		ClientPlayNetworking.registerGlobalReceiver(ANIMATION_S2C_PACKET_ID, (client, handler, buf, sender) -> {
+			UUID targetID = buf.readUuid();
+			AbstractClientPlayerEntity target = (AbstractClientPlayerEntity)client.player.getWorld().getPlayerByUuid(targetID);
+			if(target == null || target.equals(client.player))
+				return;
+			int animID = buf.readInt();
+			int fade = buf.readInt();
+			boolean firstperson = buf.readBoolean();
+			client.execute(() -> {
+				PlayerAnimator.playAnimation(target, animID, fade, firstperson, true);
 			});
 		});
 	}

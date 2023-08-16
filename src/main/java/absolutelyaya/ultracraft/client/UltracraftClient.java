@@ -25,6 +25,7 @@ import absolutelyaya.ultracraft.client.sound.MovingMachineSwordSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingSlideSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingSwordsmachineSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingWindSoundInstance;
+import absolutelyaya.ultracraft.compat.PlayerAnimator;
 import absolutelyaya.ultracraft.entity.husk.FilthEntity;
 import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
@@ -102,6 +103,7 @@ public class UltracraftClient implements ClientModInitializer
 	static float screenblood;
 	static Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f, 255f, 154f), new Vec3d(117f, 154f, 255f) };
 	static final Vec3d[] defaultWingColors = new Vec3d[] { new Vec3d(247f, 255f, 154f), new Vec3d(117f, 154f, 255f) };
+	static int visualFreezeTicks;
 	
 	static UltraHudRenderer hudRenderer;
 	static ConfigHolder<Ultraconfig> config;
@@ -153,9 +155,11 @@ public class UltracraftClient implements ClientModInitializer
 		EntityModelLayerRegistry.registerModelLayer(ENRAGE_LAYER, EnragedModel::getTexturedModelData);
 		EntityModelLayerRegistry.registerModelLayer(SHOCKWAVE_LAYER, ShockwaveModel::getTexturedModelData);
 		EntityModelLayerRegistry.registerModelLayer(INTERRUPTABLE_CHARGE_LAYER, InterruptableChargeModel::getTexturedModelData);
-		
+		//BlockEntityRenderers
 		BlockEntityRendererFactories.register(BlockEntityRegistry.PEDESTAL, PedestalBlockEntityRenderer::new);
 		BlockEntityRendererFactories.register(BlockEntityRegistry.CERBERUS, context -> new CerberusBlockRenderer());
+		//Player Animations
+		PlayerAnimator.init();
 		
 		ModelPredicateRegistry.registerModels();
 		ScreenHandlerRegistry.registerClient();
@@ -169,7 +173,11 @@ public class UltracraftClient implements ClientModInitializer
 				FabricLoader.getInstance().getModContainer(Ultracraft.MOD_ID).orElseThrow(), Text.literal("ULTRACRAFT Non-Essential"),
 				ResourcePackActivationType.DEFAULT_ENABLED);
 		
-		ClientTickEvents.END_WORLD_TICK.register((client) -> HITSCAN_HANDLER.tick());
+		ClientTickEvents.END_WORLD_TICK.register((client) -> {
+			HITSCAN_HANDLER.tick();
+			if(visualFreezeTicks > 0)
+				visualFreezeTicks--;
+		});
 		
 		hudRenderer = new UltraHudRenderer();
 		WorldRenderEvents.END.register((context) -> hudRenderer.render(context.tickDelta(), context.camera()));
@@ -244,7 +252,7 @@ public class UltracraftClient implements ClientModInitializer
 						Math.min(screenblood - 0.75f, 0.6f));
 				screenblood = Math.max(0f, screenblood - delta / 120);
 			}
-			if(Ultracraft.isTimeFrozen())
+			if(visualFreezeTicks > 0)
 				MinecraftClient.getInstance().inGameHud.renderOverlay(matrices, new Identifier(Ultracraft.MOD_ID, "textures/misc/time_freeze_overlay.png"),
 						0.25f);
 		});
@@ -432,7 +440,7 @@ public class UltracraftClient implements ClientModInitializer
 			case 0 -> onExternalRuleUpdate(GameruleRegistry.PROJ_BOOST, (projBoost = GameruleRegistry.ProjectileBoostSetting.values()[value]).name());
 			case 1 ->
 			{
-				onExternalRuleUpdate(GameruleRegistry.HI_VEL_MODE, (HiVelOption = GameruleRegistry.Option.values()[value]).name());
+				onExternalRuleUpdate(GameruleRegistry.HIVEL_MODE, (HiVelOption = GameruleRegistry.Option.values()[value]).name());
 				if(HiVelOption != GameruleRegistry.Option.FREE)
 					setHiVel(HiVelOption == GameruleRegistry.Option.FORCE_ON, false);
 			}
@@ -451,6 +459,7 @@ public class UltracraftClient implements ClientModInitializer
 			case 14 -> onExternalRuleUpdate(GameruleRegistry.PARRY_CHAINING, parryChaining = value == 1);
 			case 15 -> onExternalRuleUpdate(GameruleRegistry.TNT_PRIMING, value == 1);
 			case 16 -> onExternalRuleUpdate(GameruleRegistry.GUN_DAMAGE, value);
+			case 17 -> onExternalRuleUpdate(GameruleRegistry.INVINCIBILITY, value);
 			case 127 -> gameRuleSyncFinished();
 			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncB] -> " + data);
 		}
@@ -518,5 +527,15 @@ public class UltracraftClient implements ClientModInitializer
 	public static boolean isSupporter()
 	{
 		return supporter;
+	}
+	
+	public static void freezeVFX(int ticks)
+	{
+		visualFreezeTicks += ticks;
+	}
+	
+	public static boolean isParryVisualsActive()
+	{
+		return visualFreezeTicks > 0;
 	}
 }

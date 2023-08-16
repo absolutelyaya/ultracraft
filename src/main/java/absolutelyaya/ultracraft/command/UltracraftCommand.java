@@ -56,7 +56,7 @@ public class UltracraftCommand
 	{
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeNbt(context.getSource().getWorld().getGameRules().toNbt());
-		ServerPlayNetworking.send(context.getSource().getPlayer(), PacketRegistry.OPEN_SERVER_CONFIG_MENU, buf);
+		ServerPlayNetworking.send(context.getSource().getPlayer(), PacketRegistry.OPEN_SERVER_CONFIG_MENU_PACKET_ID, buf);
 		return Command.SINGLE_SUCCESS;
 	}
 	
@@ -121,7 +121,7 @@ public class UltracraftCommand
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeVector3f(v.toVector3f());
 		buf.writeUuid(context.getSource().getPlayer().getUuid());
-		ServerPlayNetworking.send(context.getSource().getPlayer(), PacketRegistry.RICOCHET_WARNING, buf);
+		ServerPlayNetworking.send(context.getSource().getPlayer(), PacketRegistry.RICOCHET_WARNING_PACKET_ID, buf);
 		return Command.SINGLE_SUCCESS;
 	}
 	

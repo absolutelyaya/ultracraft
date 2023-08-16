@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
+import absolutelyaya.ultracraft.compat.PlayerAnimator;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.TagRegistry;
@@ -27,7 +28,6 @@ import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -88,6 +88,9 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Shadow public abstract boolean isUsingItem();
 	
 	@Shadow private @Nullable Hand activeHand;
+	
+	@Shadow public abstract boolean isMainPlayer();
+	
 	Vec3d dashDir = Vec3d.ZERO;
 	Vec3d slideDir = Vec3d.ZERO;
 	boolean slamming, lastSlamming, strongGroundPound, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored,
@@ -112,17 +115,20 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				if(dir.lengthSquared() < 0.9f)
 					dir = Vec3d.fromPolar(0f, getYaw()).normalize();
 				
-				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-				buf.writeDouble(dir.x);
-				buf.writeDouble(dir.y);
-				buf.writeDouble(dir.z);
-				ClientPlayNetworking.send(PacketRegistry.DASH_C2S_PACKET_ID, buf);
+				if(isMainPlayer())
+				{
+					PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+					buf.writeDouble(dir.x);
+					buf.writeDouble(dir.y);
+					buf.writeDouble(dir.z);
+					ClientPlayNetworking.send(PacketRegistry.DASH_C2S_PACKET_ID, buf);
+					PlayerAnimator.playAnimation(client.player, forwardSpeed >= 0 ? PlayerAnimator.DASH_FORWARD : PlayerAnimator.DASH_BACK, 5, false);
+				}
 				setVelocity(dir);
 				dashDir = dir;
 				onDash();
 				if(isSprinting())
 					setSliding(false, true);
-				playSound(SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.5f, 1.6f);
 			}
 		}
 	}
@@ -154,6 +160,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					slamming = true;
 					strongGroundPound = true;
 					setSprinting(false);
+					if(isMainPlayer())
+						PlayerAnimator.playAnimation(client.player, PlayerAnimator.SLAM_LOOP, 5, false);
 				}
 				//start slide
 				else if(!horizontalCollision && !jumping && !isDashing() && !wasDashing(2))
@@ -219,6 +227,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					slamJumpTimer = 0;
 					slamCooldown = 5;
 					slideVelocity = slamStored ? 1f : 0.66f;
+					if(isMainPlayer())
+						PlayerAnimator.playAnimation(client.player, PlayerAnimator.SLAM_IMPACT, 0, false);
 				}
 				if(jumping && lastJumping)
 					disableJumpTicks = 8;
@@ -234,9 +244,16 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					{
 						setIgnoreSlowdown(true);
 						setVelocity(Vec3d.fromPolar(0, getYaw()).multiply(slamStored ? 4f : 1.5f).add(0, getJumpVelocity(), 0));
+						if(isMainPlayer())
+							PlayerAnimator.playAnimation(client.player,
+									slamStored ? PlayerAnimator.SLAMSTORE_DIVE : PlayerAnimator.SLAM_DIVE, 0, false);
 					}
 					else
+					{
 						setVelocity(0, slamTicks / 20f + getJumpVelocity() * 1.5f + (slamStored ? 3f : 0f), 0);
+						if(isMainPlayer())
+							PlayerAnimator.playAnimation(client.player, PlayerAnimator.SLAM_JUMP, 0, false);
+					}
 					if(slamStored)
 						jumpTicks = 0;
 					slamStored = false;
@@ -265,7 +282,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					setVelocity(dashDir.multiply(0.3));
 				addVelocity(0f, baseJumpVel, 0f);
 				setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
-				playSound(SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.5f, 1.8f);
+				if(isMainPlayer())
+					PlayerAnimator.playAnimation(client.player, forwardSpeed >= 0 ? PlayerAnimator.DASH_FORWARD : PlayerAnimator.DASH_BACK, 5, false);
 			}
 			//stop dashing
 			if(wasDashing() && !isDashing())
@@ -381,7 +399,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		{
 			if (shouldIgnoreSlowdown())
 				setIgnoreSlowdown(false);
-			if((!wasHiVel && UltracraftClient.isHiVelEnabled() || (getAbilities().flying || isSpectator())) && isSprinting())
+			if((!wasHiVel || getAbilities().flying || isSpectator()) && UltracraftClient.isHiVelEnabled() && isSprinting())
 				setSliding(false, true);
 			if(slamming)
 				cancelGroundPound();
@@ -438,7 +456,11 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				slideDir = Vec3d.fromPolar(0f, getYaw()).normalize();
 			else
 				slideDir = new Vec3d(movementDir.x, 0, movementDir.y).rotateY((float)Math.toRadians(-getRotationClient().y)).normalize();
+			if(isMainPlayer())
+				PlayerAnimator.playAnimation(client.player, PlayerAnimator.START_SLIDE, 0, false);
 		}
+		else if(!sliding && last && isMainPlayer())
+			PlayerAnimator.playAnimation(client.player, PlayerAnimator.STOP_SLIDE, 0, false);
 		if(!wasDashing())
 			slideVelocity = Math.max(0.33f, Math.max((float)getVelocity().multiply(1f, 0f, 1f).length(), last ? 0f : slideVelocity * 0.75f));
 		else
