@@ -5,9 +5,10 @@ import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.other.BackTank;
 import absolutelyaya.ultracraft.entity.projectile.EjectedCoreEntity;
 import absolutelyaya.ultracraft.entity.projectile.FlameProjectileEntity;
+import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MovementType;
 import net.minecraft.entity.ai.control.LookControl;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.Goal;
@@ -105,6 +106,8 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 			dataTracker.set(ROTATION_DELAY_COOLDOWN, dataTracker.get(ROTATION_DELAY_COOLDOWN) - 1);
 		if(dataTracker.get(COUNTER_COOLDOWN) > 0)
 			dataTracker.set(COUNTER_COOLDOWN, dataTracker.get(COUNTER_COOLDOWN) - 1);
+		if(dataTracker.get(DODGE_COOLDOWN) > 0)
+			dataTracker.set(DODGE_COOLDOWN, dataTracker.get(DODGE_COOLDOWN) - 1);
 		if(dataTracker.get(ANIMATION) != ANIMATION_IDLE)
 			dataTracker.set(ANIM_TIME, dataTracker.get(ANIM_TIME) + 1);
 		if(!getWorld().isClient && isAlive() && dataTracker.get(ATTACKING) && age % 4 == 0)
@@ -136,7 +139,7 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 		if(isCanCounter())
 		{
 			List<EjectedCoreEntity> counterCandidates = getWorld().getEntitiesByType(TypeFilter.instanceOf(EjectedCoreEntity.class),
-					getBoundingBox().expand(0.5f), (e) -> true);
+					getBoundingBox(), (e) -> true);
 			if(counterCandidates.size() > 0)
 			{
 				EjectedCoreEntity target = counterCandidates.get(0);
@@ -144,6 +147,21 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 				dataTracker.set(ANIMATION, ANIMATION_COUNTER);
 				dataTracker.set(ANIM_TIME, 0);
 				dataTracker.set(COUNTER_COOLDOWN, 100);
+			}
+		}
+		if(isCanDodge())
+		{
+			List<ShotgunPelletEntity> dodgeCandidates = getWorld().getEntitiesByType(TypeFilter.instanceOf(ShotgunPelletEntity.class),
+					getBoundingBox().expand(4f), (e) -> true);
+			if(dodgeCandidates.size() > 0)
+			{
+				Entity target = dodgeCandidates.get(0);
+				boolean b = random.nextBoolean();
+				Vec3d dir = target.getVelocity().normalize().multiply(2f).rotateY(b ? 45 : -45);
+				setVelocity(dir);
+				dataTracker.set(ANIMATION, ANIMATION_DODGE);
+				dataTracker.set(ANIM_TIME, 0);
+				dataTracker.set(DODGE_COOLDOWN, 100);
 			}
 		}
 	}
@@ -174,6 +192,8 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 			}
 			case ANIMATION_DODGE -> {
 				event.setAnimation(DODGE_ANIM);
+				if(dataTracker.get(ANIM_TIME) > 15)
+					dataTracker.set(ANIMATION, ANIMATION_IDLE);
 			}
 			case ANIMATION_COUNTER -> {
 				event.setAnimation(COUNTER_ANIM);
