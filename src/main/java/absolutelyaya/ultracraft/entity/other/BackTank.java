@@ -52,8 +52,6 @@ public class BackTank extends Entity
 	public void tick()
 	{
 		super.tick();
-		if(getWorld().isClient)
-			return;
 		if(owner != null && owner.isAlive())
 			positionSelf(owner);
 		else if(!isRemoved())
@@ -62,8 +60,14 @@ public class BackTank extends Entity
 			kill();
 	}
 	
-	void positionSelf(LivingEntity owner)
+	public void positionSelf(LivingEntity owner)
 	{
+		//prevX = getX();
+		//prevY = getY();
+		//prevZ = getZ();
+		//lastRenderX = getX();
+		//lastRenderY = getY();
+		//lastRenderZ = getZ();
 		Vec3d pos = owner.getBoundingBox().getCenter().subtract(Vec3d.fromPolar(0f, owner.getBodyYaw()).multiply(0.3f));
 		setPosition(pos.x, pos.y + 0.3, pos.z);
 	}
@@ -111,6 +115,6 @@ public class BackTank extends Entity
 	@Override
 	public boolean canHit()
 	{
-		return true;
+		return false;
 	}
 }

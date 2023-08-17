@@ -3,9 +3,11 @@ package absolutelyaya.ultracraft.entity.machine;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.other.BackTank;
+import absolutelyaya.ultracraft.entity.projectile.EjectedCoreEntity;
 import absolutelyaya.ultracraft.entity.projectile.FlameProjectileEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.MovementType;
 import net.minecraft.entity.ai.control.LookControl;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.Goal;
@@ -21,6 +23,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -33,6 +36,8 @@ import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
+
+import java.util.List;
 
 public class StreetCleanerEntity extends AbstractUltraHostileEntity implements GeoEntity
 {
@@ -49,12 +54,16 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 	protected static final TrackedData<Integer> ROTATION_DELAY = DataTracker.registerData(StreetCleanerEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> ROTATION_DELAY_COOLDOWN = DataTracker.registerData(StreetCleanerEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Boolean> ATTACKING = DataTracker.registerData(StreetCleanerEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Integer> COUNTER_COOLDOWN = DataTracker.registerData(StreetCleanerEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Integer> DODGE_COOLDOWN = DataTracker.registerData(StreetCleanerEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Integer> ANIM_TIME = DataTracker.registerData(StreetCleanerEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	BackTank tank;
 	
 	public StreetCleanerEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
 		super(entityType, world);
 		lookControl = new StreetCleanerLookControl(this);
-		BackTank.spawn(world, this);
+		tank = BackTank.spawn(world, this);
 	}
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
@@ -73,6 +82,9 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 		dataTracker.startTracking(ROTATION_DELAY, 0);
 		dataTracker.startTracking(ROTATION_DELAY_COOLDOWN, 0);
 		dataTracker.startTracking(ATTACKING, false);
+		dataTracker.startTracking(COUNTER_COOLDOWN, 0);
+		dataTracker.startTracking(DODGE_COOLDOWN, 0);
+		dataTracker.startTracking(ANIM_TIME, 0);
 	}
 	
 	@Override
@@ -91,7 +103,11 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 			dataTracker.set(ROTATION_DELAY, dataTracker.get(ROTATION_DELAY) - 1);
 		if(dataTracker.get(ROTATION_DELAY_COOLDOWN) > 0)
 			dataTracker.set(ROTATION_DELAY_COOLDOWN, dataTracker.get(ROTATION_DELAY_COOLDOWN) - 1);
-		if(!getWorld().isClient && dataTracker.get(ATTACKING) && age % 4 == 0)
+		if(dataTracker.get(COUNTER_COOLDOWN) > 0)
+			dataTracker.set(COUNTER_COOLDOWN, dataTracker.get(COUNTER_COOLDOWN) - 1);
+		if(dataTracker.get(ANIMATION) != ANIMATION_IDLE)
+			dataTracker.set(ANIM_TIME, dataTracker.get(ANIM_TIME) + 1);
+		if(!getWorld().isClient && isAlive() && dataTracker.get(ATTACKING) && age % 4 == 0)
 		{
 			for (int i = 0; i < 2; i++)
 			{
@@ -117,6 +133,19 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 		setBodyYaw(headYaw);
 		if(touchingWater)
 			damage(DamageSources.get(getWorld(), DamageSources.SHORT_CIRCUIT), 999f);
+		if(isCanCounter())
+		{
+			List<EjectedCoreEntity> counterCandidates = getWorld().getEntitiesByType(TypeFilter.instanceOf(EjectedCoreEntity.class),
+					getBoundingBox().expand(0.5f), (e) -> true);
+			if(counterCandidates.size() > 0)
+			{
+				EjectedCoreEntity target = counterCandidates.get(0);
+				target.setVelocity(getRotationVector().rotateY(-90).add(0, 0.1, 0));
+				dataTracker.set(ANIMATION, ANIMATION_COUNTER);
+				dataTracker.set(ANIM_TIME, 0);
+				dataTracker.set(COUNTER_COOLDOWN, 100);
+			}
+		}
 	}
 	
 	@Override
@@ -143,8 +172,14 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 				else
 					event.setAnimation(dataTracker.get(ATTACKING) ? IDLE_AIM_ANIM : IDLE_ANIM);
 			}
-			case ANIMATION_DODGE -> event.setAnimation(DODGE_ANIM);
-			case ANIMATION_COUNTER -> event.setAnimation(COUNTER_ANIM);
+			case ANIMATION_DODGE -> {
+				event.setAnimation(DODGE_ANIM);
+			}
+			case ANIMATION_COUNTER -> {
+				event.setAnimation(COUNTER_ANIM);
+				if(dataTracker.get(ANIM_TIME) > 14)
+					dataTracker.set(ANIMATION, ANIMATION_IDLE);
+			}
 		}
 		return PlayState.CONTINUE;
 	}
@@ -159,6 +194,22 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 	public AnimatableInstanceCache getAnimatableInstanceCache()
 	{
 		return cache;
+	}
+	
+	@Override
+	public boolean isFireImmune()
+	{
+		return true;
+	}
+	
+	public boolean isCanDodge()
+	{
+		return dataTracker.get(DODGE_COOLDOWN) <= 0;
+	}
+	
+	public boolean isCanCounter()
+	{
+		return dataTracker.get(COUNTER_COOLDOWN) <= 0;
 	}
 	
 	static class StreetCleanerLookControl extends LookControl

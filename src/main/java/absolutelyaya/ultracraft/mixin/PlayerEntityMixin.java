@@ -410,6 +410,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			if(stamina % 30 == 0)
 				playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 0.2f, 1f + stamina / 30f * 0.1f);
 		}
+		if(backtank != null && !backtank.isRemoved())
+			backtank.positionSelf(this);
 	}
 	
 	@Inject(method = "adjustMovementForSneaking", at = @At("HEAD"), cancellable = true)
