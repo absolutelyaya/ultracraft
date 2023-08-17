@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.util;
 
 import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
+import absolutelyaya.ultracraft.entity.other.BackTank;
 import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
 import absolutelyaya.ultracraft.entity.projectile.EjectedCoreEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
@@ -32,7 +33,9 @@ public class AutoAimUtil
 	
 	static boolean isMarksmanHittable(Entity e)
 	{
-		return (!(e instanceof PlayerEntity p && !isPlayerHittable(p)) && ((e instanceof LivingEntity && ((LivingEntityAccessor)e).isRicochetHittable() && ((LivingEntity) e).getHealth() > 0)) || e instanceof EjectedCoreEntity || e instanceof InterruptableCharge);
+		return (!(e instanceof PlayerEntity p && !isPlayerHittable(p)) &&
+						((e instanceof LivingEntity && ((LivingEntityAccessor)e).isRicochetHittable() && ((LivingEntity) e).getHealth() > 0)) ||
+						e instanceof EjectedCoreEntity || e instanceof InterruptableCharge || e instanceof BackTank);
 	}
 	
 	static boolean isPlayerHittable(PlayerEntity p)
@@ -72,6 +75,7 @@ public class AutoAimUtil
 	{
 		boolean isSourceCoin = source instanceof ThrownCoinEntity;
 		return world.getOtherEntities(attacker, source.getBoundingBox().expand(32f),
-						e -> !e.equals(source) && (isSourceCoin && isMarksmanHittable(e)) || (!isSourceCoin && ((EntityAccessor)e).isTargettable()) && !e.isTeammate(attacker));
+						e -> !e.equals(source) && (isSourceCoin && isMarksmanHittable(e)) ||
+									 (!isSourceCoin && ((EntityAccessor)e).isTargettable()) && !e.isTeammate(attacker));
 	}
 }

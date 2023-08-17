@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.entity.machine;
 
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
+import absolutelyaya.ultracraft.entity.other.BackTank;
 import absolutelyaya.ultracraft.entity.projectile.FlameProjectileEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -53,6 +54,7 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 	{
 		super(entityType, world);
 		lookControl = new StreetCleanerLookControl(this);
+		BackTank.spawn(world, this);
 	}
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()

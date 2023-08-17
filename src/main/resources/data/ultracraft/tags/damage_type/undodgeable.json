@@ -4,6 +4,7 @@
     "minecraft:out_of_world",
     "minecraft:outside_border",
     "minecraft:starve",
-    "ultracraft:overcharge_self"
+    "ultracraft:overcharge_self",
+    "ultracraft:back_tank"
   ]
 }

@@ -122,6 +122,9 @@
   "death.attack.flamethrower": "%1$s was roasted like a marshmallow by %2$s",
   "death.attack.flamethrower.item": "%1$s was roasted like a marshmallow by %2$s using %3$s",
   "death.attack.short_circuit": "%1$s got fried like a Toaster in a Bathtub",
+  "death.attack.back_tank": "%1$s was shot in the back by %2$s",
+  "death.attack.back_tank.player": "%1$s was shot in the back by %2$s",
+  "death.attack.back_tank.item": "%1$s was shot in the back by %2$s using %3$s",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 

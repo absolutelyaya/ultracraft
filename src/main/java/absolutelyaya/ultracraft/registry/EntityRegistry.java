@@ -10,10 +10,7 @@ import absolutelyaya.ultracraft.entity.machine.DestinyBondSwordsmachineEntity;
 import absolutelyaya.ultracraft.entity.machine.DroneEntity;
 import absolutelyaya.ultracraft.entity.machine.StreetCleanerEntity;
 import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
-import absolutelyaya.ultracraft.entity.other.BloodOrbEntity;
-import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
-import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
-import absolutelyaya.ultracraft.entity.other.SoulOrbEntity;
+import absolutelyaya.ultracraft.entity.other.*;
 import absolutelyaya.ultracraft.entity.projectile.*;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.EntityType;
@@ -89,7 +86,11 @@ public class EntityRegistry
 	public static final EntityType<InterruptableCharge> INTERRUPTABLE_CHARGE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "interruptable_charge"),
 			EntityType.Builder.create(InterruptableCharge::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
-					.disableSummon().maxTrackingRange(5).build("interruptable_charge"));
+					.disableSummon().disableSaving().maxTrackingRange(5).build("interruptable_charge"));
+	public static final EntityType<BackTank> BACK_TANK = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "back_tank"),
+			EntityType.Builder.create(BackTank::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
+					.disableSummon().disableSaving().maxTrackingRange(5).build("back_tank"));
 	public static final EntityType<SoulOrbEntity> SOUL_ORB = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "soul_orb"),
 			EntityType.Builder.create(SoulOrbEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)

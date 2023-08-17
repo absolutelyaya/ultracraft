@@ -165,7 +165,7 @@ public class FlameProjectileEntity extends ThrownItemEntity implements Projectil
 	}
 	
 	@Override
-	public boolean isHitscanHittable()
+	public boolean isHitscanHittable(byte type)
 	{
 		return false;
 	}

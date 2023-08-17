@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.other.AbstractOrbEntity;
+import absolutelyaya.ultracraft.entity.other.BackTank;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
@@ -145,6 +146,8 @@ public class ServerHitscanHandler
 		for (int i = 0; i < entities.size(); i++)
 		{
 			Entity e = entities.get(i);
+			//if(e instanceof BackTank && i > 0) //Back Tanks shouldn't be hit after an entity is pierced
+			//	continue;
 			//hit the last pierced enemy with up to 10 of the remaining pierce shots. A Pierce revolver shot that hits just one enemy, will damage it 3 times.
 			for (int j = 0; j < Math.min(10, i == entities.size() - 1 && maxHits < 16 ? maxHits + 1 : 1); j++)
 				e.damage(source, damage * getDamageMultipier(world, type));
