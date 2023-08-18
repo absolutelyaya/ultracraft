@@ -6,10 +6,13 @@ import absolutelyaya.ultracraft.entity.other.BackTank;
 import absolutelyaya.ultracraft.entity.projectile.EjectedCoreEntity;
 import absolutelyaya.ultracraft.entity.projectile.FlameProjectileEntity;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
+import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
+import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.control.LookControl;
+import net.minecraft.entity.ai.control.MoveControl;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -21,12 +24,16 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.TypeFilter;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
@@ -58,12 +65,14 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 	protected static final TrackedData<Integer> COUNTER_COOLDOWN = DataTracker.registerData(StreetCleanerEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> DODGE_COOLDOWN = DataTracker.registerData(StreetCleanerEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> ANIM_TIME = DataTracker.registerData(StreetCleanerEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Integer> ATTACK_TIME = DataTracker.registerData(StreetCleanerEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	BackTank tank;
 	
 	public StreetCleanerEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
 		super(entityType, world);
 		lookControl = new StreetCleanerLookControl(this);
+		moveControl = new StreetCleanerMoveControl(this);
 		tank = BackTank.spawn(world, this);
 	}
 	
@@ -71,7 +80,7 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 	{
 		return HostileEntity.createMobAttributes()
 					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 9.0d)
-					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.25d)
+					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 1.0d)
 					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d);
 	}
@@ -86,6 +95,7 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 		dataTracker.startTracking(COUNTER_COOLDOWN, 0);
 		dataTracker.startTracking(DODGE_COOLDOWN, 0);
 		dataTracker.startTracking(ANIM_TIME, 0);
+		dataTracker.startTracking(ATTACK_TIME, 0);
 	}
 	
 	@Override
@@ -110,17 +120,28 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 			dataTracker.set(DODGE_COOLDOWN, dataTracker.get(DODGE_COOLDOWN) - 1);
 		if(dataTracker.get(ANIMATION) != ANIMATION_IDLE)
 			dataTracker.set(ANIM_TIME, dataTracker.get(ANIM_TIME) + 1);
-		if(!getWorld().isClient && isAlive() && dataTracker.get(ATTACKING) && age % 4 == 0)
+		if(!getWorld().isClient && isAlive() && dataTracker.get(ATTACKING))
 		{
-			for (int i = 0; i < 2; i++)
+			dataTracker.set(ATTACK_TIME, dataTracker.get(ATTACK_TIME) + 1);
+			if(dataTracker.get(ATTACK_TIME) > 8 && age % 4 == 0)
 			{
-				FlameProjectileEntity fireball = FlameProjectileEntity.spawn(this, getWorld());
-				fireball.setPosition(getBoundingBox().getCenter());
-				Vec3d dir = getRotationVector();
-				fireball.setVelocity(dir.x, dir.y, dir.z, 0.6f + getRandom().nextFloat() * 0.5f, 15);
-				fireball.setGriefing(false);
-				getWorld().spawnEntity(fireball);
+				for (int i = 0; i < 2; i++)
+				{
+					FlameProjectileEntity flame = FlameProjectileEntity.spawn(this, getWorld());
+					flame.setPosition(getBoundingBox().getCenter());
+					Vec3d dir = getRotationVector();
+					flame.setVelocity(dir.x, dir.y, dir.z, 0.6f + getRandom().nextFloat() * 0.5f, 10);
+					flame.setGriefing(false);
+					getWorld().spawnEntity(flame);
+				}
 			}
+		}
+		else if(!getWorld().isClient && dataTracker.get(ATTACK_TIME) > 0)
+			dataTracker.set(ATTACK_TIME, 0);
+		if(getWorld().isClient && dataTracker.get(ATTACK_TIME) == 1)
+		{
+			Vec3d pos = getEyePos().add(getRotationVector().multiply(1.5f));
+			getWorld().addParticle(new ParryIndicatorParticleEffect(true), pos.x, pos.y, pos.z, 0, 0, 0);
 		}
 	}
 	
@@ -152,12 +173,12 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 		if(isCanDodge())
 		{
 			List<ShotgunPelletEntity> dodgeCandidates = getWorld().getEntitiesByType(TypeFilter.instanceOf(ShotgunPelletEntity.class),
-					getBoundingBox().expand(4f), (e) -> true);
+					getBoundingBox().expand(5f), (e) -> true);
 			if(dodgeCandidates.size() > 0)
 			{
 				Entity target = dodgeCandidates.get(0);
 				boolean b = random.nextBoolean();
-				Vec3d dir = target.getVelocity().normalize().multiply(2f).rotateY(b ? 45 : -45);
+				Vec3d dir = target.getVelocity().normalize().multiply(3f).rotateY(b ? 75 : -75);
 				setVelocity(dir);
 				dataTracker.set(ANIMATION, ANIMATION_DODGE);
 				dataTracker.set(ANIM_TIME, 0);
@@ -247,15 +268,64 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 				double e = entity.getTarget().getX() - entity.getX();
 				double f = entity.getTarget().getZ() - entity.getZ();
 				float targetYaw = -((float) MathHelper.atan2(e, f)) * 57.295776f;
-				if(entity.getDataTracker().get(ROTATION_DELAY_COOLDOWN) == 0 && Math.abs(targetYaw - entity.getYaw()) > 45f)
+				float phi = Math.abs(targetYaw - entity.getYaw()) % 360;
+				float angleDelta = phi > 180 ? 360 - phi : phi;
+				if(entity.getDataTracker().get(ROTATION_DELAY_COOLDOWN) == 0 && angleDelta > 60f)
 				{
 					entity.getDataTracker().set(ROTATION_DELAY, 10);
 					entity.getDataTracker().set(ROTATION_DELAY_COOLDOWN, 40);
+					entity.getNavigation().stop();
 					return;
 				}
 				entity.headYaw = changeAngle(entity.headYaw, targetYaw, 20f);
 				entity.setYaw(entity.headYaw);
 			}
+		}
+	}
+	
+	static class StreetCleanerMoveControl extends MoveControl
+	{
+		public StreetCleanerMoveControl(MobEntity entity)
+		{
+			super(entity);
+		}
+		
+		@Override
+		public void tick()
+		{
+			 if (this.state == MoveControl.State.MOVE_TO)
+			 {
+				this.state = MoveControl.State.WAIT;
+				double dx = targetX - entity.getX();
+				double dz = targetZ - entity.getZ();
+				double dy = targetY - entity.getY();
+				double dist = dx * dx + dy * dy + dz * dz;
+				if (dist < 0.1)
+				{
+					entity.setForwardSpeed(0.0F);
+					return;
+				}
+				
+				entity.setMovementSpeed((float)(speed * entity.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED)));
+				BlockPos blockPos = entity.getBlockPos();
+				BlockState blockState = entity.getWorld().getBlockState(blockPos);
+				VoxelShape voxelShape = blockState.getCollisionShape(entity.getWorld(), blockPos);
+				if (dy > (double)entity.getStepHeight() && dx * dx + dz * dz < (double)Math.max(1.0F, entity.getWidth()) ||
+							!voxelShape.isEmpty() && entity.getY() < voxelShape.getMax(Direction.Axis.Y) + (double)blockPos.getY() &&
+									!blockState.isIn(BlockTags.DOORS) && !blockState.isIn(BlockTags.FENCES))
+				{
+					entity.getJumpControl().setActive();
+					state = MoveControl.State.JUMPING;
+				}
+			 }
+			 else if (state == MoveControl.State.JUMPING)
+			 {
+				entity.setMovementSpeed((float)(speed * entity.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED)));
+				if (entity.isOnGround())
+					state = MoveControl.State.WAIT;
+			 }
+			 else
+				entity.setForwardSpeed(0.0F);
 		}
 	}
 	

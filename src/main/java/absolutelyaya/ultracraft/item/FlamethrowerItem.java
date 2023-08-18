@@ -10,6 +10,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
@@ -22,6 +23,7 @@ import software.bernie.geckolib.animatable.client.RenderProvider;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
@@ -32,6 +34,9 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 {
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
+	final RawAnimation AnimationStart = RawAnimation.begin().thenPlay("start");
+	final RawAnimation AnimationStop = RawAnimation.begin().thenPlay("stop");
+	final RawAnimation AnimationOverdrive = RawAnimation.begin().thenPlay("start-overdrive");
 	
 	public FlamethrowerItem(Settings settings, float recoil, float altRecoil)
 	{
@@ -66,6 +71,7 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 		winged.getGunCooldownManager().setCooldown(this, overdrive ? 2 : 4, GunCooldownManager.PRIMARY);
 		if(!world.isClient)
 		{
+			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), overdrive ? "overdrive" : "start");
 			for (int i = 0; i < (overdrive ? 6 : 3); i++)
 			{
 				FlameProjectileEntity fireball = FlameProjectileEntity.spawn(user, world);
@@ -115,6 +121,8 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 			return;
 		if(winged.getGunCooldownManager().getCooldown(this, GunCooldownManager.PRIMARY) < 5)
 			winged.getGunCooldownManager().setCooldown(this, getHeat(user.getMainHandStack()) > 200 ? 25 : 50, GunCooldownManager.PRIMARY);
+		if(!world.isClient)
+			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), "stop");
 	}
 	
 	@Override
@@ -142,7 +150,10 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
 	{
-		controllerRegistrar.add(new AnimationController<>(this, "flamethrower", 0, ignored -> PlayState.STOP));
+		controllerRegistrar.add(new AnimationController<>(this, getControllerName(), 0, ignored -> PlayState.STOP)
+										.triggerableAnim("start", AnimationStart)
+										.triggerableAnim("stop", AnimationStop)
+										.triggerableAnim("overdrive", AnimationOverdrive));
 	}
 	
 	@Override

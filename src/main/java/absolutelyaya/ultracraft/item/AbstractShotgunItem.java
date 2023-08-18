@@ -22,6 +22,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.core.animation.RawAnimation;
 
 public abstract class AbstractShotgunItem extends AbstractWeaponItem implements GeoItem
 {

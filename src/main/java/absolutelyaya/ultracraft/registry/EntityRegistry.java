@@ -77,7 +77,7 @@ public class EntityRegistry
 					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("thrown_coin"));
 	public static final EntityType<FlameProjectileEntity> FLAME = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "flame"),
-			EntityType.Builder.create(FlameProjectileEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
+			EntityType.Builder.create(FlameProjectileEntity::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
 					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().disableSummon().build("flame"));
 	
 	public static final EntityType<ShockwaveEntity> SHOCKWAVE = Registry.register(Registries.ENTITY_TYPE,

@@ -25,7 +25,6 @@ import net.minecraft.world.World;
 
 import java.util.List;
 
-//TODO: replace fireball with a big flame particle texture
 public class FlameProjectileEntity extends ThrownItemEntity implements ProjectileEntityAccessor
 {
 	boolean griefing = true;
@@ -103,18 +102,21 @@ public class FlameProjectileEntity extends ThrownItemEntity implements Projectil
 	{
 		super.tick();
 		setBoundingBox(getBoundingBox().expand(age / (getOwner() instanceof PlayerEntity ? 30f : 60f)));
-		Box box = getBoundingBox();
-		Vec3d pos = getPos().add(randomParticleOffset(box.getXLength()), randomParticleOffset(box.getYLength()),
-				randomParticleOffset(box.getZLength()));
-		Vec3d v = getVelocity().multiply(0.66f).add(random.nextDouble() * 0.05 - 0.025, random.nextDouble() * 0.05 - 0.025,
-				random.nextDouble() * 0.05 - 0.025);
-		getWorld().addParticle(ParticleTypes.FLAME, pos.x, pos.y, pos.z, v.x, v.y, v.z);
+		if(age % 3 == 0)
+		{
+			Box box = getBoundingBox();
+			Vec3d pos = getPos().add(randomParticleOffset(box.getXLength()), randomParticleOffset(box.getYLength()),
+					randomParticleOffset(box.getZLength()));
+			Vec3d v = getVelocity().multiply(0.66f).add(random.nextDouble() * 0.05 - 0.025, random.nextDouble() * 0.05 - 0.025,
+					random.nextDouble() * 0.05 - 0.025);
+			getWorld().addParticle(ParticleTypes.FLAME, pos.x, pos.y, pos.z, v.x, v.y, v.z);
+		}
 		List<LivingEntity> collide = getWorld().getNonSpectatingEntities(LivingEntity.class, getBoundingBox());
 		for(LivingEntity e : collide)
 			damageEntity(e);
 		
 		setVelocity(getVelocity().multiply(0.9f));
-		if(getVelocity().length() < 0.05f)
+		if(getVelocity().length() < 0.2f)
 			kill();
 		
 		World world = getWorld();
