@@ -1,0 +1,132 @@
+{
+	"format_version": "1.8.0",
+	"animations": {
+		"pose": {
+			"loop": true,
+			"bones": {
+				"body": {
+					"rotation": {
+						"vector": [-70, 0, 0]
+					},
+					"position": {
+						"vector": [0, 35, -20]
+					}
+				},
+				"lowerTorso": {
+					"rotation": {
+						"vector": [42.5, 0, 0]
+					}
+				},
+				"TailStart": {
+					"rotation": {
+						"vector": [27.5, 0, 0]
+					}
+				},
+				"BackPlate1": {
+					"position": {
+						"vector": [0, 0, 6]
+					}
+				},
+				"BackPlate2": {
+					"rotation": {
+						"vector": [10, 0, 0]
+					},
+					"position": {
+						"vector": [0, -4, 2]
+					}
+				},
+				"Face": {
+					"rotation": {
+						"vector": [-15, 0, 0]
+					},
+					"position": {
+						"vector": [0, 3.75877, 1.36808]
+					}
+				},
+				"RightArm": {
+					"rotation": {
+						"vector": [7.5, 0, 10]
+					},
+					"position": {
+						"vector": [0, 13, -15]
+					}
+				},
+				"RightArm2": {
+					"rotation": {
+						"vector": [0, 0, -90]
+					},
+					"position": {
+						"vector": [0.5, -5, 0.5]
+					}
+				},
+				"RightArm3": {
+					"rotation": {
+						"vector": [0, -82.5, 0]
+					}
+				},
+				"harpoon": {
+					"position": {
+						"vector": [0, -6, 0]
+					}
+				},
+				"RightLegLower1": {
+					"rotation": {
+						"vector": [42.5, 0, 0]
+					}
+				},
+				"RightLeg1": {
+					"rotation": {
+						"vector": [-37.5, 22.5, 0]
+					},
+					"position": {
+						"vector": [7, -9, -1]
+					}
+				},
+				"RightLegLower2": {
+					"rotation": {
+						"vector": [0, 0, -35]
+					}
+				},
+				"RightLeg2": {
+					"rotation": {
+						"vector": [0, 0, 37.5]
+					},
+					"position": {
+						"vector": [5, -16, -12]
+					}
+				},
+				"RightLegLower4": {
+					"rotation": {
+						"vector": [0, 0, -60]
+					}
+				},
+				"RightLeg4": {
+					"rotation": {
+						"vector": [17.5, 10, 65]
+					},
+					"position": {
+						"vector": [7, -33, -14]
+					}
+				},
+				"RightLeg3": {
+					"rotation": {
+						"vector": [11.47594, 7.30111, 69.0523]
+					},
+					"position": {
+						"vector": [6, -30, -16]
+					}
+				},
+				"RightLegLower3": {
+					"rotation": {
+						"vector": [0, 0, -62.5]
+					}
+				},
+				"entrails": {
+					"position": {
+						"vector": [0, -1, 0]
+					}
+				}
+			}
+		}
+	}
+}

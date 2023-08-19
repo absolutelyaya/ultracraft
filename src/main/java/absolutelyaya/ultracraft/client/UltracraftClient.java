@@ -9,6 +9,7 @@ import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.client.rendering.block.entity.CerberusBlockRenderer;
 import absolutelyaya.ultracraft.client.rendering.block.entity.PedestalBlockEntityRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.demon.CerberusRenderer;
+import absolutelyaya.ultracraft.client.rendering.entity.demon.HideousMassRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceModel;
 import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.EnragedFeature;
@@ -122,6 +123,7 @@ public class UltracraftClient implements ClientModInitializer
 		EntityRendererRegistry.register(EntityRegistry.SCHISM, SchismRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.MALICIOUS_FACE, MaliciousFaceRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.CERBERUS, CerberusRenderer::new);
+		EntityRendererRegistry.register(EntityRegistry.HIDEOUS_MASS, HideousMassRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.SWORDSMACHINE, SwordsmachineRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.DESTINY_SWORDSMACHINE, SwordsmachineRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.HELL_BULLET, HellBulletRenderer::new);

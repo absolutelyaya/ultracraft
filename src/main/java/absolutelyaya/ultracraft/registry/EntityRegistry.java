@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.entity.demon.CerberusEntity;
+import absolutelyaya.ultracraft.entity.demon.HideousMassEntity;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.entity.husk.FilthEntity;
 import absolutelyaya.ultracraft.entity.husk.SchismEntity;
@@ -38,6 +39,9 @@ public class EntityRegistry
 	public static final EntityType<CerberusEntity> CERBERUS = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "cerberus"),
 			EntityType.Builder.create(CerberusEntity::new, SpawnGroup.MONSTER).setDimensions(1.75F, 4F).maxTrackingRange(8).build("cerberus"));
+	public static final EntityType<HideousMassEntity> HIDEOUS_MASS = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "hideous_mass"),
+			EntityType.Builder.create(HideousMassEntity::new, SpawnGroup.MONSTER).setDimensions(1.75F, 4F).maxTrackingRange(8).build("hideous_mass"));
 	public static final EntityType<SwordsmachineEntity> SWORDSMACHINE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "swordsmachine"),
 			EntityType.Builder.create(SwordsmachineEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2.5F).maxTrackingRange(8).build("swordsmachine"));
@@ -109,6 +113,7 @@ public class EntityRegistry
 		FabricDefaultAttributeRegistry.register(SCHISM, SchismEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(MALICIOUS_FACE, MaliciousFaceEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(CERBERUS, CerberusEntity.getDefaultAttributes());
+		FabricDefaultAttributeRegistry.register(HIDEOUS_MASS, HideousMassEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(SWORDSMACHINE, SwordsmachineEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(DESTINY_SWORDSMACHINE, SwordsmachineEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(DRONE, DroneEntity.getDefaultAttributes());
