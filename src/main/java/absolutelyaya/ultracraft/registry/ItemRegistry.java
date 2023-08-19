@@ -54,6 +54,8 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "bloodray"), new Item(new FabricItemSettings()
 						.food(new FoodComponent.Builder().hunger(4)
 							  .statusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 500, 0), 1f).build())));
+	public static final DroneMaskItem DRONE_MASK = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "drone_mask"), new DroneMaskItem(new FabricItemSettings()));
 	
 	public static final PierceRevolverItem PIERCE_REVOLVER = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "pierce_revolver"), new PierceRevolverItem(new FabricItemSettings().maxCount(1)));
@@ -150,6 +152,7 @@ public class ItemRegistry
 			content.add(SWORDSMACHINE.getDefaultStack("swordsmachine"));
 			content.add(SWORDSMACHINE.getDefaultStack("tundra"));
 			content.add(SWORDSMACHINE.getDefaultStack("agony"));
+			content.add(DRONE_MASK);
 		});
 	}
 }
