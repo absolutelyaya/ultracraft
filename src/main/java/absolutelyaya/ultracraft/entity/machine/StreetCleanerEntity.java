@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.entity.machine;
 
+import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.other.BackTank;
@@ -18,6 +19,7 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -66,6 +68,7 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 	protected static final TrackedData<Integer> DODGE_COOLDOWN = DataTracker.registerData(StreetCleanerEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> ANIM_TIME = DataTracker.registerData(StreetCleanerEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> ATTACK_TIME = DataTracker.registerData(StreetCleanerEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(StreetCleanerEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	BackTank tank;
 	
 	public StreetCleanerEntity(EntityType<? extends HostileEntity> entityType, World world)
@@ -96,6 +99,7 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 		dataTracker.startTracking(DODGE_COOLDOWN, 0);
 		dataTracker.startTracking(ANIM_TIME, 0);
 		dataTracker.startTracking(ATTACK_TIME, 0);
+		dataTracker.startTracking(ATTACK_COOLDOWN, 0);
 	}
 	
 	@Override
@@ -120,6 +124,8 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 			dataTracker.set(DODGE_COOLDOWN, dataTracker.get(DODGE_COOLDOWN) - 1);
 		if(dataTracker.get(ANIMATION) != ANIMATION_IDLE)
 			dataTracker.set(ANIM_TIME, dataTracker.get(ANIM_TIME) + 1);
+		if(dataTracker.get(ATTACK_COOLDOWN) > 0)
+			dataTracker.set(ATTACK_COOLDOWN, dataTracker.get(ATTACK_COOLDOWN) - 1);
 		if(!getWorld().isClient && isAlive() && dataTracker.get(ATTACKING))
 		{
 			dataTracker.set(ATTACK_TIME, dataTracker.get(ATTACK_TIME) + 1);
@@ -137,7 +143,10 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 			}
 		}
 		else if(!getWorld().isClient && dataTracker.get(ATTACK_TIME) > 0)
+		{
 			dataTracker.set(ATTACK_TIME, 0);
+			dataTracker.set(ATTACK_COOLDOWN, 10);
+		}
 		if(getWorld().isClient && dataTracker.get(ATTACK_TIME) == 1)
 		{
 			Vec3d pos = getEyePos().add(getRotationVector().multiply(1.5f));
@@ -192,6 +201,8 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 	{
 		if(source.isOf(DamageSources.FLAMETHROWER))
 			return false;
+		if(source.isOf(DamageTypes.FALL) && getHealth() - amount <= 0)
+			ExplosionHandler.explosion(this, getWorld(), getPos(), DamageSources.get(getWorld(), DamageTypes.EXPLOSION, this, this), 6, 4, 3, true);
 		return super.damage(source, source.isIn(DamageTypeTags.IS_EXPLOSION) ? amount * 0.5f : amount);
 	}
 	
@@ -370,7 +381,7 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 			if(cleaner.dataTracker.get(ROTATION_DELAY) == 0 && distance > 5f)
 				cleaner.navigation.startMovingTo(target, distance < 6f ? 1f : 1.25f);
 			
-			if(!cleaner.dataTracker.get(ATTACKING) && distance < 6f)
+			if(!cleaner.dataTracker.get(ATTACKING) && cleaner.dataTracker.get(ATTACK_COOLDOWN) == 0 && distance < 6f)
 				cleaner.dataTracker.set(ATTACKING, true);
 			if(cleaner.dataTracker.get(ATTACKING) && distance > 6f)
 				cleaner.dataTracker.set(ATTACKING, false);
