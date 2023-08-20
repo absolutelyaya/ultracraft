@@ -23,16 +23,19 @@
 					}
 				},
 				"BackPlate1": {
+					"rotation": {
+						"vector": [15, 0, 0]
+					},
 					"position": {
-						"vector": [0, 0, 6]
+						"vector": [0, 0, 0]
 					}
 				},
 				"BackPlate2": {
 					"rotation": {
-						"vector": [10, 0, 0]
+						"vector": [0, 0, 0]
 					},
 					"position": {
-						"vector": [0, -4, 2]
+						"vector": [0, -1, 22]
 					}
 				},
 				"Face": {
@@ -124,6 +127,99 @@
 				"entrails": {
 					"position": {
 						"vector": [0, -1, 0]
+					}
+				},
+				"TailEndFace4": {
+					"rotation": {
+						"vector": [0, 15, 0]
+					}
+				},
+				"TailEndFace1": {
+					"rotation": {
+						"vector": [15, 0, 0]
+					}
+				},
+				"TailEndFace2": {
+					"rotation": {
+						"vector": [-15, 0, 0]
+					}
+				},
+				"TailEndFace3": {
+					"rotation": {
+						"vector": [0, -15, 0]
+					}
+				},
+				"LeftArm": {
+					"rotation": {
+						"vector": [7.5, 0, -10]
+					},
+					"position": {
+						"vector": [0, 13, -15]
+					}
+				},
+				"LeftArm2": {
+					"rotation": {
+						"vector": [0, 0, 90]
+					},
+					"position": {
+						"vector": [-0.5, -5, 0.5]
+					}
+				},
+				"LeftArm3": {
+					"rotation": {
+						"vector": [0, 82.5, 0]
+					}
+				},
+				"LeftLeg1": {
+					"rotation": {
+						"vector": [-37.5, -22.5, 0]
+					},
+					"position": {
+						"vector": [-7, -9, -1]
+					}
+				},
+				"LeftLegLower1": {
+					"rotation": {
+						"vector": [42.5, 0, 0]
+					}
+				},
+				"LeftLeg2": {
+					"rotation": {
+						"vector": [0, 0, -37.5]
+					},
+					"position": {
+						"vector": [-5, -16, -12]
+					}
+				},
+				"LeftLegLower2": {
+					"rotation": {
+						"vector": [0, 0, 35]
+					}
+				},
+				"LeftLeg3": {
+					"rotation": {
+						"vector": [11.47594, -7.3011, -69.0523]
+					},
+					"position": {
+						"vector": [-6, -30, -16]
+					}
+				},
+				"LeftLegLower3": {
+					"rotation": {
+						"vector": [0, 0, 62.5]
+					}
+				},
+				"LeftLeg4": {
+					"rotation": {
+						"vector": [17.5, -10, -65]
+					},
+					"position": {
+						"vector": [-7, -33, -14]
+					}
+				},
+				"LeftLegLower4": {
+					"rotation": {
+						"vector": [0, 0, 60]
 					}
 				}
 			}
