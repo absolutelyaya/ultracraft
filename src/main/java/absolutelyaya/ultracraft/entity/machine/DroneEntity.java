@@ -5,11 +5,10 @@ import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraFlyingEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
+import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MovementType;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.control.MoveControl;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.Goal;
@@ -22,6 +21,7 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
@@ -39,6 +39,7 @@ import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.object.PlayState;
 
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.UUID;
 
 public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity, MeleeInterruptable
@@ -51,11 +52,16 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(DroneEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Boolean> KEEP_HEIGHT = DataTracker.registerData(DroneEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Optional<UUID>> PARRIER = DataTracker.registerData(DroneEntity.class, TrackedDataHandlerRegistry.OPTIONAL_UUID);
+	protected static final TrackedData<Boolean> LOVEABLE = DataTracker.registerData(DroneEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<OptionalInt> LOVE = DataTracker.registerData(DroneEntity.class, TrackedDataHandlerRegistry.OPTIONAL_INT);
+	boolean wasCharging;
 	
 	public DroneEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
 		super(entityType, world);
 		this.moveControl = new DroneMoveControl(this);
+		if(!world.isClient)
+			dataTracker.set(LOVEABLE, random.nextInt(100) == 0);
 	}
 	
 	@Override
@@ -69,6 +75,8 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 		dataTracker.startTracking(ATTACK_COOLDOWN, 60);
 		dataTracker.startTracking(KEEP_HEIGHT, false);
 		dataTracker.startTracking(PARRIER, Optional.empty());
+		dataTracker.startTracking(LOVEABLE, false);
+		dataTracker.startTracking(LOVE, OptionalInt.empty());
 	}
 	
 	@Override
@@ -123,6 +131,8 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 	
 	public void fire()
 	{
+		if(lovesTarget())
+			return;
 		float zRot = random.nextFloat() * 180 * MathHelper.RADIANS_PER_DEGREE;
 		for (int i = 0; i < 3; i++)
 		{
@@ -161,6 +171,15 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 					particlePos.x + offset.x, particlePos.y + offset.y, particlePos.z + offset.z,
 					-offset.x * 0.04, -offset.y * 0.04, -offset.z * 0.04);
 		}
+		else if(!super.isAttacking() && wasCharging)
+		{
+			for (int i = 0; i < 4; i++)
+			{
+				Vec3d pos = getPos().addRandom(random, 1f);
+				getWorld().addParticle(ParticleTypes.HEART, pos.x, pos.y, pos.z, 0f, 0f, 0f);
+			}
+		}
+		wasCharging = super.isAttacking();
 		if(getTarget() != null && !isFalling())
 		{
 			lookAtEntity(getTarget(), 180, 180);
@@ -170,9 +189,25 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 			setBodyYaw(getYaw());
 		}
 		if(dataTracker.get(MOVE_COOLDOWN) > 0)
-			dataTracker.set(MOVE_COOLDOWN, dataTracker.get(MOVE_COOLDOWN) - (getTarget() != null && distanceTo(getTarget()) < 3f ? 20 : 1));
+			dataTracker.set(MOVE_COOLDOWN, dataTracker.get(MOVE_COOLDOWN) - (getTarget() != null && distanceTo(getTarget()) < (lovesTarget() ? 1f : 3f) ? 20 : 1));
 		if(dataTracker.get(ATTACK_COOLDOWN) > 0 && getTarget() != null)
 			dataTracker.set(ATTACK_COOLDOWN, dataTracker.get(ATTACK_COOLDOWN) - 1);
+		if(lovesTarget() && age % 14 == 0 && random.nextInt(3) == 0)
+		{
+			if(!getWorld().isClient)
+				dataTracker.set(LOVE, OptionalInt.of(getTarget().getId()));
+			getWorld().addParticle(ParticleTypes.HEART, getX(), getY() + 1, getZ(), 0f, 0f, 0f);
+		}
+		if(dataTracker.get(LOVE).isPresent())
+		{
+			Entity e = getWorld().getEntityById(dataTracker.get(LOVE).getAsInt());
+			if(e instanceof LivingEntity livingLove && !livingLove.getEquippedStack(EquipmentSlot.HEAD).isOf(ItemRegistry.DRONE_MASK))
+			{
+				getWorld().addParticle(ParticleRegistry.SHOCK, getX(), getY() + 1, getZ(),
+						(random.nextFloat() - 0.5f) * 0.2f, 0.25f, (random.nextFloat() - 0.5f) * 0.2f);
+				dataTracker.set(LOVE, OptionalInt.empty());
+			}
+		}
 	}
 	
 	void explode(DamageSource source)
@@ -248,6 +283,29 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 		return true;
 	}
 	
+	public boolean lovesTarget()
+	{
+		if(getWorld().isClient)
+			return dataTracker.get(LOVEABLE) && dataTracker.get(LOVE).isPresent();
+		return dataTracker.get(LOVEABLE) && getTarget() != null && getTarget().getEquippedStack(EquipmentSlot.HEAD).isOf(ItemRegistry.DRONE_MASK);
+	}
+	
+	@Override
+	public void writeCustomDataToNbt(NbtCompound nbt)
+	{
+		super.writeCustomDataToNbt(nbt);
+		if(dataTracker.get(LOVEABLE))
+			nbt.putBoolean("oddValue", true);
+	}
+	
+	@Override
+	public void readCustomDataFromNbt(NbtCompound nbt)
+	{
+		super.readCustomDataFromNbt(nbt);
+		if(nbt.contains("oddValue"))
+			dataTracker.set(LOVEABLE, nbt.getBoolean("oddValue"));
+	}
+	
 	static class DroneMoveControl extends MoveControl
 	{
 		DroneEntity drone;
@@ -286,10 +344,10 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 				if(distance < 0.1f)
 					state = State.WAIT;
 			}
-			else if(drone.getTarget() != null && drone.distanceTo(drone.getTarget()) > 6f)
+			else if(drone.getTarget() != null && drone.distanceTo(drone.getTarget()) > (drone.lovesTarget() ? 3f : 6f))
 			{
 				Vec3d dir = drone.getTarget().getEyePos().subtract(drone.getPos()).normalize()
-							  .multiply(drone.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) * 0.1f);
+							  .multiply(drone.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) * (drone.lovesTarget() ? 0.75f : 0.1f));
 				drone.move(MovementType.SELF, dir);
 			}
 		}
@@ -327,7 +385,7 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 					Vec3d dest;
 					if(target != null)
 					{
-						if(drone.distanceTo(target) < 3f)
+						if(drone.distanceTo(target) < (drone.lovesTarget() ? 1f : 3f))
 							dest = drone.getPos().add(drone.getPos().subtract(target.getEyePos()).normalize().multiply(3f));
 						else
 							dest = drone.getPos().add(Vec3d.fromPolar(0f, drone.getYaw() + 90f).multiply((drone.random.nextFloat() - 0.5) * 6));

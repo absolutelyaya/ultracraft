@@ -158,6 +158,7 @@ public class UltracraftClient implements ClientModInitializer
 		particleRegistry.register(ParticleRegistry.RICOCHET_WARNING, RicochetWarningParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.BIG_CIRCLE, BigCircleParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.DRONE_CHARGE, DroneChargeParticle.Factory::new);
+		particleRegistry.register(ParticleRegistry.SHOCK, ShockParticle.Factory::new);
 		//Entity model layers
 		EntityModelLayerRegistry.registerModelLayer(WINGS_LAYER, WingsModel::getTexturedModelData);
 		EntityModelLayerRegistry.registerModelLayer(MALICIOUS_LAYER, MaliciousFaceModel::getTexturedModelData);
