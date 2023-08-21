@@ -1,10 +1,7 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.block.CerberusBlock;
-import absolutelyaya.ultracraft.block.ElevatorBlock;
-import absolutelyaya.ultracraft.block.ElevatorFloorBlock;
-import absolutelyaya.ultracraft.block.PedestalBlock;
+import absolutelyaya.ultracraft.block.*;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
@@ -42,6 +39,8 @@ public class BlockRegistry
 									  .requiresTool().strength(5f, 6f).luminance(b -> 6)), true);
 	public static final Block BLOOD = register("blood", new FluidBlock(FluidRegistry.STILL_BLOOD,
 			FabricBlockSettings.copyOf(Blocks.WATER).replaceable()), false);
+	public static final Block FLESH = register("flesh",
+			new FleshBlock(AbstractBlock.Settings.copy(Blocks.NETHERRACK).mapColor(MapColor.DARK_RED)), true);
 	
 	@SuppressWarnings("SameParameterValue")
 	private static Block register(String name, Block block, boolean item, int burn, int spread)

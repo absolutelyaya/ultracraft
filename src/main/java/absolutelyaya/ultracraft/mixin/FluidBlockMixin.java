@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.mixin;
 
+import absolutelyaya.ultracraft.registry.BlockRegistry;
 import absolutelyaya.ultracraft.registry.TagRegistry;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.*;
@@ -52,7 +53,7 @@ public abstract class FluidBlockMixin
 				BlockPos pos1 = pos.offset(dir);
 				if(world.getFluidState(pos1).isIn(TagRegistry.BLOOD_FLUID))
 				{
-					world.setBlockState(pos1, Blocks.NETHER_WART_BLOCK.getDefaultState()); //TODO: Replace with flesh
+					world.setBlockState(pos1, BlockRegistry.FLESH.getDefaultState());
 					playExtinguishSound(world, pos);
 					cir.setReturnValue(false);
 				}

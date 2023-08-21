@@ -92,7 +92,7 @@ public class UltracraftClient implements ClientModInitializer
 	public static final EntityModelLayer SHOCKWAVE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "shockwave"), "main");
 	public static final EntityModelLayer INTERRUPTABLE_CHARGE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "interruptable_charge"), "main");
 	public static String wingPreset = "", wingPattern = "";
-	private static ShaderProgram wingsColoredProgram, wingsColoredUIProgram, texPosFade;
+	private static ShaderProgram wingsColoredProgram, wingsColoredUIProgram, texPosFade, flesh;
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	public static TrailRenderer TRAIL_RENDERER;
 	public static boolean REPLACE_MENU_MUSIC = true, applyEntityPoses;
@@ -288,6 +288,7 @@ public class UltracraftClient implements ClientModInitializer
 				program.markUniformsDirty();
 				texPosFade = program;
 			});
+			callback.register(new Identifier(Ultracraft.MOD_ID, "flesh"), VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL, (program) -> flesh = program);
 		});
 		
 		ClientPacketRegistry.registerS2C();
@@ -315,9 +316,11 @@ public class UltracraftClient implements ClientModInitializer
 				player.getWorld().getEntitiesByType(EntityRegistry.FILTH, player.getBoundingBox().expand(128.0), entity -> true)
 						.forEach(FilthEntity::throwback);
 		});
+		//Block Layers
 		FluidRenderHandlerRegistry.INSTANCE.register(FluidRegistry.STILL_BLOOD, FluidRegistry.Flowing_BLOOD,
 				new SimpleFluidRenderHandler(new Identifier(Ultracraft.MOD_ID, "block/blood_still"), new Identifier(Ultracraft.MOD_ID, "block/blood_flow")));
 		BlockRenderLayerMap.INSTANCE.putFluids(RenderLayer.getSolid(), FluidRegistry.STILL_BLOOD, FluidRegistry.Flowing_BLOOD);
+		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.FLESH, RenderLayers.getFlesh());
 		
 		setWingColor(config.get().wingColors[0], 0);
 		setWingColor(config.get().wingColors[1], 1);
@@ -501,6 +504,11 @@ public class UltracraftClient implements ClientModInitializer
 	public static ShaderProgram getTexPosFadeProgram()
 	{
 		return texPosFade;
+	}
+	
+	public static ShaderProgram getFleshProgram()
+	{
+		return flesh;
 	}
 	
 	public static void setWingColor(Vec3d val, int idx)

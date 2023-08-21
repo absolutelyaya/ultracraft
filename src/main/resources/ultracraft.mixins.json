@@ -31,8 +31,10 @@
     "LivingEntityRendererMixin",
     "MinecraftClientMixin",
     "OtherClientPlayerMixin",
+    "RenderLayerMixin",
     "SkinOptionsScreenMixin",
-    "TitleScreenMixin"
+    "TitleScreenMixin",
+    "WorldRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
