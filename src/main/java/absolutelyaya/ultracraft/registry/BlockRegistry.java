@@ -41,6 +41,10 @@ public class BlockRegistry
 			FabricBlockSettings.copyOf(Blocks.WATER).replaceable()), false);
 	public static final Block FLESH = register("flesh",
 			new FleshBlock(AbstractBlock.Settings.copy(Blocks.NETHERRACK).mapColor(MapColor.DARK_RED)), true);
+	public static final Block RUSTY_PIPE = register("rusty_pipe",
+			new PipeBlock(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK).mapColor(MapColor.TERRACOTTA_BROWN)), true);
+	public static final Block RUSTY_MESH = register("rusty_mesh",
+			new Block(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK).mapColor(MapColor.TERRACOTTA_BROWN)), true);
 	
 	@SuppressWarnings("SameParameterValue")
 	private static Block register(String name, Block block, boolean item, int burn, int spread)

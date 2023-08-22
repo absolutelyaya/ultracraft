@@ -1,0 +1,55 @@
+{
+  "variants": {
+    "axis=x,type=0": {
+      "model": "ultracraft:block/pipe/rusty_pipe_horizontal",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y,type=0": {
+      "model": "ultracraft:block/pipe/rusty_pipe"
+    },
+    "axis=z,type=0": {
+      "model": "ultracraft:block/pipe/rusty_pipe_horizontal",
+      "x": -90
+    },
+
+    "axis=x,type=1": {
+      "model": "ultracraft:block/pipe/rusty_pipe_horizontal1",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y,type=1": {
+      "model": "ultracraft:block/pipe/rusty_pipe1"
+    },
+    "axis=z,type=1": {
+      "model": "ultracraft:block/pipe/rusty_pipe_horizontal1",
+      "x": -90
+    },
+
+    "axis=x,type=2": {
+      "model": "ultracraft:block/pipe/rusty_pipe_horizontal2",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y,type=2": {
+      "model": "ultracraft:block/pipe/rusty_pipe2"
+    },
+    "axis=z,type=2": {
+      "model": "ultracraft:block/pipe/rusty_pipe_horizontal2",
+      "x": -90
+    },
+
+    "axis=x,type=3": {
+      "model": "ultracraft:block/pipe/rusty_pipe_horizontal3",
+      "x": 90,
+      "y": 90
+    },
+    "axis=y,type=3": {
+      "model": "ultracraft:block/pipe/rusty_pipe3"
+    },
+    "axis=z,type=3": {
+      "model": "ultracraft:block/pipe/rusty_pipe_horizontal3",
+      "x": -90
+    }
+  }
+}

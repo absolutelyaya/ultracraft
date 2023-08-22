@@ -1,0 +1,6 @@
+{
+  "parent": "ultracraft:block/pipe/rusty_pipe_horizontal",
+  "textures": {
+    "side": "ultracraft:block/rusty_pipe_side3"
+  }
+}

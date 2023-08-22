@@ -24,7 +24,7 @@ out vec4 normal;
 
 void main() {
     vec3 pos = Position + ChunkOffset;
-    float scale = 0.05;
+    float scale = 0.025;
     float timer = GameTime * 1500.0;
     float offsetx = sin(round(Position.y / 0.2446) + timer * 1.144) - cos(round(Position.z / 1.2) + timer * 0.6);
     float offsety = sin(round(Position.x / 0.5) + timer * 1.2) - cos(round(Position.z / 0.666) + timer) + sin(round(Position.z / 4f) + timer * 0.24);

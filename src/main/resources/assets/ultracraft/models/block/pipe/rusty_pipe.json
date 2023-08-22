@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "ultracraft:block/rusty_pipe_end",
+    "side": "ultracraft:block/rusty_pipe_side"
+  }
+}

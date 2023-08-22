@@ -121,6 +121,9 @@ public class ItemRegistry
 			content.add(BlockRegistry.PEDESTAL.asItem());
 			content.add(BlockRegistry.CERBERUS.asItem());
 			content.add(((CerberusBlock)BlockRegistry.CERBERUS).getProximityStack());
+			content.add(BlockRegistry.FLESH.asItem());
+			content.add(BlockRegistry.RUSTY_PIPE.asItem());
+			content.add(BlockRegistry.RUSTY_MESH.asItem());
 			content.add(BLOOD_BUCKET);
 			content.add(PIERCE_REVOLVER);
 			content.add(MARKSMAN_REVOLVER);

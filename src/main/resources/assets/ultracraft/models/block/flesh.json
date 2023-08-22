@@ -1,8 +1,8 @@
 {
 	"credit": "Made by Absolutelyaya",
 	"textures": {
-		"0": "flesh1",
-		"particle": "flesh1"
+		"0": "ultracraft:block/flesh1",
+		"particle": "ultracraft:block/flesh1"
 	},
 	"elements": [
 		{
