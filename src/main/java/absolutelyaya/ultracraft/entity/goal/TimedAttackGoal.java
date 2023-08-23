@@ -14,9 +14,9 @@ public abstract class TimedAttackGoal<T extends HostileEntity & IAnimatedEnemy> 
 	final protected byte animIdle, animAttack;
 	final protected int attackLength;
 	
-	public TimedAttackGoal(T cerb, byte animIdle, byte animAttack, int attackLength)
+	public TimedAttackGoal(T mob, byte animIdle, byte animAttack, int attackLength)
 	{
-		this.mob = cerb;
+		this.mob = mob;
 		this.animIdle = animIdle;
 		this.animAttack = animAttack;
 		this.attackLength = attackLength;

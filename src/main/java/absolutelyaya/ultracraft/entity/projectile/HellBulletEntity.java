@@ -37,6 +37,7 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 	PlayerEntity parrier;
 	Class<? extends LivingEntity> ignore;
 	private boolean shot;
+	protected boolean difficultySpeed;
 	
 	public HellBulletEntity(EntityType<? extends ThrownItemEntity> entityType, World world)
 	{
@@ -85,7 +86,7 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 	@Override
 	public void setVelocity(Vec3d velocity)
 	{
-		if(getOwner() instanceof PlayerEntity)
+		if(getOwner() instanceof PlayerEntity || !difficultySpeed)
 			super.setVelocity(velocity);
 		else
 			super.setVelocity(velocity.multiply(1f + Math.max(getWorld().getDifficulty().getId() - 1, 0) * 0.1f));
@@ -131,11 +132,11 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 			onCollision(hitResult);
 		checkBlockCollision();
 		Vec3d vec3d = getVelocity();
-		double d = getX() + vec3d.x;
-		double e = getY() + vec3d.y;
-		double f = getZ() + vec3d.z;
+		double x = getX() + vec3d.x;
+		double y = getY() + vec3d.y;
+		double z = getZ() + vec3d.z;
 		updateRotation();
-		setPosition(d, e, f);
+		setPosition(x, y, z);
 		
 		if(age > getMaxAge())
 		{
