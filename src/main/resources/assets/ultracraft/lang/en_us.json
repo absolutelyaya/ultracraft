@@ -67,6 +67,9 @@
   "block.ultracraft.cerberus_block.proximity": "Cerberus (Proximity activated)",
   "block.ultracraft.blood": "Blood",
   "block.ultracraft.flesh": "Flesh Block",
+  "block.ultracraft.rusty_pipe": "Rusty Pipe",
+  "block.ultracraft.rusty_mesh": "Rusty Grate",
+  "block.ultracraft.cracked_stone": "Cracked Stone",
 
   "entity.ultracraft.filth": "Filth",
   "entity.ultracraft.stray": "Stray",
