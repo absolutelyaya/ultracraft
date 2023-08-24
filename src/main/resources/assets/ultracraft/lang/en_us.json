@@ -182,8 +182,8 @@
   "gamerule.ultra-tntPriming.description": "Whether Ultracraft Explosions can set off TNT.",
   "gamerule.ultra-gunDamage": "Gun Damage Multiplier",
   "gamerule.ultra-gunDamage.description": "Multiplies all Hitscan Damage by the set Amount.",
-  "gamerule.ltra-iFrames": "HiVel I-Ticks",
-  "gamerule.ltra-iFrames.description": "How many Invincibility Ticks Players in High Velocity Mode should have.",
+  "gamerule.ultra-iFrames": "HiVel I-Ticks",
+  "gamerule.ultra-iFrames.description": "How many Invincibility Ticks Players in High Velocity Mode should have.",
 
   "message.ultracraft.join-info-header": "===============[§4Ultracraft§r]===============",
   "message.ultracraft.hi-vel-forced": "This World is forcing §bHigh Velocity Mode§r to be %s",

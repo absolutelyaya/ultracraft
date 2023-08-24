@@ -163,8 +163,8 @@
   "gamerule.ultra-tntPriming.description": "Могут ли Ultracraft взрывы активировать TNT.",
   "gamerule.ultra-gunDamage": "Множитель Урона Оружия",
   "gamerule.ultra-gunDamage.description": "Умножает весь Урон от Хитскан Оружия на заданное значение.",
-  "gamerule.ltra-iFrames": "HiVel Н-Тики (I-Ticks сложное понятие значащее временную неуязвимость в некоторых случаях вроде рывка или после получения урона)",
-  "gamerule.ltra-iFrames.description": "Сколько тиков неуязвимости должно быть у игроков в режиме высокой мобильности.",
+  "gamerule.ultra-iFrames": "HiVel Н-Тики (I-Ticks сложное понятие значащее временную неуязвимость в некоторых случаях вроде рывка или после получения урона)",
+  "gamerule.ultra-iFrames.description": "Сколько тиков неуязвимости должно быть у игроков в режиме высокой мобильности.",
 
   "message.ultracraft.join-info-header": "===============[§4Ultracraft§r]===============",
   "message.ultracraft.hi-vel-forced": "Этот мир вынуждает §bрежим высокой мобильности§r быть %s",

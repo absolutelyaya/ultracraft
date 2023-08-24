@@ -35,7 +35,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.DamageTypeTags;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.TypeFilter;
@@ -320,12 +319,13 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 		{
 			if(!getWorld().isClient)
 			{
-				ShockwaveEntity shockwave = EntityRegistry.SHOCKWAVE.spawn((ServerWorld)getWorld(), getBlockPos(), SpawnReason.EVENT);
-				if(shockwave != null)
-				{
-					shockwave.setIgnored(getClass());
-					shockwave.setDamage(0f);
-				}
+				ShockwaveEntity shockwave = new ShockwaveEntity(EntityRegistry.SHOCKWAVE, getWorld());
+				shockwave.setPosition(getBlockPos().toCenterPos().add(0, 0.5, 0));
+				shockwave.setIgnored(getClass());
+				shockwave.setDamage(0f);
+				shockwave.setDuration(60);
+				shockwave.setGrowRate(0.5f);
+				getWorld().spawnEntity(shockwave);
 			}
 			List<Entity> entities = getWorld().getOtherEntities(this, getBoundingBox(), Entity::isLiving);
 			for (Entity e : entities)
