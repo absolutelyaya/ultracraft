@@ -8,6 +8,7 @@ import absolutelyaya.ultracraft.client.rendering.TrailRenderer;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.client.rendering.block.entity.CerberusBlockRenderer;
 import absolutelyaya.ultracraft.client.rendering.block.entity.PedestalBlockEntityRenderer;
+import absolutelyaya.ultracraft.client.rendering.block.entity.TerminalBlockEntityRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.demon.CerberusRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.demon.HideousMassRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceModel;
@@ -167,6 +168,7 @@ public class UltracraftClient implements ClientModInitializer
 		//BlockEntityRenderers
 		BlockEntityRendererFactories.register(BlockEntityRegistry.PEDESTAL, PedestalBlockEntityRenderer::new);
 		BlockEntityRendererFactories.register(BlockEntityRegistry.CERBERUS, context -> new CerberusBlockRenderer());
+		BlockEntityRendererFactories.register(BlockEntityRegistry.TERMINAL, context -> new TerminalBlockEntityRenderer());
 		//Player Animations
 		PlayerAnimator.init();
 		

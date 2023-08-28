@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.registry;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.block.CerberusBlockEntity;
 import absolutelyaya.ultracraft.block.PedestalBlockEntity;
+import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
@@ -13,6 +14,7 @@ public class BlockEntityRegistry
 {
 	public static final BlockEntityType<PedestalBlockEntity> PEDESTAL;
 	public static final BlockEntityType<CerberusBlockEntity> CERBERUS;
+	public static final BlockEntityType<TerminalBlockEntity> TERMINAL;
 	
 	public static void register() {
 	}
@@ -25,5 +27,8 @@ public class BlockEntityRegistry
 		CERBERUS = Registry.register(Registries.BLOCK_ENTITY_TYPE,
 				new Identifier(Ultracraft.MOD_ID, "cerberus_block"),
 				FabricBlockEntityTypeBuilder.create(CerberusBlockEntity::new, BlockRegistry.CERBERUS).build());
+		TERMINAL = Registry.register(Registries.BLOCK_ENTITY_TYPE,
+				new Identifier(Ultracraft.MOD_ID, "terminal"),
+				FabricBlockEntityTypeBuilder.create(TerminalBlockEntity::new, BlockRegistry.TERMINAL_DISPLAY).build());
 	}
 }

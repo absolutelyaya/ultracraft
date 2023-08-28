@@ -70,6 +70,8 @@
   "block.ultracraft.rusty_pipe": "Rusty Pipe",
   "block.ultracraft.rusty_mesh": "Rusty Grate",
   "block.ultracraft.cracked_stone": "Cracked Stone",
+  "block.ultracraft.terminal": "Terminal",
+  "block.ultracraft.terminal_display": "Terminal Display",
 
   "entity.ultracraft.filth": "Filth",
   "entity.ultracraft.stray": "Stray",

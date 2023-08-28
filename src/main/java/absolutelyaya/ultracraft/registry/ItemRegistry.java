@@ -101,6 +101,10 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "streetcleaner_spawn_egg"),
 			new SpawnEggItem(EntityRegistry.STREET_CLEANER, 0xb1723a, 0x211c1b, new FabricItemSettings()));
 	
+	public static final TerminalItem TERMINAL = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "terminal"),
+			new TerminalItem(BlockRegistry.TERMINAL, new FabricItemSettings()));
+	
 	public static final RegistryKey<ItemGroup> ULTRACRAFT_TAB = RegistryKey.of(RegistryKeys.ITEM_GROUP, new Identifier(Ultracraft.MOD_ID, "item"));
 	
 	public static void register()
@@ -157,6 +161,7 @@ public class ItemRegistry
 			content.add(SWORDSMACHINE.getDefaultStack("tundra"));
 			content.add(SWORDSMACHINE.getDefaultStack("agony"));
 			content.add(DRONE_MASK);
+			content.add(TERMINAL);
 		});
 	}
 }
