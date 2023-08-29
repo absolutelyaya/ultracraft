@@ -64,6 +64,8 @@ public class UltraHudRenderer
 			return;
 		if(player.isSpectator())
 			return;
+		if(player instanceof WingedPlayerEntity winged && winged.getFocusedTerminal() != null)
+			return;
 		RenderSystem.disableDepthTest();
 		RenderSystem.disableCull();
 		

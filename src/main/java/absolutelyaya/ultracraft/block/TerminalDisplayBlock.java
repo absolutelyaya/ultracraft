@@ -6,9 +6,11 @@ import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.enums.DoubleBlockHalf;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
+import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -24,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 public class TerminalDisplayBlock extends BlockWithEntity
 {
 	public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
+	public static final BooleanProperty GLOWS = BooleanProperty.of("glows");
 	
 	public TerminalDisplayBlock(Settings settings)
 	{
@@ -33,7 +36,7 @@ public class TerminalDisplayBlock extends BlockWithEntity
 	@Override
 	protected void appendProperties(StateManager.Builder<Block, BlockState> builder)
 	{
-		super.appendProperties(builder.add(FACING));
+		super.appendProperties(builder.add(FACING, GLOWS));
 	}
 	
 	@Override
@@ -101,6 +104,8 @@ public class TerminalDisplayBlock extends BlockWithEntity
 			{
 				winged.setFocusedTerminal(terminal);
 				terminal.focusedPlayers.add(winged);
+				if(world.isClient)
+					MinecraftClient.getInstance().gameRenderer.setRenderHand(false);
 			}
 		}
 		return super.onUse(state, world, pos, player, hand, hit);

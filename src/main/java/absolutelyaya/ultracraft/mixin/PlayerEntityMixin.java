@@ -564,6 +564,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		if(focusedTerminal != null)
 			sendMessage(Text.translatable("screen.ultracraft.terminal.unfocus",
 					Text.translatable(MinecraftClient.getInstance().options.sneakKey.getBoundKeyTranslationKey())), true);
+		else if(getWorld().isClient)
+			MinecraftClient.getInstance().gameRenderer.setRenderHand(true);
+			
 	}
 	
 	@Override

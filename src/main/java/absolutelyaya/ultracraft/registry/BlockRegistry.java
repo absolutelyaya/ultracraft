@@ -50,7 +50,7 @@ public class BlockRegistry
 	public static final Block TERMINAL = register("terminal",
 			new TerminalBlock(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK).mapColor(MapColor.GRAY).nonOpaque()), false);
 	public static final Block TERMINAL_DISPLAY = register("terminal_display",
-			new TerminalDisplayBlock(AbstractBlock.Settings.copy(BlockRegistry.TERMINAL)), false);
+			new TerminalDisplayBlock(AbstractBlock.Settings.copy(BlockRegistry.TERMINAL).luminance((state) -> state.get(TerminalDisplayBlock.GLOWS) ? 8 : 0)), false);
 	
 	@SuppressWarnings("SameParameterValue")
 	private static Block register(String name, Block block, boolean item, int burn, int spread)

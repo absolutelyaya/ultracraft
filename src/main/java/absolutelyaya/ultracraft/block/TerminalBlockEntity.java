@@ -17,13 +17,28 @@ import java.util.UUID;
 
 public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 {
+	float displayVisibility;
 	AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
 	UUID owner;
 	List<WingedPlayerEntity> focusedPlayers = new ArrayList<>();
+	List<String> lines = new ArrayList<>();
+	int textColor;
 	
 	public TerminalBlockEntity(BlockPos pos, BlockState state)
 	{
 		super(BlockEntityRegistry.TERMINAL, pos, state);
+		textColor = 0xffff9dff;
+		lines.add("+--------------+");
+		lines.add("");
+		lines.add("");
+		lines.add("");
+		lines.add("");
+		lines.add("");
+		lines.add("");
+		lines.add("");
+		lines.add("");
+		lines.add("  yaya's Terminal");
+		lines.add("+--------------+");
 	}
 	
 	@Override
@@ -55,5 +70,27 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			case SOUTH -> 180;
 			case WEST -> 270;
 		};
+	}
+	
+	public void setDisplayVisibility(float f)
+	{
+		displayVisibility = f;
+		if(getWorld().getBlockState(getPos()).isOf(BlockRegistry.TERMINAL_DISPLAY))
+			getWorld().setBlockState(getPos(), getWorld().getBlockState(getPos()).with(TerminalDisplayBlock.GLOWS,displayVisibility == 1f));
+	}
+	
+	public float getDisplayVisibility()
+	{
+		return displayVisibility;
+	}
+	
+	public List<String> getLines()
+	{
+		return lines;
+	}
+	
+	public int getTextColor()
+	{
+		return textColor;
 	}
 }
