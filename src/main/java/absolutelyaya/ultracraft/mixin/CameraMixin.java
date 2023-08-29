@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import net.minecraft.client.render.Camera;
@@ -48,8 +49,8 @@ public abstract class CameraMixin
 	@Shadow private Entity focusedEntity;
 	@Shadow private boolean thirdPerson;
 	Vec3d curOffset;
-	float curYaw, baseYaw;
-	boolean wasWingCustomizationOpen;
+	float curYaw, baseYaw, curPitch;
+	boolean wasWingCustomizationOpen, wasFocusedOnTerminal;
 	
 	@Inject(method = "update", at = @At("HEAD"), cancellable = true)
 	void onBeforeUpdate(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci)
@@ -67,11 +68,26 @@ public abstract class CameraMixin
 			wingCustomizationUpdate(area, focusedEntity, tickDelta);
 			ci.cancel();
 		}
+		else if(focusedEntity instanceof WingedPlayerEntity winged && winged.getFocusedTerminal() != null)
+		{
+			this.ready = true;
+			this.area = area;
+			this.focusedEntity = focusedEntity;
+			this.thirdPerson = false;
+			setRotation(focusedEntity.getYaw(tickDelta), focusedEntity.getPitch(tickDelta));
+			setPos(new Vec3d(MathHelper.lerp(tickDelta, focusedEntity.prevX, focusedEntity.getX()),
+					MathHelper.lerp(tickDelta, focusedEntity.prevY, focusedEntity.getY()) + (double)MathHelper.lerp(tickDelta, lastCameraY, cameraY),
+					MathHelper.lerp(tickDelta, focusedEntity.prevZ, focusedEntity.getZ())));
+			TerminalBlockEntity terminal = winged.getFocusedTerminal();
+			terminalFocusUpdate(terminal, tickDelta);
+			ci.cancel();
+		}
 		else
 		{
 			curOffset = getPos();
 			curYaw = yaw;
 			wasWingCustomizationOpen = false;
+			wasFocusedOnTerminal = false;
 		}
 	}
 	
@@ -123,6 +139,31 @@ public abstract class CameraMixin
 			curOffset = curOffset.lerp(offset, tickDelta / 10);
 			offset = curOffset.rotateY((float)Math.toRadians(-(yaw - baseYaw)));
 			setPos(new Vec3d(pos.x + offset.x, pos.y + offset.y, pos.z + offset.z));
+		}
+	}
+	
+	void terminalFocusUpdate(TerminalBlockEntity terminal, float tickDelta)
+	{
+		Vec3d pos = terminal.getPos().toCenterPos();
+		Vec3d offset = pos.add(new Vec3d(0f, 0f, -0.75f).rotateY(terminal.getRotation() * -MathHelper.RADIANS_PER_DEGREE));
+		
+		if(!wasFocusedOnTerminal) //set initial transform when opening Menu
+		{
+			curYaw = yaw;
+			curOffset = getPos();
+			wasFocusedOnTerminal = true;
+		}
+		else //lerp towards target transform
+		{
+			float f = MathHelper.DEGREES_PER_RADIAN;
+			Vec3d dir = pos.subtract(offset);
+			
+			double horizontalLength = Math.sqrt(dir.x * dir.x + dir.z * dir.z);
+			curPitch = MathHelper.lerpAngleDegrees(tickDelta / 4f, curPitch, (float)(-(MathHelper.atan2(dir.y, horizontalLength) * f)));
+			setRotation(curYaw = MathHelper.lerpAngleDegrees(tickDelta / 4f, curYaw,
+					(float)(MathHelper.atan2(dir.z, dir.x) * f) - 90.0f), curPitch);
+			curOffset = curOffset.lerp(offset, tickDelta / 4f);
+			setPos(curOffset);
 		}
 	}
 }

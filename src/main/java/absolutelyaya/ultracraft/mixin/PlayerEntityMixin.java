@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.mixin;
 import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
@@ -16,6 +17,7 @@ import com.chocohead.mm.api.ClassTinkerers;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.block.FluidBlock;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
@@ -29,6 +31,7 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.NotNull;
@@ -61,6 +64,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	
 	@Shadow public abstract PlayerInventory getInventory();
 	
+	@Shadow public abstract void sendMessage(Text message, boolean overlay);
+	
 	boolean wingsActive, groundPounding, ignoreSlowdown, blocked, primaryFiring;
 	byte wingState, lastState;
 	float wingAnimTime;
@@ -71,6 +76,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	String wingPattern = "";
 	AbstractWeaponItem lastPrimaryWeapon;
 	BackTank backtank;
+	TerminalBlockEntity focusedTerminal;
 	
 	private final Vec3d[] curWingPose = new Vec3d[] {new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f)};
 	
@@ -549,5 +555,20 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public AbstractWeaponItem getLastPrimaryWeapon()
 	{
 		return lastPrimaryWeapon;
+	}
+	
+	@Override
+	public void setFocusedTerminal(TerminalBlockEntity focusedTerminal)
+	{
+		this.focusedTerminal = focusedTerminal;
+		if(focusedTerminal != null)
+			sendMessage(Text.translatable("screen.ultracraft.terminal.unfocus",
+					Text.translatable(MinecraftClient.getInstance().options.sneakKey.getBoundKeyTranslationKey())), true);
+	}
+	
+	@Override
+	public TerminalBlockEntity getFocusedTerminal()
+	{
+		return focusedTerminal;
 	}
 }

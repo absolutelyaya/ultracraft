@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.accessor;
 
+import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import net.minecraft.util.math.Vec3d;
@@ -91,4 +92,8 @@ public interface WingedPlayerEntity
 	boolean isPrimaryFiring();
 	
 	AbstractWeaponItem getLastPrimaryWeapon();
+	
+	void setFocusedTerminal(TerminalBlockEntity terminal);
+	
+	TerminalBlockEntity getFocusedTerminal();
 }

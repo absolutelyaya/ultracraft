@@ -274,6 +274,7 @@
   "screen.ultracraft.pedestal.title": "Pedestal",
   "screen.ultracraft.pedestal.lock": "Locking the Pedestal will prevent right click from opening this menu.",
   "screen.ultracraft.pedestal.key": "Key ->",
+  "screen.ultracraft.terminal.unfocus": "Press %s to unfocus the Terminal.",
 
   "wing-preset.ultracraft.amethyst": "Amethyst",
   "wing-preset.ultracraft.cyber": "Cyber",

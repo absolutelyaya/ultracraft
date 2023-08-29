@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.block;
 
+import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.block.*;
@@ -9,6 +10,9 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -81,6 +85,24 @@ public class TerminalDisplayBlock extends BlockWithEntity
 			world.setBlockState(pos2, Blocks.AIR.getDefaultState());
 			world.addBlockBreakParticles(pos2, state);
 		}
+		BlockEntity entity = world.getBlockEntity(pos);
+		if(entity instanceof TerminalBlockEntity terminal)
+			terminal.onBlockBreak();
 		super.onBreak(world, pos, state, player);
+	}
+	
+	@Override
+	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit)
+	{
+		if(player instanceof WingedPlayerEntity winged)
+		{
+			BlockEntity entity = world.getBlockEntity(pos);
+			if(entity instanceof TerminalBlockEntity terminal)
+			{
+				winged.setFocusedTerminal(terminal);
+				terminal.focusedPlayers.add(winged);
+			}
+		}
+		return super.onUse(state, world, pos, player, hand, hit);
 	}
 }
