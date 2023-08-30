@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
+import absolutelyaya.ultracraft.client.gui.screen.TerminalScreen;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.entity.other.BackTank;
@@ -560,13 +561,18 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Override
 	public void setFocusedTerminal(TerminalBlockEntity focusedTerminal)
 	{
-		this.focusedTerminal = focusedTerminal;
 		if(focusedTerminal != null)
 			sendMessage(Text.translatable("screen.ultracraft.terminal.unfocus",
 					Text.translatable(MinecraftClient.getInstance().options.sneakKey.getBoundKeyTranslationKey())), true);
 		else if(getWorld().isClient)
-			MinecraftClient.getInstance().gameRenderer.setRenderHand(true);
-			
+		{
+			this.focusedTerminal.unFocus(this);
+			MinecraftClient client = MinecraftClient.getInstance();
+			client.gameRenderer.setRenderHand(true);
+			if(client.currentScreen instanceof TerminalScreen)
+				client.setScreen(focusedTerminal == null ? null : new TerminalScreen(Text.of("aa")));
+		}
+		this.focusedTerminal = focusedTerminal;
 	}
 	
 	@Override

@@ -91,6 +91,7 @@ public class TerminalBlock extends BlockWithEntity
 		{
 			world.setBlockState(pos, Blocks.AIR.getDefaultState());
 			world.addBlockBreakParticles(pos, state);
+			world.getBlockState(pos).getBlock().onBreak(world, pos, state, player);
 		}
 		pos = pos.offset(dir, 1);
 		if(world.getBlockState(pos).isOf(BlockRegistry.TERMINAL))

@@ -9,6 +9,7 @@ import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
@@ -17,6 +18,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
@@ -92,6 +94,7 @@ public class TerminalDisplayBlock extends BlockWithEntity
 		if(entity instanceof TerminalBlockEntity terminal)
 			terminal.onBlockBreak();
 		super.onBreak(world, pos, state, player);
+		//TODO: manually drop item with all NBT data
 	}
 	
 	@Override
@@ -109,5 +112,20 @@ public class TerminalDisplayBlock extends BlockWithEntity
 			}
 		}
 		return super.onUse(state, world, pos, player, hand, hit);
+	}
+	
+	public void onHit(World world, BlockPos pos, BlockHitResult hit, PlayerEntity player)
+	{
+		if(!world.isClient)
+			return;
+		Direction.Axis axis = world.getBlockState(pos).get(FACING).getAxis();
+		Vec3d p = hit.getPos();
+		Vec3d local = hit.getBlockPos().toCenterPos().subtract(p);
+		if((axis.equals(Direction.Axis.X) && local.x != 0f) || (axis.equals(Direction.Axis.Z) && local.z != 0f))
+			return; //the front face wasn't hit.
+		world.addParticle(ParticleTypes.FLAME, p.x, p.y, p.z, 0, 0, 0);
+		BlockEntity entity = world.getBlockEntity(pos);
+		if(entity instanceof TerminalBlockEntity terminalEntity)
+			terminalEntity.onHit(world, pos, hit, player);
 	}
 }

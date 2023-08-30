@@ -136,11 +136,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Inject(method = "sendMovementPackets", at = @At(value = "HEAD"), cancellable = true)
 	public void onSendMovementPackets(CallbackInfo ci)
 	{
-		if(getFocusedTerminal() != null && !lastSneaking && isSneaking())
+		if(getFocusedTerminal() != null)
 		{
-			setFocusedTerminal(null); //exit focused Terminal
-			ci.cancel();
-			return;
+			if(!lastSneaking && isSneaking())
+				setFocusedTerminal(null); //exit focused Terminal
 		}
 		
 		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying && !isSpectator())

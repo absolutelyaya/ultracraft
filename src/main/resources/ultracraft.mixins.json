@@ -26,6 +26,7 @@
     "GameRendererMixin",
     "HandRendererMixin",
     "HeldItemFeatureRendererMixin",
+    "IngameHudMixin",
     "ItemOverlayMixin",
     "KeyboardInputMixin",
     "LivingEntityRendererMixin",
