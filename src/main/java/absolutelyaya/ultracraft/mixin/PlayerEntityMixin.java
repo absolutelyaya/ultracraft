@@ -561,16 +561,20 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Override
 	public void setFocusedTerminal(TerminalBlockEntity focusedTerminal)
 	{
+		MinecraftClient client = MinecraftClient.getInstance();
 		if(focusedTerminal != null)
-			sendMessage(Text.translatable("screen.ultracraft.terminal.unfocus",
-					Text.translatable(MinecraftClient.getInstance().options.sneakKey.getBoundKeyTranslationKey())), true);
+		{
+			if(this.focusedTerminal != focusedTerminal)
+				sendMessage(Text.translatable("screen.ultracraft.terminal.unfocus"), true);
+			if(getWorld().isClient)
+				client.setScreen(new TerminalScreen(focusedTerminal));
+		}
 		else if(getWorld().isClient)
 		{
 			this.focusedTerminal.unFocus(this);
-			MinecraftClient client = MinecraftClient.getInstance();
 			client.gameRenderer.setRenderHand(true);
 			if(client.currentScreen instanceof TerminalScreen)
-				client.setScreen(focusedTerminal == null ? null : new TerminalScreen(Text.of("aa")));
+				client.setScreen(null);
 		}
 		this.focusedTerminal = focusedTerminal;
 	}

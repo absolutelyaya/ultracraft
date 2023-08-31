@@ -105,8 +105,11 @@ public class TerminalDisplayBlock extends BlockWithEntity
 			BlockEntity entity = world.getBlockEntity(pos);
 			if(entity instanceof TerminalBlockEntity terminal)
 			{
-				winged.setFocusedTerminal(terminal);
-				terminal.focusedPlayers.add(winged);
+				if(winged.getFocusedTerminal() == null || !winged.getFocusedTerminal().equals(terminal))
+				{
+					winged.setFocusedTerminal(terminal);
+					terminal.focusedPlayers.add(winged);
+				}
 				if(world.isClient)
 					MinecraftClient.getInstance().gameRenderer.setRenderHand(false);
 			}
@@ -128,7 +131,6 @@ public class TerminalDisplayBlock extends BlockWithEntity
 		if(entity instanceof TerminalBlockEntity terminalEntity)
 		{
 			double screenX = axis == Direction.Axis.X ? local.z + 0.5f : local.x + 0.5f;
-			System.out.println(dir.getDirection().equals(Direction.AxisDirection.POSITIVE));
 			if((dir.getDirection().equals(Direction.AxisDirection.POSITIVE) && axis.equals(Direction.Axis.X)) ||
 					   (dir.getDirection().equals(Direction.AxisDirection.NEGATIVE) && axis.equals(Direction.Axis.Z)))
 				terminalEntity.setCursor(new Vector2d((float)screenX, (float)local.y + 0.5f));
@@ -148,6 +150,6 @@ public class TerminalDisplayBlock extends BlockWithEntity
 			return; //the front face wasn't hit.
 		BlockEntity entity = world.getBlockEntity(pos);
 		if(entity instanceof TerminalBlockEntity terminalEntity)
-			terminalEntity.onHit(world, pos, hit, player);
+			terminalEntity.onHit();
 	}
 }

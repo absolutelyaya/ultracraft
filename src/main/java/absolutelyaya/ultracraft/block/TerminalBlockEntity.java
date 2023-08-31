@@ -6,20 +6,15 @@ import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec2f;
-import net.minecraft.world.World;
-import org.joml.Vector2d;
-import org.joml.Vector2f;
-import org.joml.Vector2i;
+import org.joml.*;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 
+import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -60,19 +55,19 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	}
 	
-	public void onHit(World world, BlockPos pos, BlockHitResult hit, PlayerEntity player)
+	public void onHit()
 	{
 		inactivity = 0f;
 		if(lastHovered != null)
 		{
 			switch(lastHovered)
 			{
-				case "customize" -> setTab(Tab.COMING_SOON);
+				case "customize" -> setTab(Tab.CUSTOMIZATION);
 				case "bestiary" -> setTab(Tab.COMING_SOON);
 				case "weapons" -> setTab(Tab.WEAPONS);
 				case "mainmenu" -> setTab(Tab.MAIN_MENU);
 				default -> Ultracraft.LOGGER.error("Undefined Behavior for Terminal button '" + lastHovered + "'");
-			};
+			}
 		}
 	}
 	
@@ -106,6 +101,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		displayVisibility = MathHelper.clamp(f, 0f, 1f);
 		if(getWorld().getBlockState(getPos()).isOf(BlockRegistry.TERMINAL_DISPLAY))
 			getWorld().setBlockState(getPos(), getWorld().getBlockState(getPos()).with(TerminalDisplayBlock.GLOWS,displayVisibility > 0.25f));
+		if(displayVisibility == 0f && !tab.equals(Tab.MAIN_MENU))
+			setTab(Tab.MAIN_MENU);
 	}
 	
 	public float getDisplayVisibility()
@@ -156,7 +153,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public void setCursor(Vector2d cursor)
 	{
-		this.cursor = cursor;
+		this.cursor = new Vector2d(MathHelper.clamp(cursor.x, -curWindowSize.x / 200f + 0.5, Math.max(curWindowSize.x / 100f - 0.5, 1)), MathHelper.clamp(cursor.y, 0, curWindowSize.y / 100f));
 	}
 	
 	public Vector2d getCursor()

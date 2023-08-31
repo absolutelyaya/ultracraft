@@ -275,7 +275,7 @@
   "screen.ultracraft.pedestal.title": "Pedestal",
   "screen.ultracraft.pedestal.lock": "Locking the Pedestal will prevent right click from opening this menu.",
   "screen.ultracraft.pedestal.key": "Key ->",
-  "screen.ultracraft.terminal.unfocus": "Press %s to unfocus the Terminal.",
+  "screen.ultracraft.terminal.unfocus": "Press ESC to unfocus the Terminal.",
   "screen.ultracraft.terminal.owner": "Owner: %s",
   "screen.ultracraft.terminal.main-menu": "Main Menu",
   "screen.ultracraft.terminal.coming-soon": "Coming Soon",
