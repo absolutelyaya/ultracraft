@@ -7,11 +7,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.resource.featuretoggle.FeatureSet;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
+import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -26,6 +28,13 @@ public class DestinyBondSpawnEggItem extends SpawnEggItem
 	@Override
 	public ActionResult useOnBlock(ItemUsageContext context)
 	{
+		World world = context.getWorld();
+		if (!(world instanceof ServerWorld)) {
+			return ActionResult.SUCCESS;
+		}
+		if(!context.getPlayer().isCreative())
+			context.getStack().decrement(1);
+		world.emitGameEvent(context.getPlayer(), GameEvent.ENTITY_PLACE, context.getBlockPos());
 		DestinyBondSwordsmachineEntity.spawn(context.getWorld(), context.getBlockPos().add(context.getSide().getVector()).toCenterPos(), context.getPlayerYaw() + 180);
 		return ActionResult.CONSUME;
 	}
