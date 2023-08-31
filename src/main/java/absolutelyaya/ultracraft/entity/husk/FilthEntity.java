@@ -39,7 +39,6 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 	private static final RawAnimation ATTACK_LUNGE_ANIM = RawAnimation.begin().thenLoop("lunge");
 	private static final RawAnimation ATTACK_MOVING_ANIM = RawAnimation.begin().thenLoop("attackMoving");
 	private static final RawAnimation ATTACK_STATIONARY_ANIM = RawAnimation.begin().thenLoop("attackStationary");
-	private static final RawAnimation THROWBACK_ANIM = RawAnimation.begin().thenLoop("throwback");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	protected static final TrackedData<Boolean> RARE = DataTracker.registerData(FilthEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(FilthEntity.class, TrackedDataHandlerRegistry.INTEGER);
@@ -47,8 +46,6 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 	private static final byte ANIMATION_ATTACK_LUNGE = 1;
 	private static final byte ANIMATION_ATTACK_MOVING = 2;
 	private static final byte ANIMATION_ATTACK_STATIONARY = 3;
-	private static final byte ANIMATION_THROWBACK = 4;
-	static int throwbackTicks;
 	
 	public FilthEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -105,7 +102,6 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 			case ANIMATION_ATTACK_LUNGE -> controller.setAnimation(ATTACK_LUNGE_ANIM);
 			case ANIMATION_ATTACK_MOVING -> controller.setAnimation(ATTACK_MOVING_ANIM);
 			case ANIMATION_ATTACK_STATIONARY -> controller.setAnimation(ATTACK_STATIONARY_ANIM);
-			case ANIMATION_THROWBACK -> controller.setAnimation(THROWBACK_ANIM);
 		}
 		return PlayState.CONTINUE;
 	}
@@ -114,14 +110,6 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 	public void tick()
 	{
 		super.tick();
-		if(throwbackTicks > 0)
-		{
-			throwbackTicks--;
-			if(dataTracker.get(ANIMATION) != ANIMATION_THROWBACK)
-				dataTracker.set(ANIMATION, ANIMATION_THROWBACK);
-		}
-		else if(dataTracker.get(ANIMATION) == ANIMATION_THROWBACK)
-			dataTracker.set(ANIMATION, ANIMATION_IDLE);
 		if(dataTracker.get(ATTACK_COOLDOWN) > 0)
 			dataTracker.set(ATTACK_COOLDOWN, dataTracker.get(ATTACK_COOLDOWN) - 1);
 	}
@@ -138,11 +126,6 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 				lookAtEntity(getTarget(), 180, 180);
 			setBodyYaw(headYaw);
 		}
-	}
-	
-	public void throwback()
-	{
-		throwbackTicks += 50;
 	}
 	
 	@Override
