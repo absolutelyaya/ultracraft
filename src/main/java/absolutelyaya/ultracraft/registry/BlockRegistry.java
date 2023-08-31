@@ -51,6 +51,9 @@ public class BlockRegistry
 			new TerminalBlock(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK).mapColor(MapColor.GRAY).nonOpaque()), false);
 	public static final Block TERMINAL_DISPLAY = register("terminal_display",
 			new TerminalDisplayBlock(AbstractBlock.Settings.copy(BlockRegistry.TERMINAL).luminance((state) -> state.get(TerminalDisplayBlock.GLOWS) ? 8 : 0)), false);
+	public static final Block VENT_COVER = register("vent_cover",
+			new VentCoverBlock(AbstractBlock.Settings.copy(Blocks.IRON_BARS).mapColor(MapColor.DEEPSLATE_GRAY).requiresTool().strength(3f, 4f).nonOpaque()),
+			true);
 	
 	@SuppressWarnings("SameParameterValue")
 	private static Block register(String name, Block block, boolean item, int burn, int spread)

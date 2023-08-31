@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "facing=east": {
+      "y": 90,
+      "model": "ultracraft:block/vent_cover"
+    },
+    "facing=north": {
+      "y": 0,
+      "model": "ultracraft:block/vent_cover"
+    },
+    "facing=south": {
+      "y": 180,
+      "model": "ultracraft:block/vent_cover"
+    },
+    "facing=west": {
+      "y": 270,
+      "model": "ultracraft:block/vent_cover"
+    }
+  }
+}

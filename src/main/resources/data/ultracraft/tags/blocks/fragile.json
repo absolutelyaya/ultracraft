@@ -38,6 +38,7 @@
     "minecraft:red_stained_glass_pane",
     "minecraft:black_stained_glass_pane",
     "#minecraft:leaves",
-    "minecraft:grass"
+    "minecraft:grass",
+    "ultracraft:vent_cover"
   ]
 }
