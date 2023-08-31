@@ -166,7 +166,10 @@ public abstract class MinecraftClientMixin
 			ci.cancel();
 		boolean terminal = player.getWorld().getBlockState(hitPos).isOf(BlockRegistry.TERMINAL_DISPLAY);
 		if(terminal)
+		{
+			((TerminalDisplayBlock)player.getWorld().getBlockState(bhit.getBlockPos()).getBlock()).onPoint(world, bhit.getBlockPos(), bhit, player);
 			ci.cancel();
+		}
 		if(player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldCancelPunching())
 			ci.cancel();
 	}

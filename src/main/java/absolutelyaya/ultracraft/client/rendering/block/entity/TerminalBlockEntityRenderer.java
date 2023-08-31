@@ -14,13 +14,13 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import org.joml.AxisAngle4f;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
+import net.minecraft.util.math.Vec2f;
+import org.joml.*;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
 
+import java.lang.Math;
+import java.text.MessageFormat;
 import java.util.List;
 
 public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockEntity>
@@ -55,7 +55,13 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 			displayVisibility -= partialTick / 3f;
 		animatable.setDisplayVisibility(displayVisibility);
 		if(displayVisibility > 0f)
+		{
 			animatable.setInactivity(animatable.getInactivity() + partialTick / 20f);
+			if(animatable.getSizeOverride() != null)
+				animatable.setCurWindowSize(animatable.getCurWindowSize().lerp(animatable.getSizeOverride(), partialTick / 5f));
+			else
+				animatable.setCurWindowSize(animatable.getCurWindowSize().lerp(animatable.getNormalWindowSize(), partialTick / 5f));
+		}
 		else if(animatable.getInactivity() < 600f)
 			animatable.setInactivity(600f);
 		if(displayVisibility > 0f)
@@ -73,7 +79,8 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 		//Transformation
 		matrices.push();
 		matrices.translate(0.5f, 0.5f, 0.5f);
-		matrices.multiply(new Quaternionf(new AxisAngle4f(animatable.getRotation() * -MathHelper.RADIANS_PER_DEGREE, 0f, 1f, 0f)));
+		matrices.multiply(new Quaternionf(new AxisAngle4f(animatable.getRotation() * -MathHelper.RADIANS_PER_DEGREE,
+				0f, 1f, 0f)));
 		matrices.translate(0f, 0f, -0.1f);
 		float displayVisibility = terminal.getDisplayVisibility();
 		matrices.scale(Math.min(displayVisibility / 0.5f, 1f), displayVisibility, Math.min(displayVisibility / 0.5f, 1f));
@@ -82,45 +89,98 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 		{
 			ServerPlayerEntity ownerPlayer = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(terminal.getOwner());
 			Text ownerText = Text.translatable("screen.ultracraft.terminal.owner", ownerPlayer != null ? ownerPlayer.getDisplayName() : terminal.getOwner());
-			drawText(buffers, matrices, ownerText.getString(), 102, -textRenderer.fontHeight, 0.005f);
+			drawText(buffers, matrices, ownerText.getString(), 102 + (int)((animatable.getCurWindowSize().x - 100) / 2f), -textRenderer.fontHeight, 0.005f);
 		}
 		//ScreenSaver
 		if(animatable.getInactivity() > 30f)
-			drawScreenSaver(matrices, terminal, buffers);
+			drawScreenSaver(matrices, buffers);
 		else
-			drawMainMenu(matrices, terminal, buffers);
+		{
+			switch (animatable.getTab())
+			{
+				case MAIN_MENU -> drawMainMenu(matrices, buffers);
+				case COMING_SOON -> drawComingSoon(matrices, buffers);
+				case WEAPONS -> drawWeapons(matrices, buffers);
+				case BESTIARY -> drawBestiary(matrices, buffers);
+				case CUSTOMIZATION -> drawCustomization(matrices, buffers);
+			}
+		}
+		
+		matrices.translate(0f, 0f, -0.005f);
+		Vec2f cursor = terminal.getCursor();
+		drawBoxOutline(buffers, matrices, (int)(cursor.x * 100) - 1, (int)(cursor.y * 100) - 1, 1, 1, 0xffffffff);
 		//End Transform
 		matrices.pop();
 	}
 	
-	void drawScreenSaver(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
+	void drawScreenSaver(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
-		drawBG(matrices, terminal, buffers);
+		drawBG(matrices, buffers);
 		List<String> lines = animatable.getLines();
 		for (int i = 0; i < lines.size(); i++)
 			drawText(buffers, matrices, lines.get(i), 2, textRenderer.fontHeight * (i + 1) - 108, 0.005f);
 	}
 	
-	void drawMainMenu(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
+	void drawMainMenu(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
-		drawBG(matrices, terminal, buffers);
-		String t = Text.translatable("screen.ultracraft.terminal.main-menu").getString();
-		drawText(buffers, matrices, t, 50 - textRenderer.getWidth(t) / 2, - 100 + textRenderer.fontHeight, 0.01f);
-		t = Text.translatable("screen.ultracraft.terminal.button.customize").getString();
+		drawTab(matrices, buffers, "screen.ultracraft.terminal.main-menu", false);
 		int y = 50;
-		drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y, textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2);
+		String t = Text.translatable("screen.ultracraft.terminal.customize").getString();
+		drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
+				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "customize");
 		y -= textRenderer.fontHeight + 5;
-		t = Text.translatable("screen.ultracraft.terminal.button.bestiary").getString();
-		drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y, textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2);
+		t = Text.translatable("screen.ultracraft.terminal.bestiary").getString();
+		drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
+				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "bestiary");
 		y -= textRenderer.fontHeight + 5;
-		t = Text.translatable("screen.ultracraft.terminal.button.weapons").getString();
-		drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y, textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2);
+		t = Text.translatable("screen.ultracraft.terminal.weapons").getString();
+		drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
+				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "weapons");
 	}
 	
-	void drawBG(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
+	void drawComingSoon(MatrixStack matrices, VertexConsumerProvider buffers)
+	{
+		drawTab(matrices, buffers, "screen.ultracraft.terminal.coming-soon", "///", true);
+	}
+	
+	void drawWeapons(MatrixStack matrices, VertexConsumerProvider buffers)
+	{
+		drawTab(matrices, buffers, "screen.ultracraft.terminal.weapons", true);
+	}
+	
+	void drawBestiary(MatrixStack matrices, VertexConsumerProvider buffers)
+	{
+		drawTab(matrices, buffers, "screen.ultracraft.terminal.bestiary", true);
+	}
+	
+	void drawCustomization(MatrixStack matrices, VertexConsumerProvider buffers)
+	{
+		drawTab(matrices, buffers, "screen.ultracraft.terminal.customization", true);
+	}
+	
+	void drawTab(MatrixStack matrices, VertexConsumerProvider buffers, String title, boolean returnButton)
+	{
+		drawTab(matrices, buffers, title, "-", returnButton);
+	}
+	
+	void drawTab(MatrixStack matrices, VertexConsumerProvider buffers, String title, String titleBorder, boolean returnButton)
+	{
+		String t = MessageFormat.format("{0} {1} {0}", titleBorder, Text.translatable(title).getString());
+		drawBG(matrices, buffers);
+		drawText(buffers, matrices, t, 50 - textRenderer.getWidth(t) / 2, - 100 + textRenderer.fontHeight, 0.01f);
+		if(returnButton)
+		{
+			t = Text.translatable("screen.ultracraft.terminal.button.back").getString();
+			drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, 95 - textRenderer.fontHeight,
+					textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "mainmenu");
+		}
+	}
+	
+	void drawBG(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
 		int BGcolor = 0xaa000000;
-		drawBox(buffers, matrices, 0, 0, 100, 100, BGcolor);
+		Vector2f size = animatable.getCurWindowSize();
+		drawBox(buffers, matrices, (int)(-(size.x - 100) / 2f), 0, size.x, size.y, BGcolor);
 	}
 	
 	void drawMultiLine(VertexConsumerProvider buffers, MatrixStack matrices, String text, int x, int y, float z)
@@ -132,31 +192,51 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	
 	void drawText(VertexConsumerProvider buffers, MatrixStack matrices, String text, int x, int y, float z)
 	{
+		drawText(buffers, matrices, text, x, y, z, animatable.getTextColor());
+	}
+	
+	void drawText(VertexConsumerProvider buffers, MatrixStack matrices, String text, int x, int y, float z, int color)
+	{
 		matrices.push();
 		matrices.translate(0.5f, -0.5f, -z);
 		matrices.scale(-0.01f, -0.01f, 0.01f);
-		textRenderer.draw(text, x, y, animatable.getTextColor(), false,
+		textRenderer.draw(text, x, y, color, false,
 				new Matrix4f(matrices.peek().getPositionMatrix()), buffers, TextRenderer.TextLayerType.NORMAL, 0x00000000, LIGHT, false);
 		matrices.pop();
 	}
 	
-	void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, String text, int x, int y, int sizeX, int sizeY)
+	void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, String text, int x, int y, int sizeX, int sizeY, String action)
 	{
+		Vec2f cursor = animatable.getCursor().multiply(100);
+		boolean hovered = cursor.x > x && cursor.x < x + sizeX && cursor.y > y && cursor.y < y + sizeY;
 		matrices.push();
 		drawBoxOutline(buffers, matrices, x, y, sizeX, sizeY);
+		if(hovered)
+		{
+			matrices.translate(0f, 0f, -0.005f);
+			drawBox(buffers, matrices, x, y, sizeX, sizeY, animatable.getTextColor());
+			animatable.setLastHovered(action);
+		}
+		else if(animatable.getLastHovered() != null && animatable.getLastHovered().equals(action))
+			animatable.setLastHovered(null);
 		matrices.translate(0f, 1f, -0.01f);
-		drawText(buffers, matrices, text, x + 2, y + 2, 0f);
+		drawText(buffers, matrices, text, x + 2, y + 2, 0f, hovered ? 0xff000000 : animatable.getTextColor());
 		matrices.pop();
 	}
 	
 	void drawBoxOutline(VertexConsumerProvider buffers, MatrixStack matrices, int x, int y, int sizeX, int sizeY)
 	{
+		drawBoxOutline(buffers, matrices, x, y, sizeX, sizeY, animatable.getTextColor());
+	}
+	
+	void drawBoxOutline(VertexConsumerProvider buffers, MatrixStack matrices, int x, int y, int sizeX, int sizeY, int color)
+	{
 		matrices.push();
 		matrices.translate(0f, 0f, -0.005f);
-		drawBox(buffers, matrices, x, y + sizeY, sizeX, 1, animatable.getTextColor());
-		drawBox(buffers, matrices, x, y - 1, sizeX, 1, animatable.getTextColor());
-		drawBox(buffers, matrices, x - 1, y, 1, sizeY, animatable.getTextColor());
-		drawBox(buffers, matrices, x + sizeX, y, 1, sizeY, animatable.getTextColor());
+		drawBox(buffers, matrices, x, y + sizeY, sizeX, 1, color);
+		drawBox(buffers, matrices, x, y - 1, sizeX, 1, color);
+		drawBox(buffers, matrices, x - 1, y, 1, sizeY, color);
+		drawBox(buffers, matrices, x + sizeX, y, 1, sizeY, color);
 		matrices.pop();
 	}
 	

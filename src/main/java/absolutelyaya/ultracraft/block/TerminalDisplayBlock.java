@@ -18,6 +18,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
@@ -114,6 +115,20 @@ public class TerminalDisplayBlock extends BlockWithEntity
 		return super.onUse(state, world, pos, player, hand, hit);
 	}
 	
+	public void onPoint(World world, BlockPos pos, BlockHitResult hit, PlayerEntity player)
+	{
+		if(!world.isClient)
+			return;
+		Direction.Axis axis = world.getBlockState(pos).get(FACING).getAxis();
+		Vec3d p = hit.getPos();
+		Vec3d local = hit.getBlockPos().toCenterPos().subtract(p);
+		if((axis.equals(Direction.Axis.X) && local.x != 0f) || (axis.equals(Direction.Axis.Z) && local.z != 0f))
+			return; //the front face wasn't hit.
+		BlockEntity entity = world.getBlockEntity(pos);
+		if(entity instanceof TerminalBlockEntity terminalEntity)
+			terminalEntity.setCursor(new Vec2f((float)(axis == Direction.Axis.X ? local.z + 0.5f : local.x + 0.5f), (float)local.y + 0.5f));
+	}
+	
 	public void onHit(World world, BlockPos pos, BlockHitResult hit, PlayerEntity player)
 	{
 		if(!world.isClient)
@@ -123,7 +138,6 @@ public class TerminalDisplayBlock extends BlockWithEntity
 		Vec3d local = hit.getBlockPos().toCenterPos().subtract(p);
 		if((axis.equals(Direction.Axis.X) && local.x != 0f) || (axis.equals(Direction.Axis.Z) && local.z != 0f))
 			return; //the front face wasn't hit.
-		world.addParticle(ParticleTypes.FLAME, p.x, p.y, p.z, 0, 0, 0);
 		BlockEntity entity = world.getBlockEntity(pos);
 		if(entity instanceof TerminalBlockEntity terminalEntity)
 			terminalEntity.onHit(world, pos, hit, player);

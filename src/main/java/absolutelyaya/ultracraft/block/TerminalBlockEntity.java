@@ -1,7 +1,7 @@
 package absolutelyaya.ultracraft.block;
 
+import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
-import absolutelyaya.ultracraft.mixin.PlayerEntityMixin;
 import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
 import net.minecraft.block.BlockState;
@@ -10,7 +10,10 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec2f;
 import net.minecraft.world.World;
+import org.joml.Vector2f;
+import org.joml.Vector2i;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
@@ -27,7 +30,11 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	UUID owner = UUID.fromString("4a23954b-551c-4e2b-ac52-eb2e1ccbe443");
 	List<WingedPlayerEntity> focusedPlayers = new ArrayList<>();
 	List<String> lines = new ArrayList<>();
-	int textColor;
+	int textColor, colorOverride = -1;
+	Vec2f cursor = new Vec2f(0f, 0f);
+	String lastHovered;
+	Tab tab = Tab.MAIN_MENU;
+	Vector2f normalWindowSize = new Vector2f(100f, 100f), curWindowSize = new Vector2f(normalWindowSize), sizeOverride = null;
 	
 	public TerminalBlockEntity(BlockPos pos, BlockState state)
 	{
@@ -55,6 +62,17 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public void onHit(World world, BlockPos pos, BlockHitResult hit, PlayerEntity player)
 	{
 		inactivity = 0f;
+		if(lastHovered != null)
+		{
+			switch(lastHovered)
+			{
+				case "customize" -> setTab(Tab.COMING_SOON);
+				case "bestiary" -> setTab(Tab.COMING_SOON);
+				case "weapons" -> setTab(Tab.WEAPONS);
+				case "mainmenu" -> setTab(Tab.MAIN_MENU);
+				default -> Ultracraft.LOGGER.error("Undefined Behavior for Terminal button '" + lastHovered + "'");
+			};
+		}
 	}
 	
 	void onBlockBreak()
@@ -101,6 +119,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public int getTextColor()
 	{
+		if(colorOverride != -1)
+			return colorOverride;
 		return textColor;
 	}
 	
@@ -111,7 +131,11 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public void setInactivity(float f)
 	{
+		if(!tab.equals(Tab.MAIN_MENU))
+			f = 0f;
 		inactivity = MathHelper.clamp(f, 0f, 600f);
+		if(inactivity > 30f)
+			lastHovered = null;
 	}
 	
 	public boolean isFocused(WingedPlayerEntity p)
@@ -127,5 +151,74 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public UUID getOwner()
 	{
 		return owner;
+	}
+	
+	public void setCursor(Vec2f cursor)
+	{
+		this.cursor = cursor;
+	}
+	
+	public Vec2f getCursor()
+	{
+		return cursor;
+	}
+	
+	public String getLastHovered()
+	{
+		return lastHovered;
+	}
+	
+	public void setLastHovered(String lastHovered)
+	{
+		this.lastHovered = lastHovered;
+	}
+	
+	public void setTab(Tab tab)
+	{
+		this.tab = tab;
+		switch(tab)
+		{
+			case MAIN_MENU ->
+			{
+				colorOverride = -1;
+				sizeOverride = null;
+			}
+			case COMING_SOON -> colorOverride = 0xffffff00;
+			case WEAPONS, BESTIARY -> sizeOverride = new Vector2f(200, 100);
+		}
+	}
+	
+	public Tab getTab()
+	{
+		return tab;
+	}
+	
+	public Vector2f getCurWindowSize()
+	{
+		return curWindowSize;
+	}
+	
+	public void setCurWindowSize(Vector2f curWindowSize)
+	{
+		this.curWindowSize = curWindowSize;
+	}
+	
+	public Vector2f getSizeOverride()
+	{
+		return sizeOverride;
+	}
+	
+	public Vector2f getNormalWindowSize()
+	{
+		return normalWindowSize;
+	}
+	
+	public enum Tab
+	{
+		MAIN_MENU,
+		COMING_SOON,
+		WEAPONS,
+		BESTIARY,
+		CUSTOMIZATION
 	}
 }
