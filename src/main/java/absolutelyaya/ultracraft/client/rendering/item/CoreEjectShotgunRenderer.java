@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.client.rendering.item;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.CoreEjectShotgunItem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -63,7 +64,8 @@ public class CoreEjectShotgunRenderer extends GeoItemRenderer<CoreEjectShotgunIt
 		poseStack.push();
 		float useTime = 1f - (stack.getItem().getMaxUseTime(stack) - ((CoreEjectShotgunItem)stack.getItem()).getApproxUseTime()) / (float)(stack.getItem().getMaxUseTime(stack));
 		useTime = MathHelper.clamp(useTime, 0f, 1f);
-		poseStack.translate((random.nextFloat() - 0.5f) * useTime * 0.01f, (random.nextFloat() - 0.5f) * useTime * 0.01f, (random.nextFloat() - 0.5f) * useTime * 0.01f);
+		float f = UltracraftClient.getConfigHolder().get().safeVFX ? 0.01f : 0.025f;
+		poseStack.translate((random.nextFloat() - 0.5f) * useTime * f, (random.nextFloat() - 0.5f) * useTime * f, (random.nextFloat() - 0.5f) * useTime * f);
 		super.render(stack, transformType, poseStack, bufferSource, packedLight, packedOverlay);
 		poseStack.pop();
 	}
