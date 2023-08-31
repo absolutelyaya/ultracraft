@@ -41,7 +41,7 @@ public class PierceRevolverRenderer extends GeoItemRenderer<PierceRevolverItem>
 		
 		float useTime = 1f - (animatable.getMaxUseTime(null) - animatable.getApproxUseTime()) / (float)(animatable.getMaxUseTime(null));
 		if(useTime > 0.99f)
-			return new Identifier(Ultracraft.MOD_ID, "textures/item/pierce_revolver.png");
+			return new Identifier(Ultracraft.MOD_ID, "textures/item/pierce_revolver4.png");
 		else if(useTime > 0.5f)
 			return new Identifier(Ultracraft.MOD_ID, "textures/item/pierce_revolver3.png");
 		else if(useTime > 0f)
