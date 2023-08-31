@@ -76,6 +76,12 @@ public abstract class MinecraftClientMixin
 	@Inject(method = "handleInputEvents", at = @At("TAIL"))
 	void onHandleInputs(CallbackInfo ci)
 	{
+		if(player == null || player.isSpectator())
+		{
+			if(isShooting)
+				stopShooting();
+			return;
+		}
 		if(currentScreen == null && mouse.isCursorLocked())
 		{
 			if(options.attackKey.isPressed() != isShooting && player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w)
