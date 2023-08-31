@@ -9,6 +9,7 @@ import net.minecraft.block.*;
 import net.minecraft.item.BlockItem;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.sound.BlockSoundGroup;
 import net.minecraft.util.Identifier;
 
 public class BlockRegistry
@@ -40,7 +41,7 @@ public class BlockRegistry
 	public static final Block BLOOD = register("blood", new FluidBlock(FluidRegistry.STILL_BLOOD,
 			FabricBlockSettings.copyOf(Blocks.WATER).replaceable()), false);
 	public static final Block FLESH = register("flesh",
-			new FleshBlock(AbstractBlock.Settings.copy(Blocks.NETHERRACK).mapColor(MapColor.DARK_RED).nonOpaque()), true);
+			new FleshBlock(AbstractBlock.Settings.copy(Blocks.NETHERRACK).sounds(BlockSoundGroup.MUD).mapColor(MapColor.DARK_RED).nonOpaque()), true);
 	public static final Block RUSTY_PIPE = register("rusty_pipe",
 			new PipeBlock(AbstractBlock.Settings.copy(Blocks.IRON_BLOCK).mapColor(MapColor.TERRACOTTA_BROWN)), true);
 	public static final Block RUSTY_MESH = register("rusty_mesh",
