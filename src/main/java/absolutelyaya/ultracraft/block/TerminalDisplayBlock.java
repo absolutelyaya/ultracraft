@@ -9,7 +9,6 @@ import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
@@ -18,13 +17,13 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2d;
 
 public class TerminalDisplayBlock extends BlockWithEntity
 {
@@ -119,14 +118,23 @@ public class TerminalDisplayBlock extends BlockWithEntity
 	{
 		if(!world.isClient)
 			return;
-		Direction.Axis axis = world.getBlockState(pos).get(FACING).getAxis();
+		Direction dir = world.getBlockState(pos).get(FACING);
+		Direction.Axis axis = dir.getAxis();
 		Vec3d p = hit.getPos();
 		Vec3d local = hit.getBlockPos().toCenterPos().subtract(p);
 		if((axis.equals(Direction.Axis.X) && local.x != 0f) || (axis.equals(Direction.Axis.Z) && local.z != 0f))
 			return; //the front face wasn't hit.
 		BlockEntity entity = world.getBlockEntity(pos);
 		if(entity instanceof TerminalBlockEntity terminalEntity)
-			terminalEntity.setCursor(new Vec2f((float)(axis == Direction.Axis.X ? local.z + 0.5f : local.x + 0.5f), (float)local.y + 0.5f));
+		{
+			double screenX = axis == Direction.Axis.X ? local.z + 0.5f : local.x + 0.5f;
+			System.out.println(dir.getDirection().equals(Direction.AxisDirection.POSITIVE));
+			if((dir.getDirection().equals(Direction.AxisDirection.POSITIVE) && axis.equals(Direction.Axis.X)) ||
+					   (dir.getDirection().equals(Direction.AxisDirection.NEGATIVE) && axis.equals(Direction.Axis.Z)))
+				terminalEntity.setCursor(new Vector2d((float)screenX, (float)local.y + 0.5f));
+			else
+				terminalEntity.setCursor(new Vector2d(1f - (float)screenX, (float)local.y + 0.5f));
+		}
 	}
 	
 	public void onHit(World world, BlockPos pos, BlockHitResult hit, PlayerEntity player)

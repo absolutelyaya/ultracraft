@@ -12,6 +12,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.world.World;
+import org.joml.Vector2d;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
@@ -31,7 +32,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	List<WingedPlayerEntity> focusedPlayers = new ArrayList<>();
 	List<String> lines = new ArrayList<>();
 	int textColor, colorOverride = -1;
-	Vec2f cursor = new Vec2f(0f, 0f);
+	Vector2d cursor = new Vector2d(0f, 0f);
 	String lastHovered;
 	Tab tab = Tab.MAIN_MENU;
 	Vector2f normalWindowSize = new Vector2f(100f, 100f), curWindowSize = new Vector2f(normalWindowSize), sizeOverride = null;
@@ -153,12 +154,12 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		return owner;
 	}
 	
-	public void setCursor(Vec2f cursor)
+	public void setCursor(Vector2d cursor)
 	{
 		this.cursor = cursor;
 	}
 	
-	public Vec2f getCursor()
+	public Vector2d getCursor()
 	{
 		return cursor;
 	}

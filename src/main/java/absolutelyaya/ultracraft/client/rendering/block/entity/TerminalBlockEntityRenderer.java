@@ -14,7 +14,6 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec2f;
 import org.joml.*;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
@@ -107,7 +106,7 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 		}
 		
 		matrices.translate(0f, 0f, -0.005f);
-		Vec2f cursor = terminal.getCursor();
+		Vector2d cursor = terminal.getCursor();
 		drawBoxOutline(buffers, matrices, (int)(cursor.x * 100) - 1, (int)(cursor.y * 100) - 1, 1, 1, 0xffffffff);
 		//End Transform
 		matrices.pop();
@@ -207,7 +206,7 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	
 	void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, String text, int x, int y, int sizeX, int sizeY, String action)
 	{
-		Vec2f cursor = animatable.getCursor().multiply(100);
+		Vector2d cursor = animatable.getCursor().mul(100f);
 		boolean hovered = cursor.x > x && cursor.x < x + sizeX && cursor.y > y && cursor.y < y + sizeY;
 		matrices.push();
 		drawBoxOutline(buffers, matrices, x, y, sizeX, sizeY);
