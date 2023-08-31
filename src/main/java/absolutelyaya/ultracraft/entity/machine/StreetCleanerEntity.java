@@ -217,7 +217,8 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 				if(event.isMoving())
 				{
 					event.setControllerSpeed(1.25f);
-					event.setAnimation(getVelocity().horizontalLength() < 0.1 ? WALK_ANIM : RUN_ANIM);
+					System.out.println(getVelocity().horizontalLength());
+					event.setAnimation(getVelocity().horizontalLength() < 0.15 ? WALK_ANIM : RUN_ANIM);
 				}
 				else
 					event.setAnimation(dataTracker.get(ATTACKING) ? IDLE_AIM_ANIM : IDLE_ANIM);
