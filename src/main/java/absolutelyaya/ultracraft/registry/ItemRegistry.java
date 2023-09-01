@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.block.CerberusBlock;
+import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.item.SkullItem;
 import absolutelyaya.ultracraft.item.*;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
@@ -162,7 +163,8 @@ public class ItemRegistry
 			content.add(SWORDSMACHINE.getDefaultStack("tundra"));
 			content.add(SWORDSMACHINE.getDefaultStack("agony"));
 			content.add(DRONE_MASK);
-			content.add(TERMINAL);
+			for (TerminalBlockEntity.Base b : TerminalBlockEntity.Base.values())
+				content.add(TerminalItem.getStack(b));
 		});
 	}
 }

@@ -1,8 +1,8 @@
 package absolutelyaya.ultracraft.block;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.item.TerminalItem;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
-import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.enums.DoubleBlockHalf;
@@ -57,7 +57,7 @@ public class TerminalDisplayBlock extends BlockWithEntity
 	@Override
 	public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state)
 	{
-		return ItemRegistry.TERMINAL.getDefaultStack();
+		return TerminalItem.getStack(((TerminalBlockEntity)world.getBlockEntity(pos)).getBase());
 	}
 	
 	@Override

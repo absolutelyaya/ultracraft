@@ -6,6 +6,12 @@ import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import org.joml.*;
@@ -14,19 +20,22 @@ import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache
 import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 
-import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 {
+	//Persistent
+	Base base = Base.YELLOW;
+	UUID owner = UUID.fromString("4a23954b-551c-4e2b-ac52-eb2e1ccbe443");
+	List<String> lines = new ArrayList<>();
+	int textColor = 0xffffffff;
+	//Don't save all this
 	float displayVisibility = 0f, inactivity = 600f;
 	AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
-	UUID owner = UUID.fromString("4a23954b-551c-4e2b-ac52-eb2e1ccbe443");
 	List<WingedPlayerEntity> focusedPlayers = new ArrayList<>();
-	List<String> lines = new ArrayList<>();
-	int textColor, colorOverride = -1;
+	int colorOverride = -1;
 	Vector2d cursor = new Vector2d(0f, 0f);
 	String lastHovered;
 	Tab tab = Tab.MAIN_MENU;
@@ -37,10 +46,10 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		super(BlockEntityRegistry.TERMINAL, pos, state);
 		textColor = 0xffff9dff;
 		lines.add("+--------------+");
-		lines.add("  yaya's Terminal");
+		lines.add("   Tip of the Day");
 		lines.add("");
-		lines.add("");
-		lines.add("");
+		lines.add("     be there or");
+		lines.add("      be square");
 		lines.add("");
 		lines.add("");
 		lines.add("");
@@ -81,6 +90,33 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public AnimatableInstanceCache getAnimatableInstanceCache()
 	{
 		return cache;
+	}
+	
+	@Override
+	public void readNbt(NbtCompound nbt)
+	{
+		super.readNbt(nbt);
+		if(nbt.contains("base", NbtElement.INT_TYPE))
+			base = Base.values()[nbt.getInt("base")];
+	}
+	
+	@Override
+	protected void writeNbt(NbtCompound nbt)
+	{
+		super.writeNbt(nbt);
+		nbt.putInt("base", base.ordinal());
+	}
+	
+	@Override
+	public Packet<ClientPlayPacketListener> toUpdatePacket()
+	{
+		return BlockEntityUpdateS2CPacket.create(this);
+	}
+	
+	@Override
+	public NbtCompound toInitialChunkDataNbt()
+	{
+		return createNbt();
 	}
 	
 	public float getRotation()
@@ -153,7 +189,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public void setCursor(Vector2d cursor)
 	{
-		this.cursor = new Vector2d(MathHelper.clamp(cursor.x, -curWindowSize.x / 200f + 0.5, Math.max(curWindowSize.x / 100f - 0.5, 1)), MathHelper.clamp(cursor.y, 0, curWindowSize.y / 100f));
+		float minX = -curWindowSize.x / 200f + 0.5f;
+		this.cursor = new Vector2d(MathHelper.clamp(cursor.x, minX, minX + curWindowSize.x / 100f), MathHelper.clamp(cursor.y, 0, curWindowSize.y / 100f));
 	}
 	
 	public Vector2d getCursor()
@@ -211,6 +248,11 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		return normalWindowSize;
 	}
 	
+	public Base getBase()
+	{
+		return base;
+	}
+	
 	public enum Tab
 	{
 		MAIN_MENU,
@@ -218,5 +260,21 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		WEAPONS,
 		BESTIARY,
 		CUSTOMIZATION
+	}
+	
+	public enum Base
+	{
+		WHITE, LIGHT_GRAY, GRAY, BLACK, BROWN, RED, ORANGE, YELLOW,
+		LIME, GREEN, CYAN, LIGHT_BLUE, BLUE, PURPLE, MAGENTA, PINK;
+		
+		public Identifier getTexture()
+		{
+			return new Identifier(Ultracraft.MOD_ID, String.format("textures/block/terminal/%s.png", name().toLowerCase()));
+		}
+		
+		public String translationKey()
+		{
+			return "color.minecraft." + name().toLowerCase();
+		}
 	}
 }

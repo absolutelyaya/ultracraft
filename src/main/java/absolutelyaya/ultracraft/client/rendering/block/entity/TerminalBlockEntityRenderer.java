@@ -43,6 +43,12 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	}
 	
 	@Override
+	public Identifier getTextureLocation(TerminalBlockEntity animatable)
+	{
+		return animatable.getBase().getTexture();
+	}
+	
+	@Override
 	public void postRender(MatrixStack poseStack, TerminalBlockEntity animatable, BakedGeoModel model, VertexConsumerProvider bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
 	{
 		//Draw interface
@@ -157,7 +163,7 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	
 	void drawCustomization(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
-		drawTab(matrices, buffers, "screen.ultracraft.terminal.customization", true);
+		drawTab(matrices, buffers, "screen.ultracraft.terminal.customize", true);
 	}
 	
 	void drawTab(MatrixStack matrices, VertexConsumerProvider buffers, String title, boolean returnButton)

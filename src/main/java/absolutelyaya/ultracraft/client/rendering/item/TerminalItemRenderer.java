@@ -8,8 +8,6 @@ import software.bernie.geckolib.renderer.GeoItemRenderer;
 
 public class TerminalItemRenderer extends GeoItemRenderer<TerminalItem>
 {
-	static final Identifier TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/block/terminal.png");
-	
 	public TerminalItemRenderer()
 	{
 		super(new DefaultedItemGeoModel<>(new Identifier(Ultracraft.MOD_ID, "terminal")));
@@ -18,6 +16,6 @@ public class TerminalItemRenderer extends GeoItemRenderer<TerminalItem>
 	@Override
 	public Identifier getTextureLocation(TerminalItem animatable)
 	{
-		return TEXTURE;
+		return TerminalItem.getBase(getCurrentItemStack()).getTexture();
 	}
 }

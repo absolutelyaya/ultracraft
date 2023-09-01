@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.block;
 
+import absolutelyaya.ultracraft.item.TerminalItem;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -55,6 +56,7 @@ public class TerminalBlock extends BlockWithEntity
 		{
 			world.setBlockState(pos.up(),
 					BlockRegistry.TERMINAL_DISPLAY.getDefaultState().with(FACING, state.get(FACING)));
+			((TerminalBlockEntity)world.getBlockEntity(pos.up())).base = TerminalItem.getBase(itemStack);
 			world.setBlockState(pos.up(2),
 					BlockRegistry.TERMINAL.getDefaultState().with(FACING, state.get(FACING)).with(HALF, DoubleBlockHalf.UPPER));
 		}
@@ -100,5 +102,14 @@ public class TerminalBlock extends BlockWithEntity
 			world.addBlockBreakParticles(pos, state);
 		}
 		super.onBreak(world, pos, state, player);
+	}
+	
+	@Override
+	public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state)
+	{
+		if(state.get(HALF).equals(DoubleBlockHalf.LOWER))
+			return TerminalItem.getStack(((TerminalBlockEntity)world.getBlockEntity(pos.up())).getBase());
+		else
+			return TerminalItem.getStack(((TerminalBlockEntity)world.getBlockEntity(pos.down())).getBase());
 	}
 }
