@@ -4,7 +4,7 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WidgetAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
-import absolutelyaya.ultracraft.client.gui.widget.ColorSelectionWidget;
+import absolutelyaya.ultracraft.client.gui.widget.WingColorSelectionWidget;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.WingColorPresetManager;
 import absolutelyaya.ultracraft.registry.WingPatterns;
@@ -60,7 +60,7 @@ public class WingCustomizationScreen extends Screen
 	float noise, prevPitch, patternsAnim, presetsAnim, curpreviewButtonscroll, targetScroll, showScrollingHint;
 	Tab tab = Tab.MAIN;
 	ButtonWidget closeButton;
-	ColorSelectionWidget top, bottom;
+	WingColorSelectionWidget top, bottom;
 	Vec3d startWingColor, startMetalColor;
 	
 	public WingCustomizationScreen(Screen parent)
@@ -103,11 +103,11 @@ public class WingCustomizationScreen extends Screen
 	{
 		super.init();
 		int y = 32;
-		mainWidgets.add(top = addDrawableChild(new ColorSelectionWidget(textRenderer, new Vector3i(width - 160, y, 155), false, this::getStartColor)));
+		mainWidgets.add(top = addDrawableChild(new WingColorSelectionWidget(textRenderer, new Vector3i(width - 160, y, 155), false, this::getStartColor)));
 		y += 103;
 		if(height > 135 + 102 + 115)
 		{
-			mainWidgets.add(bottom = addDrawableChild(new ColorSelectionWidget(textRenderer, new Vector3i(width - 160, y, 155), true, this::getStartColor)));
+			mainWidgets.add(bottom = addDrawableChild(new WingColorSelectionWidget(textRenderer, new Vector3i(width - 160, y, 155), true, this::getStartColor)));
 			y += 107;
 		}
 		else

@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-public class ColorSelectionWidget implements Element, Drawable, Selectable, WidgetAccessor
+public class WingColorSelectionWidget implements Element, Drawable, Selectable, WidgetAccessor
 {
 	Function<Boolean, Vec3d> startColorSupplier;
 	TextRenderer textRenderer;
@@ -44,9 +44,7 @@ public class ColorSelectionWidget implements Element, Drawable, Selectable, Widg
 	List<Drawable> children = new ArrayList<>();
 	float alpha;
 	
-	
-	
-	public ColorSelectionWidget(TextRenderer textRenderer, Vector3i dimensions, boolean type, Function<Boolean, Vec3d> startColorSupplier)
+	public WingColorSelectionWidget(TextRenderer textRenderer, Vector3i dimensions, boolean type, Function<Boolean, Vec3d> startColorSupplier)
 	{
 		this.textRenderer = textRenderer;
 		x = dimensions.x;

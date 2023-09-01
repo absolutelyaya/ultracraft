@@ -4,10 +4,15 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
+import absolutelyaya.ultracraft.registry.PacketRegistry;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
@@ -44,7 +49,6 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public TerminalBlockEntity(BlockPos pos, BlockState state)
 	{
 		super(BlockEntityRegistry.TERMINAL, pos, state);
-		textColor = 0xffff9dff;
 		lines.add("+--------------+");
 		lines.add("   Tip of the Day");
 		lines.add("");
@@ -75,6 +79,9 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 				case "bestiary" -> setTab(Tab.COMING_SOON);
 				case "weapons" -> setTab(Tab.WEAPONS);
 				case "mainmenu" -> setTab(Tab.MAIN_MENU);
+				case "edit-screensaver" -> setTab(Tab.COMING_SOON);
+				case "edit-base" -> setTab(Tab.COMING_SOON);
+				case "graffiti" -> setTab(Tab.COMING_SOON);
 				default -> Ultracraft.LOGGER.error("Undefined Behavior for Terminal button '" + lastHovered + "'");
 			}
 		}
@@ -98,6 +105,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		super.readNbt(nbt);
 		if(nbt.contains("base", NbtElement.INT_TYPE))
 			base = Base.values()[nbt.getInt("base")];
+		if(nbt.contains("txt-clr", NbtElement.INT_TYPE))
+			textColor = nbt.getInt("txt-clr");
 	}
 	
 	@Override
@@ -105,6 +114,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	{
 		super.writeNbt(nbt);
 		nbt.putInt("base", base.ordinal());
+		nbt.putInt("txt-clr", textColor);
 	}
 	
 	@Override
@@ -117,6 +127,13 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public NbtCompound toInitialChunkDataNbt()
 	{
 		return createNbt();
+	}
+	
+	public void syncColor(int c)
+	{
+		textColor = c;
+		markDirty();
+		world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_LISTENERS);
 	}
 	
 	public float getRotation()
@@ -156,6 +173,11 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		if(colorOverride != -1)
 			return colorOverride;
 		return textColor;
+	}
+	
+	public void setTextColor(int i)
+	{
+		textColor = i;
 	}
 	
 	public float getInactivity()
@@ -210,6 +232,13 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public void setTab(Tab tab)
 	{
+		if(this.tab.equals(Tab.CUSTOMIZATION) && !tab.equals(Tab.CUSTOMIZATION))
+		{
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeBlockPos(pos);
+			buf.writeInt(textColor);
+			ClientPlayNetworking.send(PacketRegistry.TERMINAL_SYNC_C2S_PACKET_ID, buf);
+		}
 		this.tab = tab;
 		switch(tab)
 		{

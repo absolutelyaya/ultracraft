@@ -164,6 +164,24 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	void drawCustomization(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
 		drawTab(matrices, buffers, "screen.ultracraft.terminal.customize", true);
+		int y = 50;
+		String t = Text.translatable("screen.ultracraft.terminal.customize.graffiti").getString();
+		drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
+				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "graffiti");
+		y -= textRenderer.fontHeight + 5;
+		t = Text.translatable("screen.ultracraft.terminal.customize.base-clr").getString();
+		drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
+				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "edit-base");
+		y -= textRenderer.fontHeight + 5;
+		t = Text.translatable("screen.ultracraft.terminal.customize.screensaver").getString();
+		drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
+				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "edit-screensaver");
+		if(MinecraftClient.getInstance().player instanceof WingedPlayerEntity winged && !animatable.equals(winged.getFocusedTerminal()))
+		{
+			y -= textRenderer.fontHeight + 5;
+			t = Text.translatable("screen.ultracraft.terminal.focus-pls").getString();
+			drawText(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y, 0.005f);
+		}
 	}
 	
 	void drawTab(MatrixStack matrices, VertexConsumerProvider buffers, String title, boolean returnButton)

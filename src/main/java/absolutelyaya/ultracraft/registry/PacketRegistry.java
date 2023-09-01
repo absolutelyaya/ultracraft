@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.*;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.block.PedestalBlock;
+import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
@@ -11,6 +12,7 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BellBlock;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -47,6 +49,7 @@ public class PacketRegistry
 	public static final Identifier LOCK_PEDESTAL_ID = new Identifier(Ultracraft.MOD_ID, "lock_pedestal");
 	public static final Identifier ANIMATION_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "animation_c2s");
 	public static final Identifier KILLER_FISH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "killerfish");
+	public static final Identifier TERMINAL_SYNC_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "terminal_c2s");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
@@ -359,6 +362,15 @@ public class PacketRegistry
 		ServerPlayNetworking.registerGlobalReceiver(KILLER_FISH_PACKET_ID, (server, player, handler, buf, sender) -> {
 			server.execute(() -> player.getWorld().playSound(null, player.getBlockPos(),
 					SoundRegistry.KILLERFISH_SELECT.value(), SoundCategory.PLAYERS, 1f, 1f));
+		});
+		ServerPlayNetworking.registerGlobalReceiver(TERMINAL_SYNC_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
+			BlockPos pos = buf.readBlockPos();
+			int textColor = buf.readInt();
+			server.execute(() ->  {
+				BlockEntity be = player.getWorld().getBlockEntity(pos);
+				if(be instanceof TerminalBlockEntity terminal)
+					terminal.syncColor(textColor);
+			});
 		});
 	}
 	
