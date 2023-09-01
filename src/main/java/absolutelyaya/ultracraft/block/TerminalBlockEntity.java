@@ -36,6 +36,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	UUID owner = UUID.fromString("4a23954b-551c-4e2b-ac52-eb2e1ccbe443");
 	List<String> lines = new ArrayList<>();
 	int textColor = 0xffffffff;
+	boolean locked = false;
 	//Don't save all this
 	float displayVisibility = 0f, inactivity = 600f;
 	AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
@@ -73,15 +74,24 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		inactivity = 0f;
 		if(lastHovered != null)
 		{
-			switch(lastHovered)
+			String[] segments = lastHovered.split("@");
+			String action = segments[0];
+			int value = 0;
+			if(segments.length > 1)
+				value = Integer.parseInt(segments[1]);
+			
+			switch(action)
 			{
 				case "customize" -> setTab(Tab.CUSTOMIZATION);
 				case "bestiary" -> setTab(Tab.COMING_SOON);
 				case "weapons" -> setTab(Tab.WEAPONS);
 				case "mainmenu" -> setTab(Tab.MAIN_MENU);
 				case "edit-screensaver" -> setTab(Tab.COMING_SOON);
-				case "edit-base" -> setTab(Tab.COMING_SOON);
+				case "edit-base" -> setTab(Tab.BASE_SELECT);
 				case "graffiti" -> setTab(Tab.COMING_SOON);
+				
+				case "set-base" -> base = Base.values()[value];
+				case "toggle-lock" -> setLocked(!locked);
 				default -> Ultracraft.LOGGER.error("Undefined Behavior for Terminal button '" + lastHovered + "'");
 			}
 		}
@@ -115,6 +125,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		super.writeNbt(nbt);
 		nbt.putInt("base", base.ordinal());
 		nbt.putInt("txt-clr", textColor);
+		nbt.putUuid("owner", owner);
+		nbt.putBoolean("locked", locked);
 	}
 	
 	@Override
@@ -129,9 +141,12 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		return createNbt();
 	}
 	
-	public void syncColor(int c)
+	public void syncCustomization(int c, int base, boolean locked)
 	{
 		textColor = c;
+		if(base >= 0 && base < Base.values().length)
+			this.base = Base.values()[base];
+		this.locked = locked;
 		markDirty();
 		world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_LISTENERS);
 	}
@@ -232,11 +247,13 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public void setTab(Tab tab)
 	{
-		if(this.tab.equals(Tab.CUSTOMIZATION) && !tab.equals(Tab.CUSTOMIZATION))
+		if(this.tab.equals(Tab.CUSTOMIZATION) && tab.equals(Tab.MAIN_MENU))
 		{
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeBlockPos(pos);
 			buf.writeInt(textColor);
+			buf.writeInt(base.ordinal());
+			buf.writeBoolean(locked);
 			ClientPlayNetworking.send(PacketRegistry.TERMINAL_SYNC_C2S_PACKET_ID, buf);
 		}
 		this.tab = tab;
@@ -282,13 +299,24 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		return base;
 	}
 	
+	public void setLocked(boolean b)
+	{
+		locked = b;
+	}
+	
+	public boolean isLocked()
+	{
+		return locked;
+	}
+	
 	public enum Tab
 	{
 		MAIN_MENU,
 		COMING_SOON,
 		WEAPONS,
 		BESTIARY,
-		CUSTOMIZATION
+		CUSTOMIZATION,
+		BASE_SELECT
 	}
 	
 	public enum Base

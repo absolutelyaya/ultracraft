@@ -366,10 +366,14 @@ public class PacketRegistry
 		ServerPlayNetworking.registerGlobalReceiver(TERMINAL_SYNC_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			BlockPos pos = buf.readBlockPos();
 			int textColor = buf.readInt();
+			int base = buf.readInt();
+			boolean locked = buf.readBoolean();
 			server.execute(() ->  {
 				BlockEntity be = player.getWorld().getBlockEntity(pos);
 				if(be instanceof TerminalBlockEntity terminal)
-					terminal.syncColor(textColor);
+				{
+					terminal.syncCustomization(textColor, base, locked);
+				}
 			});
 		});
 	}

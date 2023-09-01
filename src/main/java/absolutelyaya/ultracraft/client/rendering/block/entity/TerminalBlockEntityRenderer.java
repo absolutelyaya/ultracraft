@@ -26,7 +26,6 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 {
 	static final TextRenderer textRenderer;
 	static final int LIGHT = 15728880;
-	static final Identifier TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/terminal.png");
 	
 	public TerminalBlockEntityRenderer()
 	{
@@ -108,6 +107,7 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 				case WEAPONS -> drawWeapons(matrices, buffers);
 				case BESTIARY -> drawBestiary(matrices, buffers);
 				case CUSTOMIZATION -> drawCustomization(matrices, buffers);
+				case BASE_SELECT -> drawBaseSelection(matrices, buffers);
 			}
 		}
 		
@@ -131,8 +131,10 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	
 	void drawMainMenu(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
+		//TODO: Add isLocked Behavior (show "no access" for non-owner instead)
 		drawTab(matrices, buffers, "screen.ultracraft.terminal.main-menu", false);
 		int y = 50;
+		//TODO: hide for non-owner
 		String t = Text.translatable("screen.ultracraft.terminal.customize").getString();
 		drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
 				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "customize");
@@ -148,7 +150,7 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	
 	void drawComingSoon(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
-		drawTab(matrices, buffers, "screen.ultracraft.terminal.coming-soon", "///", true);
+		drawTab(matrices, buffers, "screen.ultracraft.terminal.coming-soon", "///", true, "mainmenu");
 	}
 	
 	void drawWeapons(MatrixStack matrices, VertexConsumerProvider buffers)
@@ -164,8 +166,19 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	void drawCustomization(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
 		drawTab(matrices, buffers, "screen.ultracraft.terminal.customize", true);
-		int y = 50;
-		String t = Text.translatable("screen.ultracraft.terminal.customize.graffiti").getString();
+		int y = 77;
+		String t;
+		if(MinecraftClient.getInstance().player instanceof WingedPlayerEntity winged && !animatable.equals(winged.getFocusedTerminal()))
+		{
+			t = Text.translatable("screen.ultracraft.terminal.focus-pls").getString();
+			drawText(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y, 0.02f);
+		}
+		y -= textRenderer.fontHeight + 5;
+		t = Text.translatable("screen.ultracraft.terminal.customize." + (animatable.isLocked() ? "locked" : "lock")).getString();
+		drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
+				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "toggle-lock");
+		y -= textRenderer.fontHeight + 5;
+		t = Text.translatable("screen.ultracraft.terminal.customize.graffiti").getString();
 		drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
 				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "graffiti");
 		y -= textRenderer.fontHeight + 5;
@@ -176,20 +189,34 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 		t = Text.translatable("screen.ultracraft.terminal.customize.screensaver").getString();
 		drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
 				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "edit-screensaver");
-		if(MinecraftClient.getInstance().player instanceof WingedPlayerEntity winged && !animatable.equals(winged.getFocusedTerminal()))
-		{
-			y -= textRenderer.fontHeight + 5;
-			t = Text.translatable("screen.ultracraft.terminal.focus-pls").getString();
-			drawText(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y, 0.005f);
-		}
+	}
+	
+	void drawBaseSelection(MatrixStack matrices, VertexConsumerProvider buffers)
+	{
+		drawTab(matrices, buffers, "screen.ultracraft.terminal.customize.base-clr", true, "customize");
+		int[] colors = new int[] {
+				0xffd7f6fa, 0xffcfc6b8, 0xff7d7071, 0xff282235,
+				0xff994f51, 0xffbc2f27, 0xfff47e1b, 0xfffcc330,
+				0xffb6d53c, 0xff397b44, 0xff4ae6bf, 0xff28ccdf,
+				0xff3978a8, 0xff6e3696, 0xffaf3ca7, 0xffe98cd1
+		};
+		int size = 14;
+		for (int y = 0; y < 4; y++)
+			for (int x = 0; x < 4; x++)
+				drawColorButton(buffers, matrices, colors[y * 4 + x], 16 + x * (size + 3), 18 + y * (size + 3), size, size, "set-base@" + (y * 4 + x));
 	}
 	
 	void drawTab(MatrixStack matrices, VertexConsumerProvider buffers, String title, boolean returnButton)
 	{
-		drawTab(matrices, buffers, title, "-", returnButton);
+		drawTab(matrices, buffers, title, "-", returnButton, "mainmenu");
 	}
 	
-	void drawTab(MatrixStack matrices, VertexConsumerProvider buffers, String title, String titleBorder, boolean returnButton)
+	void drawTab(MatrixStack matrices, VertexConsumerProvider buffers, String title, boolean returnButton, String returnAction)
+	{
+		drawTab(matrices, buffers, title, "-", returnButton, returnAction);
+	}
+	
+	void drawTab(MatrixStack matrices, VertexConsumerProvider buffers, String title, String titleBorder, boolean returnButton, String returnAction)
 	{
 		String t = MessageFormat.format("{0} {1} {0}", titleBorder, Text.translatable(title).getString());
 		drawBG(matrices, buffers);
@@ -198,7 +225,7 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 		{
 			t = Text.translatable("screen.ultracraft.terminal.button.back").getString();
 			drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, 95 - textRenderer.fontHeight,
-					textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "mainmenu");
+					textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, returnAction);
 		}
 	}
 	
@@ -250,6 +277,23 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 		matrices.pop();
 	}
 	
+	void drawColorButton(VertexConsumerProvider buffers, MatrixStack matrices, int color, int x, int y, int sizeX, int sizeY, String action)
+	{
+		Vector2d cursor = new Vector2d(animatable.getCursor()).mul(100f);
+		boolean hovered = cursor.x > x && cursor.x < x + sizeX && cursor.y > y && cursor.y < y + sizeY;
+		matrices.push();
+		drawBox(buffers, matrices, x, y, sizeX, sizeY, color, 0.005f);
+		if(hovered)
+		{
+			drawBoxOutline(buffers, matrices, x, y, sizeX, sizeY, animatable.getTextColor());
+			animatable.setLastHovered(action);
+		}
+		else if(animatable.getLastHovered() != null && animatable.getLastHovered().equals(action))
+			animatable.setLastHovered(null);
+		matrices.translate(0f, 1f, -0.01f);
+		matrices.pop();
+	}
+	
 	void drawBoxOutline(VertexConsumerProvider buffers, MatrixStack matrices, int x, int y, int sizeX, int sizeY)
 	{
 		drawBoxOutline(buffers, matrices, x, y, sizeX, sizeY, animatable.getTextColor());
@@ -268,10 +312,16 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	
 	void drawBox(VertexConsumerProvider buffers, MatrixStack matrices, int x, int y, float sizeX, float sizeY, int color)
 	{
+		drawBox(buffers, matrices, x, y, sizeX, sizeY, color, 0f);
+	}
+	
+	void drawBox(VertexConsumerProvider buffers, MatrixStack matrices, int x, int y, float sizeX, float sizeY, int color, float z)
+	{
 		matrices.push();
 		VertexConsumer consumer = buffers.getBuffer(RenderLayer.getGui());
 		matrices.translate(0.5f, 0.5f, 0f);
 		matrices.scale(-0.01f, -0.01f, -1f);
+		matrices.translate(0f, 0f, z);
 		Matrix4f poseMatrix = new Matrix4f(matrices.peek().getPositionMatrix());
 		Matrix3f normalMatrix = new Matrix3f(matrices.peek().getNormalMatrix());
 		consumer.vertex(poseMatrix, x, y, 0f).color(color).texture(0, 0).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
