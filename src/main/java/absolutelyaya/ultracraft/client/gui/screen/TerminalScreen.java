@@ -22,6 +22,7 @@ public class TerminalScreen extends Screen
 	TerminalPaletteWidget paletteWidget;
 	TerminalBlockEntity.Tab lastTab = TerminalBlockEntity.Tab.MAIN_MENU;
 	CheckboxWidget editPalleteCheckbox;
+	Vector2i graffitiTexturePos = new Vector2i();
 	
 	public TerminalScreen(TerminalBlockEntity terminal)
 	{
@@ -94,6 +95,22 @@ public class TerminalScreen extends Screen
 			paletteColorPicker.setTitle(Text.translatable("screen.ultracraft.terminal.graffiti.palette-clr", paletteWidget.getSelectedColor()));
 			paletteColorPicker.render(context, mouseX, mouseY, delta);
 		}
+		else
+		{
+			if(terminal.getGraffitiTexture() != null)
+			{
+				int x = 64, y = height / 2 - 64;
+				graffitiTexturePos = new Vector2i(x, y);
+				context.getMatrices().push();
+				context.getMatrices().translate(x, y, 0f);
+				context.getMatrices().scale(0.5f, 0.5f, 0.5f);
+				context.drawTexture(terminal.getGraffitiTexture(), 0, 0, 0, 0, 256, 256);
+				context.getMatrices().pop();
+				context.drawBorder(x - 1, y - 1, 130, 130, 0xffffffff);
+			}
+			else
+				terminal.refreshGraffitiTexture();
+		}
 		paletteWidget.render(context, mouseX, mouseY, delta);
 	}
 	
@@ -112,6 +129,14 @@ public class TerminalScreen extends Screen
 			return true;
 		if(paletteColorPicker.mouseDragged(mouseX, mouseY, button, deltaX, deltaY))
 			return true;
+		if(terminal.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI) &&
+				   mouseX > graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 128 && mouseY > graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 128)
+		{
+			int x = (int)Math.round((mouseX - graffitiTexturePos.x) / 128f * 32f);
+			int y = (int)Math.round((mouseY - graffitiTexturePos.y) / 128f * 32f);
+			terminal.setPixel(x, y, (byte)paletteWidget.getSelectedColor());
+			return true;
+		}
 		return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
 	}
 	
@@ -119,6 +144,14 @@ public class TerminalScreen extends Screen
 	public boolean mouseClicked(double mouseX, double mouseY, int button)
 	{
 		terminal.onHit();
+		if(terminal.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI) &&
+				   mouseX > graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 128 && mouseY > graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 128)
+		{
+			int x = (int)Math.round((mouseX - graffitiTexturePos.x) / 128f * 32f);
+			int y = (int)Math.round((mouseY - graffitiTexturePos.y) / 128f * 32f);
+			terminal.setPixel(x, y, (byte)paletteWidget.getSelectedColor());
+			return true;
+		}
 		if (textColorPicker.mouseClicked(mouseX, mouseY, button))
 			return true;
 		if (paletteWidget.mouseClicked(mouseX, mouseY, button))

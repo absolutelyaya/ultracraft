@@ -84,7 +84,7 @@ public class GraffitiCacheManager
 		try
 		{
 			Files.writeString(Path.of(gameDir.toString(), CACHE_PATH, id.toString() + ".json"), JsonHelper.toSortedString(json));
-			Ultracraft.LOGGER.info("Successfully Cached Grafitti from Terminal {}", id);
+			//Ultracraft.LOGGER.info("Successfully Cached Grafitti from Terminal {}", id);
 		}
 		catch (IllegalArgumentException | JsonParseException | IOException e)
 		{

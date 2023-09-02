@@ -492,7 +492,15 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 				break;
 			int x = i % 32;
 			int y = i / 32;
-			image.setColor(x, y, getPaletteColor(graffiti.get(i)));
+			int color = getPaletteColor(graffiti.get(i));
+			int a = (color >> 24) & 0xff;
+			int r = (color >> 16) & 0xff;
+			int g = (color >> 8) & 0xff;
+			int b = color & 0xff;
+			color = (a << 8) + b;
+			color = (color << 8) + g;
+			color = (color << 8) + r;
+			image.setColor(x, y, color); //ABGR
 		}
 		AbstractTexture texture = new NativeImageBackedTexture(image);
 		graffitiTexture = new Identifier(Ultracraft.MOD_ID, "graffiti/" + terminalID.toString());
@@ -560,6 +568,15 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public void rotateGrafittiCam(float f)
 	{
 		graffitiCamRotation += f;
+	}
+	
+	public void setPixel(int x, int y, byte color)
+	{
+		int i = x + y * 32;
+		while(graffiti.size() <= i)
+			graffiti.add((byte)0);
+		graffiti.set(i, color);
+		refreshGraffitiTexture();
 	}
 	
 	public enum Tab
