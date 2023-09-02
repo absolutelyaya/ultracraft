@@ -145,7 +145,7 @@ public abstract class CameraMixin
 	void terminalFocusUpdate(TerminalBlockEntity terminal, float tickDelta)
 	{
 		Vec3d pos = terminal.getPos().toCenterPos();
-		Vec3d offset = pos.add(new Vec3d(0f, 0f, -1f).rotateY(terminal.getRotation() * -MathHelper.RADIANS_PER_DEGREE));
+		Vec3d offset = pos.add(terminal.getCamOffset());
 		
 		if(!wasFocusedOnTerminal) //set initial transform when opening Menu
 		{

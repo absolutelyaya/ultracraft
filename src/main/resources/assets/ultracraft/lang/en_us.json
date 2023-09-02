@@ -309,7 +309,8 @@
   "screen.ultracraft.terminal.bestiary": "Enemies",
   "screen.ultracraft.terminal.weapons": "Weapons",
   "screen.ultracraft.terminal.button.back": "Return",
-  "screen.ultracraft.terminal.focus-pls": "Focus 4 more!",
+  "screen.ultracraft.terminal.focus-pls": "R-Click 2 Focus",
+  "screen.ultracraft.terminal.no-access": "Access Denied",
 
   "wing-preset.ultracraft.amethyst": "Amethyst",
   "wing-preset.ultracraft.cyber": "Cyber",

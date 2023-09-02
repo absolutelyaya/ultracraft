@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -16,6 +17,7 @@ import net.minecraft.util.math.MathHelper;
 import org.joml.*;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
+import software.bernie.shadowed.eliotlash.mclib.math.functions.limit.Min;
 
 import java.lang.Math;
 import java.text.MessageFormat;
@@ -47,7 +49,7 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	}
 	
 	@Override
-	public void postRender(MatrixStack poseStack, TerminalBlockEntity animatable, BakedGeoModel model, VertexConsumerProvider bufferSource, VertexConsumer buffer, boolean isReRender, float tickDelta, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
+	public void postRender(MatrixStack matrices, TerminalBlockEntity animatable, BakedGeoModel model, VertexConsumerProvider bufferSource, VertexConsumer buffer, boolean isReRender, float tickDelta, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
 	{
 		animatable.setCaretTimer((animatable.getCaretTimer() + tickDelta / 20f) % 2f);
 		//Draw interface
@@ -69,9 +71,10 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 		else if(animatable.getInactivity() < 600f)
 			animatable.setInactivity(600f);
 		if(displayVisibility > 0f)
-			renderDisplay(poseStack, animatable, bufferSource);
+			renderDisplay(matrices, animatable, bufferSource);
 		
-		//TODO: Draw Paintables
+		if(animatable.getGraffitiTexture() != null)
+			renderGraffiti(matrices, animatable, bufferSource);
 	}
 	
 	//Display Rendering
@@ -109,16 +112,53 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 				case CUSTOMIZATION -> drawCustomization(matrices, buffers);
 				case BASE_SELECT -> drawBaseSelection(matrices, buffers);
 				case EDIT_SCREENSAVER -> drawEditScreensaver(matrices, buffers);
+				case GRAFFITI -> drawGraffitiTab(matrices, buffers);
 			}
 		}
 		
-		//if(winged.getFocusedTerminal() == null)
-		//{
+		if(!animatable.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI))
+		{
 			matrices.translate(0f, 0f, -0.005f);
 			Vector2d cursor = terminal.getCursor();
 			drawBoxOutline(buffers, matrices, (int)(cursor.x * 100) - 1, (int)(cursor.y * 100) - 1, 1, 1, 0xffffffff);
-		//}
+		}
 		//End Transform
+		matrices.pop();
+	}
+	
+	void renderGraffiti(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
+	{
+		//POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL
+		VertexConsumer consumer = buffers.getBuffer(RenderLayer.getEntityCutout(terminal.getGraffitiTexture()));
+		matrices.push();
+		float f = 1f / 16f;
+		int c = 0xffffffff, o = OverlayTexture.DEFAULT_UV;
+		matrices.translate(0.5f, 0.5f, 0.5f);
+		matrices.scale(f, f, f);
+		matrices.multiply(new Quaternionf(new AxisAngle4f(animatable.getRotation() * -MathHelper.RADIANS_PER_DEGREE,
+				0f, 1f, 0f)));
+		Quaternionf rotStep = new Quaternionf(new AxisAngle4f(90 * -MathHelper.RADIANS_PER_DEGREE, 0f, 1f, 0f));
+		Matrix4f poseMatrix = new Matrix4f(matrices.peek().getPositionMatrix());
+		Matrix3f normalMatrix = new Matrix3f(matrices.peek().getNormalMatrix());
+		
+		poseMatrix.rotate(rotStep);
+		consumer.vertex(poseMatrix, 8f, -11f, 8.01f).color(c).texture(0.75f, 10f / 32f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 8f, 11f, 8.01f).color(c).texture(0.75f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 0f, 11f, 8.01f).color(c).texture(1f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 0f, -11f, 8.01f).color(c).texture(1f, 10f / 32f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		
+		poseMatrix.rotate(rotStep);
+		consumer.vertex(poseMatrix, -8f, -21f, -8.01f).color(c).texture(0.25f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, -8f, 11f, -8.01f).color(c).texture(0.25f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 8f, 11f, -8.01f).color(c).texture(0.75f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 8f, -21f, -8.01f).color(c).texture(0.75f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		
+		poseMatrix.rotate(rotStep);
+		consumer.vertex(poseMatrix, -8f, 11f, 8.01f).color(c).texture(0.25f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, -8f, -11f, 8.01f).color(c).texture(0.25f, 10f / 32f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 0f, -11f, 8.01f).color(c).texture(0f, 10f / 32f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 0f, 11f, 8.01f).color(c).texture(0f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		
 		matrices.pop();
 	}
 	
@@ -132,13 +172,20 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	
 	void drawMainMenu(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
-		//TODO: Add isLocked Behavior (show "no access" for non-owner instead)
+		if(animatable.isLocked() && !MinecraftClient.getInstance().player.getUuid().equals(animatable.getOwner()))
+		{
+			drawTab(matrices, buffers, "screen.ultracraft.terminal.no-access", "!", true, "force-screensaver");
+			return;
+		}
 		drawTab(matrices, buffers, "screen.ultracraft.terminal.main-menu", false);
 		int y = 50;
-		//TODO: hide for non-owner
-		String t = Text.translatable("screen.ultracraft.terminal.customize").getString();
-		drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
-				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "customize");
+		String t;
+		if(MinecraftClient.getInstance().player.getUuid().equals(animatable.getOwner()) || true)
+		{
+			t = Text.translatable("screen.ultracraft.terminal.customize").getString();
+			drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
+					textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "customize");
+		}
 		y -= textRenderer.fontHeight + 5;
 		t = Text.translatable("screen.ultracraft.terminal.bestiary").getString();
 		drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
@@ -227,6 +274,14 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 		String t = Text.translatable("screen.ultracraft.terminal.button.back").getString();
 		drawButton(buffers, matrices, t,  103, 100 - textRenderer.fontHeight - 2,
 				textRenderer.getWidth(t) + 4, textRenderer.fontHeight + 2, "customize");
+	}
+	
+	void drawGraffitiTab(MatrixStack matrices, VertexConsumerProvider buffers)
+	{
+		drawTab(matrices, buffers, "screen.ultracraft.terminal.customize.graffiti", false, "customize");
+		
+		String t = Text.translatable("screen.ultracraft.terminal.focus-pls").getString();
+		drawText(buffers, matrices, t, 50 - textRenderer.getWidth(t) / 2, -22 + textRenderer.fontHeight - 2, 0.005f, animatable.getTextColor());
 	}
 	
 	void drawTab(MatrixStack matrices, VertexConsumerProvider buffers, String title, boolean returnButton)

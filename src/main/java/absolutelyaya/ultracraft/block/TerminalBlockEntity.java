@@ -4,12 +4,17 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
+import absolutelyaya.ultracraft.registry.GraffitiCacheManager;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.AbstractTexture;
+import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
@@ -19,6 +24,8 @@ import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
+import org.apache.commons.lang3.ArrayUtils;
 import org.joml.*;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -26,6 +33,7 @@ import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInst
 import software.bernie.geckolib.core.animation.AnimatableManager;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -51,20 +59,44 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	};
 	int textColor = 0xffffffff;
 	boolean locked = false;
+	List<Integer> palette = new ArrayList<>() {
+		{
+			//0 is reserved for transparency
+			add(0xffd9e7ff);
+			add(0xffa5b2b9);
+			add(0xff5d6569);
+			add(0xff250c30);
+			add(0xff78434d);
+			add(0xffa80300);
+			add(0xffd74b0f);
+			add(0xffd7c00f);
+			add(0xff77c62d);
+			add(0xff1e8725);
+			add(0xff2b73cb);
+			add(0xff3129cb);
+			add(0xff8f35cb);
+			add(0xffcb0acb);
+			add(0xffdf95da);
+		}
+	};
+	List<Byte> graffiti = new ArrayList<>();
+	UUID terminalID;
 	//Don't save all this
 	float displayVisibility = 0f, inactivity = 600f, caretTimer = 0f;
 	AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
 	List<WingedPlayerEntity> focusedPlayers = new ArrayList<>();
-	int colorOverride = -1;
+	int colorOverride = -1, lastPaintedSide = 0, graffitiRevision = 0;
 	Vector2d cursor = new Vector2d();
 	Vector2i caret = new Vector2i();
 	String lastHovered;
 	Tab tab = Tab.MAIN_MENU;
 	Vector2f normalWindowSize = new Vector2f(100f, 100f), curWindowSize = new Vector2f(normalWindowSize), sizeOverride = null;
+	Identifier graffitiTexture;
 	
 	public TerminalBlockEntity(BlockPos pos, BlockState state)
 	{
 		super(BlockEntityRegistry.TERMINAL, pos, state);
+		terminalID = UUID.randomUUID();
 	}
 	
 	@Override
@@ -92,10 +124,11 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 				case "mainmenu" -> setTab(Tab.MAIN_MENU);
 				case "edit-screensaver" -> setTab(Tab.EDIT_SCREENSAVER);
 				case "edit-base" -> setTab(Tab.BASE_SELECT);
-				case "graffiti" -> setTab(Tab.COMING_SOON);
+				case "graffiti" -> setTab(Tab.GRAFFITI);
 				
 				case "set-base" -> base = Base.values()[value];
 				case "toggle-lock" -> setLocked(!locked);
+				case "force-screensaver" -> setInactivity(60f);
 				default -> Ultracraft.LOGGER.error("Undefined Behavior for Terminal button '" + lastHovered + "'");
 			}
 		}
@@ -123,12 +156,29 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			textColor = nbt.getInt("txt-clr");
 		if(nbt.containsUuid("owner"))
 			owner = nbt.getUuid("owner");
-		if(nbt.contains("locked", NbtElement.INT_TYPE))
+		if(nbt.contains("locked", NbtElement.BYTE_TYPE))
 			locked = nbt.getBoolean("locked");
 		if(nbt.contains("screensaver", NbtElement.COMPOUND_TYPE))
 		{
 			NbtCompound screensaver = nbt.getCompound("screensaver");
 			applyScreensaver(screensaver);
+		}
+		if(nbt.containsUuid("id"))
+			terminalID = nbt.getUuid("id");
+		if(world == null && nbt.contains("graffiti", NbtElement.COMPOUND_TYPE))
+			applyGraffiti(nbt.getCompound("graffiti"));
+		if(world != null && world.isClient)
+		{
+			GraffitiCacheManager.Graffiti g = GraffitiCacheManager.fetchGrafitti(terminalID);
+			if(g != null)
+			{
+				setPalette(g.palette());
+				setGraffiti(g.pixels());
+				setGraffitiRevision(g.revision());
+			}
+			else if (nbt.contains("graffiti", NbtElement.COMPOUND_TYPE))
+				applyGraffiti(nbt.getCompound("graffiti"));
+			refreshGraffitiTexture();
 		}
 	}
 	
@@ -141,6 +191,9 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		nbt.putUuid("owner", owner);
 		nbt.putBoolean("locked", locked);
 		nbt.put("screensaver", serializeScreensaver());
+		nbt.putUuid("id", terminalID);
+		if(graffitiTexture != null)
+			nbt.put("graffiti", serializeGraffiti());
 	}
 	
 	void applyScreensaver(NbtCompound screensaver)
@@ -161,6 +214,24 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			if(lines.get(i).length() > 0)
 				screensaver.putString("line" + i, lines.get(i));
 		return screensaver;
+	}
+	
+	void applyGraffiti(NbtCompound nbt)
+	{
+		palette = Arrays.asList(ArrayUtils.toObject(nbt.getIntArray("palette")));
+		String pixelString = nbt.getString("pixels");
+		List<Byte> pixels = new ArrayList<>();
+		for (int i = 0; i < pixelString.length() - 1; i++)
+			pixels.add(Byte.valueOf(pixelString.substring(i, i + 1), 16));
+		graffiti = pixels;
+	}
+	
+	NbtCompound serializeGraffiti()
+	{
+		NbtCompound graffiti = new NbtCompound();
+		graffiti.putIntArray("palette", ArrayUtils.toPrimitive(getPalette().toArray(new Integer[15])));
+		graffiti.putString("pixels", GraffitiCacheManager.serializePixels(getGraffiti()));
+		return graffiti;
 	}
 	
 	@Override
@@ -292,6 +363,20 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			buf.writeNbt(serializeScreensaver());
 			ClientPlayNetworking.send(PacketRegistry.TERMINAL_SYNC_C2S_PACKET_ID, buf);
 		}
+		if(this.tab.equals(Tab.GRAFFITI) && !tab.equals(Tab.GRAFFITI))
+		{
+			Integer[] palette = getPalette().toArray(new Integer[15]);
+			Byte[] pixels = getGraffiti().toArray(new Byte[0]);
+			graffitiRevision++;
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeBlockPos(pos);
+			buf.writeIntArray(ArrayUtils.toPrimitive(palette));
+			buf.writeByteArray(ArrayUtils.toPrimitive(pixels));
+			buf.writeInt(getGraffitiRevision());
+			ClientPlayNetworking.send(PacketRegistry.GRAFFITI_C2S_PACKET_ID, buf);
+			
+			refreshGraffitiTexture();
+		}
 		this.tab = tab;
 		switch(tab)
 		{
@@ -377,6 +462,85 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		caretTimer = 0f;
 	}
 	
+	public Vec3d getCamOffset()
+	{
+		if(tab.equals(Tab.GRAFFITI))
+			return new Vec3d(0f, 0f, -2.5f).rotateY((getRotation() + 90 * lastPaintedSide) * -MathHelper.RADIANS_PER_DEGREE);
+		return new Vec3d(0f, 0f, -1f).rotateY(getRotation() * -MathHelper.RADIANS_PER_DEGREE);
+	}
+	
+	public List<Byte> getGraffiti()
+	{
+		return graffiti;
+	}
+	
+	public void setGraffiti(List<Byte> pixels)
+	{
+		graffiti = pixels;
+	}
+	
+	public void refreshGraffitiTexture()
+	{
+		NativeImage image = new NativeImage(NativeImage.Format.RGBA, 32, 32, false);
+		image.fillRect(0, 0, 32, 32, 0x00000000);
+		for (int i = 0; i < 32 * 32; i++)
+		{
+			if(graffiti.size() <= i)
+				break;
+			int x = i % 32;
+			int y = i / 32;
+			image.setColor(x, y, getPaletteColor(graffiti.get(i)));
+		}
+		AbstractTexture texture = new NativeImageBackedTexture(image);
+		graffitiTexture = new Identifier(Ultracraft.MOD_ID, "graffiti/" + terminalID.toString());
+		//MinecraftClient.getInstance().getTextureManager().destroyTexture(graffitiTexture);
+		MinecraftClient.getInstance().getTextureManager().registerTexture(graffitiTexture, texture);
+		if(graffiti.size() > 0 && !GraffitiCacheManager.hasNewest(terminalID, graffitiRevision))
+		{
+			GraffitiCacheManager.cacheGraffiti(terminalID, palette, graffiti, graffitiRevision);
+			GraffitiCacheManager.savePng(terminalID, image);
+		}
+		//image.close();
+		//texture.close();
+	}
+	
+	public void setPalette(List<Integer> colors)
+	{
+		//palette = colors;
+	}
+	
+	public List<Integer> getPalette()
+	{
+		return palette;
+	}
+	
+	public int getPaletteColor(int i)
+	{
+		if(i == 0)
+			return 0x0;
+		return palette.get(i - 1);
+	}
+	
+	public UUID getTerminalID()
+	{
+		return terminalID;
+	}
+	
+	public int getGraffitiRevision()
+	{
+		return graffitiRevision;
+	}
+	
+	public void setGraffitiRevision(int i)
+	{
+		graffitiRevision = i;
+	}
+	
+	public Identifier getGraffitiTexture()
+	{
+		return graffitiTexture;
+	}
+	
 	public enum Tab
 	{
 		MAIN_MENU,
@@ -385,7 +549,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		BESTIARY,
 		CUSTOMIZATION,
 		BASE_SELECT,
-		EDIT_SCREENSAVER
+		EDIT_SCREENSAVER,
+		GRAFFITI
 	}
 	
 	public enum Base

@@ -37,13 +37,20 @@ public class TerminalScreen extends Screen
 	public void render(DrawContext context, int mouseX, int mouseY, float delta)
 	{
 		super.render(context, mouseX, mouseY, delta);
-		if(terminal.getTab().equals(TerminalBlockEntity.Tab.CUSTOMIZATION))
+		switch (terminal.getTab())
 		{
-			textColorPicker.setActive(true);
-			textColorPicker.render(context, mouseX, mouseY, delta);
+			case CUSTOMIZATION -> {
+				textColorPicker.setActive(true);
+				textColorPicker.render(context, mouseX, mouseY, delta);
+			}
+			case GRAFFITI -> {
+				for (int i = 0; i < 15; i++)
+					context.fill(16, 16 + 16 * i, 32, 32 + 16 * i, terminal.getPaletteColor(i));
+			}
+			default -> {
+				textColorPicker.setActive(false);
+			}
 		}
-		else
-			textColorPicker.setActive(false);
 	}
 	
 	@Override
@@ -111,6 +118,11 @@ public class TerminalScreen extends Screen
 				}
 				case 256, 257 -> terminal.setTab(TerminalBlockEntity.Tab.CUSTOMIZATION); //ESC or Enter
 			}
+			return true;
+		}
+		if(terminal.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI) && (keyCode == 256)) //ESC
+		{
+			terminal.setTab(TerminalBlockEntity.Tab.CUSTOMIZATION);
 			return true;
 		}
 		if(textColorPicker.keyPressed(keyCode, scanCode, modifiers))

@@ -47,7 +47,7 @@ public class SimpleColorSelectionWidget implements Element, Drawable, Selectable
 		x = dimensions.x;
 		y = dimensions.y;
 		width = dimensions.z;
-		height = 102;
+		height = 82;
 		this.startColorSupplier = startColorSupplier;
 		this.onChangeColor = onChangeColor;
 		
