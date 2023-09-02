@@ -118,6 +118,16 @@ public class SimpleColorSelectionWidget implements Element, Drawable, Selectable
 		//revert.render(context, mouseX, mouseY, delta);
 	}
 	
+	public void forceUpdate()
+	{
+		Vec3d c = Vec3d.unpackRgb(startColorSupplier.get() - 0xff000000); //remove alpha
+		System.out.println(c);
+		red.setValue(c.x);
+		green.setValue(c.y);
+		blue.setValue(c.z);
+		updateHex();
+	}
+	
 	void updateHex()
 	{
 		String value = hexField.getText();
@@ -402,5 +412,10 @@ public class SimpleColorSelectionWidget implements Element, Drawable, Selectable
 					super.write(String.valueOf(c));
 			}
 		}
+	}
+	
+	public void setTitle(Text title)
+	{
+		this.title = title;
 	}
 }

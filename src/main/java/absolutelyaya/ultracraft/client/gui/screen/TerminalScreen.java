@@ -2,10 +2,12 @@ package absolutelyaya.ultracraft.client.gui.screen;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
+import absolutelyaya.ultracraft.client.gui.widget.TerminalPaletteWidget;
 import absolutelyaya.ultracraft.client.gui.widget.SimpleColorSelectionWidget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.text.Text;
 import org.joml.Vector2d;
 import org.joml.Vector2i;
@@ -15,8 +17,11 @@ import java.util.List;
 
 public class TerminalScreen extends Screen
 {
-	SimpleColorSelectionWidget textColorPicker;
+	SimpleColorSelectionWidget textColorPicker, paletteColorPicker;
 	TerminalBlockEntity terminal;
+	TerminalPaletteWidget paletteWidget;
+	TerminalBlockEntity.Tab lastTab = TerminalBlockEntity.Tab.MAIN_MENU;
+	CheckboxWidget editPalleteCheckbox;
 	
 	public TerminalScreen(TerminalBlockEntity terminal)
 	{
@@ -31,6 +36,19 @@ public class TerminalScreen extends Screen
 				new Vector3i(width - 160, 32, 155), () -> terminal.getTextColor(),
 				i -> terminal.setTextColor((0xff << 24) + i));
 		textColorPicker.setAlpha(1f);
+		paletteWidget = new TerminalPaletteWidget(new Vector2i(16, height / 2 - 16 * 16 / 2), 16, terminal, i -> paletteColorPicker.forceUpdate());
+		editPalleteCheckbox = addDrawableChild(new CheckboxWidget(16, height - 32, 16, 20,
+				Text.translatable("screen.ultracraft.terminal.graffiti.edit-palette"), false));
+		paletteColorPicker = new SimpleColorSelectionWidget(textRenderer,
+				Text.translatable("screen.ultracraft.terminal.graffiti.palette-clr", paletteWidget.getSelectedColor()),
+				new Vector3i(64, height / 2 - 41, 155), () -> terminal.getPaletteColor(paletteWidget.getSelectedColor()),
+				i -> terminal.setPaletteColor(paletteWidget.getSelectedColor() - 1, (0xff << 24) + i));
+		paletteColorPicker.setAlpha(1f);
+		if(terminal.getTab().equals(TerminalBlockEntity.Tab.MAIN_MENU))
+		{
+			editPalleteCheckbox.active = false;
+			editPalleteCheckbox.visible = false;
+		}
 	}
 	
 	@Override
@@ -40,17 +58,43 @@ public class TerminalScreen extends Screen
 		switch (terminal.getTab())
 		{
 			case CUSTOMIZATION -> {
-				textColorPicker.setActive(true);
+				if(!lastTab.equals(TerminalBlockEntity.Tab.CUSTOMIZATION))
+				{
+					textColorPicker.setActive(true);
+					editPalleteCheckbox.active = false;
+					editPalleteCheckbox.visible = false;
+					paletteColorPicker.setActive(false);
+				}
 				textColorPicker.render(context, mouseX, mouseY, delta);
 			}
-			case GRAFFITI -> {
-				for (int i = 0; i < 15; i++)
-					context.fill(16, 16 + 16 * i, 32, 32 + 16 * i, terminal.getPaletteColor(i));
-			}
+			case GRAFFITI -> renderGraffitiMenu(context, mouseX, mouseY, delta);
 			default -> {
-				textColorPicker.setActive(false);
+				if(!lastTab.equals(terminal.getTab()))
+				{
+					textColorPicker.setActive(false);
+					paletteWidget.setActive(false);
+					editPalleteCheckbox.active = false;
+					editPalleteCheckbox.visible = false;
+					paletteColorPicker.setActive(false);
+				}
 			}
 		}
+		lastTab = terminal.getTab();
+	}
+	
+	void renderGraffitiMenu(DrawContext context, int mouseX, int mouseY, float delta)
+	{
+		editPalleteCheckbox.active = true;
+		editPalleteCheckbox.visible = true;
+		paletteWidget.setActive(true);
+		boolean showColorPicker = editPalleteCheckbox.isChecked() && paletteWidget.getSelectedColor() != 0;
+		paletteColorPicker.setActive(showColorPicker);
+		if(showColorPicker)
+		{
+			paletteColorPicker.setTitle(Text.translatable("screen.ultracraft.terminal.graffiti.palette-clr", paletteWidget.getSelectedColor()));
+			paletteColorPicker.render(context, mouseX, mouseY, delta);
+		}
+		paletteWidget.render(context, mouseX, mouseY, delta);
 	}
 	
 	@Override
@@ -66,6 +110,8 @@ public class TerminalScreen extends Screen
 	{
 		if (textColorPicker.mouseDragged(mouseX, mouseY, button, deltaX, deltaY))
 			return true;
+		if(paletteColorPicker.mouseDragged(mouseX, mouseY, button, deltaX, deltaY))
+			return true;
 		return super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
 	}
 	
@@ -74,6 +120,8 @@ public class TerminalScreen extends Screen
 	{
 		terminal.onHit();
 		if (textColorPicker.mouseClicked(mouseX, mouseY, button))
+			return true;
+		if (paletteWidget.mouseClicked(mouseX, mouseY, button))
 			return true;
 		return super.mouseClicked(mouseX, mouseY, button);
 	}
@@ -120,9 +168,14 @@ public class TerminalScreen extends Screen
 			}
 			return true;
 		}
-		if(terminal.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI) && (keyCode == 256)) //ESC
+		if(terminal.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI))
 		{
-			terminal.setTab(TerminalBlockEntity.Tab.CUSTOMIZATION);
+			switch (keyCode)
+			{
+				case 262, 68 -> terminal.rotateGrafittiCam(modifiers == 2 ? -15 : -7.5f); //right
+				case 263, 65 -> terminal.rotateGrafittiCam(modifiers == 2 ? 15 : 7.5f); //left
+				case 256 -> terminal.setTab(TerminalBlockEntity.Tab.CUSTOMIZATION); // ESC
+			}
 			return true;
 		}
 		if(textColorPicker.keyPressed(keyCode, scanCode, modifiers))

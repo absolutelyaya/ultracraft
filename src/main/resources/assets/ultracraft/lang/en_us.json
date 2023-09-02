@@ -306,6 +306,8 @@
   "screen.ultracraft.terminal.customize.graffiti": "Graffiti",
   "screen.ultracraft.terminal.customize.lock": "Lock",
   "screen.ultracraft.terminal.customize.locked": "Unlock",
+  "screen.ultracraft.terminal.graffiti.edit-palette": "Edit Palette",
+  "screen.ultracraft.terminal.graffiti.palette-clr": "Palette Color %s",
   "screen.ultracraft.terminal.bestiary": "Enemies",
   "screen.ultracraft.terminal.weapons": "Weapons",
   "screen.ultracraft.terminal.button.back": "Return",

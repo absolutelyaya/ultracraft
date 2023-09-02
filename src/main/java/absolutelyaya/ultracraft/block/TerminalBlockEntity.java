@@ -82,10 +82,10 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	List<Byte> graffiti = new ArrayList<>();
 	UUID terminalID;
 	//Don't save all this
-	float displayVisibility = 0f, inactivity = 600f, caretTimer = 0f;
+	float displayVisibility = 0f, inactivity = 600f, caretTimer = 0f, graffitiCamRotation = 0f;
 	AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
 	List<WingedPlayerEntity> focusedPlayers = new ArrayList<>();
-	int colorOverride = -1, lastPaintedSide = 0, graffitiRevision = 0;
+	int colorOverride = -1, graffitiRevision = 0;
 	Vector2d cursor = new Vector2d();
 	Vector2i caret = new Vector2i();
 	String lastHovered;
@@ -188,12 +188,12 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		super.writeNbt(nbt);
 		nbt.putInt("base", base.ordinal());
 		nbt.putInt("txt-clr", textColor);
-		nbt.putUuid("owner", owner);
+		if(owner != null)
+			nbt.putUuid("owner", owner);
 		nbt.putBoolean("locked", locked);
 		nbt.put("screensaver", serializeScreensaver());
 		nbt.putUuid("id", terminalID);
-		if(graffitiTexture != null)
-			nbt.put("graffiti", serializeGraffiti());
+		nbt.put("graffiti", serializeGraffiti());
 	}
 	
 	void applyScreensaver(NbtCompound screensaver)
@@ -362,6 +362,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			buf.writeBoolean(locked);
 			buf.writeNbt(serializeScreensaver());
 			ClientPlayNetworking.send(PacketRegistry.TERMINAL_SYNC_C2S_PACKET_ID, buf);
+			markDirty();
 		}
 		if(this.tab.equals(Tab.GRAFFITI) && !tab.equals(Tab.GRAFFITI))
 		{
@@ -374,8 +375,10 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			buf.writeByteArray(ArrayUtils.toPrimitive(pixels));
 			buf.writeInt(getGraffitiRevision());
 			ClientPlayNetworking.send(PacketRegistry.GRAFFITI_C2S_PACKET_ID, buf);
+			graffitiCamRotation = 0f;
 			
 			refreshGraffitiTexture();
+			markDirty();
 		}
 		this.tab = tab;
 		switch(tab)
@@ -465,7 +468,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public Vec3d getCamOffset()
 	{
 		if(tab.equals(Tab.GRAFFITI))
-			return new Vec3d(0f, 0f, -2.5f).rotateY((getRotation() + 90 * lastPaintedSide) * -MathHelper.RADIANS_PER_DEGREE);
+			return new Vec3d(0f, 0f, -2.5f).rotateY((getRotation() + graffitiCamRotation) * -MathHelper.RADIANS_PER_DEGREE);
 		return new Vec3d(0f, 0f, -1f).rotateY(getRotation() * -MathHelper.RADIANS_PER_DEGREE);
 	}
 	
@@ -506,7 +509,13 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public void setPalette(List<Integer> colors)
 	{
-		//palette = colors;
+		palette = colors;
+	}
+	
+	public void setPaletteColor(int idx, int color)
+	{
+		if(idx >= 0)
+			palette.set(idx, color);
 	}
 	
 	public List<Integer> getPalette()
@@ -546,6 +555,11 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		if(owner == null)
 			return true;
 		return owner.equals(id);
+	}
+	
+	public void rotateGrafittiCam(float f)
+	{
+		graffitiCamRotation += f;
 	}
 	
 	public enum Tab
