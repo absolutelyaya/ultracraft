@@ -172,7 +172,7 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	
 	void drawMainMenu(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
-		if(animatable.isLocked() && !MinecraftClient.getInstance().player.getUuid().equals(animatable.getOwner()))
+		if(animatable.isLocked() && !animatable.isOwner(MinecraftClient.getInstance().player.getUuid()))
 		{
 			drawTab(matrices, buffers, "screen.ultracraft.terminal.no-access", "!", true, "force-screensaver");
 			return;
@@ -180,7 +180,7 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 		drawTab(matrices, buffers, "screen.ultracraft.terminal.main-menu", false);
 		int y = 50;
 		String t;
-		if(MinecraftClient.getInstance().player.getUuid().equals(animatable.getOwner()) || true)
+		if(animatable.isOwner(MinecraftClient.getInstance().player.getUuid()))
 		{
 			t = Text.translatable("screen.ultracraft.terminal.customize").getString();
 			drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,

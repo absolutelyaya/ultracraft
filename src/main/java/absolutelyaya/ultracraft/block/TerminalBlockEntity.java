@@ -41,7 +41,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 {
 	//Persistent
 	Base base = Base.YELLOW;
-	UUID owner = UUID.fromString("4a23954b-551c-4e2b-ac52-eb2e1ccbe443");
+	UUID owner = null;
 	List<String> lines = new ArrayList<>() {
 		{
 			add("+--------------+");
@@ -539,6 +539,13 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public Identifier getGraffitiTexture()
 	{
 		return graffitiTexture;
+	}
+	
+	public boolean isOwner(UUID id)
+	{
+		if(owner == null)
+			return true;
+		return owner.equals(id);
 	}
 	
 	public enum Tab
