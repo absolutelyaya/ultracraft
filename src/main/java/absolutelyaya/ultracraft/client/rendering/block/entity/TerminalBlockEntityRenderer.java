@@ -1,6 +1,5 @@
 package absolutelyaya.ultracraft.client.rendering.block.entity;
 
-import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import net.minecraft.client.MinecraftClient;
@@ -48,23 +47,24 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	}
 	
 	@Override
-	public void postRender(MatrixStack poseStack, TerminalBlockEntity animatable, BakedGeoModel model, VertexConsumerProvider bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
+	public void postRender(MatrixStack poseStack, TerminalBlockEntity animatable, BakedGeoModel model, VertexConsumerProvider bufferSource, VertexConsumer buffer, boolean isReRender, float tickDelta, int packedLight, int packedOverlay, float red, float green, float blue, float alpha)
 	{
+		animatable.setCaretTimer((animatable.getCaretTimer() + tickDelta / 20f) % 2f);
 		//Draw interface
 		float playerDist = (float) MinecraftClient.getInstance().player.getPos().distanceTo(animatable.getPos().toCenterPos());
 		float displayVisibility = animatable.getDisplayVisibility();
 		if(playerDist < 4f && displayVisibility < 1f)
-			displayVisibility += partialTick / 5f;
+			displayVisibility += tickDelta / 5f;
 		else if(playerDist > 4f && displayVisibility > 0f)
-			displayVisibility -= partialTick / 3f;
+			displayVisibility -= tickDelta / 3f;
 		animatable.setDisplayVisibility(displayVisibility);
 		if(displayVisibility > 0f)
 		{
-			animatable.setInactivity(animatable.getInactivity() + partialTick / 20f);
+			animatable.setInactivity(animatable.getInactivity() + tickDelta / 20f);
 			if(animatable.getSizeOverride() != null)
-				animatable.setCurWindowSize(animatable.getCurWindowSize().lerp(animatable.getSizeOverride(), partialTick / 5f));
+				animatable.setCurWindowSize(animatable.getCurWindowSize().lerp(animatable.getSizeOverride(), tickDelta / 5f));
 			else
-				animatable.setCurWindowSize(animatable.getCurWindowSize().lerp(animatable.getNormalWindowSize(), partialTick / 5f));
+				animatable.setCurWindowSize(animatable.getCurWindowSize().lerp(animatable.getNormalWindowSize(), tickDelta / 5f));
 		}
 		else if(animatable.getInactivity() < 600f)
 			animatable.setInactivity(600f);
@@ -108,6 +108,7 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 				case BESTIARY -> drawBestiary(matrices, buffers);
 				case CUSTOMIZATION -> drawCustomization(matrices, buffers);
 				case BASE_SELECT -> drawBaseSelection(matrices, buffers);
+				case EDIT_SCREENSAVER -> drawEditScreensaver(matrices, buffers);
 			}
 		}
 		
@@ -206,6 +207,28 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 				drawColorButton(buffers, matrices, colors[y * 4 + x], 16 + x * (size + 3), 18 + y * (size + 3), size, size, "set-base@" + (y * 4 + x));
 	}
 	
+	void drawEditScreensaver(MatrixStack matrices, VertexConsumerProvider buffers)
+	{
+		drawBG(matrices, buffers);
+		drawBoxOutline(buffers, matrices, 0, 0, 100, 100, 0xffffffff);
+		List<String> lines = animatable.getLines();
+		for (int i = 0; i < lines.size(); i++)
+			drawText(buffers, matrices, lines.get(i), 2, textRenderer.fontHeight * (i + 1) - 108, 0.005f);
+		if(animatable.getCaretTimer() <= 1f)
+		{
+			Vector2i caret = animatable.getCaret();
+			String before = (caret.x == 0 || lines.get(caret.y).length() == 0 ? "" : lines.get(caret.y).substring(0, caret.x));
+			matrices.push();
+			matrices.translate(0f, 0f, -0.005f);
+			drawBox(buffers, matrices, textRenderer.getWidth(before) + 1, textRenderer.fontHeight * caret.y, 1, textRenderer.fontHeight,
+					animatable.getTextColor());
+			matrices.pop();
+		}
+		String t = Text.translatable("screen.ultracraft.terminal.button.back").getString();
+		drawButton(buffers, matrices, t,  103, 100 - textRenderer.fontHeight - 2,
+				textRenderer.getWidth(t) + 4, textRenderer.fontHeight + 2, "customize");
+	}
+	
 	void drawTab(MatrixStack matrices, VertexConsumerProvider buffers, String title, boolean returnButton)
 	{
 		drawTab(matrices, buffers, title, "-", returnButton, "mainmenu");
@@ -233,7 +256,7 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	{
 		int BGcolor = 0xaa000000;
 		Vector2f size = animatable.getCurWindowSize();
-		drawBox(buffers, matrices, (int)(-(size.x - 100) / 2f), 0, size.x, size.y, BGcolor);
+		drawBox(buffers, matrices, -Math.round((size.x - 100) / 2f), -Math.round((size.y - 100) / 2f), size.x, size.y, BGcolor);
 	}
 	
 	void drawMultiLine(VertexConsumerProvider buffers, MatrixStack matrices, String text, int x, int y, float z)

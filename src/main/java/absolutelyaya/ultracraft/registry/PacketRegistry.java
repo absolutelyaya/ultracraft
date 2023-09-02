@@ -18,6 +18,7 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -368,11 +369,12 @@ public class PacketRegistry
 			int textColor = buf.readInt();
 			int base = buf.readInt();
 			boolean locked = buf.readBoolean();
+			NbtCompound screenSaver = buf.readNbt();
 			server.execute(() ->  {
 				BlockEntity be = player.getWorld().getBlockEntity(pos);
 				if(be instanceof TerminalBlockEntity terminal)
 				{
-					terminal.syncCustomization(textColor, base, locked);
+					terminal.syncCustomization(textColor, base, locked, screenSaver);
 				}
 			});
 		});

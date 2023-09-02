@@ -8,7 +8,10 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import org.joml.Vector2d;
+import org.joml.Vector2i;
 import org.joml.Vector3i;
+
+import java.util.List;
 
 public class TerminalScreen extends Screen
 {
@@ -79,7 +82,38 @@ public class TerminalScreen extends Screen
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers)
 	{
-		if (textColorPicker.keyPressed(keyCode, scanCode, modifiers))
+		if(terminal.getTab().equals(TerminalBlockEntity.Tab.EDIT_SCREENSAVER))
+		{
+			switch(keyCode)
+			{
+				case 265 -> terminal.setCaret(terminal.getCaret().sub(0, 1)); //up
+				case 264 -> terminal.setCaret(terminal.getCaret().add(0, 1)); //down
+				case 262 -> terminal.setCaret(terminal.getCaret().add(1, 0)); //right
+				case 263 -> terminal.setCaret(terminal.getCaret().sub(1, 0)); //left
+				case 259 -> { //backspace
+					Vector2i v = terminal.getCaret();
+					if(v.x > 0)
+					{
+						String line = terminal.getLines().get(v.y);
+						line = line.substring(0, v.x - 1) + (v.x < line.length() ? line.substring(v.x) : "");
+						terminal.getLines().set(v.y, line);
+						terminal.setCaret(v.sub(1, 0));
+					}
+				}
+				case 261 -> { //delete
+					Vector2i v = terminal.getCaret();
+					String line = terminal.getLines().get(v.y);
+					if(v.x < line.length())
+					{
+						line = line.substring(0, v.x) + (v.x < line.length() ? line.substring(v.x + 1) : "");
+						terminal.getLines().set(v.y, line);
+					}
+				}
+				case 256, 257 -> terminal.setTab(TerminalBlockEntity.Tab.CUSTOMIZATION); //ESC or Enter
+			}
+			return true;
+		}
+		if(textColorPicker.keyPressed(keyCode, scanCode, modifiers))
 			return true;
 		return super.keyPressed(keyCode, scanCode, modifiers);
 	}
@@ -87,7 +121,25 @@ public class TerminalScreen extends Screen
 	@Override
 	public boolean charTyped(char chr, int modifiers)
 	{
-		if (textColorPicker.charTyped(chr, modifiers))
+		if(terminal.getTab().equals(TerminalBlockEntity.Tab.EDIT_SCREENSAVER))
+		{
+			Vector2i v = terminal.getCaret();
+			List<String> text = terminal.getLines();
+			String line = text.get(v.y);
+			if(v.x == line.length())
+				line += chr;
+			else if(v.x == 0)
+				line = chr + line;
+			else
+				line = line.substring(0, v.x) + chr + line.substring(v.x);
+			if(textRenderer.getWidth(line) <= 100)
+			{
+				text.set(v.y, line);
+				terminal.setCaret(terminal.getCaret().add(1, 0));
+			}
+			return true;
+		}
+		if(textColorPicker.charTyped(chr, modifiers))
 			return true;
 		return super.charTyped(chr, modifiers);
 	}

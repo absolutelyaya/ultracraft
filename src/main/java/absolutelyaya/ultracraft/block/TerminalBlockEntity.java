@@ -34,15 +34,30 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	//Persistent
 	Base base = Base.YELLOW;
 	UUID owner = UUID.fromString("4a23954b-551c-4e2b-ac52-eb2e1ccbe443");
-	List<String> lines = new ArrayList<>();
+	List<String> lines = new ArrayList<>() {
+		{
+			add("+--------------+");
+			add("   Tip of the Day");
+			add("");
+			add("     be there or");
+			add("      be square");
+			add("");
+			add("");
+			add("");
+			add("");
+			add("");
+			add("+--------------+");
+		}
+	};
 	int textColor = 0xffffffff;
 	boolean locked = false;
 	//Don't save all this
-	float displayVisibility = 0f, inactivity = 600f;
+	float displayVisibility = 0f, inactivity = 600f, caretTimer = 0f;
 	AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
 	List<WingedPlayerEntity> focusedPlayers = new ArrayList<>();
 	int colorOverride = -1;
-	Vector2d cursor = new Vector2d(0f, 0f);
+	Vector2d cursor = new Vector2d();
+	Vector2i caret = new Vector2i();
 	String lastHovered;
 	Tab tab = Tab.MAIN_MENU;
 	Vector2f normalWindowSize = new Vector2f(100f, 100f), curWindowSize = new Vector2f(normalWindowSize), sizeOverride = null;
@@ -50,17 +65,6 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public TerminalBlockEntity(BlockPos pos, BlockState state)
 	{
 		super(BlockEntityRegistry.TERMINAL, pos, state);
-		lines.add("+--------------+");
-		lines.add("   Tip of the Day");
-		lines.add("");
-		lines.add("     be there or");
-		lines.add("      be square");
-		lines.add("");
-		lines.add("");
-		lines.add("");
-		lines.add("");
-		lines.add("");
-		lines.add("+--------------+");
 	}
 	
 	@Override
@@ -86,7 +90,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 				case "bestiary" -> setTab(Tab.COMING_SOON);
 				case "weapons" -> setTab(Tab.WEAPONS);
 				case "mainmenu" -> setTab(Tab.MAIN_MENU);
-				case "edit-screensaver" -> setTab(Tab.COMING_SOON);
+				case "edit-screensaver" -> setTab(Tab.EDIT_SCREENSAVER);
 				case "edit-base" -> setTab(Tab.BASE_SELECT);
 				case "graffiti" -> setTab(Tab.COMING_SOON);
 				
@@ -117,6 +121,15 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			base = Base.values()[nbt.getInt("base")];
 		if(nbt.contains("txt-clr", NbtElement.INT_TYPE))
 			textColor = nbt.getInt("txt-clr");
+		if(nbt.containsUuid("owner"))
+			owner = nbt.getUuid("owner");
+		if(nbt.contains("locked", NbtElement.INT_TYPE))
+			locked = nbt.getBoolean("locked");
+		if(nbt.contains("screensaver", NbtElement.COMPOUND_TYPE))
+		{
+			NbtCompound screensaver = nbt.getCompound("screensaver");
+			applyScreensaver(screensaver);
+		}
 	}
 	
 	@Override
@@ -127,6 +140,27 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		nbt.putInt("txt-clr", textColor);
 		nbt.putUuid("owner", owner);
 		nbt.putBoolean("locked", locked);
+		nbt.put("screensaver", serializeScreensaver());
+	}
+	
+	void applyScreensaver(NbtCompound screensaver)
+	{
+		for (int i = 0; i < 11; i++)
+		{
+			if(screensaver.contains("line" + i, NbtElement.STRING_TYPE))
+				lines.set(i, screensaver.getString("line" + i));
+			else
+				lines.set(i, "");
+		}
+	}
+	
+	NbtCompound serializeScreensaver()
+	{
+		NbtCompound screensaver = new NbtCompound();
+		for (int i = 0; i < lines.size(); i++)
+			if(lines.get(i).length() > 0)
+				screensaver.putString("line" + i, lines.get(i));
+		return screensaver;
 	}
 	
 	@Override
@@ -141,12 +175,13 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		return createNbt();
 	}
 	
-	public void syncCustomization(int c, int base, boolean locked)
+	public void syncCustomization(int c, int base, boolean locked, NbtCompound screensaver)
 	{
 		textColor = c;
 		if(base >= 0 && base < Base.values().length)
 			this.base = Base.values()[base];
 		this.locked = locked;
+		applyScreensaver(screensaver);
 		markDirty();
 		world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_LISTENERS);
 	}
@@ -254,18 +289,23 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			buf.writeInt(textColor);
 			buf.writeInt(base.ordinal());
 			buf.writeBoolean(locked);
+			buf.writeNbt(serializeScreensaver());
 			ClientPlayNetworking.send(PacketRegistry.TERMINAL_SYNC_C2S_PACKET_ID, buf);
 		}
 		this.tab = tab;
 		switch(tab)
 		{
-			case MAIN_MENU ->
+			case MAIN_MENU, CUSTOMIZATION ->
 			{
 				colorOverride = -1;
 				sizeOverride = null;
 			}
 			case COMING_SOON -> colorOverride = 0xffffff00;
 			case WEAPONS, BESTIARY -> sizeOverride = new Vector2f(200, 100);
+			case EDIT_SCREENSAVER -> {
+				caret = new Vector2i();
+				sizeOverride = new Vector2f(200, 106);
+			}
 		}
 	}
 	
@@ -309,6 +349,34 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		return locked;
 	}
 	
+	public Vector2i getCaret()
+	{
+		return caret;
+	}
+	
+	public void setCaretTimer(float f)
+	{
+		caretTimer = f;
+	}
+	
+	public float getCaretTimer()
+	{
+		return caretTimer;
+	}
+	
+	public void setCaret(Vector2i v)
+	{
+		int y = v.y < 0 ? lines.size() - 1 : v.y % lines.size();
+		int x;
+		int len = lines.get(y).length();
+		if(len == 0)
+			x = 0;
+		else
+			x = v.x < 0 ? lines.get(y).length() : v.x % (lines.get(y).length() + 1);
+		caret = new Vector2i(x, y);
+		caretTimer = 0f;
+	}
+	
 	public enum Tab
 	{
 		MAIN_MENU,
@@ -316,7 +384,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		WEAPONS,
 		BESTIARY,
 		CUSTOMIZATION,
-		BASE_SELECT
+		BASE_SELECT,
+		EDIT_SCREENSAVER
 	}
 	
 	public enum Base
