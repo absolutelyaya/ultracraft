@@ -121,7 +121,6 @@ public class SimpleColorSelectionWidget implements Element, Drawable, Selectable
 	public void forceUpdate()
 	{
 		Vec3d c = Vec3d.unpackRgb(startColorSupplier.get() - 0xff000000); //remove alpha
-		System.out.println(c);
 		red.setValue(c.x);
 		green.setValue(c.y);
 		blue.setValue(c.z);

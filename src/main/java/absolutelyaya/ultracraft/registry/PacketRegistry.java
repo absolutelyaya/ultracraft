@@ -54,7 +54,6 @@ public class PacketRegistry
 	public static final Identifier KILLER_FISH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "killerfish");
 	public static final Identifier TERMINAL_SYNC_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "terminal_c2s");
 	public static final Identifier GRAFFITI_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "graffiti_c2s");
-	public static final Identifier REQUEST_GRAFFITI_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "request_graffiti");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
@@ -79,8 +78,6 @@ public class PacketRegistry
 	public static final Identifier RICOCHET_WARNING_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "warn_ricochet");
 	public static final Identifier REPLENISH_STAMINA_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "replenish_stamina");
 	public static final Identifier ANIMATION_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "animation_s2c");
-	public static final Identifier OFFER_GRAFFITI_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "offer_graffiti");
-	public static final Identifier GRAFFITI_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "graffiti_s2c");
 	
 	public static void registerC2S()
 	{
@@ -394,23 +391,6 @@ public class PacketRegistry
 					terminal.setPalette(Arrays.asList(ArrayUtils.toObject(palette)));
 					terminal.setGraffiti(Arrays.asList(ArrayUtils.toObject(pixels)));
 					terminal.setGraffitiRevision(revision);
-				}
-			});
-		});
-		ServerPlayNetworking.registerGlobalReceiver(REQUEST_GRAFFITI_PACKET_ID, (server, player, handler, buf, sender) -> {
-			BlockPos pos = buf.readBlockPos();
-			server.execute(() ->  {
-				BlockEntity be = player.getWorld().getBlockEntity(pos);
-				if(be instanceof TerminalBlockEntity terminal)
-				{
-					PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
-					Integer[] palette = terminal.getPalette().toArray(new Integer[15]);
-					Byte[] pixels = terminal.getGraffiti().toArray(new Byte[0]);
-					cbuf.writeBlockPos(pos);
-					cbuf.writeIntArray(ArrayUtils.toPrimitive(palette));
-					cbuf.writeByteArray(ArrayUtils.toPrimitive(pixels));
-					cbuf.writeInt(terminal.getGraffitiRevision());
-					ServerPlayNetworking.send(player, GRAFFITI_S2C_PACKET_ID, buf);
 				}
 			});
 		});

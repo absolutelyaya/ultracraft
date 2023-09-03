@@ -7,7 +7,11 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.texture.NativeImage;
+import net.minecraft.text.ClickEvent;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 import net.minecraft.util.JsonHelper;
 
 import java.io.IOException;
@@ -19,18 +23,18 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-public class GraffitiCacheManager
+public class GraffitiManager
 {
-	static final String CACHE_PATH = "Ultracraft/cache/graffiti";
+	static final String EXPORT_PATH = "Ultracraft/graffiti";
 	static final Path cacheDir;
 	
-	public static Graffiti fetchGrafitti(UUID terminalID)
+	public static Graffiti importGrafitti(String name)
 	{
 		try(Stream<Path> stream = Files.list(cacheDir))
 		{
 			for (Path f : stream.toList())
 			{
-				if(!Files.isDirectory(f) && f.getFileName().toString().split("\\.")[0].equals(terminalID.toString()))
+				if(!Files.isDirectory(f) && f.getFileName().toString().split("\\.")[0].equals(name))
 				{
 					String json = Files.readString(f);
 					return deserialize(JsonHelper.deserialize(json));
@@ -39,35 +43,13 @@ public class GraffitiCacheManager
 		}
 		catch (IOException e)
 		{
-			Ultracraft.LOGGER.error("Failed to search Grafitti Cache", e);
+			Ultracraft.LOGGER.error("Failed to search Grafitti directory", e);
 			return null;
 		}
 		return null;
 	}
 	
-	public static boolean hasNewest(UUID terminalID, int offeredRevision)
-	{
-		try(Stream<Path> stream = Files.list(cacheDir))
-		{
-			for (Path f : stream.toList())
-			{
-				String[] segments = f.getFileName().toString().split("\\.");
-				if(!Files.isDirectory(f) && segments.length == 2 && segments[1].equals(".json") && segments[0].equals(terminalID.toString()))
-				{
-					String json = Files.readString(f);
-					Graffiti g = deserialize(JsonHelper.deserialize(json));
-					return offeredRevision < g.revision;
-				}
-			}
-		}
-		catch (IOException e)
-		{
-			Ultracraft.LOGGER.error("Failed to search Grafitti Cache", e);
-		}
-		return false;
-	}
-	
-	public static void cacheGraffiti(UUID id, List<Integer> palette, List<Byte> pixels, int revision)
+	public static void exportGraffiti(UUID id, List<Integer> palette, List<Byte> pixels, int revision)
 	{
 		JsonObject json = new JsonObject();
 		JsonArray paletteProperty = new JsonArray();
@@ -83,8 +65,8 @@ public class GraffitiCacheManager
 		Path gameDir = FabricLoader.getInstance().getGameDir();
 		try
 		{
-			Files.writeString(Path.of(gameDir.toString(), CACHE_PATH, id.toString() + ".json"), JsonHelper.toSortedString(json));
-			//Ultracraft.LOGGER.info("Successfully Cached Grafitti from Terminal {}", id);
+			Files.writeString(Path.of(gameDir.toString(), EXPORT_PATH, id.toString() + ".json"), JsonHelper.toSortedString(json));
+			Ultracraft.LOGGER.info("Successfully Exported Grafitti from Terminal {}", id);
 		}
 		catch (IllegalArgumentException | JsonParseException | IOException e)
 		{
@@ -92,19 +74,23 @@ public class GraffitiCacheManager
 		}
 	}
 	
-	public static void savePng(UUID id, NativeImage image)
+	public static void savePng(String name, NativeImage image)
 	{
 		Optional<ModContainer> optionalContainer = FabricLoader.getInstance().getModContainer(Ultracraft.MOD_ID);
 		if(optionalContainer.isEmpty())
 			return;
 		Path gameDir = FabricLoader.getInstance().getGameDir();
+		Path path = Path.of(gameDir.toString(), EXPORT_PATH, name + ".png");
 		try
 		{
-			image.writeTo(Path.of(gameDir.toString(), CACHE_PATH, id.toString() + ".png"));
+			image.writeTo(path);
+			MinecraftClient.getInstance().player.sendMessage(Text.translatable("screen.ultracraft.terminal.graffiti.export_success")
+							.setStyle(Style.EMPTY.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, path.toString()))));
 		}
 		catch (IllegalArgumentException | JsonParseException | IOException e)
 		{
-			Ultracraft.LOGGER.error("Failed to cache Grafitti from Terminal {}", id, e);
+			Ultracraft.LOGGER.error("Failed to export Grafitti {}.png", name, e);
+			MinecraftClient.getInstance().player.sendMessage(Text.translatable("screen.ultracraft.terminal.graffiti.export_fail"));
 		}
 	}
 	
@@ -138,7 +124,7 @@ public class GraffitiCacheManager
 		if(optionalContainer.isPresent())
 		{
 			Path gameDir = FabricLoader.getInstance().getGameDir();
-			cacheDir = Path.of(gameDir.toString(), CACHE_PATH);
+			cacheDir = Path.of(gameDir.toString(), EXPORT_PATH);
 			try
 			{
 				Files.createDirectories(cacheDir);

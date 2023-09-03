@@ -90,4 +90,9 @@ public class TerminalPaletteWidget implements Element, Drawable
 	{
 		active = b;
 	}
+	
+	public void setSelectedColor(int idx)
+	{
+		selectedColor = idx;
+	}
 }

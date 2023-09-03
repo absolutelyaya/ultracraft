@@ -4,7 +4,7 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
-import absolutelyaya.ultracraft.registry.GraffitiCacheManager;
+import absolutelyaya.ultracraft.registry.GraffitiManager;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -32,10 +32,7 @@ import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache
 import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 {
@@ -96,7 +93,6 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public TerminalBlockEntity(BlockPos pos, BlockState state)
 	{
 		super(BlockEntityRegistry.TERMINAL, pos, state);
-		terminalID = UUID.randomUUID();
 	}
 	
 	@Override
@@ -163,22 +159,18 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			NbtCompound screensaver = nbt.getCompound("screensaver");
 			applyScreensaver(screensaver);
 		}
-		if(nbt.containsUuid("id"))
-			terminalID = nbt.getUuid("id");
-		if(world == null && nbt.contains("graffiti", NbtElement.COMPOUND_TYPE))
-			applyGraffiti(nbt.getCompound("graffiti"));
-		if(world != null && world.isClient)
+		if(nbt.containsUuid("terminal-id"))
+			terminalID = nbt.getUuid("terminal-id");
+		else
+			terminalID = UUID.randomUUID();
+		if(nbt.contains("graffiti", NbtElement.COMPOUND_TYPE))
 		{
-			GraffitiCacheManager.Graffiti g = GraffitiCacheManager.fetchGrafitti(terminalID);
-			if(g != null)
+			applyGraffiti(nbt.getCompound("graffiti"));
+			if(world != null && world.isClient)
 			{
-				setPalette(g.palette());
-				setGraffiti(g.pixels());
-				setGraffitiRevision(g.revision());
+				refreshGraffitiTexture();
+				Ultracraft.LOGGER.info("received Graffiti " + terminalID);
 			}
-			else if (nbt.contains("graffiti", NbtElement.COMPOUND_TYPE))
-				applyGraffiti(nbt.getCompound("graffiti"));
-			refreshGraffitiTexture();
 		}
 	}
 	
@@ -192,7 +184,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			nbt.putUuid("owner", owner);
 		nbt.putBoolean("locked", locked);
 		nbt.put("screensaver", serializeScreensaver());
-		nbt.putUuid("id", terminalID);
+		nbt.putUuid("terminal-id", Objects.requireNonNullElseGet(terminalID, () -> terminalID = UUID.randomUUID()));
 		nbt.put("graffiti", serializeGraffiti());
 	}
 	
@@ -230,7 +222,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	{
 		NbtCompound graffiti = new NbtCompound();
 		graffiti.putIntArray("palette", ArrayUtils.toPrimitive(getPalette().toArray(new Integer[15])));
-		graffiti.putString("pixels", GraffitiCacheManager.serializePixels(getGraffiti()));
+		graffiti.putString("pixels", GraffitiManager.serializePixels(getGraffiti()));
 		return graffiti;
 	}
 	
@@ -484,6 +476,15 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public void refreshGraffitiTexture()
 	{
+		NativeImage image = makeGraffitiImage();
+		AbstractTexture texture = new NativeImageBackedTexture(image);
+		if(graffitiTexture == null)
+			graffitiTexture = new Identifier(Ultracraft.MOD_ID, "graffiti/" + terminalID.toString());
+		MinecraftClient.getInstance().getTextureManager().registerTexture(graffitiTexture, texture);
+	}
+	
+	NativeImage makeGraffitiImage()
+	{
 		NativeImage image = new NativeImage(NativeImage.Format.RGBA, 32, 32, false);
 		image.fillRect(0, 0, 32, 32, 0x00000000);
 		for (int i = 0; i < 32 * 32; i++)
@@ -502,17 +503,15 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			color = (color << 8) + r;
 			image.setColor(x, y, color); //ABGR
 		}
-		AbstractTexture texture = new NativeImageBackedTexture(image);
-		graffitiTexture = new Identifier(Ultracraft.MOD_ID, "graffiti/" + terminalID.toString());
-		//MinecraftClient.getInstance().getTextureManager().destroyTexture(graffitiTexture);
-		MinecraftClient.getInstance().getTextureManager().registerTexture(graffitiTexture, texture);
-		if(graffiti.size() > 0 && !GraffitiCacheManager.hasNewest(terminalID, graffitiRevision))
+		return image;
+	}
+	
+	public void exportGraffitiPng(String name)
+	{
+		try (NativeImage image = makeGraffitiImage())
 		{
-			GraffitiCacheManager.cacheGraffiti(terminalID, palette, graffiti, graffitiRevision);
-			GraffitiCacheManager.savePng(terminalID, image);
+			GraffitiManager.savePng(name, image);
 		}
-		//image.close();
-		//texture.close();
 	}
 	
 	public void setPalette(List<Integer> colors)

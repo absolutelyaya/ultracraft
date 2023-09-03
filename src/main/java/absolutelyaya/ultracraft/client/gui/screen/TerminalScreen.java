@@ -7,7 +7,9 @@ import absolutelyaya.ultracraft.client.gui.widget.SimpleColorSelectionWidget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CheckboxWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
 import org.joml.Vector2d;
 import org.joml.Vector2i;
@@ -23,6 +25,9 @@ public class TerminalScreen extends Screen
 	TerminalBlockEntity.Tab lastTab = TerminalBlockEntity.Tab.MAIN_MENU;
 	CheckboxWidget editPalleteCheckbox;
 	Vector2i graffitiTexturePos = new Vector2i();
+	TextFieldWidget exportName;
+	ButtonWidget exportButton;
+	int lastSelected;
 	
 	public TerminalScreen(TerminalBlockEntity terminal)
 	{
@@ -37,7 +42,11 @@ public class TerminalScreen extends Screen
 				new Vector3i(width - 160, 32, 155), () -> terminal.getTextColor(),
 				i -> terminal.setTextColor((0xff << 24) + i));
 		textColorPicker.setAlpha(1f);
-		paletteWidget = new TerminalPaletteWidget(new Vector2i(16, height / 2 - 16 * 16 / 2), 16, terminal, i -> paletteColorPicker.forceUpdate());
+		paletteWidget = new TerminalPaletteWidget(new Vector2i(16, height / 2 - 16 * 16 / 2), 16, terminal, i -> {
+			paletteColorPicker.forceUpdate();
+			lastSelected = i;
+		});
+		paletteWidget.setSelectedColor(lastSelected);
 		editPalleteCheckbox = addDrawableChild(new CheckboxWidget(16, height - 32, 16, 20,
 				Text.translatable("screen.ultracraft.terminal.graffiti.edit-palette"), false));
 		paletteColorPicker = new SimpleColorSelectionWidget(textRenderer,
@@ -45,10 +54,22 @@ public class TerminalScreen extends Screen
 				new Vector3i(64, height / 2 - 41, 155), () -> terminal.getPaletteColor(paletteWidget.getSelectedColor()),
 				i -> terminal.setPaletteColor(paletteWidget.getSelectedColor() - 1, (0xff << 24) + i));
 		paletteColorPicker.setAlpha(1f);
+		exportName = addDrawableChild(new TextFieldWidget(textRenderer, 64, height / 2 + 67, 128, 20,
+				Text.translatable("screen.ultracraft.terminal.graffiti.default_name")));
+		exportName.setText(Text.translatable("screen.ultracraft.terminal.graffiti.default_name").getString());
+		exportName.setPlaceholder(Text.translatable("screen.ultracraft.terminal.graffiti.name_placeholder"));
+		exportName.setChangedListener(s -> exportButton.setMessage(Text.translatable("screen.ultracraft.terminal.graffiti.export", s)));
+		exportButton = addDrawableChild(ButtonWidget.builder(Text.translatable("screen.ultracraft.terminal.graffiti.export", exportName.getText()), b -> {
+			terminal.exportGraffitiPng(exportName.getText());
+		}).dimensions(63, height / 2 + 67 + 22, 130, 20).build());
 		if(terminal.getTab().equals(TerminalBlockEntity.Tab.MAIN_MENU))
 		{
 			editPalleteCheckbox.active = false;
 			editPalleteCheckbox.visible = false;
+			exportButton.active = false;
+			exportButton.visible = false;
+			exportName.active = false;
+			exportName.visible = false;
 		}
 	}
 	
@@ -64,6 +85,10 @@ public class TerminalScreen extends Screen
 					textColorPicker.setActive(true);
 					editPalleteCheckbox.active = false;
 					editPalleteCheckbox.visible = false;
+					exportButton.active = false;
+					exportButton.visible = false;
+					exportName.active = false;
+					exportName.visible = false;
 					paletteColorPicker.setActive(false);
 				}
 				textColorPicker.render(context, mouseX, mouseY, delta);
@@ -76,6 +101,10 @@ public class TerminalScreen extends Screen
 					paletteWidget.setActive(false);
 					editPalleteCheckbox.active = false;
 					editPalleteCheckbox.visible = false;
+					exportButton.active = false;
+					exportButton.visible = false;
+					exportName.active = false;
+					exportName.visible = false;
 					paletteColorPicker.setActive(false);
 				}
 			}
@@ -94,9 +123,17 @@ public class TerminalScreen extends Screen
 		{
 			paletteColorPicker.setTitle(Text.translatable("screen.ultracraft.terminal.graffiti.palette-clr", paletteWidget.getSelectedColor()));
 			paletteColorPicker.render(context, mouseX, mouseY, delta);
+			exportButton.active = false;
+			exportButton.visible = false;
+			exportName.active = false;
+			exportName.visible = false;
 		}
 		else
 		{
+			exportButton.active = true;
+			exportButton.visible = true;
+			exportName.active = true;
+			exportName.visible = true;
 			if(terminal.getGraffitiTexture() != null)
 			{
 				int x = 64, y = height / 2 - 64;
@@ -106,6 +143,11 @@ public class TerminalScreen extends Screen
 				context.getMatrices().scale(0.5f, 0.5f, 0.5f);
 				context.drawTexture(terminal.getGraffitiTexture(), 0, 0, 0, 0, 256, 256);
 				context.getMatrices().pop();
+				context.drawBorder(x - 1, y - 1, 34, 90, 0xffffffff);
+				context.drawBorder(x + 96 - 1, y - 1, 34, 90, 0xffffffff);
+				context.drawBorder(x + 32, y - 1, 64, 130, 0xffffffff);
+				context.fill(x, y + 89, x + 32, y + 128, 0x88000000);
+				context.fill(x + 96, y + 89, x + 32 + 96, y + 128, 0x88000000);
 				context.drawBorder(x - 1, y - 1, 130, 130, 0xffffffff);
 			}
 			else
@@ -129,7 +171,7 @@ public class TerminalScreen extends Screen
 			return true;
 		if(paletteColorPicker.mouseDragged(mouseX, mouseY, button, deltaX, deltaY))
 			return true;
-		if(terminal.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI) &&
+		if(!editPalleteCheckbox.isChecked() && terminal.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI) &&
 				   mouseX > graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 128 && mouseY > graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 128)
 		{
 			int x = (int)Math.round((mouseX - graffitiTexturePos.x) / 128f * 32f);
@@ -144,7 +186,9 @@ public class TerminalScreen extends Screen
 	public boolean mouseClicked(double mouseX, double mouseY, int button)
 	{
 		terminal.onHit();
-		if(terminal.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI) &&
+		if(!exportName.isMouseOver(mouseX, mouseY))
+			exportName.setFocused(false);
+		if(!editPalleteCheckbox.isChecked() && terminal.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI) &&
 				   mouseX > graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 128 && mouseY > graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 128)
 		{
 			int x = (int)Math.round((mouseX - graffitiTexturePos.x) / 128f * 32f);
@@ -201,7 +245,7 @@ public class TerminalScreen extends Screen
 			}
 			return true;
 		}
-		if(terminal.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI))
+		if(terminal.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI) && !exportName.isFocused())
 		{
 			switch (keyCode)
 			{

@@ -4,7 +4,6 @@ import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ITrailEnjoyer;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
-import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
@@ -18,7 +17,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
@@ -330,34 +328,6 @@ public class ClientPacketRegistry
 			boolean firstperson = buf.readBoolean();
 			client.execute(() -> {
 				PlayerAnimator.playAnimation(target, animID, fade, firstperson, true);
-			});
-		});
-		ClientPlayNetworking.registerGlobalReceiver(OFFER_GRAFFITI_PACKET_ID, (client, handler, buf, sender) -> {
-			BlockPos pos = buf.readBlockPos();
-			UUID terminal = buf.readUuid();
-			int revision = buf.readInt();
-			client.execute(() -> {
-				if(!GraffitiCacheManager.hasNewest(terminal, revision))
-				{
-					PacketByteBuf sbuf = new PacketByteBuf(Unpooled.buffer());
-					sbuf.writeBlockPos(pos);
-					ClientPlayNetworking.send(REQUEST_GRAFFITI_PACKET_ID, sbuf);
-				}
-			});
-		});
-		ClientPlayNetworking.registerGlobalReceiver(GRAFFITI_S2C_PACKET_ID, (client, handler, buf, sender) -> {
-			BlockPos pos = buf.readBlockPos();
-			int[] palette = buf.readIntArray(15);
-			byte[] pixels = buf.readByteArray();
-			int revision = buf.readInt();
-			client.execute(() -> {
-				BlockEntity be = client.player.getWorld().getBlockEntity(pos);
-				if(be instanceof TerminalBlockEntity terminal)
-				{
-					terminal.setPalette(Arrays.asList(ArrayUtils.toObject(palette)));
-					terminal.setGraffiti(Arrays.asList(ArrayUtils.toObject(pixels)));
-					terminal.setGraffitiRevision(revision);
-				}
 			});
 		});
 	}
