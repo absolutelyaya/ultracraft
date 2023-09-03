@@ -10,6 +10,7 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -94,9 +95,13 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 		//Owner
 		if(terminal.isFocused(winged) && animatable.getOwner() != null)
 		{
-			ServerPlayerEntity ownerPlayer = MinecraftClient.getInstance().getServer().getPlayerManager().getPlayer(terminal.getOwner());
-			Text ownerText = Text.translatable("screen.ultracraft.terminal.owner", ownerPlayer != null ? ownerPlayer.getDisplayName() : terminal.getOwner());
-			drawText(buffers, matrices, ownerText.getString(), 102 + (int)((animatable.getCurWindowSize().x - 100) / 2f), -textRenderer.fontHeight, 0.005f);
+			MinecraftServer server = MinecraftClient.getInstance().getServer();
+			if(server != null)
+			{
+				ServerPlayerEntity ownerPlayer = server.getPlayerManager().getPlayer(terminal.getOwner());
+				Text ownerText = Text.translatable("screen.ultracraft.terminal.owner", ownerPlayer != null ? ownerPlayer.getDisplayName() : terminal.getOwner());
+				drawText(buffers, matrices, ownerText.getString(), 102 + (int)((animatable.getCurWindowSize().x - 100) / 2f), -textRenderer.fontHeight, 0.005f);
+			}
 		}
 		//ScreenSaver
 		if(animatable.getInactivity() > 30f)

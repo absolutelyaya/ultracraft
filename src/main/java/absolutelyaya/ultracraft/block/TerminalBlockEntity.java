@@ -4,17 +4,13 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
-import absolutelyaya.ultracraft.registry.GraffitiManager;
+import absolutelyaya.ultracraft.client.ClientGraffitiManager;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.texture.AbstractTexture;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
@@ -168,7 +164,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			applyGraffiti(nbt.getCompound("graffiti"));
 			if(world != null && world.isClient)
 			{
-				refreshGraffitiTexture();
+				ClientGraffitiManager.refreshGraffitiTexture(this);
 				Ultracraft.LOGGER.info("received Graffiti " + terminalID);
 			}
 		}
@@ -222,8 +218,16 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	{
 		NbtCompound graffiti = new NbtCompound();
 		graffiti.putIntArray("palette", ArrayUtils.toPrimitive(getPalette().toArray(new Integer[15])));
-		graffiti.putString("pixels", GraffitiManager.serializePixels(getGraffiti()));
+		graffiti.putString("pixels", serializePixels(getGraffiti()));
 		return graffiti;
+	}
+	
+	public static String serializePixels(List<Byte> pixelPairs)
+	{
+		StringBuilder out = new StringBuilder();
+		for (byte b : pixelPairs)
+			out.append(Integer.toHexString(b));
+		return out.toString();
 	}
 	
 	@Override
@@ -369,7 +373,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			ClientPlayNetworking.send(PacketRegistry.GRAFFITI_C2S_PACKET_ID, buf);
 			graffitiCamRotation = 0f;
 			
-			refreshGraffitiTexture();
+			ClientGraffitiManager.refreshGraffitiTexture(this);
 			markDirty();
 		}
 		this.tab = tab;
@@ -474,46 +478,6 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		graffiti = pixels;
 	}
 	
-	public void refreshGraffitiTexture()
-	{
-		NativeImage image = makeGraffitiImage();
-		AbstractTexture texture = new NativeImageBackedTexture(image);
-		if(graffitiTexture == null)
-			graffitiTexture = new Identifier(Ultracraft.MOD_ID, "graffiti/" + terminalID.toString());
-		MinecraftClient.getInstance().getTextureManager().registerTexture(graffitiTexture, texture);
-	}
-	
-	NativeImage makeGraffitiImage()
-	{
-		NativeImage image = new NativeImage(NativeImage.Format.RGBA, 32, 32, false);
-		image.fillRect(0, 0, 32, 32, 0x00000000);
-		for (int i = 0; i < 32 * 32; i++)
-		{
-			if(graffiti.size() <= i)
-				break;
-			int x = i % 32;
-			int y = i / 32;
-			int color = getPaletteColor(graffiti.get(i));
-			int a = (color >> 24) & 0xff;
-			int r = (color >> 16) & 0xff;
-			int g = (color >> 8) & 0xff;
-			int b = color & 0xff;
-			color = (a << 8) + b;
-			color = (color << 8) + g;
-			color = (color << 8) + r;
-			image.setColor(x, y, color); //ABGR
-		}
-		return image;
-	}
-	
-	public void exportGraffitiPng(String name)
-	{
-		try (NativeImage image = makeGraffitiImage())
-		{
-			GraffitiManager.savePng(name, image);
-		}
-	}
-	
 	public void setPalette(List<Integer> colors)
 	{
 		palette = colors;
@@ -575,7 +539,12 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		while(graffiti.size() <= i)
 			graffiti.add((byte)0);
 		graffiti.set(i, color);
-		refreshGraffitiTexture();
+		ClientGraffitiManager.refreshGraffitiTexture(this);
+	}
+	
+	public void setGraffitiTexture(Identifier identifier)
+	{
+		graffitiTexture = identifier;
 	}
 	
 	public enum Tab

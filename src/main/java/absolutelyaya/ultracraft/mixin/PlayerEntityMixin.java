@@ -77,7 +77,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	String wingPattern = "";
 	AbstractWeaponItem lastPrimaryWeapon;
 	BackTank backtank;
-	TerminalBlockEntity focusedTerminal;
 	
 	private final Vec3d[] curWingPose = new Vec3d[] {new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f)};
 	
@@ -559,29 +558,14 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	}
 	
 	@Override
-	public void setFocusedTerminal(TerminalBlockEntity focusedTerminal)
+	public void setFocusedTerminal(TerminalBlockEntity terminal)
 	{
-		MinecraftClient client = MinecraftClient.getInstance();
-		if(focusedTerminal != null)
-		{
-			if(this.focusedTerminal != focusedTerminal)
-				sendMessage(Text.translatable("screen.ultracraft.terminal.unfocus"), true);
-			if(getWorld().isClient)
-				client.setScreen(new TerminalScreen(focusedTerminal));
-		}
-		else if(getWorld().isClient)
-		{
-			this.focusedTerminal.unFocus(this);
-			client.gameRenderer.setRenderHand(true);
-			if(client.currentScreen instanceof TerminalScreen)
-				client.setScreen(null);
-		}
-		this.focusedTerminal = focusedTerminal;
+	
 	}
 	
 	@Override
 	public TerminalBlockEntity getFocusedTerminal()
 	{
-		return focusedTerminal;
+		return null;
 	}
 }

@@ -2,7 +2,9 @@ package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.client.gui.screen.TerminalScreen;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import absolutelyaya.ultracraft.compat.PlayerAnimator;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
@@ -28,6 +30,7 @@ import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
+import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -98,6 +101,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	int slamTicks, slamCooldown, slamJumpTimer = -1, slideTicks, wallJumps = 3, coyote, disableJumpTicks, jumpTicks, slidePreservationTicks;
 	float slideVelocity = 0.33f;
 	final float baseJumpVel = 0.42f;
+	TerminalBlockEntity focusedTerminal;
 	
 	void tryDash()
 	{
@@ -601,5 +605,32 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	public boolean hasJustJumped()
 	{
 		return jumpTicks > 0;
+	}
+	
+	@Override
+	public TerminalBlockEntity getFocusedTerminal()
+	{
+		return focusedTerminal;
+	}
+	
+	@Override
+	public void setFocusedTerminal(TerminalBlockEntity terminal)
+	{
+		MinecraftClient client = MinecraftClient.getInstance();
+		if(terminal != null)
+		{
+			if(this.focusedTerminal != terminal)
+				sendMessage(Text.translatable("screen.ultracraft.terminal.unfocus"), true);
+			if(getWorld().isClient)
+				client.setScreen(new TerminalScreen(terminal));
+		}
+		else
+		{
+			this.focusedTerminal.unFocus(this);
+			client.gameRenderer.setRenderHand(true);
+			if(client.currentScreen instanceof TerminalScreen)
+				client.setScreen(null);
+		}
+		this.focusedTerminal = terminal;
 	}
 }

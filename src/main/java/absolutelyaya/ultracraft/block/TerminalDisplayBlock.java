@@ -105,13 +105,13 @@ public class TerminalDisplayBlock extends BlockWithEntity
 			BlockEntity entity = world.getBlockEntity(pos);
 			if(entity instanceof TerminalBlockEntity terminal)
 			{
-				if(winged.getFocusedTerminal() == null || !winged.getFocusedTerminal().equals(terminal))
+				if(!terminal.focusedPlayers.contains(winged))
+					terminal.focusedPlayers.add(winged);
+				if(world.isClient)
 				{
 					winged.setFocusedTerminal(terminal);
-					terminal.focusedPlayers.add(winged);
-				}
-				if(world.isClient)
 					MinecraftClient.getInstance().gameRenderer.setRenderHand(false);
+				}
 			}
 		}
 		return super.onUse(state, world, pos, player, hand, hit);

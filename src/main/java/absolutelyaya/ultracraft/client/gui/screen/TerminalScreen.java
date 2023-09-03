@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.gui.widget.TerminalPaletteWidget;
 import absolutelyaya.ultracraft.client.gui.widget.SimpleColorSelectionWidget;
+import absolutelyaya.ultracraft.client.ClientGraffitiManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -60,7 +61,7 @@ public class TerminalScreen extends Screen
 		exportName.setPlaceholder(Text.translatable("screen.ultracraft.terminal.graffiti.name_placeholder"));
 		exportName.setChangedListener(s -> exportButton.setMessage(Text.translatable("screen.ultracraft.terminal.graffiti.export", s)));
 		exportButton = addDrawableChild(ButtonWidget.builder(Text.translatable("screen.ultracraft.terminal.graffiti.export", exportName.getText()), b -> {
-			terminal.exportGraffitiPng(exportName.getText());
+			ClientGraffitiManager.exportGraffitiPng(terminal, exportName.getText());
 		}).dimensions(63, height / 2 + 67 + 22, 130, 20).build());
 		if(terminal.getTab().equals(TerminalBlockEntity.Tab.MAIN_MENU))
 		{
@@ -151,7 +152,7 @@ public class TerminalScreen extends Screen
 				context.drawBorder(x - 1, y - 1, 130, 130, 0xffffffff);
 			}
 			else
-				terminal.refreshGraffitiTexture();
+				ClientGraffitiManager.refreshGraffitiTexture(terminal);
 		}
 		paletteWidget.render(context, mouseX, mouseY, delta);
 	}

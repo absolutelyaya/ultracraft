@@ -1,17 +1,23 @@
-package absolutelyaya.ultracraft.registry;
+package absolutelyaya.ultracraft.client;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.texture.NativeImage;
+import net.minecraft.client.texture.NativeImageBackedTexture;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 
 import java.io.IOException;
@@ -23,7 +29,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-public class GraffitiManager
+@Environment(EnvType.CLIENT)
+public class ClientGraffitiManager
 {
 	static final String EXPORT_PATH = "Ultracraft/graffiti";
 	static final Path cacheDir;
@@ -56,7 +63,7 @@ public class GraffitiManager
 		for (int color : palette)
 			paletteProperty.add(color);
 		json.add("palette", paletteProperty);
-		json.addProperty("pixels", serializePixels(pixels));
+		//json.addProperty("pixels", serializePixels(pixels));
 		json.addProperty("revision", revision);
 		
 		Optional<ModContainer> optionalContainer = FabricLoader.getInstance().getModContainer(Ultracraft.MOD_ID);
@@ -94,14 +101,6 @@ public class GraffitiManager
 		}
 	}
 	
-	public static String serializePixels(List<Byte> pixelPairs)
-	{
-		StringBuilder out = new StringBuilder();
-		for (byte b : pixelPairs)
-			out.append(Integer.toHexString(b));
-		return out.toString();
-	}
-	
 	public static Graffiti deserialize(JsonObject object)
 	{
 		JsonArray palette = JsonHelper.getArray(object, "palette");
@@ -115,6 +114,46 @@ public class GraffitiManager
 			pixels.add(Byte.valueOf(pixelString.substring(i, i + 1), 16));
 		int revision = object.get("revision").getAsInt();
 		return new Graffiti(paletteOut, pixels, revision);
+	}
+	
+	public static void refreshGraffitiTexture(TerminalBlockEntity terminal)
+	{
+		NativeImage image = makeGraffitiImage(terminal);
+		AbstractTexture texture = new NativeImageBackedTexture(image);
+		if(terminal.getGraffitiTexture() == null)
+			terminal.setGraffitiTexture(new Identifier(Ultracraft.MOD_ID, "graffiti/" + terminal.getTerminalID().toString()));
+		MinecraftClient.getInstance().getTextureManager().registerTexture(terminal.getGraffitiTexture(), texture);
+	}
+	
+	public static void exportGraffitiPng(TerminalBlockEntity terminal, String name)
+	{
+		try(NativeImage image = makeGraffitiImage(terminal))
+		{
+			savePng(name, image);
+		}
+	}
+	
+	static NativeImage makeGraffitiImage(TerminalBlockEntity terminal)
+	{
+		NativeImage image = new NativeImage(NativeImage.Format.RGBA, 32, 32, false);
+		image.fillRect(0, 0, 32, 32, 0x00000000);
+		for (int i = 0; i < 32 * 32; i++)
+		{
+			if(terminal.getGraffiti().size() <= i)
+				break;
+			int x = i % 32;
+			int y = i / 32;
+			int color = terminal.getPaletteColor(terminal.getGraffiti().get(i));
+			int a = (color >> 24) & 0xff;
+			int r = (color >> 16) & 0xff;
+			int g = (color >> 8) & 0xff;
+			int b = color & 0xff;
+			color = (a << 8) + b;
+			color = (color << 8) + g;
+			color = (color << 8) + r;
+			image.setColor(x, y, color); //ABGR
+		}
+		return image;
 	}
 	
 	public record Graffiti(List<Integer> palette, List<Byte> pixels, int revision) {}
