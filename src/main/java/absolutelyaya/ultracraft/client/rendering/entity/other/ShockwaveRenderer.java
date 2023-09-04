@@ -32,6 +32,7 @@ public class ShockwaveRenderer extends EntityRenderer<ShockwaveEntity>
 		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayers.getShockWave(getTexture(entity)));
 		float radius = entity.getRadius();
 		float innerRadius = radius - radius * 0.8f;
+		matrices.translate(0f, 0.5f, 0f);
 		Matrix4f matrix = matrices.peek().getPositionMatrix();
 		//cardinal faces
 		//top

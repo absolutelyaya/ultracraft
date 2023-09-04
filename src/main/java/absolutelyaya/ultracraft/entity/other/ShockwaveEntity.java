@@ -90,7 +90,8 @@ public class ShockwaveEntity extends Entity
 	
 	boolean shouldDamage(Entity entity)
 	{
-		return entity.isAlive() && distanceTo(entity) > getRadius() - 1f && !entity.getClass().equals(ignored) && !hits.contains(entity);
+		float dist = distanceTo(entity);
+		return entity.isAlive() && dist < getRadius() + 1f && dist > getRadius() - 3f && !entity.getClass().equals(ignored) && !hits.contains(entity);
 	}
 	
 	@Override
