@@ -4,7 +4,9 @@ import absolutelyaya.ultracraft.accessor.IAnimatedEnemy;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.goal.TimedAttackGoal;
+import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.projectile.HideousMortarEntity;
+import absolutelyaya.ultracraft.registry.EntityRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -30,12 +32,22 @@ import software.bernie.geckolib.core.object.PlayState;
 public class HideousMassEntity extends AbstractUltraHostileEntity implements GeoEntity, IAnimatedEnemy
 {
 	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Integer> MORTAR_COUNTER = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Integer> SLAM_COUNTER = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Boolean> ENRAGED = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Boolean> LAYING = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	static final RawAnimation POSE_ANIM = RawAnimation.begin().thenPlay("pose");
+	static final RawAnimation LAY_POSE_ANIM = RawAnimation.begin().thenPlay("lay_pose");
 	static final RawAnimation MORTAR_ANIM = RawAnimation.begin().thenPlay("mortar");
+	static final RawAnimation SLAM_STANDING_ANIM = RawAnimation.begin().thenPlay("stand_slam_start").thenPlay("slam");
+	static final RawAnimation SLAM_LAYING_ANIM = RawAnimation.begin().thenPlay("lay_slam_start").thenPlay("slam");
+	static final RawAnimation STAND_UP_ANIM = RawAnimation.begin().thenPlay("stand_up");
 	final AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
 	private static final byte ANIMATION_IDLE = 0;
 	private static final byte ANIMATION_MORTAR = 1;
+	private static final byte ANIMATION_SLAM_STANDING = 2;
+	private static final byte ANIMATION_SLAM_LAYING = 3;
+	private static final byte ANIMATION_STAND_UP = 4;
 	
 	public HideousMassEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -58,12 +70,18 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		super.initDataTracker();
 		dataTracker.startTracking(ATTACK_COOLDOWN, 10);
 		dataTracker.startTracking(ENRAGED, false);
+		dataTracker.startTracking(LAYING, false);
+		dataTracker.startTracking(MORTAR_COUNTER, 0);
+		dataTracker.startTracking(SLAM_COUNTER, 0);
 	}
 	
 	@Override
 	protected void initGoals()
 	{
 		goalSelector.add(0, new MortarAttackGoal(this));
+		goalSelector.add(1, new StandupGoal(this));
+		goalSelector.add(4, new SlamAttackGoal(this, true));
+		goalSelector.add(4, new SlamAttackGoal(this, false));
 		
 		targetSelector.add(0, new ActiveTargetGoal<>(this, PlayerEntity.class, true));
 	}
@@ -71,15 +89,18 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
 	{
-		controllerRegistrar.add(new AnimationController<>(this, this::predicate));
+		controllerRegistrar.add(new AnimationController<>(this, "controller", this::predicate));
 	}
 	
 	private PlayState predicate(AnimationState<GeoAnimatable> event)
 	{
 		switch(getAnimation())
 		{
-			case ANIMATION_IDLE -> event.setAnimation(POSE_ANIM);
+			case ANIMATION_IDLE -> event.setAnimation(dataTracker.get(LAYING) ? LAY_POSE_ANIM : POSE_ANIM);
 			case ANIMATION_MORTAR -> event.setAnimation(MORTAR_ANIM);
+			case ANIMATION_SLAM_STANDING -> event.setAnimation(SLAM_STANDING_ANIM);
+			case ANIMATION_SLAM_LAYING -> event.setAnimation(SLAM_LAYING_ANIM);
+			case ANIMATION_STAND_UP -> event.setAnimation(STAND_UP_ANIM);
 		}
 		return PlayState.CONTINUE;
 	}
@@ -102,6 +123,16 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	{
 		HideousMortarEntity.spawn(getWorld(), new Vec3d(getX(), getBoundingBox().getMax(Direction.Axis.Y), getZ()).add(offset.rotateY(getYaw())),
 				this, getTarget());
+	}
+	
+	private void shockwave()
+	{
+		ShockwaveEntity shockwave = new ShockwaveEntity(EntityRegistry.SHOCKWAVE, getWorld());
+		shockwave.setDamage(3f);
+		shockwave.setGrowRate(0.4f);
+		shockwave.setAffectOnly(PlayerEntity.class);
+		shockwave.setPosition(getPos().add(0f, 0.5f, 0f));
+		getWorld().spawnEntity(shockwave);
 	}
 	
 	@Override
@@ -144,7 +175,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		@Override
 		public boolean canStart()
 		{
-			return super.canStart();
+			return super.canStart() && !mob.dataTracker.get(LAYING) && mob.random.nextFloat() > 0.5;
 		}
 		
 		@Override
@@ -155,6 +186,71 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 				mob.fireMortar(new Vec3d(2f, 0f, 0f));
 			else if(timer == 21)
 				mob.fireMortar(new Vec3d(-2f, 0f, 0f));
+		}
+		
+		@Override
+		public void stop()
+		{
+			super.stop();
+			mob.dataTracker.set(MORTAR_COUNTER, mob.dataTracker.get(MORTAR_COUNTER) + 1);
+			mob.dataTracker.set(SLAM_COUNTER, 0);
+		}
+	}
+	
+	static class SlamAttackGoal extends TimedAttackGoal<HideousMassEntity>
+	{
+		boolean standing;
+		
+		public SlamAttackGoal(HideousMassEntity mass, boolean standing)
+		{
+			super(mass, ANIMATION_IDLE, standing ? ANIMATION_SLAM_STANDING : ANIMATION_SLAM_LAYING, 35);
+			this.standing = standing;
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			return super.canStart() && ((standing && !mob.dataTracker.get(LAYING) && mob.dataTracker.get(MORTAR_COUNTER) > 0 && mob.random.nextFloat() > 0.5f) ||
+												(!standing && mob.dataTracker.get(LAYING)));
+		}
+		
+		@Override
+		protected void process()
+		{
+			super.process();
+			if(timer == 22)
+				mob.shockwave();
+		}
+		
+		@Override
+		public void stop()
+		{
+			super.stop();
+			mob.dataTracker.set(LAYING, true);
+			mob.dataTracker.set(SLAM_COUNTER, mob.dataTracker.get(SLAM_COUNTER) + 1);
+			mob.dataTracker.set(MORTAR_COUNTER, 0);
+		}
+	}
+	
+	static class StandupGoal extends TimedAttackGoal<HideousMassEntity>
+	{
+		
+		public StandupGoal(HideousMassEntity mass)
+		{
+			super(mass, ANIMATION_IDLE, ANIMATION_STAND_UP, 15);
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			return super.canStart() && mob.dataTracker.get(LAYING) && mob.dataTracker.get(SLAM_COUNTER) > 2;
+		}
+		
+		@Override
+		public void stop()
+		{
+			super.stop();
+			mob.dataTracker.set(LAYING, false);
 		}
 	}
 }

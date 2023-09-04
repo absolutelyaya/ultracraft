@@ -109,9 +109,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
 	{
-		AnimationController<CerberusEntity> controller = new AnimationController<>(this, "controller",
-				2, this::predicate);
-		controllerRegistrar.add(controller);
+		controllerRegistrar.add( new AnimationController<>(this, "controller", 2, this::predicate));
 	}
 	
 	@Override

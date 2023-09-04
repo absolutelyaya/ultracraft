@@ -6,9 +6,9 @@
 				"identifier": "geometry.unknown",
 				"texture_width": 512,
 				"texture_height": 512,
-				"visible_bounds_width": 16,
-				"visible_bounds_height": 10,
-				"visible_bounds_offset": [0, 2, 0]
+				"visible_bounds_width": 14,
+				"visible_bounds_height": 11,
+				"visible_bounds_offset": [0, 2.5, 0]
 			},
 			"bones": [
 				{
@@ -268,7 +268,8 @@
 					"parent": "LeftArm",
 					"pivot": [41, 66, -22],
 					"cubes": [
-						{"origin": [41, 51, -31], "size": [36, 15, 15], "uv": [177, 181], "mirror": true}
+						{"origin": [41, 51, -31], "size": [36, 15, 15], "uv": [177, 181], "mirror": true},
+						{"origin": [64, 51, -31], "size": [1, 15, 15], "inflate": -0.001, "uv": [308, 192], "mirror": true}
 					]
 				},
 				{
@@ -292,7 +293,8 @@
 					"parent": "RightArm",
 					"pivot": [-41, 66, -22],
 					"cubes": [
-						{"origin": [-77, 51, -31], "size": [36, 15, 15], "uv": [177, 181]}
+						{"origin": [-77, 51, -31], "size": [36, 15, 15], "uv": [177, 181]},
+						{"origin": [-65, 51, -31], "size": [1, 15, 15], "inflate": -0.001, "uv": [308, 192]}
 					]
 				},
 				{
