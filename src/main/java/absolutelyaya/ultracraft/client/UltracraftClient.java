@@ -2,8 +2,10 @@ package absolutelyaya.ultracraft.client;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.api.TerminalCodeRegistry;
 import absolutelyaya.ultracraft.client.gui.screen.EpilepsyPopupScreen;
 import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
+import absolutelyaya.ultracraft.client.gui.terminal.FlorpTab;
 import absolutelyaya.ultracraft.client.rendering.TrailRenderer;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.client.rendering.block.entity.CerberusBlockRenderer;
@@ -70,6 +72,7 @@ import net.minecraft.client.sound.SoundManager;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Uuids;
@@ -312,6 +315,12 @@ public class UltracraftClient implements ClientModInitializer
 				new SimpleFluidRenderHandler(new Identifier(Ultracraft.MOD_ID, "block/blood_still"), new Identifier(Ultracraft.MOD_ID, "block/blood_flow")));
 		BlockRenderLayerMap.INSTANCE.putFluids(RenderLayer.getSolid(), FluidRegistry.STILL_BLOOD, FluidRegistry.Flowing_BLOOD);
 		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.FLESH, RenderLayers.getFlesh());
+		
+		TerminalCodeRegistry.registerCode("florp", t -> t.setTab(new FlorpTab()));
+		TerminalCodeRegistry.registerCode("somethingwicked", new TerminalCodeRegistry.Result(t -> {
+			t.setColorOverride(0x460006);
+			MinecraftClient.getInstance().player.sendMessage(Text.of("Something Wicked this way comes"), true);
+		}, SoundEvents.ENTITY_PLAYER_BREATH, 1.15f));
 		
 		setWingColor(config.get().wingColors[0], 0);
 		setWingColor(config.get().wingColors[1], 1);

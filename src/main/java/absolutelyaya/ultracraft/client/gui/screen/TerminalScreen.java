@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.client.gui.screen;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.api.TerminalCodeRegistry;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.gui.widget.TerminalPaletteWidget;
 import absolutelyaya.ultracraft.client.gui.widget.SimpleColorSelectionWidget;
@@ -29,6 +30,8 @@ public class TerminalScreen extends Screen
 	TextFieldWidget exportName;
 	ButtonWidget exportButton;
 	int lastSelected;
+	String secretInput;
+	float secretTimer;
 	
 	public TerminalScreen(TerminalBlockEntity terminal)
 	{
@@ -63,7 +66,7 @@ public class TerminalScreen extends Screen
 		exportButton = addDrawableChild(ButtonWidget.builder(Text.translatable("screen.ultracraft.terminal.graffiti.export", exportName.getText()), b -> {
 			ClientGraffitiManager.exportGraffitiPng(terminal, exportName.getText());
 		}).dimensions(63, height / 2 + 67 + 22, 130, 20).build());
-		if(terminal.getTab().equals(TerminalBlockEntity.Tab.MAIN_MENU))
+		if(!terminal.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI))
 		{
 			editPalleteCheckbox.active = false;
 			editPalleteCheckbox.visible = false;
@@ -78,9 +81,9 @@ public class TerminalScreen extends Screen
 	public void render(DrawContext context, int mouseX, int mouseY, float delta)
 	{
 		super.render(context, mouseX, mouseY, delta);
-		switch (terminal.getTab())
+		switch (terminal.getTab().id)
 		{
-			case CUSTOMIZATION -> {
+			case TerminalBlockEntity.Tab.CUSTOMIZATION_ID -> {
 				if(!lastTab.equals(TerminalBlockEntity.Tab.CUSTOMIZATION))
 				{
 					textColorPicker.setActive(true);
@@ -94,7 +97,7 @@ public class TerminalScreen extends Screen
 				}
 				textColorPicker.render(context, mouseX, mouseY, delta);
 			}
-			case GRAFFITI -> renderGraffitiMenu(context, mouseX, mouseY, delta);
+			case TerminalBlockEntity.Tab.GRAFFITI_ID -> renderGraffitiMenu(context, mouseX, mouseY, delta);
 			default -> {
 				if(!lastTab.equals(terminal.getTab()))
 				{
@@ -111,6 +114,13 @@ public class TerminalScreen extends Screen
 			}
 		}
 		lastTab = terminal.getTab();
+		if(secretTimer > 0)
+			secretTimer -= delta / 20f;
+		else if(secretInput != null)
+		{
+			TerminalCodeRegistry.trigger(secretInput, terminal);
+			secretInput = null;
+		}
 	}
 	
 	void renderGraffitiMenu(DrawContext context, int mouseX, int mouseY, float delta)
@@ -281,6 +291,13 @@ public class TerminalScreen extends Screen
 				terminal.setCaret(terminal.getCaret().add(1, 0));
 			}
 			return true;
+		}
+		if(terminal.isOwner(client.player.getUuid()) && terminal.getTab().equals(TerminalBlockEntity.Tab.MAIN_MENU))
+		{
+			if(secretInput == null)
+				secretInput = "";
+			secretInput += chr;
+			secretTimer = 2f;
 		}
 		if(textColorPicker.charTyped(chr, modifiers))
 			return true;

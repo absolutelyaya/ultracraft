@@ -11,6 +11,10 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
@@ -22,6 +26,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.ArrayUtils;
+import org.jetbrains.annotations.ApiStatus;
 import org.joml.*;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -108,6 +113,11 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			if(segments.length > 1)
 				value = Integer.parseInt(segments[1]);
 			
+			if(!Tab.isDefaultTab(tab.id))
+			{
+				if(tab.onButtonClicked(action, value))
+					return;
+			}
 			switch(action)
 			{
 				case "customize" -> setTab(Tab.CUSTOMIZATION);
@@ -163,10 +173,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		{
 			applyGraffiti(nbt.getCompound("graffiti"));
 			if(world != null && world.isClient)
-			{
 				ClientGraffitiManager.refreshGraffitiTexture(this);
-				Ultracraft.LOGGER.info("received Graffiti " + terminalID);
-			}
 		}
 	}
 	
@@ -297,6 +304,11 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		textColor = i;
 	}
 	
+	public void setColorOverride(int colorOverride)
+	{
+		this.colorOverride = colorOverride;
+	}
+	
 	public float getInactivity()
 	{
 		return inactivity;
@@ -377,18 +389,22 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			markDirty();
 		}
 		this.tab = tab;
-		switch(tab)
+		switch(tab.id)
 		{
-			case MAIN_MENU, CUSTOMIZATION ->
+			case Tab.MAIN_MENU_ID, Tab.CUSTOMIZATION_ID ->
 			{
 				colorOverride = -1;
 				sizeOverride = null;
 			}
-			case COMING_SOON -> colorOverride = 0xffffff00;
-			case WEAPONS, BESTIARY -> sizeOverride = new Vector2f(200, 100);
-			case EDIT_SCREENSAVER -> {
+			case Tab.COMING_SOON_ID -> colorOverride = 0xffffff00;
+			case Tab.WEAPONS_ID, Tab.BESTIARY_ID -> sizeOverride = new Vector2f(200, 100);
+			case Tab.EDIT_SCREENSAVER_ID -> {
 				caret = new Vector2i();
 				sizeOverride = new Vector2f(200, 106);
+			}
+			default -> {
+				sizeOverride = tab.getSizeOverride();
+				colorOverride = tab.getColorOverride();
 			}
 		}
 	}
@@ -547,16 +563,75 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		graffitiTexture = identifier;
 	}
 	
-	public enum Tab
+	public static class Tab
 	{
-		MAIN_MENU,
-		COMING_SOON,
-		WEAPONS,
-		BESTIARY,
-		CUSTOMIZATION,
-		BASE_SELECT,
-		EDIT_SCREENSAVER,
-		GRAFFITI
+		public static final TextRenderer textRenderer;
+		
+		public static final String MAIN_MENU_ID = "main-menu";
+		public static final String COMING_SOON_ID = "placeholder";
+		public static final String WEAPONS_ID = "weapons";
+		public static final String BESTIARY_ID = "enemies";
+		public static final String CUSTOMIZATION_ID = "customize";
+		public static final String BASE_SELECT_ID = "base-select";
+		public static final String EDIT_SCREENSAVER_ID = "edit-screensaver";
+		public static final String GRAFFITI_ID = "graffiti";
+		public static final Tab MAIN_MENU = new Tab(MAIN_MENU_ID);
+		public static final Tab COMING_SOON = new Tab(COMING_SOON_ID);
+		public static final Tab WEAPONS = new Tab(WEAPONS_ID);
+		public static final Tab BESTIARY = new Tab(BESTIARY_ID);
+		public static final Tab CUSTOMIZATION = new Tab(CUSTOMIZATION_ID);
+		public static final Tab BASE_SELECT = new Tab(BASE_SELECT_ID);
+		public static final Tab EDIT_SCREENSAVER = new Tab(EDIT_SCREENSAVER_ID);
+		public static final Tab GRAFFITI = new Tab(GRAFFITI_ID);
+		static final List<String> defaultTabs = new ArrayList<>() {
+			{
+				add(MAIN_MENU_ID);
+				add(COMING_SOON_ID);
+				add(WEAPONS_ID);
+				add(BESTIARY_ID);
+				add(CUSTOMIZATION_ID);
+				add(BASE_SELECT_ID);
+				add(EDIT_SCREENSAVER_ID);
+				add(GRAFFITI_ID);
+			}
+		};
+		
+		public final String id;
+		
+		public Tab(String id)
+		{
+			this.id = id;
+		}
+		
+		@ApiStatus.Internal
+		public static boolean isDefaultTab(String id)
+		{
+			return defaultTabs.contains(id);
+		}
+		
+		public void renderCustomTab(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
+		{
+		
+		}
+		
+		public Vector2f getSizeOverride()
+		{
+			return null;
+		}
+		
+		public int getColorOverride()
+		{
+			return -1;
+		}
+		
+		static {
+			textRenderer = MinecraftClient.getInstance().textRenderer;
+		}
+		
+		public boolean onButtonClicked(String action, int value)
+		{
+			return false;
+		}
 	}
 	
 	public enum Base
