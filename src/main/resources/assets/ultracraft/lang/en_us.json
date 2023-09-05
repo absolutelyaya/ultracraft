@@ -70,6 +70,7 @@
   "item.ultracraft.terminal.flavor.purple": "Grimace",
   "item.ultracraft.terminal.flavor.magenta": "Flower Blossoms",
   "item.ultracraft.terminal.flavor.pink": "Strawberries",
+  "item.ultracraft.harpoon": "Harpoon",
 
   "rei-group.ultracraft.terminals": "Terminal Variants",
 
@@ -116,6 +117,7 @@
   "entity.ultracraft.soul_orb": "Soul Orb",
   "entity.ultracraft.blood_orb": "Blood Orb",
   "entity.ultracraft.flame": "Flame",
+  "entity.ultracraft.harpoon": "Harpoon",
 
   "effect.ultracraft.chilled": "Chilled",
 

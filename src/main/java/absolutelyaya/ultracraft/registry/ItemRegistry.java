@@ -20,6 +20,7 @@ import net.minecraft.util.Identifier;
 
 public class ItemRegistry
 {
+	//Misc
 	public static final SkullItem BLUE_SKULL = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "blue_skull"), new SkullItem(new FabricItemSettings()));
 	public static final SkullItem RED_SKULL = Registry.register(Registries.ITEM,
@@ -57,7 +58,11 @@ public class ItemRegistry
 							  .statusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 500, 0), 1f).build())));
 	public static final DroneMaskItem DRONE_MASK = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "drone_mask"), new DroneMaskItem(new FabricItemSettings()));
+	public static final Item HARPOON = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "harpoon"), new SwordItem(ToolMaterials.IRON, 6, -2.75f,
+					new FabricItemSettings().maxCount(4)));
 	
+	//Weapons
 	public static final PierceRevolverItem PIERCE_REVOLVER = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "pierce_revolver"), new PierceRevolverItem(new FabricItemSettings().maxCount(1)));
 	public static final MarksmanRevolverItem MARKSMAN_REVOLVER = Registry.register(Registries.ITEM,
@@ -74,6 +79,7 @@ public class ItemRegistry
 	public static final FlamethrowerItem FLAMETHROWER = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "flamethrower"), new FlamethrowerItem(new FabricItemSettings().maxCount(1), 0, 0));
 	
+	//Spawn Eggs
 	public static final SpawnEggItem FILTH_SPAWN_EGG = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "filth_spawn_egg"),
 			new SpawnEggItem(EntityRegistry.FILTH, 0x717038, 0xacaa7a, new FabricItemSettings()));
@@ -102,6 +108,7 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "streetcleaner_spawn_egg"),
 			new SpawnEggItem(EntityRegistry.STREET_CLEANER, 0xb1723a, 0x211c1b, new FabricItemSettings()));
 	
+	//Special
 	public static final TerminalItem TERMINAL = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "terminal"),
 			new TerminalItem(BlockRegistry.TERMINAL, new FabricItemSettings()));

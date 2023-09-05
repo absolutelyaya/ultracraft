@@ -15,55 +15,62 @@ import java.awt.*;
 
 public class HitscanRenderer
 {
-	public void render(ClientHitscanHandler.Hitscan hitscan, MatrixStack matrixStack, Camera camera)
+	public void render(ClientHitscanHandler.Hitscan hitscan, MatrixStack matrices, Camera camera)
 	{
-		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
-		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		Color col = new Color(hitscan.type.color);
-		matrixStack.push();
 		Vec3d camPos = camera.getPos();
 		Vec3d from = hitscan.from;
 		Vec3d to = hitscan.to;
+		float girth = Math.max(hitscan.getGirth(), 0f);
+		
+		renderRay(matrices, from, to, camPos, girth, col, RenderLayer.getLightning(), 3);
+	}
+	
+	public static void renderRay(MatrixStack matrices, Vec3d from, Vec3d to, Vec3d camPos, float girth, Color col, RenderLayer layer, int steps)
+	{
+		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		Vec3d dir = to.subtract(from).normalize();
 		float dist = (float)from.distanceTo(to);
 		float rot = (float)(-Math.atan2(dir.z, dir.x) - Math.toRadians(90));
-		matrixStack.translate(from.x, from.y, from.z);
-		matrixStack.translate(-camPos.x, -camPos.y, -camPos.z);
+		matrices.push();
+		matrices.translate(from.x, from.y, from.z);
+		matrices.translate(-camPos.x, -camPos.y, -camPos.z);
 		
 		//matrixStack.multiply(Quaternion.fromEulerXyz((float)(Math.atan2(-dir.y, Math.abs(dir.z))), rot, 0f));
 		double dx = dir.x;
 		double dy = dir.y;
 		double dz = dir.z;
 		float f = MathHelper.sqrt((float)(dx * dx + dz * dz));
-		matrixStack.multiply(new Quaternionf(new AxisAngle4f(rot, 0f, 1f, 0f)));
-		matrixStack.multiply(new Quaternionf(new AxisAngle4f((float)(-Math.atan2(f, dy) - Math.toRadians(90)), 1f, 0f, 0f)));
+		matrices.multiply(new Quaternionf(new AxisAngle4f(rot, 0f, 1f, 0f)));
+		matrices.multiply(new Quaternionf(new AxisAngle4f((float)(-Math.atan2(f, dy) - Math.toRadians(90)), 1f, 0f, 0f)));
 		VertexConsumerProvider.Immediate immediate = MinecraftClient.getInstance().getBufferBuilders().getEffectVertexConsumers();
-		VertexConsumer consumer = immediate.getBuffer(RenderLayer.getLightning());
+		VertexConsumer consumer = immediate.getBuffer(layer);
 		
-		Matrix4f matrix = matrixStack.peek().getPositionMatrix();
-		for (int i = 1; i <= 3; i++)
+		Matrix4f matrix = matrices.peek().getPositionMatrix();
+		for (int i = 1; i <= steps; i++)
 		{
-			float girth = Math.max(hitscan.getGirth() / i, 0f);
-			consumer.vertex(matrix, -girth / 2, -girth / 2, dist).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
-			consumer.vertex(matrix, -girth / 2, girth / 2, dist).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
-			consumer.vertex(matrix, -girth / 2, girth / 2, -0.0f).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
-			consumer.vertex(matrix, -girth / 2, -girth / 2, -0.0f).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
+			float g = girth / i;
+			consumer.vertex(matrix, -g / 2, -g / 2, dist).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
+			consumer.vertex(matrix, -g / 2, g / 2, dist).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
+			consumer.vertex(matrix, -g / 2, g / 2, -0.0f).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
+			consumer.vertex(matrix, -g / 2, -g / 2, -0.0f).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
 			
-			consumer.vertex(matrix, girth / 2, -girth / 2, -0.0f).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
-			consumer.vertex(matrix, girth / 2, -girth / 2, dist).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
-			consumer.vertex(matrix, -girth / 2, -girth / 2, dist).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
-			consumer.vertex(matrix, -girth / 2, -girth / 2, -0.0f).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
+			consumer.vertex(matrix, g / 2, -g / 2, -0.0f).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
+			consumer.vertex(matrix, g / 2, -g / 2, dist).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
+			consumer.vertex(matrix, -g / 2, -g / 2, dist).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
+			consumer.vertex(matrix, -g / 2, -g / 2, -0.0f).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
 			
-			consumer.vertex(matrix, girth / 2, -girth / 2, -0.0f).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
-			consumer.vertex(matrix, girth / 2, girth / 2, -0.0f).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
-			consumer.vertex(matrix, girth / 2, girth / 2, dist).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
-			consumer.vertex(matrix, girth / 2, -girth / 2, dist).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
+			consumer.vertex(matrix, g / 2, -g / 2, -0.0f).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
+			consumer.vertex(matrix, g / 2, g / 2, -0.0f).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
+			consumer.vertex(matrix, g / 2, g / 2, dist).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
+			consumer.vertex(matrix, g / 2, -g / 2, dist).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
 			
-			consumer.vertex(matrix, -girth / 2, girth / 2, -0.0f).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
-			consumer.vertex(matrix, -girth / 2, girth / 2, dist).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
-			consumer.vertex(matrix, girth / 2, girth / 2, dist).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
-			consumer.vertex(matrix, girth / 2, girth / 2, -0.0f).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
+			consumer.vertex(matrix, -g / 2, g / 2, -0.0f).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
+			consumer.vertex(matrix, -g / 2, g / 2, dist).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
+			consumer.vertex(matrix, g / 2, g / 2, dist).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
+			consumer.vertex(matrix, g / 2, g / 2, -0.0f).color(col.getRed(), col.getGreen(), col.getBlue(), 255).next();
 		}
-		matrixStack.pop();
+		matrices.pop();
 	}
 }

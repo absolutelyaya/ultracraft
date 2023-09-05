@@ -87,6 +87,10 @@ public class EntityRegistry
 			new Identifier(Ultracraft.MOD_ID, "mortar"),
 			EntityType.Builder.create(HideousMortarEntity::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
 					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("mortar"));
+	public static final EntityType<HarpoonEntity> HARPOON = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "harpoon"),
+			EntityType.Builder.create(HarpoonEntity::new, SpawnGroup.MISC).setDimensions(0.35f, 0.35f)
+					.maxTrackingRange(5).trackingTickInterval(1).build("harpoon"));
 	
 	public static final EntityType<ShockwaveEntity> SHOCKWAVE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "shockwave"),

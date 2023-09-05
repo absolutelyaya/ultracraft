@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.goal.TimedAttackGoal;
 import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.other.VerticalShockwaveEntity;
+import absolutelyaya.ultracraft.entity.projectile.HarpoonEntity;
 import absolutelyaya.ultracraft.entity.projectile.HideousMortarEntity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import net.minecraft.entity.Entity;
@@ -20,6 +21,7 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -91,6 +93,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		goalSelector.add(0, new MortarAttackGoal(this));
 		goalSelector.add(1, new StandupGoal(this));
 		goalSelector.add(2, new ClapAttackGoal(this));
+		goalSelector.add(3, new HarpoonAttackGoal(this));
 		goalSelector.add(4, new SlamAttackGoal(this, true));
 		goalSelector.add(4, new SlamAttackGoal(this, false));
 		
@@ -113,6 +116,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 			case ANIMATION_SLAM_LAYING -> event.setAnimation(SLAM_LAYING_ANIM);
 			case ANIMATION_STAND_UP -> event.setAnimation(STAND_UP_ANIM);
 			case ANIMATION_CLAP -> event.setAnimation(CLAP_ANIM);
+			case ANIMATION_HARPOON -> event.setAnimation(HARPOON_ANIM);
 		}
 		return PlayState.CONTINUE;
 	}
@@ -178,6 +182,22 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		shockwave.setAffectOnly(PlayerEntity.class);
 		shockwave.setPosition(getPos().add(0f, 0.5f, 0f));
 		getWorld().spawnEntity(shockwave);
+	}
+	
+	private void shootHarpoon()
+	{
+		HarpoonEntity harpoon = HarpoonEntity.spawn(this,
+				getPos().add(new Vec3d(0f, 6f, -2f).rotateY(getYaw() * MathHelper.RADIANS_PER_DEGREE)), new Vec3d(0f, 0f, 0f));
+		Entity target = getTarget();
+		double targetY = target.getEyeY();
+		double x = target.getX() - getX();
+		double y = targetY - harpoon.getY();
+		double z = target.getZ() - getZ();
+		harpoon.setVelocity(x, y, z, 3f, 0.0f);
+		harpoon.setNoGravity(true);
+		harpoon.setYaw(-getYaw());
+		playSound(SoundEvents.ITEM_TRIDENT_THROW, 2.0f, 0.4f / (getRandom().nextFloat() * 0.4f + 0.8f));
+		getWorld().spawnEntity(harpoon);
 	}
 	
 	@Override
@@ -308,7 +328,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		@Override
 		public boolean canStart()
 		{
-			return super.canStart() && mob.dataTracker.get(LAYING) && mob.dataTracker.get(SLAM_COUNTER) > 0 && mob.random.nextFloat() < 0.9f;
+			return super.canStart() && mob.dataTracker.get(LAYING) && mob.dataTracker.get(SLAM_COUNTER) > 0 && mob.random.nextFloat() < 0.1f;
 		}
 		
 		@Override
@@ -317,6 +337,28 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 			super.process();
 			if(timer == 30)
 				mob.clap();
+		}
+	}
+	
+	static class HarpoonAttackGoal extends TimedAttackGoal<HideousMassEntity>
+	{
+		public HarpoonAttackGoal(HideousMassEntity mass)
+		{
+			super(mass, ANIMATION_IDLE, ANIMATION_HARPOON, 21);
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			return super.canStart() && mob.dataTracker.get(LAYING) && mob.dataTracker.get(SLAM_COUNTER) > 0 && mob.random.nextFloat() < 0.9f;
+		}
+		
+		@Override
+		protected void process()
+		{
+			super.process();
+			if(timer == 14)
+				mob.shootHarpoon();
 		}
 	}
 	
