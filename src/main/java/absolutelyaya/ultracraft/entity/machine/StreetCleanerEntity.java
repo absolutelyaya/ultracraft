@@ -278,7 +278,7 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 			{
 				double e = entity.getTarget().getX() - entity.getX();
 				double f = entity.getTarget().getZ() - entity.getZ();
-				float targetYaw = -((float) MathHelper.atan2(e, f)) * 57.295776f;
+				float targetYaw = -((float) MathHelper.atan2(e, f)) * MathHelper.DEGREES_PER_RADIAN;
 				float phi = Math.abs(targetYaw - entity.getYaw()) % 360;
 				float angleDelta = phi > 180 ? 360 - phi : phi;
 				if(entity.getDataTracker().get(ROTATION_DELAY_COOLDOWN) == 0 && angleDelta > 60f)

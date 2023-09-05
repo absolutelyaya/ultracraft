@@ -91,6 +91,9 @@ public class EntityRegistry
 	public static final EntityType<ShockwaveEntity> SHOCKWAVE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "shockwave"),
 			EntityType.Builder.create(ShockwaveEntity::new, SpawnGroup.MISC).maxTrackingRange(5).disableSaving().build("shockwave"));
+	public static final EntityType<VerticalShockwaveEntity> VERICAL_SHOCKWAVE = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "vertical_shockwave"),
+			EntityType.Builder.create(VerticalShockwaveEntity::new, SpawnGroup.MISC).maxTrackingRange(5).disableSaving().build("vertical_shockwave"));
 	public static final EntityType<InterruptableCharge> INTERRUPTABLE_CHARGE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "interruptable_charge"),
 			EntityType.Builder.create(InterruptableCharge::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)

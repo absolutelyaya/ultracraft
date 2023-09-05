@@ -5,9 +5,12 @@ import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.goal.TimedAttackGoal;
 import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
+import absolutelyaya.ultracraft.entity.other.VerticalShockwaveEntity;
 import absolutelyaya.ultracraft.entity.projectile.HideousMortarEntity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ai.control.LookControl;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -15,8 +18,10 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -42,17 +47,22 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	static final RawAnimation SLAM_STANDING_ANIM = RawAnimation.begin().thenPlay("stand_slam_start").thenPlay("slam");
 	static final RawAnimation SLAM_LAYING_ANIM = RawAnimation.begin().thenPlay("lay_slam_start").thenPlay("slam");
 	static final RawAnimation STAND_UP_ANIM = RawAnimation.begin().thenPlay("stand_up");
+	static final RawAnimation CLAP_ANIM = RawAnimation.begin().thenPlay("clap");
+	static final RawAnimation HARPOON_ANIM = RawAnimation.begin().thenPlay("harpoon");
 	final AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
 	private static final byte ANIMATION_IDLE = 0;
 	private static final byte ANIMATION_MORTAR = 1;
 	private static final byte ANIMATION_SLAM_STANDING = 2;
 	private static final byte ANIMATION_SLAM_LAYING = 3;
 	private static final byte ANIMATION_STAND_UP = 4;
+	private static final byte ANIMATION_CLAP = 5;
+	private static final byte ANIMATION_HARPOON = 6;
 	
 	public HideousMassEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
 		super(entityType, world);
 		((LivingEntityAccessor)this).setTakePunchKnockbackSupplier(() -> false); //disable knockback
+		lookControl = new HideousLookControl(this);
 	}
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
@@ -80,6 +90,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	{
 		goalSelector.add(0, new MortarAttackGoal(this));
 		goalSelector.add(1, new StandupGoal(this));
+		goalSelector.add(2, new ClapAttackGoal(this));
 		goalSelector.add(4, new SlamAttackGoal(this, true));
 		goalSelector.add(4, new SlamAttackGoal(this, false));
 		
@@ -101,6 +112,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 			case ANIMATION_SLAM_STANDING -> event.setAnimation(SLAM_STANDING_ANIM);
 			case ANIMATION_SLAM_LAYING -> event.setAnimation(SLAM_LAYING_ANIM);
 			case ANIMATION_STAND_UP -> event.setAnimation(STAND_UP_ANIM);
+			case ANIMATION_CLAP -> event.setAnimation(CLAP_ANIM);
 		}
 		return PlayState.CONTINUE;
 	}
@@ -119,6 +131,28 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 			dataTracker.set(ATTACK_COOLDOWN, dataTracker.get(ATTACK_COOLDOWN) - 1);
 	}
 	
+	@Override
+	public void tickMovement()
+	{
+		super.tickMovement();
+		setBodyYaw(headYaw);
+	}
+	
+	@Override
+	public boolean isPushable()
+	{
+		return false;
+	}
+	
+	@Override
+	protected void pushAway(Entity entity) {
+	
+	}
+	
+	@Override
+	public void takeKnockback(double strength, double x, double z) {
+	}
+	
 	public void fireMortar(Vec3d offset)
 	{
 		HideousMortarEntity.spawn(getWorld(), new Vec3d(getX(), getBoundingBox().getMax(Direction.Axis.Y), getZ()).add(offset.rotateY(getYaw())),
@@ -129,7 +163,18 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	{
 		ShockwaveEntity shockwave = new ShockwaveEntity(EntityRegistry.SHOCKWAVE, getWorld());
 		shockwave.setDamage(3f);
-		shockwave.setGrowRate(0.4f);
+		shockwave.setGrowRate(0.5f);
+		shockwave.setAffectOnly(PlayerEntity.class);
+		shockwave.setPosition(getPos().add(0f, 0.5f, 0f));
+		getWorld().spawnEntity(shockwave);
+	}
+	
+	private void clap()
+	{
+		VerticalShockwaveEntity shockwave = new VerticalShockwaveEntity(EntityRegistry.VERICAL_SHOCKWAVE, getWorld());
+		shockwave.setDamage(2f);
+		shockwave.setYaw(getYaw());
+		shockwave.setGrowRate(0.5f);
 		shockwave.setAffectOnly(PlayerEntity.class);
 		shockwave.setPosition(getPos().add(0f, 0.5f, 0f));
 		getWorld().spawnEntity(shockwave);
@@ -163,6 +208,27 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	public boolean isHeadFixed()
 	{
 		return true;
+	}
+	
+	
+	static class HideousLookControl extends LookControl
+	{
+		public HideousLookControl(MobEntity entity)
+		{
+			super(entity);
+		}
+		
+		@Override
+		public void tick()
+		{
+			if(entity.getTarget() != null && entity.getDataTracker().get(ANIMATION).equals(ANIMATION_IDLE))
+			{
+				Vec3d diff = entity.getTarget().getPos().subtract(entity.getPos());
+				float targetYaw = -((float)MathHelper.atan2(diff.x, diff.z)) * MathHelper.DEGREES_PER_RADIAN;
+				entity.headYaw = changeAngle(entity.headYaw, targetYaw, 3.5f);
+				entity.setYaw(entity.headYaw);
+			}
+		}
 	}
 	
 	static class MortarAttackGoal extends TimedAttackGoal<HideousMassEntity>
@@ -229,6 +295,28 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 			mob.dataTracker.set(LAYING, true);
 			mob.dataTracker.set(SLAM_COUNTER, mob.dataTracker.get(SLAM_COUNTER) + 1);
 			mob.dataTracker.set(MORTAR_COUNTER, 0);
+		}
+	}
+	
+	static class ClapAttackGoal extends TimedAttackGoal<HideousMassEntity>
+	{
+		public ClapAttackGoal(HideousMassEntity mass)
+		{
+			super(mass, ANIMATION_IDLE, ANIMATION_CLAP, 40);
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			return super.canStart() && mob.dataTracker.get(LAYING) && mob.dataTracker.get(SLAM_COUNTER) > 0 && mob.random.nextFloat() < 0.9f;
+		}
+		
+		@Override
+		protected void process()
+		{
+			super.process();
+			if(timer == 30)
+				mob.clap();
 		}
 	}
 	

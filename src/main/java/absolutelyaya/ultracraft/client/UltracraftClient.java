@@ -136,6 +136,7 @@ public class UltracraftClient implements ClientModInitializer
 		EntityRendererRegistry.register(EntityRegistry.FLAME, FlameRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.MORTAR, HideousMortarRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.SHOCKWAVE, ShockwaveRenderer::new);
+		EntityRendererRegistry.register(EntityRegistry.VERICAL_SHOCKWAVE, VerticalShockwaveRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.INTERRUPTABLE_CHARGE, InterruptableChargeRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.SOUL_ORB, OrbRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.BLOOD_ORB, OrbRenderer::new);
