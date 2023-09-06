@@ -1,13 +1,17 @@
 package absolutelyaya.ultracraft.entity.projectile;
 
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.entity.demon.HideousMassEntity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
+import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
@@ -16,6 +20,7 @@ import net.minecraft.particle.ItemStackParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
@@ -27,6 +32,9 @@ public class HarpoonEntity extends PersistentProjectileEntity
 	protected static final TrackedData<Vector3f> START_POSITION = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.VECTOR3F);
 	protected static final TrackedData<Integer> GROUND_TICKS = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Boolean> RETURNING = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Float> IMPACT_YAW = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.FLOAT);
+	
+	LivingEntity victim;
 	
 	public HarpoonEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world)
 	{
@@ -40,6 +48,7 @@ public class HarpoonEntity extends PersistentProjectileEntity
 		dataTracker.startTracking(START_POSITION, new Vector3f());
 		dataTracker.startTracking(GROUND_TICKS, 0);
 		dataTracker.startTracking(RETURNING, false);
+		dataTracker.startTracking(IMPACT_YAW, 0f);
 	}
 	
 	public static HarpoonEntity spawn(LivingEntity owner, Vec3d pos, Vec3d vel)
@@ -64,9 +73,11 @@ public class HarpoonEntity extends PersistentProjectileEntity
 		super.tick();
 		if(getOwner() != null && !getOwner().isPlayer() && age > 600)
 			despawn();
-		if(inGround)
+		if(inGround || victim != null)
 			dataTracker.set(GROUND_TICKS, dataTracker.get(GROUND_TICKS) + 1);
-		if(dataTracker.get(GROUND_TICKS) > 20 && getOwner() != null && !getOwner().isPlayer())
+		if(victim == null && dataTracker.get(GROUND_TICKS) > 20 && getOwner() != null && !getOwner().isPlayer())
+			setReturning(true);
+		else if(victim != null && dataTracker.get(GROUND_TICKS) > 200 && getOwner() != null)
 			setReturning(true);
 		if(dataTracker.get(RETURNING))
 		{
@@ -86,8 +97,21 @@ public class HarpoonEntity extends PersistentProjectileEntity
 					despawn();
 			}
 		}
-		if(getVelocity().equals(Vec3d.ZERO) && !inGround)
+		if(getVelocity().equals(Vec3d.ZERO) && !inGround && victim == null)
 			discard();
+		if(victim != null && !dataTracker.get(RETURNING))
+		{
+			if(!victim.isAlive())
+			{
+				victim = null;
+				setReturning(true);
+				return;
+			}
+			setVelocity(Vec3d.ZERO);
+			setPosition(victim.getPos().add(0f, victim.getHeight() / 2, 0f));
+			setYaw(dataTracker.get(IMPACT_YAW));
+			victim.addStatusEffect(new StatusEffectInstance(StatusEffectRegistry.IMPALED, 10, 1), this);
+		}
 	}
 	
 	void despawn()
@@ -117,9 +141,16 @@ public class HarpoonEntity extends PersistentProjectileEntity
 	}
 	
 	@Override
-	public boolean canHit()
+	protected void onEntityHit(EntityHitResult entityHitResult)
 	{
-		return super.canHit() && !dataTracker.get(RETURNING);
+		if(dataTracker.get(RETURNING) || victim != null)
+			return;
+		if(entityHitResult.getEntity() instanceof LivingEntity living)
+		{
+			victim = living;
+			dataTracker.set(IMPACT_YAW, getYaw());
+			living.damage(DamageSources.get(getWorld(), DamageSources.HARPOON, this, getOwner()), 3.5f);
+		}
 	}
 	
 	public void setReturning(boolean b)
@@ -143,6 +174,14 @@ public class HarpoonEntity extends PersistentProjectileEntity
 					}, this::getLeashPos, getUuid(),
 					new Vec2f(0.05f, 0.1f), 0.1f, 0x000000, 1);
 		}
+	}
+	
+	@Override
+	public void remove(RemovalReason reason)
+	{
+		if(getOwner() instanceof HideousMassEntity mass)
+			mass.setHasHarpoon(true);
+		super.remove(reason);
 	}
 	
 	@Override

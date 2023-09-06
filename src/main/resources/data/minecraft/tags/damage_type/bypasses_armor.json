@@ -5,6 +5,8 @@
     "ultracraft:interrupt",
     "ultracraft:overcharge_self",
     "ultracraft:short_circuit",
-    "ultracraft:back_tank"
+    "ultracraft:back_tank",
+    "ultracraft:harpoon",
+    "ultracraft:harpoon_rip"
   ]
 }

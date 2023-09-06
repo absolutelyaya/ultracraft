@@ -44,6 +44,8 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	protected static final TrackedData<Integer> SLAM_COUNTER = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Boolean> ENRAGED = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> LAYING = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Boolean> HAS_HARPOON = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Float> HARPOON_HEALTH = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.FLOAT);
 	static final RawAnimation POSE_ANIM = RawAnimation.begin().thenPlay("pose");
 	static final RawAnimation LAY_POSE_ANIM = RawAnimation.begin().thenPlay("lay_pose");
 	static final RawAnimation MORTAR_ANIM = RawAnimation.begin().thenPlay("mortar");
@@ -61,6 +63,8 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	private static final byte ANIMATION_CLAP = 5;
 	private static final byte ANIMATION_HARPOON = 6;
 	
+	HarpoonEntity harpoon;
+	
 	public HideousMassEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
 		super(entityType, world);
@@ -71,7 +75,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
 		return HostileEntity.createMobAttributes()
-					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 9.0d)
+					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 175.0d) //TODO: set to 60 for non-bosses
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 1.0d)
 					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d);
@@ -86,6 +90,8 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		dataTracker.startTracking(LAYING, false);
 		dataTracker.startTracking(MORTAR_COUNTER, 0);
 		dataTracker.startTracking(SLAM_COUNTER, 0);
+		dataTracker.startTracking(HAS_HARPOON, true);
+		dataTracker.startTracking(HARPOON_HEALTH, 0f);
 	}
 	
 	@Override
@@ -134,6 +140,8 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		super.tick();
 		if(dataTracker.get(ATTACK_COOLDOWN) > 0)
 			dataTracker.set(ATTACK_COOLDOWN, dataTracker.get(ATTACK_COOLDOWN) - 1);
+		//if(!getWorld().isClient && !isHasHarpoon() && harpoon != null)
+		//	setHasHarpoon(true);
 	}
 	
 	@Override
@@ -166,6 +174,8 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	
 	public void fireMortar(Vec3d offset)
 	{
+		if(getTarget() == null)
+			return;
 		HideousMortarEntity.spawn(getWorld(), new Vec3d(getX(), getBoundingBox().getMax(Direction.Axis.Y), getZ()).add(offset.rotateY(getYaw())),
 				this, getTarget());
 	}
@@ -193,6 +203,8 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	
 	private void shootHarpoon()
 	{
+		if(getTarget() == null)
+			return;
 		HarpoonEntity harpoon = HarpoonEntity.spawn(this, getLeashPos(0f), new Vec3d(0f, 0f, 0f));
 		Entity target = getTarget();
 		double targetY = target.getEyeY();
@@ -204,6 +216,10 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		harpoon.setYaw(-getYaw());
 		playSound(SoundEvents.ITEM_TRIDENT_THROW, 2.0f, 0.4f / (getRandom().nextFloat() * 0.4f + 0.8f));
 		getWorld().spawnEntity(harpoon);
+		this.harpoon = harpoon;
+		System.out.println(harpoon);
+		setHasHarpoon(false);
+		dataTracker.set(HARPOON_HEALTH, 20f);
 	}
 	
 	@Override
@@ -241,7 +257,28 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	{
 		if(source.getAttacker() instanceof HideousMassEntity || source.getSource() instanceof HideousMassEntity)
 			return false;
-		return super.damage(source, amount);
+		boolean b = super.damage(source, amount);
+		if(b && harpoon != null)
+		{
+			dataTracker.set(HARPOON_HEALTH, dataTracker.get(HARPOON_HEALTH) - amount);
+			if(dataTracker.get(HARPOON_HEALTH) <= 0)
+			{
+				harpoon.setReturning(true);
+				harpoon = null;
+			}
+		}
+		return b;
+	}
+	
+	public boolean isHasHarpoon()
+	{
+		return dataTracker.get(HAS_HARPOON);
+	}
+	
+	public void setHasHarpoon(boolean b)
+	{
+		dataTracker.set(HAS_HARPOON, b);
+		dataTracker.set(ATTACK_COOLDOWN, 10 + random.nextInt(5));
 	}
 	
 	static class HideousLookControl extends LookControl
@@ -363,7 +400,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		@Override
 		public boolean canStart()
 		{
-			return super.canStart() && mob.dataTracker.get(LAYING) && mob.dataTracker.get(SLAM_COUNTER) > 0 && mob.random.nextFloat() < 0.9f;
+			return super.canStart() && mob.isHasHarpoon() && mob.dataTracker.get(LAYING) && mob.dataTracker.get(SLAM_COUNTER) > 0 && mob.random.nextFloat() < 0.9f;
 		}
 		
 		@Override
@@ -385,7 +422,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		@Override
 		public boolean canStart()
 		{
-			return super.canStart() && mob.dataTracker.get(LAYING) && mob.dataTracker.get(SLAM_COUNTER) > 2;
+			return super.canStart() && mob.isHasHarpoon()  && mob.dataTracker.get(LAYING) && mob.dataTracker.get(SLAM_COUNTER) > 2;
 		}
 		
 		@Override

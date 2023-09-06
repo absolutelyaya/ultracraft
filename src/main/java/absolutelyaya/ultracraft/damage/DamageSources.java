@@ -29,6 +29,8 @@ public class DamageSources
 	public static final RegistryKey<DamageType> FLAMETHROWER = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "flamethrower"));
 	public static final RegistryKey<DamageType> SHORT_CIRCUIT = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "short_circuit"));
 	public static final RegistryKey<DamageType> BACK_TANK = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "back_tank"));
+	public static final RegistryKey<DamageType> HARPOON = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "harpoon"));
+	public static final RegistryKey<DamageType> HARPOON_RIP = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "harpoon_rip"));
 	
 	public static DamageSource get(World world, RegistryKey<DamageType> type)
 	{

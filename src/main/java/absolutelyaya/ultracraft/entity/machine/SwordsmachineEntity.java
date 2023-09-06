@@ -178,7 +178,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
 		return HostileEntity.createMobAttributes()
-					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 125.0d)
+					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 125.0d) //TODO: set to 30 for non-bosses
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 8.0d)
 					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d)

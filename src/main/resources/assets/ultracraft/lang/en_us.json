@@ -120,6 +120,8 @@
   "entity.ultracraft.harpoon": "Harpoon",
 
   "effect.ultracraft.chilled": "Chilled",
+  "effect.ultracraft.instant_energy": "Instant Energy",
+  "effect.ultracraft.impaled": "Impaled",
 
   "death.attack.shockwave": "%s got crushed by a shockwave",
   "death.attack.shockwave.player": "%1$s got crushed by a shockwave caused by %2$s",
@@ -157,6 +159,12 @@
   "death.attack.back_tank": "%1$s was shot in the back by %2$s",
   "death.attack.back_tank.player": "%1$s was shot in the back by %2$s",
   "death.attack.back_tank.item": "%1$s was shot in the back by %2$s using %3$s",
+  "death.attack.harpoon": "%1$s was impaled by %2$s's harpoon",
+  "death.attack.harpoon.player": "%1$s was impaled by a harpoon whilst fighting %2$s",
+  "death.attack.harpoon.item": "%1$s was impaled by %2$s's harpoon using %3$s",
+  "death.attack.harpoon_rip": "%1$s was torn apart with a harpoons barb",
+  "death.attack.harpoon_rip.player": "%1$s was torn apart with a harpoons barb by %2$s",
+  "death.attack.harpoon_rip.item": "%1$s was torn apart with a harpoons barb by %2$s using %3$s",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 

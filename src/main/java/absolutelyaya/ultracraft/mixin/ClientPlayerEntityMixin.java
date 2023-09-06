@@ -9,6 +9,7 @@ import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import absolutelyaya.ultracraft.compat.PlayerAnimator;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
+import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
 import absolutelyaya.ultracraft.registry.TagRegistry;
 import com.mojang.authlib.GameProfile;
 import io.netty.buffer.Unpooled;
@@ -281,7 +282,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			//dash velocity
 			if(isDashing())
 			{
-				setVelocity(dashDir.multiply(1f + 0.2 * UltracraftClient.speed));
+				float f = hasStatusEffect(StatusEffectRegistry.IMPALED) ? 0.05f : 1f;
+				setVelocity(dashDir.multiply(f + 0.2 * UltracraftClient.speed));
 				ci.cancel();
 			}
 			//dash jump (preserves velocity)
@@ -300,7 +302,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			{
 				float slipandslide = getSteppingBlockState().getBlock().getSlipperiness();
 				if(!grounded)
-					setVelocity(dashDir.multiply(0.3));
+					setVelocity(dashDir.multiply(hasStatusEffect(StatusEffectRegistry.IMPALED) ? 0.03 : 0.3));
 				else if(slipandslide > 0.6)
 					setVelocity(dashDir.multiply(Math.min(slipandslide - 0.5, 0.6)));
 				else
