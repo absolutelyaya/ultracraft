@@ -15,6 +15,7 @@ import net.minecraft.entity.ai.control.LookControl;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -157,6 +158,12 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	public void takeKnockback(double strength, double x, double z) {
 	}
 	
+	@Override
+	public Vec3d getLeashPos(float delta)
+	{
+		return getPos().add(new Vec3d(0f, 6f, -2f).rotateY(-getYaw() * MathHelper.RADIANS_PER_DEGREE));
+	}
+	
 	public void fireMortar(Vec3d offset)
 	{
 		HideousMortarEntity.spawn(getWorld(), new Vec3d(getX(), getBoundingBox().getMax(Direction.Axis.Y), getZ()).add(offset.rotateY(getYaw())),
@@ -186,14 +193,13 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	
 	private void shootHarpoon()
 	{
-		HarpoonEntity harpoon = HarpoonEntity.spawn(this,
-				getPos().add(new Vec3d(0f, 6f, -2f).rotateY(getYaw() * MathHelper.RADIANS_PER_DEGREE)), new Vec3d(0f, 0f, 0f));
+		HarpoonEntity harpoon = HarpoonEntity.spawn(this, getLeashPos(0f), new Vec3d(0f, 0f, 0f));
 		Entity target = getTarget();
 		double targetY = target.getEyeY();
 		double x = target.getX() - getX();
 		double y = targetY - harpoon.getY();
 		double z = target.getZ() - getZ();
-		harpoon.setVelocity(x, y, z, 3f, 0.0f);
+		harpoon.setVelocity(x, y, z, 4f, 0.0f);
 		harpoon.setNoGravity(true);
 		harpoon.setYaw(-getYaw());
 		playSound(SoundEvents.ITEM_TRIDENT_THROW, 2.0f, 0.4f / (getRandom().nextFloat() * 0.4f + 0.8f));
@@ -230,6 +236,13 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		return true;
 	}
 	
+	@Override
+	public boolean damage(DamageSource source, float amount)
+	{
+		if(source.getAttacker() instanceof HideousMassEntity || source.getSource() instanceof HideousMassEntity)
+			return false;
+		return super.damage(source, amount);
+	}
 	
 	static class HideousLookControl extends LookControl
 	{
@@ -255,7 +268,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	{
 		public MortarAttackGoal(HideousMassEntity mass)
 		{
-			super(mass, ANIMATION_IDLE, ANIMATION_MORTAR, 56);
+			super(mass, ANIMATION_IDLE, ANIMATION_MORTAR, 55);
 		}
 		
 		@Override
@@ -289,7 +302,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		
 		public SlamAttackGoal(HideousMassEntity mass, boolean standing)
 		{
-			super(mass, ANIMATION_IDLE, standing ? ANIMATION_SLAM_STANDING : ANIMATION_SLAM_LAYING, 35);
+			super(mass, ANIMATION_IDLE, standing ? ANIMATION_SLAM_STANDING : ANIMATION_SLAM_LAYING, 34);
 			this.standing = standing;
 		}
 		
@@ -322,7 +335,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	{
 		public ClapAttackGoal(HideousMassEntity mass)
 		{
-			super(mass, ANIMATION_IDLE, ANIMATION_CLAP, 40);
+			super(mass, ANIMATION_IDLE, ANIMATION_CLAP, 39);
 		}
 		
 		@Override
@@ -344,7 +357,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	{
 		public HarpoonAttackGoal(HideousMassEntity mass)
 		{
-			super(mass, ANIMATION_IDLE, ANIMATION_HARPOON, 21);
+			super(mass, ANIMATION_IDLE, ANIMATION_HARPOON, 20);
 		}
 		
 		@Override
@@ -364,10 +377,9 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	
 	static class StandupGoal extends TimedAttackGoal<HideousMassEntity>
 	{
-		
 		public StandupGoal(HideousMassEntity mass)
 		{
-			super(mass, ANIMATION_IDLE, ANIMATION_STAND_UP, 15);
+			super(mass, ANIMATION_IDLE, ANIMATION_STAND_UP, 13);
 		}
 		
 		@Override

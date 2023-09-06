@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.client.rendering;
 
 import absolutelyaya.ultracraft.client.ClientHitscanHandler;
+import absolutelyaya.ultracraft.client.RenderLayers;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
@@ -15,18 +16,19 @@ import java.awt.*;
 
 public class HitscanRenderer
 {
-	public void render(ClientHitscanHandler.Hitscan hitscan, MatrixStack matrices, Camera camera)
+	public void render(ClientHitscanHandler.Hitscan hitscan, MatrixStack matrices, Camera camera, float delta)
 	{
-		Color col = new Color(hitscan.type.color);
+		Color col = hitscan.getColor();
 		Vec3d camPos = camera.getPos();
-		Vec3d from = hitscan.from;
-		Vec3d to = hitscan.to;
+		Vec3d from = hitscan.getFrom(delta);
+		Vec3d to = hitscan.getTo(delta);
 		float girth = Math.max(hitscan.getGirth(), 0f);
 		
-		renderRay(matrices, from, to, camPos, girth, col, RenderLayer.getLightning(), 3);
+		renderRay(matrices, from, to, camPos, girth, col,
+				(hitscan instanceof ClientHitscanHandler.MovingHitscan ? RenderLayer.getGui() : RenderLayer.getLightning()), hitscan.getLayers());
 	}
 	
-	public static void renderRay(MatrixStack matrices, Vec3d from, Vec3d to, Vec3d camPos, float girth, Color col, RenderLayer layer, int steps)
+	void renderRay(MatrixStack matrices, Vec3d from, Vec3d to, Vec3d camPos, float girth, Color col, RenderLayer layer, int steps)
 	{
 		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);

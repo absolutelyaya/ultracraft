@@ -246,7 +246,7 @@ public class UltracraftClient implements ClientModInitializer
 		WorldRenderEvents.BEFORE_ENTITIES.register((ctx) -> applyEntityPoses = true);
 		
 		WorldRenderEvents.AFTER_ENTITIES.register((ctx) -> {
-			UltracraftClient.HITSCAN_HANDLER.render(ctx.matrixStack(), ctx.camera());
+			UltracraftClient.HITSCAN_HANDLER.render(ctx.matrixStack(), ctx.camera(), ctx.tickDelta());
 			UltracraftClient.TRAIL_RENDERER.render(ctx.matrixStack(), ctx.camera());
 			applyEntityPoses = false;
 		});

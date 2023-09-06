@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.entity.projectile;
 
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.entity.EntityType;
@@ -10,10 +11,13 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.particle.ItemStackParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.joml.Vector3f;
@@ -45,7 +49,6 @@ public class HarpoonEntity extends PersistentProjectileEntity
 		harpoon.setPosition(pos);
 		harpoon.dataTracker.set(START_POSITION, pos.toVector3f());
 		harpoon.setVelocity(vel);
-		owner.getWorld().spawnEntity(harpoon);
 		return harpoon;
 	}
 	
@@ -67,6 +70,11 @@ public class HarpoonEntity extends PersistentProjectileEntity
 			setReturning(true);
 		if(dataTracker.get(RETURNING))
 		{
+			if(!isRemoved() && getOwner() == null)
+			{
+				discard();
+				return;
+			}
 			Vec3d start = new Vec3d(getStartPosition());
 			Vec3d dir = getPos().subtract(start).normalize();
 			setPosition(getPos().add(dir.multiply(-Math.min(1.6f, getPos().distanceTo(start)))));
@@ -78,6 +86,8 @@ public class HarpoonEntity extends PersistentProjectileEntity
 					despawn();
 			}
 		}
+		if(getVelocity().equals(Vec3d.ZERO) && !inGround)
+			discard();
 	}
 	
 	void despawn()
@@ -86,6 +96,13 @@ public class HarpoonEntity extends PersistentProjectileEntity
 				getX(), getY(), getZ(), 0f, 0f, 0f);
 		if(!getWorld().isClient())
 			discard();
+	}
+	
+	@Override
+	public Vec3d getLeashPos(float delta)
+	{
+		float f = MathHelper.RADIANS_PER_DEGREE;
+		return getLerpedPos(delta).add(new Vec3d(0f, 0.2f, -1.5f).rotateX(getPitch() * f).rotateY(getYaw() * f));
 	}
 	
 	@Override
@@ -108,5 +125,31 @@ public class HarpoonEntity extends PersistentProjectileEntity
 	public void setReturning(boolean b)
 	{
 		dataTracker.set(RETURNING, b);
+	}
+	
+	@Override
+	public void onSpawnPacket(EntitySpawnS2CPacket packet)
+	{
+		super.onSpawnPacket(packet);
+		if(getOwner() != null)
+		{
+			UltracraftClient.HITSCAN_HANDLER.addConnector(delta -> {
+						if(getOwner() == null)
+						{
+							UltracraftClient.HITSCAN_HANDLER.removeMoving(getUuid());
+							return getLeashPos(delta);
+						}
+						return getOwner().getLeashPos(delta);
+					}, this::getLeashPos, getUuid(),
+					new Vec2f(0.05f, 0.1f), 0.1f, 0x000000, 1);
+		}
+	}
+	
+	@Override
+	public void onRemoved()
+	{
+		if(getOwner() != null)
+			UltracraftClient.HITSCAN_HANDLER.removeMoving(getUuid());
+		super.onRemoved();
 	}
 }
