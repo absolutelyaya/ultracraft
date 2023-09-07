@@ -1,0 +1,67 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.unknown",
+				"texture_width": 128,
+				"texture_height": 128,
+				"visible_bounds_width": 6,
+				"visible_bounds_height": 4,
+				"visible_bounds_offset": [0, 1, 0]
+			},
+			"bones": [
+				{
+					"name": "bone",
+					"pivot": [0, 0, 0],
+					"cubes": [
+						{"origin": [-8, 2, -9], "size": [16, 20, 1], "uv": [50, 37]},
+						{"origin": [-8, 2, -8], "size": [16, 19, 8], "uv": [0, 36]},
+						{"origin": [-5, 9, 0], "size": [10, 10, 26], "uv": [0, 0]},
+						{"origin": [-4, 18.25, 0], "size": [8, 1, 17], "uv": [46, 0]},
+						{"origin": [0, 4, -20], "size": [0, 9, 13], "uv": [0, 0]},
+						{"origin": [7, 9, 0], "size": [0, 10, 12], "pivot": [7, 10, 0], "rotation": [0, -9.5, 0], "uv": [0, 51]},
+						{"origin": [-7, 9, 0], "size": [0, 10, 12], "pivot": [-7, 10, 0], "rotation": [0, 9.5, 0], "uv": [48, 46]},
+						{"origin": [-3.5, 2, 0], "size": [7, 7, 7], "inflate": 0.76, "uv": [64, 70]},
+						{"origin": [-5, 13, 12], "size": [10, 4, 6], "inflate": 0.1, "uv": [85, 42]},
+						{"origin": [-5, 7, 0], "size": [10, 3, 7], "inflate": 0.25, "uv": [78, 58]}
+					]
+				},
+				{
+					"name": "LegLeft",
+					"pivot": [6, 12, 8.5],
+					"rotation": [0, 0, 75],
+					"cubes": [
+						{"origin": [6, 9, 7], "size": [11, 3, 3], "uv": [1, 87]}
+					]
+				},
+				{
+					"name": "LegLeftLower",
+					"parent": "LegLeft",
+					"pivot": [17.5, 11.5, 8.5],
+					"rotation": [0, 0, 47.5],
+					"cubes": [
+						{"origin": [17.5, 8.5, 7], "size": [9, 3, 3], "inflate": 0.001, "uv": [33, 97]}
+					]
+				},
+				{
+					"name": "LegRight",
+					"pivot": [-6, 13, 8.5],
+					"rotation": [0, 0, -75],
+					"cubes": [
+						{"origin": [-18, 10, 7], "size": [11, 3, 3], "uv": [1, 87], "mirror": true}
+					]
+				},
+				{
+					"name": "LegRightLower",
+					"parent": "LegRight",
+					"pivot": [-18.5, 12.5, 8.5],
+					"rotation": [0, 0, -47.5],
+					"cubes": [
+						{"origin": [-27.5, 9.5, 7], "size": [9, 3, 3], "inflate": 0.001, "uv": [33, 97], "mirror": true}
+					]
+				}
+			]
+		}
+	]
+}

@@ -59,8 +59,10 @@ public class ItemRegistry
 	public static final DroneMaskItem DRONE_MASK = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "drone_mask"), new DroneMaskItem(new FabricItemSettings()));
 	public static final Item HARPOON = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "harpoon"), new SwordItem(ToolMaterials.IRON, 6, -2.75f,
+			new Identifier(Ultracraft.MOD_ID, "harpoon"), new HarpoonItem(6f, -2.75f,
 					new FabricItemSettings().maxCount(4)));
+	public static final Item HARPOON_GUN = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "harpoon_gun"), new HarpoonGunItem(new FabricItemSettings(), 25, 0f));
 	
 	//Weapons
 	public static final PierceRevolverItem PIERCE_REVOLVER = Registry.register(Registries.ITEM,
@@ -150,6 +152,8 @@ public class ItemRegistry
 			content.add(MACHINE_SWORD.getDefaultStack(MachineSwordItem.Type.TUNDRA));
 			content.add(MACHINE_SWORD.getDefaultStack(MachineSwordItem.Type.AGONY));
 			content.add(FLAMETHROWER);
+			content.add(HARPOON);
+			content.add(HARPOON_GUN);
 			content.add(FILTH_SPAWN_EGG);
 			content.add(STRAY_SPAWN_EGG);
 			content.add(SCHISM_SPAWN_EGG);

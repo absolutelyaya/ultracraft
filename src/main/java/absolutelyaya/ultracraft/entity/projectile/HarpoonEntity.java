@@ -91,10 +91,9 @@ public class HarpoonEntity extends PersistentProjectileEntity
 			setPosition(getPos().add(dir.multiply(-Math.min(1.6f, getPos().distanceTo(start)))));
 			if(start.distanceTo(getPos()) < 0.1f)
 			{
-				if(getOwner() != null && getOwner().isPlayer())
+				if(getOwner() != null && getOwner().isPlayer() && !((PlayerEntity)getOwner()).isCreative())
 					((PlayerEntity)getOwner()).giveItemStack(ItemRegistry.HARPOON.getDefaultStack());
-				else
-					despawn();
+				despawn();
 			}
 		}
 		if(getVelocity().equals(Vec3d.ZERO) && !inGround && victim == null)
@@ -137,6 +136,8 @@ public class HarpoonEntity extends PersistentProjectileEntity
 	
 	public Vector3f getStartPosition()
 	{
+		if(getOwner() != null)
+			return getOwner().getLeashPos(0f).toVector3f();
 		return dataTracker.get(START_POSITION);
 	}
 	
@@ -172,8 +173,18 @@ public class HarpoonEntity extends PersistentProjectileEntity
 						}
 						return getOwner().getLeashPos(delta);
 					}, this::getLeashPos, getUuid(),
-					new Vec2f(0.05f, 0.1f), 0.1f, 0x000000, 1);
+					new Vec2f(0.01f, 0.05f), 0.1f, 0x000000, 1);
 		}
+	}
+	
+	public boolean isInGround()
+	{
+		return inGround;
+	}
+	
+	public LivingEntity getVictim()
+	{
+		return victim;
 	}
 	
 	@Override
