@@ -121,14 +121,14 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			buf.writeBoolean(source.isOf(DamageSources.SHOTGUN));
 			ServerPlayNetworking.send((ServerPlayerEntity)player, PacketRegistry.BLEED_PACKET_ID, buf);
 		}
-		GameruleRegistry.RegenOption healRule = getWorld().getGameRules().get(GameruleRegistry.BLOODHEAL).get();
-		if(!healRule.equals(GameruleRegistry.RegenOption.NEVER))
+		GameruleRegistry.RegenSetting healRule = getWorld().getGameRules().get(GameruleRegistry.BLOODHEAL).get();
+		if(!healRule.equals(GameruleRegistry.RegenSetting.NEVER))
 		{
 			for (PlayerEntity player : heal)
 			{
 				if(!(player instanceof WingedPlayerEntity winged))
 					continue;
-				if((healRule.equals(GameruleRegistry.RegenOption.ONLY_HIVEL) && !winged.isWingsActive()))
+				if((healRule.equals(GameruleRegistry.RegenSetting.ONLY_HIVEL) && !winged.isWingsActive()))
 					continue;
 				float healing = amount * (source.isOf(DamageSources.SHOTGUN) ? 1f : 2.5f);
 				winged.bloodHeal(healing);

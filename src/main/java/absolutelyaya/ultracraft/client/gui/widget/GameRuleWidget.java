@@ -110,12 +110,11 @@ public class GameRuleWidget<T extends GameRules.Key<?>> extends ClickableWidget 
 			return new Identifier("textures/block/stone.png");
 	}
 	
-	@Override
-	public void render(DrawContext context, int mouseX, int mouseY, float delta)
+	public void render(DrawContext context, int mouseX, int mouseY, float delta, boolean simplistic)
 	{
 		alpha = MathHelper.clamp((getY() - 30) / 10f, 0f, 1f);
 		RenderSystem.setShaderColor(0.69f, 0.69f, 0.69f, alpha);
-		RenderSystem.setShaderTexture(0, BGTexture);
+		RenderSystem.setShaderTexture(0, simplistic ? new Identifier(Ultracraft.MOD_ID, "textures/gui/simplistic_bg.png") : BGTexture);
 		MatrixStack matrices = context.getMatrices();
 		RenderingUtil.drawTexture(matrices.peek().getPositionMatrix(), new Vector4f(getX(), getY(), 200, 36), 0,
 				new Vec2f(16, 16), new Vector4f(0f, 0, 100, 16), alpha);

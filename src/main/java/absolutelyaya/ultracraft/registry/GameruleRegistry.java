@@ -29,16 +29,16 @@ public class GameruleRegistry
 					}
 					OnChanged(server, (byte)0, rule.get().ordinal());
 				}));
-	public static final GameRules.Key<EnumRule<Option>> HIVEL_MODE =
-			GameRuleRegistry.register("ultra-hiVelMode", ULTRACATEGORY, GameRuleFactory.createEnumRule(Option.FREE,
+	public static final GameRules.Key<EnumRule<Setting>> HIVEL_MODE =
+			GameRuleRegistry.register("ultra-hiVelMode", ULTRACATEGORY, GameRuleFactory.createEnumRule(Setting.FREE,
 					(server, rule) -> {
-						if(server.isRemote() && rule.get().equals(Option.FORCE_ON))
+						if(server.isRemote() && rule.get().equals(Setting.FORCE_ON))
 							sendAdminMessage(server, Text.translatable("message.ultracraft.server.freeze-enable-warning"));
 						OnChanged(server, (byte)1, rule.get().ordinal());
 					}));
-	public static final GameRules.Key<EnumRule<Option>> TIME_STOP =
+	public static final GameRules.Key<EnumRule<Setting>> TIME_STOP =
 			GameRuleRegistry.register("ultra-timeStopEffect", ULTRACATEGORY,
-				GameRuleFactory.createEnumRule(Option.FORCE_OFF, new Option[] { Option.FORCE_ON, Option.FORCE_OFF },
+				GameRuleFactory.createEnumRule(Setting.FORCE_OFF, new Setting[] { Setting.FORCE_ON, Setting.FORCE_OFF },
 					(server, rule) -> OnChanged(server, (byte)2, rule.get().ordinal())));
 	public static final GameRules.Key<GameRules.BooleanRule> DISABLE_HANDSWAP =
 			GameRuleRegistry.register("ultra-disableHandSwap", ULTRACATEGORY,
@@ -60,9 +60,9 @@ public class GameruleRegistry
 			GameRuleRegistry.register("ultra-hivelDrowning", ULTRACATEGORY,
 					GameRuleFactory.createBooleanRule(false,
 							(server, rule) -> OnChanged(server, (byte)7, (rule.get() ? 1 : 0))));
-	public static final GameRules.Key<EnumRule<RegenOption>> BLOODHEAL =
+	public static final GameRules.Key<EnumRule<RegenSetting>> BLOODHEAL =
 			GameRuleRegistry.register("ultra-bloodHealing", ULTRACATEGORY,
-					GameRuleFactory.createEnumRule(RegenOption.ALWAYS,
+					GameRuleFactory.createEnumRule(RegenSetting.ALWAYS,
 							(server, rule) -> OnChanged(server, (byte)8, (rule.get().ordinal()))));
 	public static final GameRules.Key<GameRules.IntRule> HIVEL_SPEED =
 			GameRuleRegistry.register("ultra-speed", ULTRACATEGORY,
@@ -105,6 +105,18 @@ public class GameruleRegistry
 			GameRuleRegistry.register("ultra-iFrames", ULTRACATEGORY,
 					GameRuleFactory.createIntRule(4, 0, 20,
 							(server, rule) -> OnChanged(server, (byte)17, rule.get())));
+	public static final GameRules.Key<GameRules.BooleanRule> TERMINAL_PROT =
+			GameRuleRegistry.register("ultra-terminalProtection", ULTRACATEGORY,
+					GameRuleFactory.createBooleanRule(true,
+							(server, rule) -> OnChanged(server, (byte)18, rule.get() ? 1 : 0)));
+	public static final GameRules.Key<EnumRule<GraffitiSetting>> GRAFFITI =
+			GameRuleRegistry.register("ultra-graffiti", ULTRACATEGORY,
+					GameRuleFactory.createEnumRule(GraffitiSetting.ALLOW_ALL,
+							(server, rule) -> OnChanged(server, (byte)19, rule.get().ordinal())));
+	public static final GameRules.Key<GameRules.BooleanRule> FLAMETHROWER_GRIEF =
+			GameRuleRegistry.register("ultra-flamethrowerGrief", ULTRACATEGORY,
+					GameRuleFactory.createBooleanRule(false,
+							(server, rule) -> OnChanged(server, (byte)20, rule.get() ? 1 : 0)));
 	
 	public static void OnChanged(MinecraftServer server, byte b, int val)
 	{
@@ -142,6 +154,10 @@ public class GameruleRegistry
 		OnChanged(player, (byte)14, player.server.getGameRules().getBoolean(PARRY_CHAINING) ? 1 : 0);
 		OnChanged(player, (byte)15, player.server.getGameRules().getBoolean(TNT_PRIMING) ? 1 : 0);
 		OnChanged(player, (byte)16, player.server.getGameRules().getInt(GUN_DAMAGE));
+		OnChanged(player, (byte)17, player.server.getGameRules().getInt(INVINCIBILITY));
+		OnChanged(player, (byte)18, player.server.getGameRules().getBoolean(TERMINAL_PROT) ? 1 : 0);
+		OnChanged(player, (byte)19, player.server.getGameRules().get(GRAFFITI).get().ordinal());
+		OnChanged(player, (byte)20, player.server.getGameRules().getBoolean(FLAMETHROWER_GRIEF) ? 1 : 0);
 		OnChanged(player, (byte)127, 0); //sync finished indicator
 	}
 	
@@ -158,14 +174,14 @@ public class GameruleRegistry
 	
 	}
 	
-	public enum Option
+	public enum Setting
 	{
 		FORCE_ON,
 		FORCE_OFF,
 		FREE
 	}
 	
-	public enum RegenOption
+	public enum RegenSetting
 	{
 		ALWAYS,
 		ONLY_HIVEL,
@@ -177,6 +193,13 @@ public class GameruleRegistry
 		ALLOW_ALL,
 		LIMITED,
 		ENTITY_TAG,
+		DISALLOW
+	}
+	
+	public enum GraffitiSetting
+	{
+		ALLOW_ALL,
+		ONLY_ADMINS,
 		DISALLOW
 	}
 }

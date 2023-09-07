@@ -15,6 +15,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
@@ -542,6 +543,11 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		if(owner == null)
 			return true;
 		return owner.equals(id);
+	}
+	
+	public boolean isCannotBreak(PlayerEntity p)
+	{
+		return !(isOwner(p.getUuid()) || ((WingedPlayerEntity) p).isOpped());
 	}
 	
 	public void rotateGrafittiCam(float f)

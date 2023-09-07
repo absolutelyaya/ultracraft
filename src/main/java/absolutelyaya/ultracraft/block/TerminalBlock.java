@@ -1,7 +1,9 @@
 package absolutelyaya.ultracraft.block;
 
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.TerminalItem;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
+import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.enums.DoubleBlockHalf;
@@ -13,6 +15,7 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.shape.VoxelShape;
@@ -94,6 +97,9 @@ public class TerminalBlock extends BlockWithEntity
 		pos = pos.offset(dir, 1);
 		if(world.getBlockState(pos).isOf(BlockRegistry.TERMINAL_DISPLAY))
 		{
+			BlockEntity be = world.getBlockEntity(pos);
+			if(be instanceof TerminalBlockEntity terminal && UltracraftClient.isTerminalProtEnabled() && terminal.isCannotBreak(player))
+				return;
 			world.setBlockState(pos, Blocks.AIR.getDefaultState());
 			world.addBlockBreakParticles(pos, state);
 			world.getBlockState(pos).getBlock().onBreak(world, pos, state, player);
@@ -108,11 +114,39 @@ public class TerminalBlock extends BlockWithEntity
 	}
 	
 	@Override
+	public float calcBlockBreakingDelta(BlockState state, PlayerEntity player, BlockView world, BlockPos pos)
+	{
+		Direction dir = state.get(HALF).equals(DoubleBlockHalf.LOWER) ? Direction.UP : Direction.DOWN;
+		pos = pos.offset(dir, 1);
+		BlockEntity be = world.getBlockEntity(pos);
+		if(be instanceof TerminalBlockEntity terminal && UltracraftClient.isTerminalProtEnabled() && !terminal.isOwner(player.getUuid()))
+			return 0f;
+		return super.calcBlockBreakingDelta(state, player, world, pos);
+	}
+	
+	@Override
+	public void onBlockBreakStart(BlockState state, World world, BlockPos pos, PlayerEntity player)
+	{
+		Direction dir = state.get(HALF).equals(DoubleBlockHalf.LOWER) ? Direction.UP : Direction.DOWN;
+		pos = pos.offset(dir, 1);
+		BlockEntity be = world.getBlockEntity(pos);
+		if(be instanceof TerminalBlockEntity terminal && world.getGameRules().getBoolean(GameruleRegistry.TERMINAL_PROT) && !terminal.isOwner(player.getUuid()))
+		{
+			if(!world.isClient)
+				player.sendMessage(Text.translatable("message.ultracraft.flamethrower.terminal-prot"));
+			return;
+		}
+		super.onBlockBreakStart(state, world, pos, player);
+	}
+	
+	@Override
 	public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state)
 	{
-		if(state.get(HALF).equals(DoubleBlockHalf.LOWER))
-			return TerminalItem.getStack(((TerminalBlockEntity)world.getBlockEntity(pos.up())).getBase());
-		else
-			return TerminalItem.getStack(((TerminalBlockEntity)world.getBlockEntity(pos.down())).getBase());
+		Direction dir = state.get(HALF).equals(DoubleBlockHalf.LOWER) ? Direction.UP : Direction.DOWN;
+		pos = pos.offset(dir, 1);
+		BlockEntity be = world.getBlockEntity(pos);
+		if(be instanceof TerminalBlockEntity terminal)
+			return TerminalItem.getStack(terminal.getBase());
+		return ItemStack.EMPTY;
 	}
 }

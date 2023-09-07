@@ -92,7 +92,7 @@ public class UltracraftCommand
 	{
 		int ticks = context.getArgument("ticks", Integer.class);
 		String senderName = context.getSource().getPlayer().getName().getString();
-		if(context.getSource().getWorld().getGameRules().get(GameruleRegistry.TIME_STOP).get().equals(GameruleRegistry.Option.FORCE_OFF))
+		if(context.getSource().getWorld().getGameRules().get(GameruleRegistry.TIME_STOP).get().equals(GameruleRegistry.Setting.FORCE_OFF))
 			context.getSource().sendFeedback(() -> Text.translatable("command.ultracraft.time-freeze.fail"), false);
 		else
 		{

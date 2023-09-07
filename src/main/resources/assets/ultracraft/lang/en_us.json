@@ -218,6 +218,12 @@
   "gamerule.ultra-gunDamage.description": "Multiplies all Hitscan Damage by the set Amount.",
   "gamerule.ultra-iFrames": "HiVel I-Ticks",
   "gamerule.ultra-iFrames.description": "How many Invincibility Ticks Players in High Velocity Mode should have.",
+  "gamerule.ultra-terminalProtection": "Terminal Protection",
+  "gamerule.ultra-terminalProtection.description": "When enabled, only a Terminals Owner or Admins can break Terminals.",
+  "gamerule.ultra-graffiti": "Graffiti",
+  "gamerule.ultra-graffiti.description": "Restricts who can put Graffitis on their Terminals.",
+  "gamerule.ultra-flamethrowerGrief": "Flamethrower Griefing",
+  "gamerule.ultra-flamethrowerGrief.description": "Whether Flamethrowers used by players place fire.",
 
   "message.ultracraft.join-info-header": "===============[§4Ultracraft§r]===============",
   "message.ultracraft.hi-vel-forced": "This World is forcing §bHigh Velocity Mode§r to be %s",
@@ -258,6 +264,7 @@
   "message.ultracraft.fixer-button": "Fix that",
   "message.ultracraft.fixer-button.tooltip": "This button actually just starts the intro Sequence manually.\nDon't tell it that though, it already has self-esteem issues.",
   "message.ultracraft.flamethrower.overheat": "The Flamethrower overheated",
+  "message.ultracraft.flamethrower.terminal-prot": "[§4Ultracraft§r] Only their Owners and Admins can break Terminals on this Server.",
 
   "intro.ultracraft.calibration": "BOOT UP SEQUENCE READY\n\nFIRMWARE\n  §aVERSION %s§r\n\nCALIBRATION\n  §4EXPIRED§r\n  §4NEW CALIBRATION REQUIRED§r\n\n",
   "intro.ultracraft.input": "Press any Key",
@@ -265,6 +272,7 @@
   "intro.ultracraft.status": "STATUS UPDATE\n\nMACHINE ID:                %s\nLOCATION:                  MINECRAFT\nCURRENT OBJECTIVE:     FIND A WEAPON\n§4MANKIND IS DEAD.§r\n§4BLOOD IS FUEL.§r\n§4HELL IS FULL.§r",
 
   "screen.ultracraft.server.config-menu.title": "Server Config",
+  "screen.ultracraft.server.config-menu.simplistic": "Simplistic",
   "screen.ultracraft.wing-settings.title": "High Velocity Wings",
   "screen.ultracraft.wing-settings.only-in-world": "Only available in-world currently!",
   "screen.ultracraft.wing-settings.presets.title": "Presets",

@@ -96,4 +96,6 @@ public interface WingedPlayerEntity
 	void setFocusedTerminal(TerminalBlockEntity terminal);
 	
 	TerminalBlockEntity getFocusedTerminal();
+	
+	boolean isOpped();
 }

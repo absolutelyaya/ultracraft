@@ -1,6 +1,8 @@
 package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.block.TerminalBlock;
+import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.block.TerminalDisplayBlock;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.IntroScreen;
@@ -10,12 +12,14 @@ import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.sound.MusicType;
 import net.minecraft.client.world.ClientWorld;
@@ -29,6 +33,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -49,13 +54,12 @@ public abstract class MinecraftClientMixin
 	
 	@Shadow @Final public GameOptions options;
 	
-	@Shadow @Nullable public ClientPlayerInteractionManager interactionManager;
-	
 	@Shadow @Final public Mouse mouse;
 	
 	@Shadow @Nullable public Screen currentScreen;
 	
-	boolean isShooting;
+	@Shadow @Nullable public HitResult crosshairTarget;
+	boolean isShooting, wasBreaking;
 	
 	@Redirect(method = "handleInputEvents()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayNetworkHandler;sendPacket(Lnet/minecraft/network/packet/Packet;)V"))
 	void OnHandSwap(ClientPlayNetworkHandler networkHandler, Packet<?> packet)
@@ -113,8 +117,11 @@ public abstract class MinecraftClientMixin
 	{
 		if(player == null || player.isSpectator())
 			return;
-		HitResult hit = player.raycast(interactionManager.getReachDistance(), 0f, false);
-		boolean pedestal = hit instanceof BlockHitResult bhit && player.getWorld().getBlockState(bhit.getBlockPos()).isOf(BlockRegistry.PEDESTAL);
+		HitResult hit = crosshairTarget;
+		if(!(hit instanceof BlockHitResult bhit))
+			return;
+		BlockState state = player.getWorld().getBlockState(bhit.getBlockPos());
+		boolean pedestal = state.isOf(BlockRegistry.PEDESTAL);
 		if(player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldCancelPunching())
 		{
 			if(options.sneakKey.isPressed() && pedestal && !player.getMainHandStack().isOf(Items.DEBUG_STICK))
@@ -131,13 +138,27 @@ public abstract class MinecraftClientMixin
 			return;
 		}
 		
-		if(hit instanceof BlockHitResult bhit && world.getBlockState(bhit.getBlockPos()).isOf(BlockRegistry.TERMINAL_DISPLAY))
+		if(state.isOf(BlockRegistry.TERMINAL_DISPLAY))
 		{
 			if(options.sneakKey.isPressed())
 				return;
 			((TerminalDisplayBlock)player.getWorld().getBlockState(bhit.getBlockPos()).getBlock()).onHit(world, bhit.getBlockPos(), bhit, player);
 			player.swingHand(Hand.MAIN_HAND);
 			cir.setReturnValue(false);
+		}
+		
+		if(player.isCreative() && state.isOf(BlockRegistry.TERMINAL) && UltracraftClient.isTerminalProtEnabled())
+		{
+			Direction dir = state.get(TerminalBlock.HALF).equals(DoubleBlockHalf.LOWER) ? Direction.UP : Direction.DOWN;
+			BlockPos pos = bhit.getBlockPos().offset(dir, 1);
+			BlockEntity be = world.getBlockEntity(pos);
+			if(be instanceof TerminalBlockEntity e && e.isCannotBreak(player))
+			{
+				player.swingHand(Hand.MAIN_HAND);
+				player.sendMessage(Text.translatable("message.ultracraft.flamethrower.terminal-prot"));
+				cir.setReturnValue(false);
+				return;
+			}
 		}
 		
 		if(!pedestal)
@@ -163,21 +184,32 @@ public abstract class MinecraftClientMixin
 	{
 		if(player == null)
 			return;
-		HitResult hit = player.raycast(interactionManager.getReachDistance(), 0f, false);
+		HitResult hit = crosshairTarget;
 		if(!(hit instanceof BlockHitResult bhit))
 			return;
 		BlockPos hitPos = bhit.getBlockPos();
-		boolean pedestal = player.getWorld().getBlockState(hitPos).isOf(BlockRegistry.PEDESTAL);
-		if(player.isCreative() && pedestal && options.sneakKey.isPressed())
+		BlockState state = player.getWorld().getBlockState(hitPos);
+		if(player.isCreative() && state.isOf(BlockRegistry.PEDESTAL) && options.sneakKey.isPressed())
 			ci.cancel();
-		boolean terminal = player.getWorld().getBlockState(hitPos).isOf(BlockRegistry.TERMINAL_DISPLAY);
-		if(terminal)
+		if(player.isCreative() && state.isOf(BlockRegistry.TERMINAL) && UltracraftClient.isTerminalProtEnabled())
+		{
+			Direction dir = state.get(TerminalBlock.HALF).equals(DoubleBlockHalf.LOWER) ? Direction.UP : Direction.DOWN;
+			BlockPos pos = bhit.getBlockPos().offset(dir, 1);
+			BlockEntity be = world.getBlockEntity(pos);
+			if(be instanceof TerminalBlockEntity e && e.isCannotBreak(player))
+			{
+				ci.cancel();
+				return;
+			}
+		}
+		if(state.isOf(BlockRegistry.TERMINAL_DISPLAY))
 		{
 			((TerminalDisplayBlock)player.getWorld().getBlockState(bhit.getBlockPos()).getBlock()).onPoint(world, bhit.getBlockPos(), bhit, player);
 			ci.cancel();
 		}
 		if(player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldCancelPunching())
 			ci.cancel();
+		wasBreaking = bl;
 	}
 	
 	@ModifyVariable(method = "<init>", at = @At(value = "STORE"))

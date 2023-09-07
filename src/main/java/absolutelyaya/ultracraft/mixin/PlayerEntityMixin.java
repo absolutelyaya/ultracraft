@@ -568,4 +568,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	{
 		return null;
 	}
+	
+	@Override
+	public boolean isOpped()
+	{
+		return getPermissionLevel() >= 2;
+	}
 }

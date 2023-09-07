@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.client.rendering.block.entity;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.util.TerminalGuiRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -233,10 +234,13 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 		GUI.drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
 				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "toggle-lock");
 		y -= textRenderer.fontHeight + 5;
-		t = Text.translatable("screen.ultracraft.terminal.customize.graffiti").getString();
-		GUI.drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
-				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "graffiti");
-		y -= textRenderer.fontHeight + 5;
+		if(UltracraftClient.isCanGraffiti())
+		{
+			t = Text.translatable("screen.ultracraft.terminal.customize.graffiti").getString();
+			GUI.drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
+					textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "graffiti");
+			y -= textRenderer.fontHeight + 5;
+		}
 		t = Text.translatable("screen.ultracraft.terminal.customize.base-clr").getString();
 		GUI.drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
 				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "edit-base");
