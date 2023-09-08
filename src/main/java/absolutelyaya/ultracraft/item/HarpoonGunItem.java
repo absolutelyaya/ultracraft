@@ -76,7 +76,7 @@ public class HarpoonGunItem extends AbstractWeaponItem implements GeoItem
 				ammoStack.decrement(1);
 			HarpoonEntity harpoon = HarpoonEntity.spawn(user, user.getEyePos(), user.getRotationVector().multiply(3f));
 			world.spawnEntity(harpoon);
-			winged.getGunCooldownManager().setCooldown(this, 50, GunCooldownManager.PRIMARY);
+			winged.getGunCooldownManager().setCooldown(this, 15, GunCooldownManager.PRIMARY);
 		}
 		return super.onPrimaryFire(world, user, userVelocity);
 	}
@@ -98,7 +98,7 @@ public class HarpoonGunItem extends AbstractWeaponItem implements GeoItem
 		if(!(user instanceof WingedPlayerEntity winged))
 			return;
 		List<HarpoonEntity> harpoons;
-		harpoons = world.getEntitiesByType(TypeFilter.instanceOf(HarpoonEntity.class), user.getBoundingBox().expand(64f), i -> true);
+		harpoons = world.getEntitiesByType(TypeFilter.instanceOf(HarpoonEntity.class), user.getBoundingBox().expand(64f), i -> i.getOwner().equals(user));
 		if(harpoons.size() == 0)
 			return;
 		Vec3d ownerVelocity = Vec3d.ZERO;
@@ -115,7 +115,7 @@ public class HarpoonGunItem extends AbstractWeaponItem implements GeoItem
 			harpoon.setReturning(true);
 		}
 		user.setVelocity(ownerVelocity);
-		winged.getGunCooldownManager().setCooldown(this, 200, GunCooldownManager.SECONDARY);
+		winged.getGunCooldownManager().setCooldown(this, 100, GunCooldownManager.SECONDARY);
 		super.onAltFire(world, user);
 	}
 	
