@@ -18,7 +18,7 @@ public class HideousMassModel extends GeoModel<HideousMassEntity>
 	@Override
 	public Identifier getTextureResource(HideousMassEntity animatable)
 	{
-		return new Identifier(Ultracraft.MOD_ID, "textures/entity/hideous_mass.png");
+		return new Identifier(Ultracraft.MOD_ID, animatable.isEnraged() ? "textures/entity/hideous_mass_enraged.png" : "textures/entity/hideous_mass.png");
 	}
 	
 	@Override

@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.entity.demon;
 
+import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.IAnimatedEnemy;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
@@ -13,6 +14,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.control.LookControl;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
+import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -37,7 +39,7 @@ import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 
-public class HideousMassEntity extends AbstractUltraHostileEntity implements GeoEntity, IAnimatedEnemy
+public class HideousMassEntity extends AbstractUltraHostileEntity implements GeoEntity, IAnimatedEnemy, Enrageable
 {
 	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> MORTAR_COUNTER = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.INTEGER);
@@ -54,6 +56,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	static final RawAnimation STAND_UP_ANIM = RawAnimation.begin().thenPlay("stand_up");
 	static final RawAnimation CLAP_ANIM = RawAnimation.begin().thenPlay("clap");
 	static final RawAnimation HARPOON_ANIM = RawAnimation.begin().thenPlay("harpoon");
+	static final RawAnimation ENRAGED_ANIM = RawAnimation.begin().thenPlay("enrage_start").thenPlay("enrage_loop");
 	final AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
 	private static final byte ANIMATION_IDLE = 0;
 	private static final byte ANIMATION_MORTAR = 1;
@@ -62,6 +65,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	private static final byte ANIMATION_STAND_UP = 4;
 	private static final byte ANIMATION_CLAP = 5;
 	private static final byte ANIMATION_HARPOON = 6;
+	private static final byte ANIMATION_ENRAGED = 7;
 	
 	HarpoonEntity harpoon;
 	
@@ -97,12 +101,13 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	@Override
 	protected void initGoals()
 	{
-		goalSelector.add(0, new MortarAttackGoal(this));
+		goalSelector.add(0, new EnrageGoal(this));
 		goalSelector.add(1, new StandupGoal(this));
-		goalSelector.add(2, new ClapAttackGoal(this));
-		goalSelector.add(3, new HarpoonAttackGoal(this));
-		goalSelector.add(4, new SlamAttackGoal(this, true));
-		goalSelector.add(4, new SlamAttackGoal(this, false));
+		goalSelector.add(2, new MortarAttackGoal(this));
+		goalSelector.add(3, new ClapAttackGoal(this));
+		goalSelector.add(4, new HarpoonAttackGoal(this));
+		goalSelector.add(5, new SlamAttackGoal(this, true));
+		goalSelector.add(5, new SlamAttackGoal(this, false));
 		
 		targetSelector.add(0, new ActiveTargetGoal<>(this, PlayerEntity.class, true));
 	}
@@ -124,6 +129,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 			case ANIMATION_STAND_UP -> event.setAnimation(STAND_UP_ANIM);
 			case ANIMATION_CLAP -> event.setAnimation(CLAP_ANIM);
 			case ANIMATION_HARPOON -> event.setAnimation(HARPOON_ANIM);
+			case ANIMATION_ENRAGED -> event.setAnimation(ENRAGED_ANIM);
 		}
 		return PlayState.CONTINUE;
 	}
@@ -281,6 +287,24 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		dataTracker.set(ATTACK_COOLDOWN, 10 + random.nextInt(5));
 	}
 	
+	@Override
+	public boolean isEnraged()
+	{
+		return dataTracker.get(ENRAGED);
+	}
+	
+	@Override
+	public Vec3d getEnrageFeatureSize()
+	{
+		return new Vec3d(7f, -7f, -7f);
+	}
+	
+	@Override
+	public Vec3d getEnragedFeatureOffset()
+	{
+		return new Vec3d(0, -0.5f, 0);
+	}
+	
 	static class HideousLookControl extends LookControl
 	{
 		public HideousLookControl(MobEntity entity)
@@ -430,6 +454,33 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		{
 			super.stop();
 			mob.dataTracker.set(LAYING, false);
+		}
+	}
+	
+	static class EnrageGoal extends Goal
+	{
+		HideousMassEntity mob;
+		
+		public EnrageGoal(HideousMassEntity mob)
+		{
+			super();
+			this.mob = mob;
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			if(mob.getCooldown() > 0 || mob.getAnimation() != ANIMATION_IDLE)
+				return false;
+			return mob.isHasHarpoon() && !mob.dataTracker.get(LAYING) && !mob.isEnraged() && mob.getHealth() < 35f;
+		}
+		
+		@Override
+		public void start()
+		{
+			super.start();
+			mob.dataTracker.set(ENRAGED, true);
+			mob.setAnimation(ANIMATION_ENRAGED);
 		}
 	}
 }

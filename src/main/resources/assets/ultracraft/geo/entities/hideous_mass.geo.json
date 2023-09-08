@@ -20,13 +20,28 @@
 					"parent": "root",
 					"pivot": [0, 40, -33],
 					"cubes": [
-						{"origin": [-16, 44, -12], "size": [32, 29, 26], "uv": [120, 96]},
+						{"origin": [-16, 44, -12], "size": [32, 29, 26], "uv": [120, 96]}
+					]
+				},
+				{
+					"name": "upper",
+					"parent": "body",
+					"pivot": [0, 44, -12],
+					"cubes": [
 						{"origin": [-25.5, 44, -34], "size": [51, 29, 22], "uv": [0, 71]},
+						{"origin": [-11, 61, -49], "size": [22, 9, 2], "uv": [369, 185]},
 						{"origin": [-7, 58, -54], "size": [14, 5, 7], "uv": [368, 74]},
 						{"origin": [-7, 56, -54], "size": [14, 3, 7], "pivot": [-1, 59, -47], "rotation": [25, 0, 0], "uv": [380, 151]},
 						{"origin": [-14, 51, -47], "size": [28, 25, 14], "uv": [0, 176]},
-						{"origin": [-10, 73, -33], "size": [20, 4, 20], "uv": [194, 0]},
-						{"origin": [-11, 61, -49], "size": [22, 9, 2], "uv": [369, 185]}
+						{"origin": [-10, 73, -33], "size": [20, 4, 20], "uv": [194, 0]}
+					]
+				},
+				{
+					"name": "Face",
+					"parent": "upper",
+					"pivot": [1, 44, -33],
+					"cubes": [
+						{"origin": [-11, 39, -42], "size": [22, 8, 35], "uv": [0, 122]}
 					]
 				},
 				{
@@ -120,14 +135,6 @@
 					]
 				},
 				{
-					"name": "Face",
-					"parent": "body",
-					"pivot": [1, 44, -33],
-					"cubes": [
-						{"origin": [-11, 39, -42], "size": [22, 8, 35], "uv": [0, 122]}
-					]
-				},
-				{
 					"name": "LeftLeg4",
 					"parent": "root",
 					"pivot": [20, 58, 18],
@@ -138,7 +145,12 @@
 				{
 					"name": "LeftLegLower4",
 					"parent": "LeftLeg4",
-					"pivot": [23, 41, 16],
+					"pivot": [23, 41, 16]
+				},
+				{
+					"name": "LeftLegLower4Inv",
+					"parent": "LeftLegLower4",
+					"pivot": [18, 41, 16],
 					"cubes": [
 						{"origin": [18, 21, 13], "size": [5, 20, 5], "uv": [114, 225], "mirror": true}
 					]
@@ -154,7 +166,12 @@
 				{
 					"name": "RightLegLower4",
 					"parent": "RightLeg4",
-					"pivot": [-23, 41, 16],
+					"pivot": [-23, 41, 16]
+				},
+				{
+					"name": "RightLegLower4Inv",
+					"parent": "RightLegLower4",
+					"pivot": [-18, 41, 16],
 					"cubes": [
 						{"origin": [-23, 21, 13], "size": [5, 20, 5], "uv": [114, 225]}
 					]
@@ -170,7 +187,12 @@
 				{
 					"name": "LeftLegLower3",
 					"parent": "LeftLeg3",
-					"pivot": [23, 38, 1],
+					"pivot": [23, 38, 1]
+				},
+				{
+					"name": "LeftLegLower3Inv",
+					"parent": "LeftLegLower3",
+					"pivot": [17, 38, 1],
 					"cubes": [
 						{"origin": [17, 15, -2], "size": [6, 23, 6], "uv": [221, 39], "mirror": true}
 					]
@@ -186,7 +208,12 @@
 				{
 					"name": "RightLegLower3",
 					"parent": "RightLeg3",
-					"pivot": [-23, 38, 1],
+					"pivot": [-23, 38, 1]
+				},
+				{
+					"name": "RightLegLower3Inv",
+					"parent": "RightLegLower3",
+					"pivot": [-17, 38, 1],
 					"cubes": [
 						{"origin": [-23, 15, -2], "size": [6, 23, 6], "uv": [221, 39]}
 					]
@@ -202,7 +229,12 @@
 				{
 					"name": "LeftLegLower2",
 					"parent": "LeftLeg2",
-					"pivot": [23, 35, -14],
+					"pivot": [23, 35, -14]
+				},
+				{
+					"name": "LeftLegLower2Inv",
+					"parent": "LeftLegLower2",
+					"pivot": [17, 35, -14],
 					"cubes": [
 						{"origin": [17, 9, -17], "size": [6, 26, 6], "uv": [0, 122], "mirror": true}
 					]
@@ -218,7 +250,12 @@
 				{
 					"name": "RightLegLower2",
 					"parent": "RightLeg2",
-					"pivot": [-23, 35, -14],
+					"pivot": [-23, 35, -14]
+				},
+				{
+					"name": "RightLegLower2Inv",
+					"parent": "RightLegLower2",
+					"pivot": [-17, 35, -14],
 					"cubes": [
 						{"origin": [-23, 9, -17], "size": [6, 26, 6], "uv": [0, 122]}
 					]
@@ -234,7 +271,12 @@
 				{
 					"name": "LeftLegLower1",
 					"parent": "LeftLeg1",
-					"pivot": [20, 32, -38],
+					"pivot": [20, 32, -38]
+				},
+				{
+					"name": "LeftLegLower1Inv",
+					"parent": "LeftLegLower1",
+					"pivot": [17, 32, -32],
 					"cubes": [
 						{"origin": [17, 0, -38], "size": [6, 32, 6], "uv": [64, 219], "mirror": true}
 					]
@@ -250,7 +292,12 @@
 				{
 					"name": "RightLegLower1",
 					"parent": "RightLeg1",
-					"pivot": [-20, 32, -38],
+					"pivot": [-20, 32, -38]
+				},
+				{
+					"name": "RightLegLower1Inv",
+					"parent": "RightLegLower1",
+					"pivot": [-17, 32, -32],
 					"cubes": [
 						{"origin": [-23, 0, -38], "size": [6, 32, 6], "uv": [64, 219]}
 					]

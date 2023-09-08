@@ -112,6 +112,8 @@
   "entity.ultracraft.thrown_machinesword": "Thrown Machinesword",
   "entity.ultracraft.thrown_coin": "Thrown Coin",
   "entity.ultracraft.shockwave": "Shockwave",
+  "entity.ultracraft.vertical_shockwave": "Vertical Shockwave",
+  "entity.ultracraft.back_tank": "Back Tank",
   "entity.ultracraft.interruptable_charge": "Interruptible Charge",
   "entity.ultracraft.shotgun_pellet": "Shotgun Pellet",
   "entity.ultracraft.ejected_core": "Ejected Core",
