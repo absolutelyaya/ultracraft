@@ -63,6 +63,8 @@ public class ItemRegistry
 					new FabricItemSettings().maxCount(4)));
 	public static final Item HARPOON_GUN = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "harpoon_gun"), new HarpoonGunItem(new FabricItemSettings(), 25, 0f));
+	public static final Item TEST = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "trinkets/player_back_tank"), new Item(new FabricItemSettings()));
 	
 	//Weapons
 	public static final PierceRevolverItem PIERCE_REVOLVER = Registry.register(Registries.ITEM,

@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.accessor;
 
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
+import absolutelyaya.ultracraft.entity.other.BackTank;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
@@ -98,4 +99,8 @@ public interface WingedPlayerEntity
 	TerminalBlockEntity getFocusedTerminal();
 	
 	boolean isOpped();
+	
+	void setBackTank(BackTank tank);
+	
+	BackTank getBacktank();
 }

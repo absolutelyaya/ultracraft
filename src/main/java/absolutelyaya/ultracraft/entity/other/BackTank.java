@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.entity.other;
 import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.EntityAccessor;
+import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
@@ -39,6 +40,22 @@ public class BackTank extends Entity
 		dataTracker.startTracking(OWNER, -1);
 	}
 	
+	@Override
+	public void onTrackedDataSet(TrackedData<?> data)
+	{
+		super.onTrackedDataSet(data);
+		if(data.equals(OWNER))
+		{
+			Entity e = getWorld().getEntityById(dataTracker.get(OWNER));
+			if(e instanceof LivingEntity living)
+			{
+				owner = living;
+				if(living instanceof WingedPlayerEntity winged)
+					winged.setBackTank(this);
+			}
+		}
+	}
+	
 	public static BackTank spawn(World world, LivingEntity owner)
 	{
 		BackTank tank = new BackTank(EntityRegistry.BACK_TANK, world);
@@ -57,19 +74,23 @@ public class BackTank extends Entity
 		else if(!isRemoved())
 			kill();
 		if(owner instanceof PlayerEntity player && !player.getMainHandStack().isOf(ItemRegistry.FLAMETHROWER))
+		{
 			kill();
+			((WingedPlayerEntity)player).setBackTank(null);
+		}
 	}
 	
 	public void positionSelf(LivingEntity owner)
 	{
-		//prevX = getX();
-		//prevY = getY();
-		//prevZ = getZ();
-		//lastRenderX = getX();
-		//lastRenderY = getY();
-		//lastRenderZ = getZ();
+		prevX = getX();
+		prevY = getY();
+		prevZ = getZ();
+		lastRenderX = getX();
+		lastRenderY = getY();
+		lastRenderZ = getZ();
 		Vec3d pos = owner.getBoundingBox().getCenter().subtract(Vec3d.fromPolar(0f, owner.getBodyYaw()).multiply(0.3f));
-		setPosition(pos.x, pos.y + 0.3, pos.z);
+		setPos(pos.x, pos.y + 0.3, pos.z);
+		setBoundingBox(calculateBoundingBox());
 	}
 	
 	@Override

@@ -5,7 +5,6 @@ import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
-import absolutelyaya.ultracraft.client.gui.screen.TerminalScreen;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.entity.other.BackTank;
@@ -18,7 +17,6 @@ import com.chocohead.mm.api.ClassTinkerers;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import net.minecraft.block.FluidBlock;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
@@ -573,5 +571,17 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public boolean isOpped()
 	{
 		return getPermissionLevel() >= 2;
+	}
+	
+	@Override
+	public void setBackTank(BackTank backtank)
+	{
+		this.backtank = backtank;
+	}
+	
+	@Override
+	public BackTank getBacktank()
+	{
+		return backtank;
 	}
 }

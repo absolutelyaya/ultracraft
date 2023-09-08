@@ -15,10 +15,7 @@ import absolutelyaya.ultracraft.client.rendering.entity.demon.CerberusRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.demon.HideousMassRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceModel;
 import absolutelyaya.ultracraft.client.rendering.entity.demon.MaliciousFaceRenderer;
-import absolutelyaya.ultracraft.client.rendering.entity.feature.EnragedFeature;
-import absolutelyaya.ultracraft.client.rendering.entity.feature.EnragedModel;
-import absolutelyaya.ultracraft.client.rendering.entity.feature.WingsFeature;
-import absolutelyaya.ultracraft.client.rendering.entity.feature.WingsModel;
+import absolutelyaya.ultracraft.client.rendering.entity.feature.*;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.SchismRenderer;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.StrayRenderer;
@@ -241,7 +238,10 @@ public class UltracraftClient implements ClientModInitializer
 			if(type.equals(EntityRegistry.MALICIOUS_FACE))
 				helper.register(new EnragedFeature<>(context.getModelLoader()));
 			if(type.equals(EntityType.PLAYER))
+			{
 				helper.register(new WingsFeature<>((PlayerEntityRenderer)renderer, context.getModelLoader()));
+				helper.register(new PlayerBackTankFeature<>((PlayerEntityRenderer)renderer));
+			}
 		});
 		
 		WorldRenderEvents.BEFORE_ENTITIES.register((ctx) -> applyEntityPoses = true);

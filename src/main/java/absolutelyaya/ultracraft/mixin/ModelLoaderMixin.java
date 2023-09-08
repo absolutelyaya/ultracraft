@@ -22,5 +22,6 @@ public abstract class ModelLoaderMixin
 	void onAddModel(BlockColors blockColors, Profiler profiler, Map jsonUnbakedModels, Map blockStates, CallbackInfo ci)
 	{
 		addModel(new ModelIdentifier(Ultracraft.MOD_ID, "harpoon_long", "inventory"));
+		addModel(new ModelIdentifier(Ultracraft.MOD_ID, "trinkets/player_back_tank", "inventory"));
 	}
 }
