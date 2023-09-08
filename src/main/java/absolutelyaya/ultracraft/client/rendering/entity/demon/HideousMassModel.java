@@ -9,6 +9,10 @@ import software.bernie.geckolib.model.GeoModel;
 
 public class HideousMassModel extends GeoModel<HideousMassEntity>
 {
+	final Identifier NORMAL = new Identifier(Ultracraft.MOD_ID, "textures/entity/hideous_mass.png");
+	final Identifier ENRAGED = new Identifier(Ultracraft.MOD_ID, "textures/entity/hideous_mass_enraged.png");
+	final Identifier DYING = new Identifier(Ultracraft.MOD_ID, "textures/entity/hideous_mass_dying.png");
+	
 	@Override
 	public Identifier getModelResource(HideousMassEntity animatable)
 	{
@@ -18,7 +22,9 @@ public class HideousMassModel extends GeoModel<HideousMassEntity>
 	@Override
 	public Identifier getTextureResource(HideousMassEntity animatable)
 	{
-		return new Identifier(Ultracraft.MOD_ID, animatable.isEnraged() ? "textures/entity/hideous_mass_enraged.png" : "textures/entity/hideous_mass.png");
+		if(animatable.isDying() || animatable.isDead())
+			return DYING;
+		return animatable.isEnraged() ? ENRAGED : NORMAL;
 	}
 	
 	@Override

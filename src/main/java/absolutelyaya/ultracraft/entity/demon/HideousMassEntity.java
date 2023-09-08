@@ -3,12 +3,14 @@ package absolutelyaya.ultracraft.entity.demon;
 import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.IAnimatedEnemy;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.goal.TimedAttackGoal;
 import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.other.VerticalShockwaveEntity;
 import absolutelyaya.ultracraft.entity.projectile.HarpoonEntity;
 import absolutelyaya.ultracraft.entity.projectile.HideousMortarEntity;
+import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -18,6 +20,7 @@ import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -48,6 +51,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	protected static final TrackedData<Boolean> LAYING = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> HAS_HARPOON = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Float> HARPOON_HEALTH = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.FLOAT);
+	protected static final TrackedData<Integer> DEATH = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	static final RawAnimation POSE_ANIM = RawAnimation.begin().thenPlay("pose");
 	static final RawAnimation LAY_POSE_ANIM = RawAnimation.begin().thenPlay("lay_pose");
 	static final RawAnimation MORTAR_ANIM = RawAnimation.begin().thenPlay("mortar");
@@ -68,6 +72,8 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	private static final byte ANIMATION_ENRAGED = 7;
 	
 	HarpoonEntity harpoon;
+	DamageSource killingBlow;
+	boolean mortarSide;
 	
 	public HideousMassEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -96,6 +102,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		dataTracker.startTracking(SLAM_COUNTER, 0);
 		dataTracker.startTracking(HAS_HARPOON, true);
 		dataTracker.startTracking(HARPOON_HEALTH, 0f);
+		dataTracker.startTracking(DEATH, 0);
 	}
 	
 	@Override
@@ -118,8 +125,30 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		controllerRegistrar.add(new AnimationController<>(this, "controller", this::predicate));
 	}
 	
+	@Override
+	public void onTrackedDataSet(TrackedData<?> data)
+	{
+		super.onTrackedDataSet(data);
+		if(data.equals(DEATH) && dataTracker.get(DEATH) >= 100)
+		{
+			if(getWorld().isClient)
+			{
+				for (int i = 0; i < 64; i++)
+				{
+					Vec3d pos = getBoundingBox().getCenter().addRandom(random, 4);
+					Vec3d vel = Vec3d.ZERO.addRandom(random, 1.3f);
+					getWorld().addParticle(new GoopDropParticleEffect(new Vec3d(0.56, 0.09, 0.01), 0.75f),
+							pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
+				}
+			}
+			onDeath(killingBlow == null ? DamageSources.get(getWorld(), DamageTypes.GENERIC_KILL) : killingBlow);
+			setHealth(0f);
+		}
+	}
+	
 	private PlayState predicate(AnimationState<GeoAnimatable> event)
 	{
+		event.getController().setAnimationSpeed((isDying() || isDead()) ? 0f : 1f);
 		switch(getAnimation())
 		{
 			case ANIMATION_IDLE -> event.setAnimation(dataTracker.get(LAYING) ? LAY_POSE_ANIM : POSE_ANIM);
@@ -146,8 +175,31 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		super.tick();
 		if(dataTracker.get(ATTACK_COOLDOWN) > 0)
 			dataTracker.set(ATTACK_COOLDOWN, dataTracker.get(ATTACK_COOLDOWN) - 1);
-		//if(!getWorld().isClient && !isHasHarpoon() && harpoon != null)
-		//	setHasHarpoon(true);
+		
+		if(isEnraged() && getTarget() != null && getCooldown() <= 0) //1 in 5 per second
+		{
+			if(mortarSide)
+				fireMortar(new Vec3d(2f, 0f, 0f));
+			else
+				fireMortar(new Vec3d(-2f, 0f, 0f));
+			mortarSide = !mortarSide;
+			setCooldown(15 + random.nextInt(15));
+		}
+		
+		if(isDying())
+		{
+			dataTracker.set(DEATH, dataTracker.get(DEATH) + 1);
+			if(age % 10 == 0)
+			{
+				Vec3d pos = getBoundingBox().getCenter().addRandom(random, 4);
+				for (int i = 0; i < 8; i++)
+				{
+					Vec3d vel = Vec3d.ZERO.addRandom(random, 1.3f);
+					getWorld().addParticle(new GoopDropParticleEffect(new Vec3d(0.56, 0.09, 0.01), 1f),
+							pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
+				}
+			}
+		}
 	}
 	
 	@Override
@@ -190,7 +242,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	{
 		ShockwaveEntity shockwave = new ShockwaveEntity(EntityRegistry.SHOCKWAVE, getWorld());
 		shockwave.setDamage(3f);
-		shockwave.setGrowRate(0.5f);
+		shockwave.setGrowRate(0.75f);
 		shockwave.setAffectOnly(PlayerEntity.class);
 		shockwave.setPosition(getPos().add(0f, 0.5f, 0f));
 		getWorld().spawnEntity(shockwave);
@@ -201,7 +253,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		VerticalShockwaveEntity shockwave = new VerticalShockwaveEntity(EntityRegistry.VERICAL_SHOCKWAVE, getWorld());
 		shockwave.setDamage(2f);
 		shockwave.setYaw(getYaw());
-		shockwave.setGrowRate(0.5f);
+		shockwave.setGrowRate(0.75f);
 		shockwave.setAffectOnly(PlayerEntity.class);
 		shockwave.setPosition(getPos().add(0f, 0.5f, 0f));
 		getWorld().spawnEntity(shockwave);
@@ -223,7 +275,6 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		playSound(SoundEvents.ITEM_TRIDENT_THROW, 2.0f, 0.4f / (getRandom().nextFloat() * 0.4f + 0.8f));
 		getWorld().spawnEntity(harpoon);
 		this.harpoon = harpoon;
-		System.out.println(harpoon);
 		setHasHarpoon(false);
 		dataTracker.set(HARPOON_HEALTH, 20f);
 	}
@@ -261,8 +312,22 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
+		if(isDying())
+			return false;
 		if(source.getAttacker() instanceof HideousMassEntity || source.getSource() instanceof HideousMassEntity)
 			return false;
+		if(getHealth() - amount <= 0f)
+		{
+			dataTracker.set(DEATH, 1);
+			killingBlow = source;
+			if(harpoon != null)
+			{
+				harpoon.setReturning(true);
+				harpoon = null;
+			}
+			setHealth(1f);
+			return true;
+		}
 		boolean b = super.damage(source, amount);
 		if(b && harpoon != null)
 		{
@@ -293,6 +358,11 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		return dataTracker.get(ENRAGED);
 	}
 	
+	public boolean isDying()
+	{
+		return dataTracker.get(DEATH) > 0 && dataTracker.get(DEATH) < 101;
+	}
+	
 	@Override
 	public Vec3d getEnrageFeatureSize()
 	{
@@ -315,7 +385,8 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		@Override
 		public void tick()
 		{
-			if(entity.getTarget() != null && entity.getDataTracker().get(ANIMATION).equals(ANIMATION_IDLE))
+			byte anim = entity.getDataTracker().get(ANIMATION);
+			if(entity.getTarget() != null && (anim == ANIMATION_IDLE || anim == ANIMATION_ENRAGED))
 			{
 				Vec3d diff = entity.getTarget().getPos().subtract(entity.getPos());
 				float targetYaw = -((float)MathHelper.atan2(diff.x, diff.z)) * MathHelper.DEGREES_PER_RADIAN;
