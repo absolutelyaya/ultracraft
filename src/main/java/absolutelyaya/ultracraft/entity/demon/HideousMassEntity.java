@@ -61,6 +61,9 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	static final RawAnimation CLAP_ANIM = RawAnimation.begin().thenPlay("clap");
 	static final RawAnimation HARPOON_ANIM = RawAnimation.begin().thenPlay("harpoon");
 	static final RawAnimation ENRAGED_ANIM = RawAnimation.begin().thenPlay("enrage_start").thenPlay("enrage_loop");
+	static final RawAnimation TURN_ANIM = RawAnimation.begin().thenPlay("turn");
+	static final RawAnimation TURN_LAYING_ANIM = RawAnimation.begin().thenPlay("lay_turn");
+	static final RawAnimation ENRAGED_TURN_ANIM = RawAnimation.begin().thenPlay("enrage_turn");
 	final AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
 	private static final byte ANIMATION_IDLE = 0;
 	private static final byte ANIMATION_MORTAR = 1;
@@ -122,7 +125,8 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
 	{
-		controllerRegistrar.add(new AnimationController<>(this, "controller", this::predicate));
+		controllerRegistrar.add(new AnimationController<>(this, "main", this::predicate),
+								new AnimationController<>(this, "turn", this::turnPredicate));
 	}
 	
 	@Override
@@ -163,6 +167,21 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		return PlayState.CONTINUE;
 	}
 	
+	private PlayState turnPredicate(AnimationState<GeoAnimatable> event)
+	{
+		event.getController().setAnimationSpeed((isDying() || isDead()) ? 0f : 1f);
+		if(prevYaw != getYaw())
+		{
+			if(dataTracker.get(LAYING))
+				event.setAnimation(TURN_LAYING_ANIM);
+			else
+				event.setAnimation(isEnraged() ? ENRAGED_TURN_ANIM : TURN_ANIM);
+		}
+		else
+			return PlayState.STOP;
+		return PlayState.CONTINUE;
+	}
+	
 	@Override
 	public AnimatableInstanceCache getAnimatableInstanceCache()
 	{
@@ -176,7 +195,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		if(dataTracker.get(ATTACK_COOLDOWN) > 0)
 			dataTracker.set(ATTACK_COOLDOWN, dataTracker.get(ATTACK_COOLDOWN) - 1);
 		
-		if(isEnraged() && getTarget() != null && getCooldown() <= 0) //1 in 5 per second
+		if(!(isDying() || isDead()) && isEnraged() && getTarget() != null && getCooldown() <= 0) //1 in 5 per second
 		{
 			if(mortarSide)
 				fireMortar(new Vec3d(2f, 0f, 0f));
@@ -386,7 +405,8 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		public void tick()
 		{
 			byte anim = entity.getDataTracker().get(ANIMATION);
-			if(entity.getTarget() != null && (anim == ANIMATION_IDLE || anim == ANIMATION_ENRAGED))
+			if(entity.getTarget() != null && (anim == ANIMATION_IDLE || anim == ANIMATION_ENRAGED) &&
+					   !(entity.isDead() || ((HideousMassEntity)entity).isDying()))
 			{
 				Vec3d diff = entity.getTarget().getPos().subtract(entity.getPos());
 				float targetYaw = -((float)MathHelper.atan2(diff.x, diff.z)) * MathHelper.DEGREES_PER_RADIAN;
