@@ -12,7 +12,10 @@
     "PlayerEntityMixin",
     "PlayerInventoryMixin",
     "ProjectileEntityMixin",
-    "WorldMixin"
+    "WorldMixin",
+    "compat.sodium.DefaultMaterialsMixin",
+    "compat.sodium.DefaultTerrainRenderPassesMixin",
+    "compat.sodium.SodiumWorldRendererMixin"
   ],
   "client": [
     "BackgroundRendererMixin",

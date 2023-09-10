@@ -42,7 +42,7 @@ repositories {
     maven { url "https://maven.shedaniel.me/" }
     maven { url "https://maven.terraformersmc.com/releases/" }
     maven { url "https://cursemaven.com" }
-    maven {url 'https://maven.kosmx.dev/' }
+    maven { url 'https://maven.kosmx.dev/' }
     maven { url 'https://api.modrinth.com/maven' }
 }
 
@@ -84,6 +84,9 @@ dependencies {
 
     //better combat
     modImplementation "maven.modrinth:better-combat:${project.bettercombat_version}-fabric"
+
+    //Sodium
+    modCompileOnly "maven.modrinth:sodium:mc1.20.1-0.5.2"
 }
 
 processResources {
