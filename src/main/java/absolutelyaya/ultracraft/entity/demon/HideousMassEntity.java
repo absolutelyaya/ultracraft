@@ -27,9 +27,11 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -73,6 +75,16 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	private static final byte ANIMATION_CLAP = 5;
 	private static final byte ANIMATION_HARPOON = 6;
 	private static final byte ANIMATION_ENRAGED = 7;
+	private final HideousPart[] parts;
+	private final HideousPart body1;
+	private final HideousPart body2;
+	private final HideousPart body3;
+	private final HideousPart cap;
+	private final HideousPart mask;
+	private final HideousPart entrails;
+	private final HideousPart tail;
+	private final HideousPart right_arm;
+	private final HideousPart left_arm;
 	
 	HarpoonEntity harpoon;
 	DamageSource killingBlow;
@@ -83,6 +95,17 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		super(entityType, world);
 		((LivingEntityAccessor)this).setTakePunchKnockbackSupplier(() -> false); //disable knockback
 		lookControl = new HideousLookControl(this);
+		
+		body1 = new HideousPart(this, "body", new Vec2f(3f, 1.75f), false);
+		body2 = new HideousPart(this, "body", new Vec2f(2f, 2f), false);
+		body3 = new HideousPart(this, "body", new Vec2f(2f, 1.5f), false);
+		cap = new HideousPart(this, "cap", new Vec2f(2f, 2f), true);
+		mask = new HideousPart(this, "mask", new Vec2f(1.5f, 2.1f), true);
+		entrails = new HideousPart(this, "entrails", new Vec2f(1.5f, 1.5f), false);
+		tail = new HideousPart(this, "tail", new Vec2f(1.5f, 1.5f), false);
+		right_arm = new HideousPart(this, "right_arm", new Vec2f(1.25f, 2.5f), true);
+		left_arm = new HideousPart(this, "left_arm", new Vec2f(1.25f, 2.5f), true);
+		parts = new HideousPart[] {body1, body2, body3, cap, mask, entrails, tail, right_arm, left_arm};
 	}
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
@@ -225,7 +248,68 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	public void tickMovement()
 	{
 		super.tickMovement();
+		for (HideousPart part : parts)
+		{
+			part.prevX = part.getX();
+			part.prevY = part.getY();
+			part.prevZ = part.getZ();
+			part.lastRenderX = part.getX();
+			part.lastRenderY = part.getY();
+			part.lastRenderZ = part.getZ();
+		}
+		
+		positionPart(body1, new Vec3d(0, 3.5, 1.7));
+		positionPart(body2, new Vec3d(0, 2, 1.3));
+		positionPart(body3, new Vec3d(0, 0.75, -0.5));
+		positionPart(cap, new Vec3d(0, 4.5, 2));
+		positionPart(mask, new Vec3d(0, 3.25, 2.9));
+		positionPart(entrails, new Vec3d(0, 2, 2.2));
+		positionPart(tail, new Vec3d(0, 0.5, -2.5));
+		positionPart(right_arm, new Vec3d(-2, 2.3, 2.35));
+		positionPart(left_arm, new Vec3d(2, 2.3, 2.35));
+		
 		setBodyYaw(headYaw);
+	}
+	
+	void positionPart(HideousPart part, Vec3d relative)
+	{
+		Vec3d pos = getPos().add(relative.rotateY(MathHelper.RADIANS_PER_DEGREE * -bodyYaw));
+		part.setPosition(pos.x, pos.y, pos.z);
+	}
+	
+	@Override
+	public boolean canHit()
+	{
+		return false;
+	}
+	
+	@Override
+	public boolean canBeHitByProjectile()
+	{
+		return false;
+	}
+	
+	public boolean damagePart(HideousPart part, DamageSource source, float amount)
+	{
+		if(part.name.equals("entrails") || part.name.equals("tail"))
+			amount *= 3f;
+		return damage(source, amount);
+	}
+	
+	public HideousPart[] getParts()
+	{
+		return parts;
+	}
+	
+	@Override
+	public void onSpawnPacket(EntitySpawnS2CPacket packet)
+	{
+		super.onSpawnPacket(packet);
+		for (int i = 0; i < parts.length; i++)
+		{
+			int last = parts[i].getId();
+			parts[i].setId(packet.getId() + i + 1);
+		}
 	}
 	
 	@Override
@@ -246,7 +330,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	@Override
 	public Vec3d getLeashPos(float delta)
 	{
-		return getPos().add(new Vec3d(0f, 6f, -2f).rotateY(-getYaw() * MathHelper.RADIANS_PER_DEGREE));
+		return tail.getPos();
 	}
 	
 	public void fireMortar(Vec3d offset)
@@ -331,7 +415,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
-		if(isDying())
+		if(isDying() || isDead())
 			return false;
 		if(source.getAttacker() instanceof HideousMassEntity || source.getSource() instanceof HideousMassEntity)
 			return false;
@@ -392,6 +476,14 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	public Vec3d getEnragedFeatureOffset()
 	{
 		return new Vec3d(0, -0.5f, 0);
+	}
+	
+	@Override
+	public void remove(RemovalReason reason)
+	{
+		super.remove(reason);
+		for (HideousPart part : parts)
+			part.remove(reason);
 	}
 	
 	static class HideousLookControl extends LookControl

@@ -103,6 +103,7 @@
   "entity.ultracraft.malicious_face": "Malicious Face",
   "entity.ultracraft.cerberus": "Cerberus",
   "entity.ultracraft.hideous_mass": "Hideous Mass",
+  "entity.ultracraft.hideous_part": "Hideous Part [%s]",
   "entity.ultracraft.swordsmachine": "Swordsmachine",
   "entity.ultracraft.destiny_swordsmachine": "Tundra//Agony",
   "entity.ultracraft.swordsmachine-named": "Swordsmachine [%s]",
