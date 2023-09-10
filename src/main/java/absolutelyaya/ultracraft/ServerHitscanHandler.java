@@ -183,7 +183,7 @@ public class ServerHitscanHandler
 	{
 		if(entity instanceof ProjectileEntity proj && ((ProjectileEntityAccessor)proj).isHitscanHittable(type))
 			return true;
-		if(entity.isSpectator())
+		if(entity.isSpectator() || !entity.canHit())
 			return false;
 		return !(entity instanceof ProjectileEntity || entity instanceof AbstractOrbEntity);
 	}

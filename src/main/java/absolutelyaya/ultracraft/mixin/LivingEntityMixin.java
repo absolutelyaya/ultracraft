@@ -98,7 +98,6 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			args.set(1, amount * 2.5f);
 	}
 	
-	@SuppressWarnings("EqualsBetweenInconvertibleTypes")
 	@Inject(method = "damage", at = @At("RETURN"))
 	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
 	{
@@ -106,18 +105,30 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			return;
 		if(source.isOf(DamageSources.RICOCHET))
 			ricochetCooldown = 5; //after ricochet hit, cant ricochet to this enemy again for 5 ticks
-		if(!IsCanBleed() || source.isIn(DamageTypeTags.NO_BLEEDING))
+		if(IsCanBleed() && !source.isIn(DamageTypeTags.NO_BLEEDING))
+			bleed(getPos(), getHeight() / 2f, source, amount);
+		if(source.isIn(DamageTypeTags.IS_PER_TICK))
 			return;
+		if(source.isOf(DamageSources.GUN) || source.isOf(DamageSources.SHOTGUN))
+			timeUntilRegen = 9;
+		if(source.isOf(DamageSources.SWORDSMACHINE))
+			timeUntilRegen = 12;
+	}
+	
+	@SuppressWarnings("EqualsBetweenInconvertibleTypes")
+	@Override
+	public void bleed(Vec3d pos, float halfheight, DamageSource source, float amount)
+	{
 		List<PlayerEntity> nearby = getWorld().getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(32), e -> !e.equals(this));
 		List<PlayerEntity> heal = getWorld().getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), getBoundingBox().expand(2), e -> !e.equals(this));
 		for (PlayerEntity player : nearby)
 		{
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeFloat(amount);
-			buf.writeDouble(getPos().x);
-			buf.writeDouble(getPos().y);
-			buf.writeDouble(getPos().z);
-			buf.writeDouble(getHeight() / 2);
+			buf.writeDouble(pos.x);
+			buf.writeDouble(pos.y);
+			buf.writeDouble(pos.z);
+			buf.writeDouble(halfheight);
 			buf.writeBoolean(source.isOf(DamageSources.SHOTGUN));
 			ServerPlayNetworking.send((ServerPlayerEntity)player, PacketRegistry.BLEED_PACKET_ID, buf);
 		}
@@ -135,12 +146,6 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 				player.getHungerManager().add((int)(healing / 1.5f), 5f);
 			}
 		}
-		if(source.isIn(DamageTypeTags.IS_PER_TICK))
-			return;
-		if(source.isOf(DamageSources.GUN) || source.isOf(DamageSources.SHOTGUN))
-			timeUntilRegen = 9;
-		if(source.isOf(DamageSources.SWORDSMACHINE))
-			timeUntilRegen = 12;
 	}
 	
 	@Inject(method = "getJumpVelocity", at = @At("RETURN"), cancellable = true)
@@ -334,7 +339,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	}
 	
 	@Override
-	public void SetCanBleedSupplier(Supplier<Boolean> supplier)
+	public void setCanBleedSupplier(Supplier<Boolean> supplier)
 	{
 		canBleedSupplier = supplier;
 	}

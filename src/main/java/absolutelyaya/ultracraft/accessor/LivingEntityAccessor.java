@@ -1,5 +1,8 @@
 package absolutelyaya.ultracraft.accessor;
 
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.util.math.Vec3d;
+
 import java.util.function.Supplier;
 
 public interface LivingEntityAccessor
@@ -12,7 +15,7 @@ public interface LivingEntityAccessor
 	
 	boolean IsCanBleed();
 	
-	void SetCanBleedSupplier(Supplier<Boolean> supplier);
+	void setCanBleedSupplier(Supplier<Boolean> supplier);
 	
 	boolean takePunchKnockback();
 	
@@ -25,4 +28,6 @@ public interface LivingEntityAccessor
 	int getGravityReduction();
 	
 	boolean isRicochetHittable();
+	
+	void bleed(Vec3d pos, float halfheight, DamageSource source, float amount);
 }

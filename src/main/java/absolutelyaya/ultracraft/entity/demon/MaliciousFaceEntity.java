@@ -132,7 +132,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 		else if (data.equals(DEAD) && dataTracker.get(DEAD))
 		{
 			deathRotation = new Vec2f(getPitch(), getYaw());
-			((LivingEntityAccessor)this).SetCanBleedSupplier(() -> false); //disable bleeding
+			((LivingEntityAccessor)this).setCanBleedSupplier(() -> false); //disable bleeding
 		}
 	}
 	

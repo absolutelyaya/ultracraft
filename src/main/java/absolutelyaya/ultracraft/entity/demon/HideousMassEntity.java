@@ -94,6 +94,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	{
 		super(entityType, world);
 		((LivingEntityAccessor)this).setTakePunchKnockbackSupplier(() -> false); //disable knockback
+		((LivingEntityAccessor)this).setCanBleedSupplier(() -> false); //disable auto-bleed
 		lookControl = new HideousLookControl(this);
 		
 		body1 = new HideousPart(this, "body", new Vec2f(3f, 1.75f), false);
@@ -293,6 +294,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	{
 		if(part.name.equals("entrails") || part.name.equals("tail"))
 			amount *= 3f;
+		((LivingEntityAccessor)this).bleed(part.getPos(), part.getHeight() / 2, source, amount);
 		return damage(source, amount);
 	}
 	
@@ -306,10 +308,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	{
 		super.onSpawnPacket(packet);
 		for (int i = 0; i < parts.length; i++)
-		{
-			int last = parts[i].getId();
 			parts[i].setId(packet.getId() + i + 1);
-		}
 	}
 	
 	@Override
@@ -321,6 +320,12 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	@Override
 	protected void pushAway(Entity entity) {
 	
+	}
+	
+	@Override
+	public boolean isFireImmune()
+	{
+		return true;
 	}
 	
 	@Override
