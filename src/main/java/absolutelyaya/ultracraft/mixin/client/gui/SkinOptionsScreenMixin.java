@@ -1,4 +1,4 @@
-package absolutelyaya.ultracraft.mixin;
+package absolutelyaya.ultracraft.mixin.client.gui;
 
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import net.minecraft.client.gui.screen.Screen;

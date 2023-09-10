@@ -1,4 +1,4 @@
-package absolutelyaya.ultracraft.mixin;
+package absolutelyaya.ultracraft.mixin.client;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import net.minecraft.client.MinecraftClient;

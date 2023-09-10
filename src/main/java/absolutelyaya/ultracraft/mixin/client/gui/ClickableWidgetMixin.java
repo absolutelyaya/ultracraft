@@ -1,4 +1,4 @@
-package absolutelyaya.ultracraft.mixin;
+package absolutelyaya.ultracraft.mixin.client.gui;
 
 import absolutelyaya.ultracraft.accessor.WidgetAccessor;
 import net.minecraft.client.gui.widget.ClickableWidget;

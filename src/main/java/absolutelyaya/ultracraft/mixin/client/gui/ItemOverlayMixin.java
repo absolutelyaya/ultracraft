@@ -1,4 +1,4 @@
-package absolutelyaya.ultracraft.mixin;
+package absolutelyaya.ultracraft.mixin.client.gui;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;

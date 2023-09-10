@@ -1,4 +1,4 @@
-package absolutelyaya.ultracraft.mixin;
+package absolutelyaya.ultracraft.mixin.client.render;
 
 import absolutelyaya.ultracraft.item.SwordsmachinePlushieItem;
 import net.minecraft.client.MinecraftClient;
