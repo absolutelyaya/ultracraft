@@ -2,20 +2,35 @@ package absolutelyaya.ultracraft.entity;
 
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.particle.TeleportParticleEffect;
+import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.boss.BossBar;
+import net.minecraft.entity.boss.ServerBossBar;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.registry.tag.FluidTags;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.LocalDifficulty;
+import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractUltraHostileEntity extends HostileEntity
 {
 	protected static final TrackedData<Byte> ANIMATION = DataTracker.registerData(AbstractUltraHostileEntity.class, TrackedDataHandlerRegistry.BYTE);
+	protected static final TrackedData<Boolean> BOSS = DataTracker.registerData(AbstractUltraHostileEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	
+	protected ServerBossBar bossBar;
 	
 	protected AbstractUltraHostileEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -32,6 +47,29 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	{
 		super.initDataTracker();
 		dataTracker.startTracking(ANIMATION, (byte)0);
+		dataTracker.startTracking(BOSS, getBossDefault());
+	}
+	
+	@Nullable
+	@Override
+	public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData, @Nullable NbtCompound entityNbt)
+	{
+		return super.initialize(world, difficulty, spawnReason, entityData, entityNbt);
+	}
+	
+	@Override
+	public void readCustomDataFromNbt(NbtCompound nbt)
+	{
+		super.readCustomDataFromNbt(nbt);
+		if(nbt.contains("boss", NbtElement.BYTE_TYPE))
+			dataTracker.set(BOSS, nbt.getBoolean("boss"));
+	}
+	
+	@Override
+	public void writeCustomDataToNbt(NbtCompound nbt)
+	{
+		super.writeCustomDataToNbt(nbt);
+		nbt.putBoolean("boss", dataTracker.get(BOSS));
 	}
 	
 	@Override
@@ -46,6 +84,11 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	{
 		getWorld().addParticle(new TeleportParticleEffect(getTeleportParticleSize()), x, y, z, 0f, 0f, 0f);
 		return super.teleport(x, y, z, particleEffects);
+	}
+	
+	protected ServerBossBar initBossBar()
+	{
+		return new ServerBossBar(getDisplayName(), BossBar.Color.RED, BossBar.Style.PROGRESS);
 	}
 	
 	protected double getTeleportParticleSize()
@@ -80,5 +123,59 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	protected int computeFallDamage(float fallDistance, float damageMultiplier)
 	{
 		return super.computeFallDamage(fallDistance - 3, damageMultiplier);
+	}
+	
+	@Override
+	public void setCustomName(@Nullable Text name)
+	{
+		super.setCustomName(name);
+		if(isBoss())
+			bossBar.setName(getDisplayName());
+	}
+	
+	@Override
+	public void onStartedTrackingBy(ServerPlayerEntity player)
+	{
+		super.onStartedTrackingBy(player);
+		if(isBoss())
+			bossBar.addPlayer(player);
+	}
+	
+	@Override
+	public void onStoppedTrackingBy(ServerPlayerEntity player)
+	{
+		super.onStoppedTrackingBy(player);
+		if(isBoss())
+			bossBar.removePlayer(player);
+	}
+	
+	@Override
+	protected void mobTick()
+	{
+		super.mobTick();
+		if(isBoss())
+			bossBar.setPercent(getHealth() / getMaxHealth());
+	}
+	
+	@Override
+	public boolean damage(DamageSource source, float amount)
+	{
+		boolean b = super.damage(source, amount);
+		if(isBoss())
+			bossBar.setPercent(getHealth() / getMaxHealth());
+		return b;
+	}
+	
+	protected boolean getBossDefault()
+	{
+		return false;
+	}
+	
+	public boolean isBoss()
+	{
+		boolean boss = dataTracker.get(BOSS);
+		if(boss && bossBar == null)
+			bossBar = initBossBar();
+		return boss;
 	}
 }

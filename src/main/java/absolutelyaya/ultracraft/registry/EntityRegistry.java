@@ -126,7 +126,7 @@ public class EntityRegistry
 		FabricDefaultAttributeRegistry.register(CERBERUS, CerberusEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(HIDEOUS_MASS, HideousMassEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(SWORDSMACHINE, SwordsmachineEntity.getDefaultAttributes());
-		FabricDefaultAttributeRegistry.register(DESTINY_SWORDSMACHINE, SwordsmachineEntity.getDefaultAttributes());
+		FabricDefaultAttributeRegistry.register(DESTINY_SWORDSMACHINE, DestinyBondSwordsmachineEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(DRONE, DroneEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(STREET_CLEANER, StreetCleanerEntity.getDefaultAttributes());
 	}

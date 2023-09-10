@@ -31,7 +31,6 @@ import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.boss.BossBar;
 import net.minecraft.entity.boss.ServerBossBar;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
@@ -45,12 +44,12 @@ import net.minecraft.loot.context.LootContextParameterSet;
 import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.loot.context.LootContextTypes;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
 import net.minecraft.util.TypeFilter;
@@ -61,7 +60,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -80,7 +78,6 @@ import java.util.UUID;
 
 public class SwordsmachineEntity extends AbstractUltraHostileEntity implements GeoEntity, MeleeInterruptable, Enrageable, ITrailEnjoyer
 {
-	protected final ServerBossBar bossBar = new ServerBossBar(this.getDisplayName(), BossBar.Color.RED, BossBar.Style.PROGRESS);
 	private static final int trailLifetime = 40;
 	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("idle");
 	private static final RawAnimation HAND_CLOSED_ANIM = RawAnimation.begin().thenLoop("hand_closed");
@@ -173,12 +170,14 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 			if(t == 0)
 				getAttributes().removeModifiers(enragedModifiers);
 		}
+		if(data.equals(BOSS))
+			setHealth(isBoss() ? 125f : 60f);
 	}
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
 		return HostileEntity.createMobAttributes()
-					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 125.0d) //TODO: set to 30 for non-bosses
+					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 125.0d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 8.0d)
 					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d)
@@ -274,6 +273,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		super.writeCustomDataToNbt(nbt);
 		nbt.putBoolean("shotgun", dataTracker.get(HAS_SHOTGUN));
 		nbt.putBoolean("sword", dataTracker.get(HAS_SWORD));
+		nbt.putBoolean("boss", dataTracker.get(BOSS));
 	}
 	
 	@Override
@@ -282,10 +282,18 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		super.readCustomDataFromNbt(nbt);
 		if (hasCustomName())
 			setCustomName(getDisplayName());
-		if(nbt.contains("shotgun"))
+		if(nbt.contains("shotgun", NbtElement.BYTE_TYPE))
 			dataTracker.set(HAS_SHOTGUN, nbt.getBoolean("shotgun"));
-		if(nbt.contains("sword"))
+		if(nbt.contains("sword", NbtElement.BYTE_TYPE))
 			dataTracker.set(HAS_SWORD, nbt.getBoolean("sword"));
+		if(!nbt.contains("boss", NbtElement.BYTE_TYPE))
+			dataTracker.set(BOSS, true);
+	}
+	
+	@Override
+	protected boolean getBossDefault()
+	{
+		return true;
 	}
 	
 	@Override
@@ -295,31 +303,9 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	}
 	
 	@Override
-	public void setCustomName(@Nullable Text name)
-	{
-		super.setCustomName(name);
-		bossBar.setName(Text.translatable("entity.ultracraft.swordsmachine-named", getDisplayName()));
-	}
-	
-	@Override
-	public void onStartedTrackingBy(ServerPlayerEntity player)
-	{
-		super.onStartedTrackingBy(player);
-		bossBar.addPlayer(player);
-	}
-	
-	@Override
-	public void onStoppedTrackingBy(ServerPlayerEntity player)
-	{
-		super.onStoppedTrackingBy(player);
-		bossBar.removePlayer(player);
-	}
-	
-	@Override
 	protected void mobTick()
 	{
 		super.mobTick();
-		bossBar.setPercent(getHealth() / getMaxHealth());
 		if(isEnraged())
 			dataTracker.set(ENRAGED_TICKS, dataTracker.get(ENRAGED_TICKS) - 1);
 		if(dataTracker.get(BREAKDOWN_TICKS) > 0)
@@ -340,8 +326,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		else if(source.isOf(DamageSources.SHOTGUN))
 			amount *= 1.5;
 		boolean b = super.damage(source, amount);
-		bossBar.setPercent(getHealth() / getMaxHealth());
-		if(canLoseShotgun() && dataTracker.get(HAS_SHOTGUN) && getHealth() < 75)
+		if(canLoseShotgun() && dataTracker.get(HAS_SHOTGUN) && getHealth() < (isBoss() ? 75 : 30))
 		{
 			dataTracker.set(BREAKDOWN_TICKS, 60);
 			dataTracker.set(ANIMATION, ANIMATION_BREAKDOWN);

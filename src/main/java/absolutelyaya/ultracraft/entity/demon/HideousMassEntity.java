@@ -19,6 +19,7 @@ import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.boss.ServerBossBar;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.data.DataTracker;
@@ -27,6 +28,8 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Direction;
@@ -112,7 +115,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
 	{
 		return HostileEntity.createMobAttributes()
-					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 175.0d) //TODO: set to 60 for non-bosses
+					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 175.0d)
 					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3d)
 					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 1.0d)
 					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d);
@@ -147,6 +150,14 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	}
 	
 	@Override
+	protected ServerBossBar initBossBar()
+	{
+		ServerBossBar bb = super.initBossBar();
+		bb.setDarkenSky(true);
+		return bb;
+	}
+	
+	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
 	{
 		controllerRegistrar.add(new AnimationController<>(this, "main", this::predicate),
@@ -172,6 +183,8 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 			onDeath(killingBlow == null ? DamageSources.get(getWorld(), DamageTypes.GENERIC_KILL) : killingBlow);
 			setHealth(0f);
 		}
+		if(data.equals(BOSS))
+			setHealth(isBoss() ? 175f : 75f);
 	}
 	
 	private PlayState predicate(AnimationState<GeoAnimatable> event)
@@ -210,6 +223,30 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	public AnimatableInstanceCache getAnimatableInstanceCache()
 	{
 		return cache;
+	}
+	
+	@Override
+	public void readCustomDataFromNbt(NbtCompound nbt)
+	{
+		super.readCustomDataFromNbt(nbt);
+		nbt.putBoolean("enraged", dataTracker.get(ENRAGED));
+		nbt.putBoolean("boss", dataTracker.get(BOSS));
+	}
+	
+	@Override
+	public void writeCustomDataToNbt(NbtCompound nbt)
+	{
+		super.writeCustomDataToNbt(nbt);
+		if(nbt.contains("enraged", NbtElement.BYTE_TYPE))
+			dataTracker.set(BOSS, nbt.getBoolean("enraged"));
+		if(!nbt.contains("boss", NbtElement.BYTE_TYPE))
+			dataTracker.set(BOSS, true);
+	}
+	
+	@Override
+	protected boolean getBossDefault()
+	{
+		return true;
 	}
 	
 	@Override
@@ -351,7 +388,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	{
 		ShockwaveEntity shockwave = new ShockwaveEntity(EntityRegistry.SHOCKWAVE, getWorld());
 		shockwave.setDamage(3f);
-		shockwave.setGrowRate(0.75f);
+		shockwave.setGrowRate(0.6f);
 		shockwave.setAffectOnly(PlayerEntity.class);
 		shockwave.setPosition(getPos().add(0f, 0.5f, 0f));
 		getWorld().spawnEntity(shockwave);
@@ -362,7 +399,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		VerticalShockwaveEntity shockwave = new VerticalShockwaveEntity(EntityRegistry.VERICAL_SHOCKWAVE, getWorld());
 		shockwave.setDamage(2f);
 		shockwave.setYaw(getYaw());
-		shockwave.setGrowRate(0.75f);
+		shockwave.setGrowRate(0.6f);
 		shockwave.setAffectOnly(PlayerEntity.class);
 		shockwave.setPosition(getPos().add(0f, 0.5f, 0f));
 		getWorld().spawnEntity(shockwave);
