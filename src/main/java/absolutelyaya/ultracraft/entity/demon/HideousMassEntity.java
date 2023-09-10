@@ -294,7 +294,8 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	{
 		if(part.name.equals("entrails") || part.name.equals("tail"))
 			amount *= 3f;
-		((LivingEntityAccessor)this).bleed(part.getPos(), part.getHeight() / 2, source, amount);
+		if(!getWorld().isClient)
+			((LivingEntityAccessor)this).bleed(part.getPos(), part.getHeight() / 2, source, amount);
 		return damage(source, amount);
 	}
 	

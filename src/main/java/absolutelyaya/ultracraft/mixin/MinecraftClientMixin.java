@@ -118,10 +118,7 @@ public abstract class MinecraftClientMixin
 		if(player == null || player.isSpectator())
 			return;
 		HitResult hit = crosshairTarget;
-		if(!(hit instanceof BlockHitResult bhit))
-			return;
-		BlockState state = player.getWorld().getBlockState(bhit.getBlockPos());
-		boolean pedestal = state.isOf(BlockRegistry.PEDESTAL);
+		boolean pedestal = hit instanceof BlockHitResult bhit && player.getWorld().getBlockState(bhit.getBlockPos()).isOf(BlockRegistry.PEDESTAL);
 		if(player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w && w.shouldCancelPunching())
 		{
 			if(options.sneakKey.isPressed() && pedestal && !player.getMainHandStack().isOf(Items.DEBUG_STICK))
@@ -138,6 +135,9 @@ public abstract class MinecraftClientMixin
 			return;
 		}
 		
+		if(!(hit instanceof BlockHitResult bhit))
+			return;
+		BlockState state = player.getWorld().getBlockState(bhit.getBlockPos());
 		if(state.isOf(BlockRegistry.TERMINAL_DISPLAY))
 		{
 			if(options.sneakKey.isPressed())
@@ -146,7 +146,6 @@ public abstract class MinecraftClientMixin
 			player.swingHand(Hand.MAIN_HAND);
 			cir.setReturnValue(false);
 		}
-		
 		if(player.isCreative() && state.isOf(BlockRegistry.TERMINAL) && UltracraftClient.isTerminalProtEnabled())
 		{
 			Direction dir = state.get(TerminalBlock.HALF).equals(DoubleBlockHalf.LOWER) ? Direction.UP : Direction.DOWN;
