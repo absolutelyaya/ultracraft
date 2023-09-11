@@ -31,7 +31,6 @@ import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttribute;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.boss.ServerBossBar;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -171,7 +170,11 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 				getAttributes().removeModifiers(enragedModifiers);
 		}
 		if(data.equals(BOSS))
-			setHealth(isBoss() ? 125f : 60f);
+		{
+			float health = isBoss() ? 125f : 60f;
+			if(getHealth() > health)
+				setHealth(health);
+		}
 	}
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()

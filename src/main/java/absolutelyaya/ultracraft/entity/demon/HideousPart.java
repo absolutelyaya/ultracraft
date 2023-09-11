@@ -10,6 +10,7 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector4f;
@@ -18,10 +19,11 @@ public class HideousPart extends Entity
 {
 	public final HideousMassEntity owner;
 	public final String name;
-	private final EntityDimensions dimensions;
+	private EntityDimensions dimensions;
 	private final boolean deflect;
 	
 	boolean enabled = true;
+	Vec2f targetDimensions;
 	
 	public HideousPart(HideousMassEntity owner, String name, Vec2f dimensions, boolean deflect)
 	{
@@ -78,6 +80,12 @@ public class HideousPart extends Entity
 		return false;
 	}
 	
+	@Override
+	public void tick()
+	{
+	
+	}
+	
 	public Vector4f getBoxColor()
 	{
 		if(!enabled)
@@ -120,5 +128,10 @@ public class HideousPart extends Entity
 	public ItemStack getPickBlockStack()
 	{
 		return owner.getPickBlockStack();
+	}
+	
+	public void setTargetDimensions(Vec2f dimensions)
+	{
+	
 	}
 }

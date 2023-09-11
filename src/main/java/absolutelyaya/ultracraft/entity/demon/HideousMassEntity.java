@@ -88,11 +88,17 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	private final HideousPart tail;
 	private final HideousPart right_arm;
 	private final HideousPart left_arm;
+	private final HideousPart cap_laying;
+	private final Vec3d[] partPositions;
+	private final Vec3d[] partPosDefault;
+	private final Vec3d[] partPosLaying;
+	private final Vec3d[] partPosEnraged;
 	
 	HarpoonEntity harpoon;
 	DamageSource killingBlow;
 	boolean mortarSide;
 	
+	//TODO: some projectiles don't hit correctly, for example shotgun pellets
 	public HideousMassEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
 		super(entityType, world);
@@ -109,7 +115,30 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		tail = new HideousPart(this, "tail", new Vec2f(1.5f, 1.5f), false);
 		right_arm = new HideousPart(this, "right_arm", new Vec2f(1.25f, 2.5f), true);
 		left_arm = new HideousPart(this, "left_arm", new Vec2f(1.25f, 2.5f), true);
-		parts = new HideousPart[] {body1, body2, body3, cap, mask, entrails, tail, right_arm, left_arm};
+		cap_laying = new HideousPart(this, "cap", new Vec2f(3.5f, 2f), true);
+		cap_laying.enabled = false;
+		parts = new HideousPart[] {body1, body2, body3, cap, mask, entrails, tail, right_arm, left_arm, cap_laying};
+		
+		partPosDefault = new Vec3d[] {
+				new Vec3d(0, 3.5, 1.7), new Vec3d(0, 2, 1.3), new Vec3d(0, 0.75, -0.5),
+				new Vec3d(0, 4.5, 2), new Vec3d(0, 3.25, 2.9), new Vec3d(0, 2, 2.2),
+				new Vec3d(0, 0.5, -2.5),  new Vec3d(-2, 2.3, 2.35), new Vec3d(2, 2.3, 2.35),
+				new Vec3d(0, 4.5, 2)
+		};
+		partPosLaying = new Vec3d[] {
+			new Vec3d(0, 0.5, 1.7), new Vec3d(0, 2.5, -1), new Vec3d(0, 1.75, 0.5),
+			new Vec3d(0, 0.5, 4), new Vec3d(0, 3.25, 2.9), new Vec3d(0, 2, 2.2),
+			new Vec3d(0, 4.75, -1),  new Vec3d(-2, 2.3, 2.35), new Vec3d(2, 2.3, 2.35),
+			new Vec3d(0, 0.5, 4)
+		};
+		partPosEnraged = new Vec3d[] {
+				new Vec3d(0, 0.4, 1.5), new Vec3d(0, 0.1, -1), new Vec3d(0, 1.75, 0.5),
+				new Vec3d(0, 0.5, 2.5), new Vec3d(0, 3.25, 2.9), new Vec3d(0, 0.9, 1.3),
+				new Vec3d(0, 2.75, -2.75),  new Vec3d(-2, 2.3, 2.35), new Vec3d(2, 2.3, 2.35),
+				new Vec3d(0, 0.5, 4)
+		};
+		
+		partPositions = partPosDefault.clone();
 	}
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
@@ -184,7 +213,39 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 			setHealth(0f);
 		}
 		if(data.equals(BOSS))
-			setHealth(isBoss() ? 175f : 75f);
+		{
+			float health = isBoss() ? 175f : 75f;
+			if(getHealth() > health)
+				setHealth(health);
+		}
+		if(data.equals(LAYING))
+		{
+			if(dataTracker.get(LAYING))
+			{
+				mask.enabled = false;
+				entrails.enabled = false;
+				left_arm.enabled = false;
+				right_arm.enabled = false;
+				cap.enabled = false;
+				cap_laying.enabled = true;
+			}
+			else
+			{
+				mask.enabled = true;
+				entrails.enabled = true;
+				left_arm.enabled = true;
+				right_arm.enabled = true;
+				cap.enabled = true;
+				cap_laying.enabled = false;
+			}
+		}
+		if(data.equals(ENRAGED))
+		{
+			left_arm.enabled = false;
+			right_arm.enabled = false;
+			mask.enabled = false;
+			body3.enabled = false;
+		}
 	}
 	
 	private PlayState predicate(AnimationState<GeoAnimatable> event)
@@ -229,6 +290,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	public void readCustomDataFromNbt(NbtCompound nbt)
 	{
 		super.readCustomDataFromNbt(nbt);
+		nbt.putBoolean("laying", dataTracker.get(LAYING));
 		nbt.putBoolean("enraged", dataTracker.get(ENRAGED));
 		nbt.putBoolean("boss", dataTracker.get(BOSS));
 	}
@@ -237,8 +299,10 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	public void writeCustomDataToNbt(NbtCompound nbt)
 	{
 		super.writeCustomDataToNbt(nbt);
+		if(nbt.contains("laying", NbtElement.BYTE_TYPE))
+			dataTracker.set(LAYING, nbt.getBoolean("laying"));
 		if(nbt.contains("enraged", NbtElement.BYTE_TYPE))
-			dataTracker.set(BOSS, nbt.getBoolean("enraged"));
+			dataTracker.set(ENRAGED, nbt.getBoolean("enraged"));
 		if(!nbt.contains("boss", NbtElement.BYTE_TYPE))
 			dataTracker.set(BOSS, true);
 	}
@@ -295,16 +359,19 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 			part.lastRenderY = part.getY();
 			part.lastRenderZ = part.getZ();
 		}
-		
-		positionPart(body1, new Vec3d(0, 3.5, 1.7));
-		positionPart(body2, new Vec3d(0, 2, 1.3));
-		positionPart(body3, new Vec3d(0, 0.75, -0.5));
-		positionPart(cap, new Vec3d(0, 4.5, 2));
-		positionPart(mask, new Vec3d(0, 3.25, 2.9));
-		positionPart(entrails, new Vec3d(0, 2, 2.2));
-		positionPart(tail, new Vec3d(0, 0.5, -2.5));
-		positionPart(right_arm, new Vec3d(-2, 2.3, 2.35));
-		positionPart(left_arm, new Vec3d(2, 2.3, 2.35));
+		Vec3d[] dest;
+		if(dataTracker.get(LAYING))
+			dest = partPosLaying;
+		else if(dataTracker.get(ENRAGED))
+			dest = partPosEnraged;
+		else
+			dest = partPosDefault;
+		cap.setTargetDimensions(new Vec2f(5f, 2f));
+		for (int i = 0; i < partPositions.length; i++)
+		{
+			partPositions[i] = partPositions[i].lerp(dest[i], 1f / 20f);
+			positionPart(parts[i], partPositions[i]);
+		}
 		
 		setBodyYaw(headYaw);
 	}
@@ -313,6 +380,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	{
 		Vec3d pos = getPos().add(relative.rotateY(MathHelper.RADIANS_PER_DEGREE * -bodyYaw));
 		part.setPosition(pos.x, pos.y, pos.z);
+		part.tick();
 	}
 	
 	@Override
@@ -561,6 +629,8 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		@Override
 		public boolean canStart()
 		{
+			if(mob.isDying() || mob.isDead())
+				return false;
 			return super.canStart() && !mob.dataTracker.get(LAYING) && mob.random.nextFloat() > 0.5;
 		}
 		
@@ -596,6 +666,8 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		@Override
 		public boolean canStart()
 		{
+			if(mob.isDying() || mob.isDead())
+				return false;
 			return super.canStart() && ((standing && !mob.dataTracker.get(LAYING) && mob.dataTracker.get(MORTAR_COUNTER) > 0 && mob.random.nextFloat() > 0.5f) ||
 												(!standing && mob.dataTracker.get(LAYING)));
 		}
@@ -628,7 +700,9 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		@Override
 		public boolean canStart()
 		{
-			return super.canStart() && mob.dataTracker.get(LAYING) && mob.dataTracker.get(SLAM_COUNTER) > 0 && mob.random.nextFloat() < 0.1f;
+			if(mob.isDying() || mob.isDead())
+				return false;
+			return super.canStart() && mob.dataTracker.get(LAYING) && mob.dataTracker.get(SLAM_COUNTER) > 0 && mob.random.nextFloat() < 0.3f;
 		}
 		
 		@Override
@@ -650,7 +724,9 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		@Override
 		public boolean canStart()
 		{
-			return super.canStart() && mob.isHasHarpoon() && mob.dataTracker.get(LAYING) && mob.dataTracker.get(SLAM_COUNTER) > 0 && mob.random.nextFloat() < 0.9f;
+			if(mob.isDying() || mob.isDead())
+				return false;
+			return super.canStart() && mob.isHasHarpoon() && mob.dataTracker.get(LAYING) && mob.dataTracker.get(SLAM_COUNTER) > 0 && mob.random.nextFloat() < 0.5f;
 		}
 		
 		@Override
@@ -672,7 +748,9 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		@Override
 		public boolean canStart()
 		{
-			return super.canStart() && mob.isHasHarpoon()  && mob.dataTracker.get(LAYING) && mob.dataTracker.get(SLAM_COUNTER) > 2;
+			if(mob.isDying() || mob.isDead())
+				return false;
+			return super.canStart() && mob.getHealth() < 50f || (mob.isHasHarpoon() && mob.dataTracker.get(LAYING) && mob.dataTracker.get(SLAM_COUNTER) > 2);
 		}
 		
 		@Override
@@ -696,9 +774,11 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		@Override
 		public boolean canStart()
 		{
+			if(mob.isDying() || mob.isDead())
+				return false;
 			if(mob.getCooldown() > 0 || mob.getAnimation() != ANIMATION_IDLE)
 				return false;
-			return mob.isHasHarpoon() && !mob.dataTracker.get(LAYING) && !mob.isEnraged() && mob.getHealth() < 35f;
+			return mob.isHasHarpoon() && !mob.dataTracker.get(LAYING) && !mob.isEnraged() && mob.getHealth() < 50f;
 		}
 		
 		@Override
