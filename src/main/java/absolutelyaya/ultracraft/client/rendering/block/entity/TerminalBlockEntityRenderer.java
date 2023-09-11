@@ -287,6 +287,12 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 				textRenderer.getWidth(t) + 4, textRenderer.fontHeight + 2, "customize");
 	}
 	
+	void drawEditMainMenu(MatrixStack matrices, VertexConsumerProvider buffers)
+	{
+		GUI.drawBG(matrices, buffers);
+		GUI.drawBoxOutline(buffers, matrices, 0, 0, 100, 100, 0xffffffff);
+	}
+	
 	void drawGraffitiTab(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
 		GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.customize.graffiti", false, "customize");

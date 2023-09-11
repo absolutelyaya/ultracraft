@@ -2,10 +2,13 @@ package absolutelyaya.ultracraft.block;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.api.GlobalButtonActions;
+import absolutelyaya.ultracraft.client.rendering.block.entity.TerminalBlockEntityRenderer;
 import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
 import absolutelyaya.ultracraft.client.ClientGraffitiManager;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
+import absolutelyaya.ultracraft.util.TerminalGuiRenderer;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.Block;
@@ -119,21 +122,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 				if(tab.onButtonClicked(action, value))
 					return;
 			}
-			switch(action)
-			{
-				case "customize" -> setTab(Tab.CUSTOMIZATION);
-				case "bestiary" -> setTab(Tab.COMING_SOON);
-				case "weapons" -> setTab(Tab.WEAPONS);
-				case "mainmenu" -> setTab(Tab.MAIN_MENU);
-				case "edit-screensaver" -> setTab(Tab.EDIT_SCREENSAVER);
-				case "edit-base" -> setTab(Tab.BASE_SELECT);
-				case "graffiti" -> setTab(Tab.GRAFFITI);
-				
-				case "set-base" -> base = Base.values()[value];
-				case "toggle-lock" -> setLocked(!locked);
-				case "force-screensaver" -> setInactivity(60f);
-				default -> Ultracraft.LOGGER.error("Undefined Behavior for Terminal button '" + lastHovered + "'");
-			}
+			if(!GlobalButtonActions.runAction(this, action, value))
+				Ultracraft.LOGGER.error("Undefined Behavior for Terminal button '" + lastHovered + "'");
 		}
 	}
 	
@@ -435,6 +425,11 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		return normalWindowSize;
 	}
 	
+	public void setBase(Base base)
+	{
+		this.base = base;
+	}
+	
 	public Base getBase()
 	{
 		return base;
@@ -443,6 +438,11 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public void setLocked(boolean b)
 	{
 		locked = b;
+	}
+	
+	public void toggleLock()
+	{
+		setLocked(!locked);
 	}
 	
 	public boolean isLocked()
@@ -572,6 +572,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public static class Tab
 	{
 		public static final TextRenderer textRenderer;
+		public static final TerminalGuiRenderer terminalGUI;
 		
 		public static final String MAIN_MENU_ID = "main-menu";
 		public static final String COMING_SOON_ID = "placeholder";
@@ -603,6 +604,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		};
 		
 		public final String id;
+		final List<Button> buttons = new ArrayList<>();
 		
 		public Tab(String id)
 		{
@@ -617,7 +619,14 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		
 		public void renderCustomTab(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
 		{
+			renderButtons(matrices, buffers);
+		}
 		
+		public void renderButtons(MatrixStack matrices, VertexConsumerProvider buffers)
+		{
+			for (Button b : buttons)
+				terminalGUI.drawButton(buffers, matrices, b.label, b.position.x, b.position.y,
+						textRenderer.getWidth(b.label) + 2, textRenderer.fontHeight + 2, b.action + "@" + b.value);
 		}
 		
 		public Vector2f getSizeOverride()
@@ -632,11 +641,37 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		
 		static {
 			textRenderer = MinecraftClient.getInstance().textRenderer;
+			terminalGUI = TerminalBlockEntityRenderer.GUI;
 		}
 		
 		public boolean onButtonClicked(String action, int value)
 		{
 			return false;
+		}
+	}
+	
+	public record Button(String label, Vector2i position, String action, int value, boolean hide)
+	{
+		public NbtCompound serialize()
+		{
+			NbtCompound nbt = new NbtCompound();
+			nbt.putString("label", label);
+			nbt.putInt("x", position.x);
+			nbt.putInt("y", position.y);
+			nbt.putString("action", action);
+			nbt.putInt("value", value);
+			nbt.putBoolean("hide", hide);
+			return nbt;
+		}
+		
+		public static Button deserialize(NbtCompound nbt)
+		{
+			String label = nbt.getString("label");
+			Vector2i pos = new Vector2i(nbt.getInt("x"), nbt.getInt("y"));
+			String action = nbt.getString("action");
+			int value = nbt.getInt("value");
+			boolean hide = nbt.getBoolean("hide");
+			return new Button(label, pos, action, value, hide);
 		}
 	}
 	
