@@ -37,26 +37,26 @@ public class DefaultTabs
 		{
 			super(CUSTOMIZATION_ID);
 			int y = 64;
-			buttons.add(new Button("screen.ultracraft.terminal.customize.mainmenu", new Vector2i(48, y),
+			buttons.add(new Button("terminal.customize.mainmenu", new Vector2i(48, y),
 					"edit-mainmenu", 0, false, true));
 			if(UltracraftClient.isCanGraffiti())
 			{
 				y -= textRenderer.fontHeight + 5;
-				buttons.add(new Button("screen.ultracraft.terminal.customize.graffiti", new Vector2i(48, y),
+				buttons.add(new Button("terminal.customize.graffiti", new Vector2i(48, y),
 						"graffiti", 0, false, true));
 			}
 			y -= textRenderer.fontHeight + 5;
-			buttons.add(new Button("screen.ultracraft.terminal.customize.base-clr", new Vector2i(48, y),
+			buttons.add(new Button("terminal.customize.base-clr", new Vector2i(48, y),
 					"edit-base", 0, false, true));
 			y -= textRenderer.fontHeight + 5;
-			buttons.add(new Button("screen.ultracraft.terminal.customize.screensaver", new Vector2i(48, y),
+			buttons.add(new Button("terminal.customize.screensaver", new Vector2i(48, y),
 					"edit-screensaver", 0, false, true));
 		}
 		
 		@Override
 		public void drawCustomTab(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
 		{
-			GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.customize", DEFAULT_RETURN_BUTTON);
+			GUI.drawTab(matrices, buffers, "terminal.customize", DEFAULT_RETURN_BUTTON);
 			drawButtons(matrices, terminal, buffers);
 		}
 		
@@ -89,7 +89,7 @@ public class DefaultTabs
 		@Override
 		public void drawCustomTab(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
 		{
-			GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.customize.base-clr", returnButton);
+			GUI.drawTab(matrices, buffers, "terminal.customize.base-clr", returnButton);
 			for (Button b : buttons)
 			{
 				if(b instanceof ColorButton cb)
@@ -148,7 +148,7 @@ public class DefaultTabs
 		@Override
 		public void drawCustomTab(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
 		{
-			GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.customize.graffiti", null);
+			GUI.drawTab(matrices, buffers, "terminal.customize.graffiti", null);
 			
 			String t = Text.translatable("screen.ultracraft.terminal.focus-pls").getString();
 			GUI.drawText(buffers, matrices, t, 50 - textRenderer.getWidth(t) / 2, -22 + textRenderer.fontHeight - 2, 0.005f, terminal.getTextColor());

@@ -22,10 +22,12 @@ public class EditMainMenuTab extends Tab
 	static final Vector4i bounds = new Vector4i(0, textRenderer.fontHeight + 5, 100, 100);
 	static final int maxButtons = 5;
 	
-	final Button centeredToggle, hideToggle;
+	final Button centeredToggle, hideToggle, addButton, deleteButton;
 	final TextBox titleBox, buttonLabelTextBox;
 	
 	List<Button> customizableButtons = new ArrayList<>();
+	List<String> buttonActions = new ArrayList<>();
+	List<Integer> buttonValues = new ArrayList<>();
 	int selectedButton = -1;
 	
 	public EditMainMenuTab()
@@ -37,6 +39,8 @@ public class EditMainMenuTab extends Tab
 		centeredToggle = new Button("O", new Vector2i(103, 75), "toggle-center", 0, false, false);
 		titleBox = new TextBox(1, 100, true, true);
 		buttonLabelTextBox = new TextBox(1, 95, true, false);
+		addButton = new Button("+", new Vector2i(- 98, 100 - textRenderer.fontHeight - 2), "add-button", 0, false, false);
+		deleteButton = new Button("-", new Vector2i(- 98 + 12, 100 - textRenderer.fontHeight - 2), "delete-button", 0, false, false);
 	}
 	
 	@Override
@@ -48,6 +52,8 @@ public class EditMainMenuTab extends Tab
 		{
 			Button b = mainMenu.get(i);
 			customizableButtons.add(new Button(b.getLabel(), b.getPos(), "select", i, b.isHide(), b.isCentered()));
+			buttonActions.add(b.getAction());
+			buttonValues.add(b.getValue());
 		}
 		titleBox.getLines().set(0, terminal.getMainMenuTitle());
 	}
@@ -63,7 +69,6 @@ public class EditMainMenuTab extends Tab
 	{
 		super.drawCustomTab(matrices, terminal, buffers);
 		GUI.drawBoxOutline(buffers, matrices, bounds.x, bounds.y + 4, bounds.z - bounds.x, bounds.w - bounds.y - 4, 0xffffffff);
-		String t = terminal.getMainMenuTitle();
 		
 		GUI.drawTextBox(buffers, matrices, 0, 4, titleBox,
 				titleBox.equals(terminal.getFocusedTextbox()) ? getRainbow(1f / 3f) : 0xffffffff);
@@ -85,6 +90,9 @@ public class EditMainMenuTab extends Tab
 		
 		if(selectedButton >= 0)
 			drawInspector(matrices, terminal, buffers);
+		
+		GUI.drawButton(buffers, matrices, addButton, customizableButtons.size() < maxButtons ? terminal.getTextColor() : 0xff888888);
+		GUI.drawButton(buffers, matrices, deleteButton, selectedButton > 0 ? terminal.getTextColor() : 0xff888888);
 	}
 	
 	void drawInspector(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
@@ -134,12 +142,33 @@ public class EditMainMenuTab extends Tab
 						clampButtonPos(b);
 					});
 					buttonLabelTextBox.getLines().set(0, b.getLabel());
+					deleteButton.setValue(selectedButton);
 				}
 				else
 					buttonLabelTextBox.setChangeConsumer(null);
 			}
 			case "toggle-hide" -> customizableButtons.get(selectedButton).toggleHide();
 			case "toggle-center" -> customizableButtons.get(selectedButton).toggleCentered();
+			case "add-button" -> {
+				if(customizableButtons.size() < maxButtons)
+				{
+					customizableButtons.add(new Button("terminal.button",
+							new Vector2i(50, 50 - textRenderer.fontHeight / 2), "select", customizableButtons.size(), false, true));
+					buttonActions.add("mainmenu");
+					buttonValues.add(0);
+				}
+			}
+			case "delete-button" -> {
+				if(selectedButton > 0)
+				{
+					customizableButtons.remove(selectedButton);
+					buttonActions.remove(selectedButton);
+					buttonValues.remove(selectedButton);
+					selectedButton = -1;
+					for (int i = 0; i < customizableButtons.size(); i++)
+						customizableButtons.get(i).setValue(i);
+				}
+			}
 			default -> {
 				return super.onButtonClicked(action, value);
 			}
@@ -192,12 +221,12 @@ public class EditMainMenuTab extends Tab
 	@Override
 	public void onClose(TerminalBlockEntity terminal)
 	{
-		List<Button> mainMenu =  terminal.getMainMenuButtons();
-		for (int i = 0; i < mainMenu.size(); i++)
+		List<Button> mainMenu = terminal.getMainMenuButtons();
+		mainMenu.clear();
+		for (int i = 0; i < customizableButtons.size(); i++)
 		{
-			Button original = mainMenu.get(i);
 			Button b = customizableButtons.get(i);
-			mainMenu.set(i, new Button(b.getLabel(), b.getPos(), original.getAction(), original.getValue(), b.isHide(), b.isCentered()));
+			mainMenu.add(new Button(b.getLabel(), b.getPos(), buttonActions.get(i), buttonValues.get(i), b.isHide(), b.isCentered()));
 		}
 		terminal.setMainMenuTitle(titleBox.getLines().get(0));
 	}

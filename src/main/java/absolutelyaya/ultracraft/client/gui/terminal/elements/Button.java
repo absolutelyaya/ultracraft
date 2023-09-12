@@ -67,6 +67,11 @@ public class Button implements Element
 		return value;
 	}
 	
+	public void setValue(int v)
+	{
+		value = v;
+	}
+	
 	public NbtCompound serialize()
 	{
 		NbtCompound nbt = new NbtCompound();

@@ -84,7 +84,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	UUID terminalID;
 	List<Button> mainMenuButtons = new ArrayList<>() {
 		{
-			add(new Button("screen.ultracraft.terminal.customize", new Vector2i(48, 50),
+			add(new Button("terminal.customize", new Vector2i(48, 50),
 					"customize", 0, true, true));
 			add(new Button("terminal.bestiary", new Vector2i(48, 36),
 					"bestiary", 0, true, true));

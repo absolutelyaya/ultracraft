@@ -45,7 +45,7 @@ public class TerminalScreen extends Screen
 	@Override
 	protected void init()
 	{
-		textColorPicker = new SimpleColorSelectionWidget(textRenderer, Text.translatable("screen.ultracraft.terminal.customize.text-clr"),
+		textColorPicker = new SimpleColorSelectionWidget(textRenderer, Text.translatable("terminal.customize.text-clr"),
 				new Vector3i(width - 160, 32, 155), () -> terminal.getTextColor(),
 				i -> terminal.setTextColor((0xff << 24) + i));
 		textColorPicker.setAlpha(1f);

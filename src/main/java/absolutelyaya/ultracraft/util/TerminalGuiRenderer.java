@@ -78,10 +78,20 @@ public class TerminalGuiRenderer
 	
 	public void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, Button button)
 	{
-		drawButton(buffers, matrices, button, button.getLabel());
+		drawButton(buffers, matrices, button, button.getLabel(), terminal.getTextColor());
+	}
+	
+	public void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, Button button, int color)
+	{
+		drawButton(buffers, matrices, button, button.getLabel(), color);
 	}
 	
 	public void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, Button button, String label)
+	{
+		drawButton(buffers, matrices, button, label, terminal.getTextColor());
+	}
+	
+	public void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, Button button, String label, int color)
 	{
 		String text = Text.translatable(label).getString();
 		int x = button.getPos().x, y = button.getPos().y;
@@ -91,17 +101,17 @@ public class TerminalGuiRenderer
 		Vector2d cursor = new Vector2d(terminal.getCursor()).mul(100f);
 		boolean hovered = cursor.x > x && cursor.x < x + sizeX && cursor.y > y && cursor.y < y + sizeY;
 		matrices.push();
-		drawBoxOutline(buffers, matrices, x, y, sizeX, sizeY);
+		drawBoxOutline(buffers, matrices, x, y, sizeX, sizeY, color);
 		if(hovered)
 		{
 			matrices.translate(0f, 0f, -0.001f);
-			drawBox(buffers, matrices, x, y, sizeX, sizeY, terminal.getTextColor());
+			drawBox(buffers, matrices, x, y, sizeX, sizeY, color);
 			terminal.setLastHovered(button);
 		}
 		else if(terminal.getLastHovered() != null && terminal.getLastHovered().equals(button))
 			terminal.setLastHovered(null);
 		matrices.translate(0f, 1f, -0.002f);
-		drawText(buffers, matrices, text, x + 2, y + 2, 0f, hovered ? 0xff000000 : terminal.getTextColor());
+		drawText(buffers, matrices, text, x + 2, y + 2, 0f, hovered ? 0xff000000 : color);
 		matrices.pop();
 	}
 	

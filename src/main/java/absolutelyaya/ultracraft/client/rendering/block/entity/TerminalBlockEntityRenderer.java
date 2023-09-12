@@ -176,7 +176,7 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	
 	void drawComingSoon(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
-		GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.coming-soon", "///", Tab.DEFAULT_RETURN_BUTTON);
+		GUI.drawTab(matrices, buffers, "terminal.coming-soon", "///", Tab.DEFAULT_RETURN_BUTTON);
 	}
 	
 	void drawWeapons(MatrixStack matrices, VertexConsumerProvider buffers)
