@@ -373,10 +373,11 @@ public class PacketRegistry
 			int textColor = buf.readInt();
 			int base = buf.readInt();
 			NbtCompound screenSaver = buf.readNbt();
+			NbtCompound mainMenu = buf.readNbt();
 			server.execute(() ->  {
 				BlockEntity be = player.getWorld().getBlockEntity(pos);
 				if(be instanceof TerminalBlockEntity terminal)
-					terminal.syncCustomization(textColor, base, screenSaver);
+					terminal.applyCustomization(textColor, base, screenSaver, mainMenu);
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(GRAFFITI_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {

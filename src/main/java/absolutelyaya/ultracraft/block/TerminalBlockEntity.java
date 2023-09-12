@@ -21,6 +21,7 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
@@ -188,6 +189,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			if(world != null && world.isClient)
 				ClientGraffitiManager.refreshGraffitiTexture(this);
 		}
+		if(nbt.contains("mainmenu", NbtElement.COMPOUND_TYPE))
+			applyMainMenu(nbt.getCompound("mainmenu"));
 	}
 	
 	@Override
@@ -201,6 +204,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		nbt.put("screensaver", serializeScreensaver());
 		nbt.putUuid("terminal-id", Objects.requireNonNullElseGet(terminalID, () -> terminalID = UUID.randomUUID()));
 		nbt.put("graffiti", serializeGraffiti());
+		nbt.put("mainmenu", serializeMainMenu());
 	}
 	
 	void applyScreensaver(NbtCompound screensaver)
@@ -261,12 +265,42 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		return createNbt();
 	}
 	
-	public void syncCustomization(int c, int base, NbtCompound screensaver)
+	public void syncCustomization()
+	{
+		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+		buf.writeBlockPos(pos);
+		buf.writeInt(textColor);
+		buf.writeInt(base.ordinal());
+		buf.writeNbt(serializeScreensaver());
+		buf.writeNbt(serializeMainMenu());
+		ClientPlayNetworking.send(PacketRegistry.TERMINAL_SYNC_C2S_PACKET_ID, buf);
+		markDirty();
+	}
+	
+	public void syncGraffiti()
+	{
+		Integer[] palette = getPalette().toArray(new Integer[15]);
+		Byte[] pixels = getGraffiti().toArray(new Byte[0]);
+		graffitiRevision++;
+		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+		buf.writeBlockPos(pos);
+		buf.writeIntArray(ArrayUtils.toPrimitive(palette));
+		buf.writeByteArray(ArrayUtils.toPrimitive(pixels));
+		buf.writeInt(getGraffitiRevision());
+		ClientPlayNetworking.send(PacketRegistry.GRAFFITI_C2S_PACKET_ID, buf);
+		graffitiCamRotation = 0f;
+		
+		ClientGraffitiManager.refreshGraffitiTexture(this);
+		markDirty();
+	}
+	
+	public void applyCustomization(int c, int base, NbtCompound screensaver, NbtCompound mainMenu)
 	{
 		textColor = c;
 		if(base >= 0 && base < Base.values().length)
 			this.base = Base.values()[base];
 		applyScreensaver(screensaver);
+		applyMainMenu(mainMenu);
 		markDirty();
 		world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_LISTENERS);
 	}
@@ -370,34 +404,31 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		this.lastHovered = lastHovered;
 	}
 	
+	NbtCompound serializeMainMenu()
+	{
+		NbtCompound nbt = new NbtCompound();
+		nbt.putString("title", mainMenuTitle);
+		NbtList buttons = new NbtList();
+		for (Button b : mainMenuButtons)
+			buttons.add(b.serialize());
+		nbt.put("buttons", buttons);
+		return nbt;
+	}
+	
+	void applyMainMenu(NbtCompound nbt)
+	{
+		mainMenuTitle = nbt.getString("title");
+		mainMenuButtons = new ArrayList<>();
+		NbtList list = nbt.getList("buttons", NbtElement.COMPOUND_TYPE);
+		for (NbtElement button : list)
+		{
+			if(button instanceof NbtCompound compound)
+				mainMenuButtons.add(Button.deserialize(compound));
+		}
+	}
+	
 	public void setTab(Tab tab)
 	{
-		if(this.tab.id.equals(Tab.CUSTOMIZATION_ID) && tab.id.equals(Tab.MAIN_MENU_ID))
-		{
-			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-			buf.writeBlockPos(pos);
-			buf.writeInt(textColor);
-			buf.writeInt(base.ordinal());
-			buf.writeNbt(serializeScreensaver());
-			ClientPlayNetworking.send(PacketRegistry.TERMINAL_SYNC_C2S_PACKET_ID, buf);
-			markDirty();
-		}
-		if(this.tab.id.equals(Tab.GRAFFITI_ID) && !tab.id.equals(Tab.GRAFFITI_ID))
-		{
-			Integer[] palette = getPalette().toArray(new Integer[15]);
-			Byte[] pixels = getGraffiti().toArray(new Byte[0]);
-			graffitiRevision++;
-			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-			buf.writeBlockPos(pos);
-			buf.writeIntArray(ArrayUtils.toPrimitive(palette));
-			buf.writeByteArray(ArrayUtils.toPrimitive(pixels));
-			buf.writeInt(getGraffitiRevision());
-			ClientPlayNetworking.send(PacketRegistry.GRAFFITI_C2S_PACKET_ID, buf);
-			graffitiCamRotation = 0f;
-			
-			ClientGraffitiManager.refreshGraffitiTexture(this);
-			markDirty();
-		}
 		if(tab != this.tab)
 		{
 			tab.init(this);

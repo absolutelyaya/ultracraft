@@ -58,6 +58,12 @@ public class DefaultTabs
 			GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.customize", DEFAULT_RETURN_BUTTON);
 			drawButtons(matrices, terminal, buffers);
 		}
+		
+		@Override
+		public void onClose(TerminalBlockEntity terminal)
+		{
+			terminal.syncCustomization();
+		}
 	}
 	
 	public static class BaseSelection extends Tab
@@ -139,6 +145,12 @@ public class DefaultTabs
 			
 			String t = Text.translatable("screen.ultracraft.terminal.focus-pls").getString();
 			GUI.drawText(buffers, matrices, t, 50 - textRenderer.getWidth(t) / 2, -22 + textRenderer.fontHeight - 2, 0.005f, terminal.getTextColor());
+		}
+		
+		@Override
+		public void onClose(TerminalBlockEntity terminal)
+		{
+			terminal.syncGraffiti();
 		}
 	}
 }
