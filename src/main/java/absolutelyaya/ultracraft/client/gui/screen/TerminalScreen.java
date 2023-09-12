@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.api.terminal.TerminalCodeRegistry;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.api.terminal.Tab;
 import absolutelyaya.ultracraft.client.gui.terminal.DefaultTabs;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.TextBox;
 import absolutelyaya.ultracraft.client.gui.widget.TerminalPaletteWidget;
 import absolutelyaya.ultracraft.client.gui.widget.SimpleColorSelectionWidget;
 import absolutelyaya.ultracraft.client.ClientGraffitiManager;
@@ -226,7 +227,8 @@ public class TerminalScreen extends Screen
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers)
 	{
-		if(terminal.getTab().id.equals(Tab.EDIT_SCREENSAVER_ID))
+		TextBox box = terminal.getFocusedTextbox();
+		if(box != null)
 		{
 			switch(keyCode)
 			{
@@ -238,22 +240,22 @@ public class TerminalScreen extends Screen
 					Vector2i v = terminal.getCaret();
 					if(v.x > 0)
 					{
-						String line = terminal.getLines().get(v.y);
+						String line = box.getLines().get(v.y);
 						line = line.substring(0, v.x - 1) + (v.x < line.length() ? line.substring(v.x) : "");
-						terminal.getLines().set(v.y, line);
+						box.getLines().set(v.y, line);
 						terminal.setCaret(v.sub(1, 0));
 					}
 				}
 				case 261 -> { //delete
 					Vector2i v = terminal.getCaret();
-					String line = terminal.getLines().get(v.y);
+					String line = box.getLines().get(v.y);
 					if(v.x < line.length())
 					{
 						line = line.substring(0, v.x) + (v.x < line.length() ? line.substring(v.x + 1) : "");
-						terminal.getLines().set(v.y, line);
+						box.getLines().set(v.y, line);
 					}
 				}
-				case 256, 257 -> terminal.setTab(new DefaultTabs.Customization()); //ESC or Enter
+				case 256, 257 -> terminal.setFocusedTextbox(null); //ESC or Enter
 			}
 			return true;
 		}
@@ -275,10 +277,11 @@ public class TerminalScreen extends Screen
 	@Override
 	public boolean charTyped(char chr, int modifiers)
 	{
-		if(terminal.getTab().id.equals(Tab.EDIT_SCREENSAVER_ID))
+		TextBox box = terminal.getFocusedTextbox();
+		if(box != null)
 		{
 			Vector2i v = terminal.getCaret();
-			List<String> text = terminal.getLines();
+			List<String> text = box.getLines();
 			String line = text.get(v.y);
 			if(v.x == line.length())
 				line += chr;
@@ -286,7 +289,7 @@ public class TerminalScreen extends Screen
 				line = chr + line;
 			else
 				line = line.substring(0, v.x) + chr + line.substring(v.x);
-			if(textRenderer.getWidth(line) <= 100)
+			if(textRenderer.getWidth(line) <= box.getMaxLength())
 			{
 				text.set(v.y, line);
 				terminal.setCaret(terminal.getCaret().add(1, 0));

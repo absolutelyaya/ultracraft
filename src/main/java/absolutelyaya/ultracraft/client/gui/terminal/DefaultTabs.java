@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.ColorButton;
 import absolutelyaya.ultracraft.api.terminal.Tab;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.TextBox;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -101,6 +102,7 @@ public class DefaultTabs
 	public static class ScreenSaverEditor extends Tab
 	{
 		Button returnButton;
+		TextBox textBox;
 		
 		public ScreenSaverEditor()
 		{
@@ -110,24 +112,29 @@ public class DefaultTabs
 		}
 		
 		@Override
+		public void init(TerminalBlockEntity terminal)
+		{
+			textBox = new TextBox(terminal.getScreensaver().size(), 100, true, false);
+			List<String> list = terminal.getScreensaver();
+			for (int i = 0; i < list.size(); i++)
+				textBox.getLines().set(i, list.get(i));
+		}
+		
+		@Override
 		public void drawCustomTab(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
 		{
 			GUI.drawBG(matrices, buffers);
-			GUI.drawBoxOutline(buffers, matrices, 0, 0, 100, 100, 0xffffffff);
-			List<String> lines = terminal.getLines();
-			for (int i = 0; i < lines.size(); i++)
-				GUI.drawText(buffers, matrices, lines.get(i), 2, textRenderer.fontHeight * (i + 1) - 108, 0.005f);
-			if(terminal.getCaretTimer() <= 1f)
-			{
-				Vector2i caret = terminal.getCaret();
-				String before = (caret.x == 0 || lines.get(caret.y).length() == 0 ? "" : lines.get(caret.y).substring(0, caret.x));
-				matrices.push();
-				matrices.translate(0f, 0f, -0.005f);
-				GUI.drawBox(buffers, matrices, textRenderer.getWidth(before) + 1, textRenderer.fontHeight * caret.y, 1, textRenderer.fontHeight,
-						terminal.getTextColor());
-				matrices.pop();
-			}
+			GUI.drawTextBox(buffers, matrices, 0, 0, textBox,
+					textBox.equals(terminal.getFocusedTextbox()) ? getRainbow(1f / 6f) : 0xffffffff);
 			GUI.drawButton(buffers, matrices, returnButton);
+		}
+		
+		@Override
+		public void onClose(TerminalBlockEntity terminal)
+		{
+			List<String> list = terminal.getScreensaver();
+			for (int i = 0; i < list.size(); i++)
+				list.set(i, textBox.getLines().get(i));
 		}
 	}
 	

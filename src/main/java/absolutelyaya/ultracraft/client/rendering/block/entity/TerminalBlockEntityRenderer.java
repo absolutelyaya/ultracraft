@@ -2,7 +2,6 @@ package absolutelyaya.ultracraft.client.rendering.block.entity;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
-import absolutelyaya.ultracraft.client.gui.terminal.DefaultTabs;
 import absolutelyaya.ultracraft.api.terminal.Tab;
 import absolutelyaya.ultracraft.util.TerminalGuiRenderer;
 import net.minecraft.client.MinecraftClient;
@@ -170,7 +169,7 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	void drawScreenSaver(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
 		GUI.drawBG(matrices, buffers);
-		List<String> lines = animatable.getLines();
+		List<String> lines = animatable.getScreensaver();
 		for (int i = 0; i < lines.size(); i++)
 			GUI.drawText(buffers, matrices, lines.get(i), 2, textRenderer.fontHeight * (i + 1) - 108, 0.005f);
 	}

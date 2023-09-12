@@ -130,12 +130,12 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		{
 			if(focusedTextbox != null)
 				focusedTextbox.unfocus();
-			focusedTextbox = box;
+			setFocusedTextbox(box);
 		}
 		else if(focusedTextbox != null)
 		{
 			focusedTextbox.unfocus();
-			focusedTextbox = null;
+			setFocusedTextbox(null);
 		}
 	}
 	
@@ -332,7 +332,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		return displayVisibility;
 	}
 	
-	public List<String> getLines()
+	public List<String> getScreensaver()
 	{
 		return lines;
 	}
@@ -453,6 +453,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 				colorOverride = tab.getColorOverride();
 			}
 		}
+		if(focusedTextbox != null)
+			setFocusedTextbox(null);
 	}
 	
 	public Tab getTab()
@@ -507,6 +509,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public void setCaret(Vector2i v)
 	{
+		List<String> lines = focusedTextbox.getLines();
 		int y = v.y < 0 ? lines.size() - 1 : v.y % lines.size();
 		int x;
 		int len = lines.get(y).length();
@@ -622,6 +625,19 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public void setMainMenuTitle(String s)
 	{
 		mainMenuTitle = s;
+	}
+	
+	public TextBox getFocusedTextbox()
+	{
+		return focusedTextbox;
+	}
+	
+	public void setFocusedTextbox(TextBox box)
+	{
+		caret.set(0, 0);
+		if(focusedTextbox != null)
+			focusedTextbox.unfocus();
+		focusedTextbox = box;
 	}
 	
 	public enum Base

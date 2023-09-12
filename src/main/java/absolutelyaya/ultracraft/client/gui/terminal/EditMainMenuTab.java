@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.client.gui.terminal;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
 import absolutelyaya.ultracraft.api.terminal.Tab;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.TextBox;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -22,9 +23,10 @@ public class EditMainMenuTab extends Tab
 	static final int maxButtons = 5;
 	
 	final Button centeredToggle, hideToggle;
+	final TextBox titleBox;
 	
 	List<Button> customizableButtons = new ArrayList<>();
-	int selectedButton = -1, selectedTextBox = -1;
+	int selectedButton = -1;
 	
 	public EditMainMenuTab()
 	{
@@ -33,6 +35,7 @@ public class EditMainMenuTab extends Tab
 				new Vector2i(103, 100 - textRenderer.fontHeight - 2), "customize", 0, false, false));
 		hideToggle = new Button("O", new Vector2i(103, 61), "toggle-hide", 0, false, false);
 		centeredToggle = new Button("O", new Vector2i(103, 75), "toggle-center", 0, false, false);
+		titleBox = new TextBox(1, 100, true, true);
 	}
 	
 	@Override
@@ -45,6 +48,7 @@ public class EditMainMenuTab extends Tab
 			Button b = mainMenu.get(i);
 			customizableButtons.add(new Button(b.getLabel(), b.getPos(), "select", i, b.isHide(), b.isCentered()));
 		}
+		titleBox.getLines().set(0, terminal.getMainMenuTitle());
 	}
 	
 	@Override
@@ -59,9 +63,9 @@ public class EditMainMenuTab extends Tab
 		super.drawCustomTab(matrices, terminal, buffers);
 		GUI.drawBoxOutline(buffers, matrices, bounds.x, bounds.y + 4, bounds.z - bounds.x, bounds.w - bounds.y - 4, 0xffffffff);
 		String t = terminal.getMainMenuTitle();
-		GUI.drawText(buffers, matrices, t, 50 - textRenderer.getWidth(t) / 2, -100 + textRenderer.fontHeight - 4, 0.003f);
-		GUI.drawBoxOutline(buffers, matrices, 0, 2, 100, textRenderer.fontHeight + 3,
-				selectedTextBox == 0 ? getRainbow(1f / 3f) : 0xffffffff);
+		
+		GUI.drawTextBox(buffers, matrices, 0, 4, titleBox,
+				titleBox.equals(terminal.getFocusedTextbox()) ? getRainbow(1f / 3f) : 0xffffffff);
 		
 		for (int i = 0; i < customizableButtons.size(); i++)
 		{
@@ -89,6 +93,9 @@ public class EditMainMenuTab extends Tab
 		GUI.drawText(buffers, matrices, "Hide", 114, -37, 0.001f);
 		GUI.drawButton(buffers, matrices, centeredToggle, b.isCentered() ? "O" : "X");
 		GUI.drawText(buffers, matrices, "Center", 114, -23, 0.001f);
+		//TODO: Button Label Textbox
+		//TODO: Global Button Action list + Scroll input
+		//TODO: Redstone output button
 	}
 	
 	@Override
@@ -163,6 +170,6 @@ public class EditMainMenuTab extends Tab
 			Button b = customizableButtons.get(i);
 			mainMenu.set(i, new Button(b.getLabel(), b.getPos(), original.getAction(), original.getValue(), b.isHide(), b.isCentered()));
 		}
-		//terminal.setMainMenuTitle("whatever");
+		terminal.setMainMenuTitle(titleBox.getLines().get(0));
 	}
 }

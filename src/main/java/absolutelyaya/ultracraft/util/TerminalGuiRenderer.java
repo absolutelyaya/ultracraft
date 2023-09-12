@@ -161,33 +161,47 @@ public class TerminalGuiRenderer
 	
 	public void drawTextBox(VertexConsumerProvider buffers, MatrixStack matrices, int x, int y, TextBox box, int color)
 	{
-		int sizeX = box.getMaxLength(), sizeY = box.getMaxLines() * (textRenderer.fontHeight + 2);
+		int sizeX = box.getMaxLength(), sizeY = box.getMaxLines() * (textRenderer.fontHeight) + 2;
 		Vector2d cursor = new Vector2d(terminal.getCursor()).mul(100f);
 		boolean hovered = cursor.x > x && cursor.x < x + sizeX && cursor.y > y && cursor.y < y + sizeY;
+		boolean centered = box.isCentered();
 		matrices.push();
-		drawBox(buffers, matrices, x, y, sizeX, sizeY, color, 0.005f);
+		//drawBox(buffers, matrices, x, y, sizeX, sizeY, color, 0.005f);
 		if(hovered)
-		{
-			drawBoxOutline(buffers, matrices, x, y, sizeX, sizeY, terminal.getTextColor());
 			terminal.setLastHovered(box);
-		}
 		else if(terminal.getLastHovered() != null && terminal.getLastHovered().equals(box))
 			terminal.setLastHovered(null);
 		
-		drawBoxOutline(buffers, matrices, 0, 0, 100, 100, 0xffffffff);
-		List<String> lines = terminal.getLines();
+		drawBoxOutline(buffers, matrices, x, y, sizeX, sizeY, color);
+		List<String> lines = box.getLines();
 		for (int i = 0; i < lines.size(); i++)
-			drawText(buffers, matrices, lines.get(i), 2, textRenderer.fontHeight * (i + 1) - 108, 0.005f);
-		if(terminal.getCaretTimer() <= 1f)
+		{
+			String s = lines.get(i);
+			boolean translation = box.hasTranslation(s);
+			int l = textRenderer.getWidth(s);
+			int xOffset = 2 + (centered ? (box.getMaxLength() / 2 - l / 2) : 0);
+			drawText(buffers, matrices, s, x + xOffset, y + textRenderer.fontHeight * (i + 1) - 107, 0.002f);
+			if(box.hasTranslation(s))
+			{
+				s = Text.translatable(s).getString();
+				l = textRenderer.getWidth(s);
+				xOffset = 2 + (centered ? (box.getMaxLength() / 2 - l / 2) : 0);
+				drawText(buffers, matrices, s, x + xOffset, y + textRenderer.fontHeight * (i + 1) - 107, 0.001f, 0xff888888);
+			}
+		}
+		if(box.equals(terminal.getFocusedTextbox()) && terminal.getCaretTimer() <= 1f)
 		{
 			Vector2i caret = terminal.getCaret();
 			String before = (caret.x == 0 || lines.get(caret.y).length() == 0 ? "" : lines.get(caret.y).substring(0, caret.x));
 			matrices.push();
-			matrices.translate(0f, 0f, -0.005f);
-			drawBox(buffers, matrices, textRenderer.getWidth(before) + 1, textRenderer.fontHeight * caret.y, 1, textRenderer.fontHeight,
+			matrices.translate(0f, 0f, -0.003f);
+			int l = textRenderer.getWidth(lines.get(caret.y));
+			int xOffset = 1 + (centered ? (box.getMaxLength() / 2 - l / 2) : 0);
+			drawBox(buffers, matrices, x + textRenderer.getWidth(before) + xOffset, y + textRenderer.fontHeight * caret.y, 1, textRenderer.fontHeight,
 					terminal.getTextColor());
 			matrices.pop();
 		}
+		matrices.pop();
 	}
 	
 	static {
