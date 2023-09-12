@@ -1,8 +1,6 @@
 package absolutelyaya.ultracraft.client.gui.terminal;
 
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
-import absolutelyaya.ultracraft.client.rendering.block.entity.TerminalBlockEntityRenderer;
-import absolutelyaya.ultracraft.util.TerminalGuiRenderer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import org.joml.Vector2f;
@@ -10,7 +8,6 @@ import org.joml.Vector2f;
 public class FlorpTab extends TerminalBlockEntity.Tab
 {
 	public static final String ID = "FLORP";
-	static final TerminalGuiRenderer GUI;
 	boolean mainMenu = true;
 	
 	public FlorpTab()
@@ -50,9 +47,5 @@ public class FlorpTab extends TerminalBlockEntity.Tab
 			return true;
 		}
 		return super.onButtonClicked(action, value);
-	}
-	
-	static {
-		GUI = TerminalBlockEntityRenderer.GUI;
 	}
 }

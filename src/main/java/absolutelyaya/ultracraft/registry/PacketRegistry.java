@@ -9,6 +9,7 @@ import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import io.netty.buffer.Unpooled;
+import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BellBlock;
 import net.minecraft.block.BlockState;
@@ -389,7 +390,7 @@ public class PacketRegistry
 				if(be instanceof TerminalBlockEntity terminal)
 				{
 					terminal.setPalette(Arrays.asList(ArrayUtils.toObject(palette)));
-					terminal.setGraffiti(Arrays.asList(ArrayUtils.toObject(pixels)));
+					terminal.setGraffiti(ByteArrayList.of(pixels));
 					terminal.setGraffitiRevision(revision);
 				}
 			});

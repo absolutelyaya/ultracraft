@@ -150,6 +150,6 @@ public class TerminalDisplayBlock extends BlockWithEntity
 			return; //the front face wasn't hit.
 		BlockEntity entity = world.getBlockEntity(pos);
 		if(entity instanceof TerminalBlockEntity terminalEntity)
-			terminalEntity.onHit();
+			terminalEntity.onHit(0);
 	}
 }

@@ -196,7 +196,7 @@ public class TerminalScreen extends Screen
 	@Override
 	public boolean mouseClicked(double mouseX, double mouseY, int button)
 	{
-		terminal.onHit();
+		terminal.onHit(button);
 		if(!exportName.isMouseOver(mouseX, mouseY))
 			exportName.setFocused(false);
 		if(!editPalleteCheckbox.isChecked() && terminal.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI) &&

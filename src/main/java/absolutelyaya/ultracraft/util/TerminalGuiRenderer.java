@@ -8,11 +8,9 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
-import org.joml.Vector2d;
-import org.joml.Vector2f;
+import org.joml.*;
 
+import java.lang.Math;
 import java.text.MessageFormat;
 
 public class TerminalGuiRenderer
@@ -48,7 +46,7 @@ public class TerminalGuiRenderer
 		drawText(buffers, matrices, t, 50 - textRenderer.getWidth(t) / 2, - 100 + textRenderer.fontHeight, 0.01f);
 		if(returnButton)
 		{
-			t = Text.translatable("screen.ultracraft.terminal.button.back").getString();
+			t = Text.translatable(TerminalBlockEntity.Button.RETURN_LABEL).getString();
 			drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, 95 - textRenderer.fontHeight,
 					textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, returnAction);
 		}
@@ -83,21 +81,45 @@ public class TerminalGuiRenderer
 		matrices.pop();
 	}
 	
+	public void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, TerminalBlockEntity.Button button)
+	{
+		Vector2i pos = button.getPos();
+		if(button.isCentered())
+			drawButtonCentered(buffers, matrices, Text.translatable(button.getLabel()).getString(), pos.x, pos.y, button.getAction() + "@" + button.getValue());
+		else
+			drawButton(buffers, matrices, Text.translatable(button.getLabel()).getString(), pos.x, pos.y, button.getAction() + "@" + button.getValue());
+	}
+	
+	public void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, String text, int x, int y, String action)
+	{
+		text = Text.translatable(text).getString();
+		int tWidth = textRenderer.getWidth(text);
+		drawButton(buffers, matrices, text, x, y, tWidth + 3, textRenderer.fontHeight + 2, action);
+	}
+	
+	public void drawButtonCentered(VertexConsumerProvider buffers, MatrixStack matrices, String text, int x, int y, String action)
+	{
+		text = Text.translatable(text).getString();
+		int tWidth = textRenderer.getWidth(text);
+		drawButton(buffers, matrices, text, x - tWidth / 2, y, tWidth + 3, textRenderer.fontHeight + 2, action);
+	}
+	
 	public void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, String text, int x, int y, int sizeX, int sizeY, String action)
 	{
+		text = Text.translatable(text).getString();
 		Vector2d cursor = new Vector2d(terminal.getCursor()).mul(100f);
 		boolean hovered = cursor.x > x && cursor.x < x + sizeX && cursor.y > y && cursor.y < y + sizeY;
 		matrices.push();
 		drawBoxOutline(buffers, matrices, x, y, sizeX, sizeY);
 		if(hovered)
 		{
-			matrices.translate(0f, 0f, -0.005f);
+			matrices.translate(0f, 0f, -0.001f);
 			drawBox(buffers, matrices, x, y, sizeX, sizeY, terminal.getTextColor());
 			terminal.setLastHovered(action);
 		}
 		else if(terminal.getLastHovered() != null && terminal.getLastHovered().equals(action))
 			terminal.setLastHovered(null);
-		matrices.translate(0f, 1f, -0.01f);
+		matrices.translate(0f, 1f, -0.002f);
 		drawText(buffers, matrices, text, x + 2, y + 2, 0f, hovered ? 0xff000000 : terminal.getTextColor());
 		matrices.pop();
 	}
@@ -127,7 +149,7 @@ public class TerminalGuiRenderer
 	public void drawBoxOutline(VertexConsumerProvider buffers, MatrixStack matrices, int x, int y, int sizeX, int sizeY, int color)
 	{
 		matrices.push();
-		matrices.translate(0f, 0f, -0.005f);
+		matrices.translate(0f, 0f, -0.001f);
 		drawBox(buffers, matrices, x, y + sizeY, sizeX, 1, color);
 		drawBox(buffers, matrices, x, y - 1, sizeX, 1, color);
 		drawBox(buffers, matrices, x - 1, y, 1, sizeY, color);

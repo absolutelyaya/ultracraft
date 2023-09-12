@@ -120,7 +120,7 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 				case TerminalBlockEntity.Tab.BASE_SELECT_ID -> drawBaseSelection(matrices, buffers);
 				case TerminalBlockEntity.Tab.EDIT_SCREENSAVER_ID -> drawEditScreensaver(matrices, buffers);
 				case TerminalBlockEntity.Tab.GRAFFITI_ID -> drawGraffitiTab(matrices, buffers);
-				default -> animatable.getTab().renderCustomTab(matrices, terminal, buffers);
+				default -> animatable.getTab().render(matrices, terminal, buffers);
 			}
 		}
 		
@@ -128,7 +128,8 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 		{
 			matrices.translate(0f, 0f, -0.005f);
 			Vector2d cursor = terminal.getCursor();
-			GUI.drawBoxOutline(buffers, matrices, (int)(cursor.x * 100) - 1, (int)(cursor.y * 100) - 1, 1, 1, 0xffffffff);
+			if(!animatable.getTab().drawCustomCursor(matrices, buffers, cursor))
+				GUI.drawBoxOutline(buffers, matrices, (int)(cursor.x * 100) - 1, (int)(cursor.y * 100) - 1, 1, 1, 0xffffffff);
 		}
 		//End Transform
 		matrices.pop();
@@ -185,23 +186,9 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 			GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.no-access", "!", true, "force-screensaver");
 			return;
 		}
-		GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.main-menu", false);
-		int y = 50;
-		String t;
-		if(animatable.isOwner(MinecraftClient.getInstance().player.getUuid()))
-		{
-			t = Text.translatable("screen.ultracraft.terminal.customize").getString();
-			GUI.drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
-					textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "customize");
-		}
-		y -= textRenderer.fontHeight + 5;
-		t = Text.translatable("screen.ultracraft.terminal.bestiary").getString();
-		GUI.drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
-				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "bestiary");
-		y -= textRenderer.fontHeight + 5;
-		t = Text.translatable("screen.ultracraft.terminal.weapons").getString();
-		GUI.drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
-				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "weapons");
+		GUI.drawTab(matrices, buffers, animatable.getMainMenuTitle(), false);
+		for (TerminalBlockEntity.Button b : animatable.getMainMenuButtons())
+			GUI.drawButton(buffers, matrices, b);
 	}
 	
 	void drawComingSoon(MatrixStack matrices, VertexConsumerProvider buffers)
@@ -230,9 +217,9 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 			GUI.drawText(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y, 0.02f);
 		}
 		y -= textRenderer.fontHeight + 5;
-		t = Text.translatable("screen.ultracraft.terminal.customize." + (animatable.isLocked() ? "locked" : "lock")).getString();
+		t = Text.translatable("screen.ultracraft.terminal.customize.mainmenu").getString();
 		GUI.drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
-				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "toggle-lock");
+				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "edit-mainmenu");
 		y -= textRenderer.fontHeight + 5;
 		if(UltracraftClient.isCanGraffiti())
 		{
@@ -282,15 +269,9 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 					animatable.getTextColor());
 			matrices.pop();
 		}
-		String t = Text.translatable("screen.ultracraft.terminal.button.back").getString();
+		String t = Text.translatable(TerminalBlockEntity.Button.RETURN_LABEL).getString();
 		GUI.drawButton(buffers, matrices, t,  103, 100 - textRenderer.fontHeight - 2,
 				textRenderer.getWidth(t) + 4, textRenderer.fontHeight + 2, "customize");
-	}
-	
-	void drawEditMainMenu(MatrixStack matrices, VertexConsumerProvider buffers)
-	{
-		GUI.drawBG(matrices, buffers);
-		GUI.drawBoxOutline(buffers, matrices, 0, 0, 100, 100, 0xffffffff);
 	}
 	
 	void drawGraffitiTab(MatrixStack matrices, VertexConsumerProvider buffers)

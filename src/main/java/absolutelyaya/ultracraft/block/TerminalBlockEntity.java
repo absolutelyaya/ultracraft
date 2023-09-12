@@ -10,6 +10,7 @@ import absolutelyaya.ultracraft.client.ClientGraffitiManager;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.util.TerminalGuiRenderer;
 import io.netty.buffer.Unpooled;
+import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -36,6 +37,7 @@ import software.bernie.geckolib.animatable.GeoBlockEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.object.Color;
 
 import java.util.*;
 
@@ -81,8 +83,19 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			add(0xffdf95da);
 		}
 	};
-	List<Byte> graffiti = new ArrayList<>();
+	ByteArrayList graffiti = new ByteArrayList();
 	UUID terminalID;
+	List<Button> mainMenuButtons = new ArrayList<>() {
+		{
+			add(new TerminalBlockEntity.Button("screen.ultracraft.terminal.customize", new Vector2i(48, 50),
+					"customize", 0, true, true));
+			add(new TerminalBlockEntity.Button("screen.ultracraft.terminal.bestiary", new Vector2i(48, 36),
+					"bestiary", 0, true, true));
+			add(new TerminalBlockEntity.Button("screen.ultracraft.terminal.weapons", new Vector2i(48, 22),
+					"weapons", 0, true, true));
+		}
+	};
+	String mainMenuTitle = "terminal.main-menu";
 	//Don't save all this
 	float displayVisibility = 0f, inactivity = 600f, caretTimer = 0f, graffitiCamRotation = 0f;
 	AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
@@ -106,10 +119,12 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	}
 	
-	public void onHit()
+	public void onHit(int button)
 	{
 		inactivity = 0f;
-		if(lastHovered != null)
+		boolean hovering = lastHovered != null;
+		tab.onClicked(getCursor(), hovering, button);
+		if(hovering)
 		{
 			String[] segments = lastHovered.split("@");
 			String action = segments[0];
@@ -206,9 +221,9 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	{
 		palette = Arrays.asList(ArrayUtils.toObject(nbt.getIntArray("palette")));
 		String pixelString = nbt.getString("pixels");
-		List<Byte> pixels = new ArrayList<>();
+		ByteArrayList pixels = new ByteArrayList();
 		for (int i = 0; i < pixelString.length() - 1; i++)
-			pixels.add(Byte.valueOf(pixelString.substring(i, i + 1), 16));
+			pixels.add((byte)Byte.valueOf(pixelString.substring(i, i + 1), 16));
 		graffiti = pixels;
 	}
 	
@@ -379,6 +394,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			ClientGraffitiManager.refreshGraffitiTexture(this);
 			markDirty();
 		}
+		if(tab != this.tab)
+			tab.init(this);
 		this.tab = tab;
 		switch(tab.id)
 		{
@@ -485,12 +502,12 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		return new Vec3d(0f, 0f, -1f).rotateY(getRotation() * -MathHelper.RADIANS_PER_DEGREE);
 	}
 	
-	public List<Byte> getGraffiti()
+	public ByteArrayList getGraffiti()
 	{
 		return graffiti;
 	}
 	
-	public void setGraffiti(List<Byte> pixels)
+	public void setGraffiti(ByteArrayList pixels)
 	{
 		graffiti = pixels;
 	}
@@ -569,10 +586,25 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		graffitiTexture = identifier;
 	}
 	
+	public List<Button> getMainMenuButtons()
+	{
+		return mainMenuButtons;
+	}
+	
+	public String getMainMenuTitle()
+	{
+		return mainMenuTitle;
+	}
+	
+	public void setMainMenuTitle(String s)
+	{
+		mainMenuTitle = s;
+	}
+	
 	public static class Tab
 	{
 		public static final TextRenderer textRenderer;
-		public static final TerminalGuiRenderer terminalGUI;
+		public static final TerminalGuiRenderer GUI;
 		
 		public static final String MAIN_MENU_ID = "main-menu";
 		public static final String COMING_SOON_ID = "placeholder";
@@ -603,8 +635,9 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			}
 		};
 		
+		protected static float time;
+		protected final List<Button> buttons = new ArrayList<>();
 		public final String id;
-		final List<Button> buttons = new ArrayList<>();
 		
 		public Tab(String id)
 		{
@@ -617,16 +650,30 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			return defaultTabs.contains(id);
 		}
 		
-		public void renderCustomTab(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
+		public void init(TerminalBlockEntity terminal)
 		{
-			renderButtons(matrices, buffers);
+			time = 0f;
 		}
 		
-		public void renderButtons(MatrixStack matrices, VertexConsumerProvider buffers)
+		public final void render(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
+		{
+			time += MinecraftClient.getInstance().getTickDelta() / 20f;
+			renderCustomTab(matrices, terminal, buffers);
+		}
+		
+		public void renderCustomTab(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
+		{
+			GUI.drawBG(matrices, buffers);
+			renderButtons(matrices, terminal, buffers);
+		}
+		
+		public void renderButtons(MatrixStack matrices,TerminalBlockEntity terminal, VertexConsumerProvider buffers)
 		{
 			for (Button b : buttons)
-				terminalGUI.drawButton(buffers, matrices, b.label, b.position.x, b.position.y,
-						textRenderer.getWidth(b.label) + 2, textRenderer.fontHeight + 2, b.action + "@" + b.value);
+			{
+				if(!b.isHide() || terminal.isOwner(MinecraftClient.getInstance().player.getUuid()))
+					GUI.drawButton(buffers, matrices, b);
+			}
 		}
 		
 		public Vector2f getSizeOverride()
@@ -639,19 +686,91 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			return -1;
 		}
 		
-		static {
-			textRenderer = MinecraftClient.getInstance().textRenderer;
-			terminalGUI = TerminalBlockEntityRenderer.GUI;
+		public void onClicked(Vector2d pos, boolean element, int button)
+		{
+		
 		}
 		
 		public boolean onButtonClicked(String action, int value)
 		{
 			return false;
 		}
+		
+		public boolean drawCustomCursor(MatrixStack matrices, VertexConsumerProvider buffers, Vector2d pos)
+		{
+			return false;
+		}
+		
+		protected int getRainbow(float speed)
+		{
+			return Color.HSBtoARGB(time * speed % 1f, 1, 1);
+		}
+		
+		static {
+			textRenderer = MinecraftClient.getInstance().textRenderer;
+			GUI = TerminalBlockEntityRenderer.GUI;
+		}
 	}
 	
-	public record Button(String label, Vector2i position, String action, int value, boolean hide)
+	public static class Button
 	{
+		public static final String RETURN_LABEL = "screen.ultracraft.terminal.button.back";
+		
+		protected String label, action;
+		protected Vector2i position;
+		protected int value;
+		protected boolean hide, centered;
+		
+		public Button(String label, Vector2i position, String action, int value, boolean hide, boolean centered)
+		{
+			this.label = label;
+			this.action = action;
+			this.position = position;
+			this.value = value;
+			this.hide = hide;
+			this.centered = centered;
+		}
+		
+		public String getLabel()
+		{
+			return label;
+		}
+		
+		public String getAction()
+		{
+			return action;
+		}
+		
+		public Vector2i getPos()
+		{
+			return position;
+		}
+		
+		public boolean isHide()
+		{
+			return hide;
+		}
+		
+		public void toggleHide()
+		{
+			hide = !hide;
+		}
+		
+		public boolean isCentered()
+		{
+			return centered;
+		}
+		
+		public void toggleCentered()
+		{
+			centered = !centered;
+		}
+		
+		public int getValue()
+		{
+			return value;
+		}
+		
 		public NbtCompound serialize()
 		{
 			NbtCompound nbt = new NbtCompound();
@@ -661,6 +780,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			nbt.putString("action", action);
 			nbt.putInt("value", value);
 			nbt.putBoolean("hide", hide);
+			nbt.putBoolean("centered", centered);
 			return nbt;
 		}
 		
@@ -671,7 +791,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			String action = nbt.getString("action");
 			int value = nbt.getInt("value");
 			boolean hide = nbt.getBoolean("hide");
-			return new Button(label, pos, action, value, hide);
+			boolean centered = nbt.getBoolean("centered");
+			return new Button(label, pos, action, value, hide, centered);
 		}
 	}
 	

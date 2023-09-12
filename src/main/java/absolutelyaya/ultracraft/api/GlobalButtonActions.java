@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.api;
 
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
+import absolutelyaya.ultracraft.client.gui.terminal.EditMainMenuTab;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -47,6 +48,7 @@ public class GlobalButtonActions
 		registerAction("edit-screensaver", (t, v) -> t.setTab(TerminalBlockEntity.Tab.EDIT_SCREENSAVER));
 		registerAction("edit-base", (t, v) -> t.setTab(TerminalBlockEntity.Tab.BASE_SELECT));
 		registerAction("graffiti", (t, v) -> t.setTab(TerminalBlockEntity.Tab.GRAFFITI));
+		registerAction("edit-mainmenu", (t, v) -> t.setTab(new EditMainMenuTab()));
 		
 		registerAction("set-base", (t, v) -> t.setBase(TerminalBlockEntity.Base.values()[v]));
 		registerAction("toggle-lock", (t, v) -> t.toggleLock());
