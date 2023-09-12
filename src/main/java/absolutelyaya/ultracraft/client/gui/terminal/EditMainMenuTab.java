@@ -1,6 +1,8 @@
 package absolutelyaya.ultracraft.client.gui.terminal;
 
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
+import absolutelyaya.ultracraft.api.terminal.Tab;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
@@ -13,27 +15,36 @@ import org.joml.Vector4i;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EditMainMenuTab extends TerminalBlockEntity.Tab
+public class EditMainMenuTab extends Tab
 {
 	public static final String ID = "edit-mainmenu";
 	static final Vector4i bounds = new Vector4i(0, textRenderer.fontHeight + 5, 100, 100);
 	static final int maxButtons = 5;
 	
-	List<TerminalBlockEntity.Button> customizableButtons = new ArrayList<>();
+	final Button centeredToggle, hideToggle;
+	
+	List<Button> customizableButtons = new ArrayList<>();
 	int selectedButton = -1, selectedTextBox = -1;
 	
 	public EditMainMenuTab()
 	{
 		super(ID);
-		buttons.add(new TerminalBlockEntity.Button(TerminalBlockEntity.Button.RETURN_LABEL,
+		buttons.add(new Button(Button.RETURN_LABEL,
 				new Vector2i(103, 100 - textRenderer.fontHeight - 2), "customize", 0, false, false));
+		hideToggle = new Button("O", new Vector2i(103, 61), "toggle-hide", 0, false, false);
+		centeredToggle = new Button("O", new Vector2i(103, 75), "toggle-center", 0, false, false);
 	}
 	
 	@Override
 	public void init(TerminalBlockEntity terminal)
 	{
 		super.init(terminal);
-		customizableButtons = terminal.getMainMenuButtons();
+		List<Button> mainMenu = terminal.getMainMenuButtons();
+		for (int i = 0; i < mainMenu.size(); i++)
+		{
+			Button b = mainMenu.get(i);
+			customizableButtons.add(new Button(b.getLabel(), b.getPos(), "select", i, b.isHide(), b.isCentered()));
+		}
 	}
 	
 	@Override
@@ -43,9 +54,9 @@ public class EditMainMenuTab extends TerminalBlockEntity.Tab
 	}
 	
 	@Override
-	public void renderCustomTab(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
+	public void drawCustomTab(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
 	{
-		super.renderCustomTab(matrices, terminal, buffers);
+		super.drawCustomTab(matrices, terminal, buffers);
 		GUI.drawBoxOutline(buffers, matrices, bounds.x, bounds.y + 4, bounds.z - bounds.x, bounds.w - bounds.y - 4, 0xffffffff);
 		String t = terminal.getMainMenuTitle();
 		GUI.drawText(buffers, matrices, t, 50 - textRenderer.getWidth(t) / 2, -100 + textRenderer.fontHeight - 4, 0.003f);
@@ -54,17 +65,14 @@ public class EditMainMenuTab extends TerminalBlockEntity.Tab
 		
 		for (int i = 0; i < customizableButtons.size(); i++)
 		{
-			TerminalBlockEntity.Button b = customizableButtons.get(i);
-			if(b.isCentered())
-				GUI.drawButtonCentered(buffers, matrices, b.getLabel(), b.getPos().x, b.getPos().y, "select@" + i);
-			else
-				GUI.drawButton(buffers, matrices, b.getLabel(), b.getPos().x, b.getPos().y, "select@" + i);
+			Button b = customizableButtons.get(i);
+			GUI.drawButton(buffers, matrices, b, b.getLabel());
 			if(i == selectedButton)
 			{
 				int l = textRenderer.getWidth(Text.translatable(b.getLabel()));
 				matrices.push();
 				matrices.translate(0f, 0f, -0.001f);
-				GUI.drawBoxOutline(buffers, matrices, b.getPos().x - (b.isCentered() ? l / 2 : 0), b.getPos().y,
+				GUI.drawBoxOutline(buffers, matrices, b.getPos().x - (b.isCentered() ? l / 2 + 1 : 0), b.getPos().y,
 						l + 3, textRenderer.fontHeight + 2, getRainbow(1f / 3f));
 				matrices.pop();
 			}
@@ -76,10 +84,10 @@ public class EditMainMenuTab extends TerminalBlockEntity.Tab
 	
 	void drawInspector(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
-		TerminalBlockEntity.Button b = customizableButtons.get(selectedButton);
-		GUI.drawButton(buffers, matrices, b.isHide() ? "O" : "X", 103, 61, "toggle-hide");
+		Button b = customizableButtons.get(selectedButton);
+		GUI.drawButton(buffers, matrices, hideToggle, b.isHide() ? "O" : "X");
 		GUI.drawText(buffers, matrices, "Hide", 114, -37, 0.001f);
-		GUI.drawButton(buffers, matrices, b.isCentered() ? "O" : "X", 103, 75, "toggle-center");
+		GUI.drawButton(buffers, matrices, centeredToggle, b.isCentered() ? "O" : "X");
 		GUI.drawText(buffers, matrices, "Center", 114, -23, 0.001f);
 	}
 	
@@ -88,7 +96,7 @@ public class EditMainMenuTab extends TerminalBlockEntity.Tab
 	{
 		if(selectedButton == -1)
 			return false;
-		TerminalBlockEntity.Button b = customizableButtons.get(selectedButton);
+		Button b = customizableButtons.get(selectedButton);
 		Vector2i pos = calculateButtonPos(relativePos, b);
 		if(!isInBounds(new Vector2i((int)(relativePos.x * 100), (int)(relativePos.y * 100))))
 			return false;
@@ -96,7 +104,7 @@ public class EditMainMenuTab extends TerminalBlockEntity.Tab
 		int h = textRenderer.fontHeight;
 		matrices.push();
 		matrices.translate(0f, 0f, -0.001f);
-		GUI.drawBoxOutline(buffers, matrices, pos.x - (b.isCentered() ? w / 2 : 0), pos.y, w + 3, h + 2, 0x88ffffff);
+		GUI.drawBoxOutline(buffers, matrices, pos.x - (b.isCentered() ? w / 2 + 1 : 0), pos.y, w + 3, h + 2, 0x88ffffff);
 		matrices.pop();
 		return true;
 	}
@@ -123,14 +131,14 @@ public class EditMainMenuTab extends TerminalBlockEntity.Tab
 			selectedButton = -1;
 		if(!element && selectedButton != -1)
 		{
-			TerminalBlockEntity.Button b = customizableButtons.get(selectedButton);
+			Button b = customizableButtons.get(selectedButton);
 			Vector2i clampedPos = calculateButtonPos(pos, b);
 			if(isInBounds(new Vector2i((int)(pos.x * 100), (int)(pos.y * 100))))
 				b.getPos().set(clampedPos.x, clampedPos.y);
 		}
 	}
 	
-	Vector2i calculateButtonPos(Vector2d pos, TerminalBlockEntity.Button b)
+	Vector2i calculateButtonPos(Vector2d pos, Button b)
 	{
 		String label = b.getLabel();
 		int l = textRenderer.getWidth(Text.translatable(label).getString()) / 2 + 1;
@@ -143,5 +151,18 @@ public class EditMainMenuTab extends TerminalBlockEntity.Tab
 	boolean isInBounds(Vector2i pos)
 	{
 		return !(pos.x < 0 || pos.x >= 100 || pos.y < 19 || pos.y >= 100);
+	}
+	
+	@Override
+	public void onClose(TerminalBlockEntity terminal)
+	{
+		List<Button> mainMenu =  terminal.getMainMenuButtons();
+		for (int i = 0; i < mainMenu.size(); i++)
+		{
+			Button original = mainMenu.get(i);
+			Button b = customizableButtons.get(i);
+			mainMenu.set(i, new Button(b.getLabel(), b.getPos(), original.getAction(), original.getValue(), b.isHide(), b.isCentered()));
+		}
+		//terminal.setMainMenuTitle("whatever");
 	}
 }

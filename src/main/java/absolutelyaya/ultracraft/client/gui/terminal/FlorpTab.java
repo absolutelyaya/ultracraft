@@ -1,18 +1,23 @@
 package absolutelyaya.ultracraft.client.gui.terminal;
 
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
+import absolutelyaya.ultracraft.api.terminal.Tab;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import org.joml.Vector2f;
+import org.joml.Vector2i;
 
-public class FlorpTab extends TerminalBlockEntity.Tab
+public class FlorpTab extends Tab
 {
 	public static final String ID = "FLORP";
 	boolean mainMenu = true;
+	Button startGameButton;
 	
 	public FlorpTab()
 	{
 		super(ID);
+		startGameButton = new Button("Start Game", new Vector2i(50, 30), "start", 0, false, true);
 	}
 	
 	@Override
@@ -22,20 +27,18 @@ public class FlorpTab extends TerminalBlockEntity.Tab
 	}
 	
 	@Override
-	public void renderCustomTab(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
+	public void drawCustomTab(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
 	{
 		if(mainMenu)
-			drawMainMenu(matrices, terminal, buffers);
+			drawMainMenu(matrices, buffers);
 		else
-			GUI.drawTab(matrices, buffers, "placeholder", ":D", false, "mainmenu");
+			GUI.drawTab(matrices, buffers, "placeholder", ":D", DEFAULT_RETURN_BUTTON);
 	}
 	
-	void drawMainMenu(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
+	void drawMainMenu(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
-		GUI.drawTab(matrices, buffers, "FLORP", true);
-		String t = "Start Game";
-		int tWidth = textRenderer.getWidth(t);
-		GUI.drawButton(buffers, matrices, t, 50 - tWidth / 2, 30, tWidth + 2, textRenderer.fontHeight + 2, "start");
+		GUI.drawTab(matrices, buffers, "FLORP", DEFAULT_RETURN_BUTTON);
+		GUI.drawButton(buffers, matrices, startGameButton);
 	}
 	
 	@Override

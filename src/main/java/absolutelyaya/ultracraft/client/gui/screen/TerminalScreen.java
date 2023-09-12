@@ -1,8 +1,10 @@
 package absolutelyaya.ultracraft.client.gui.screen;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
-import absolutelyaya.ultracraft.api.TerminalCodeRegistry;
+import absolutelyaya.ultracraft.api.terminal.TerminalCodeRegistry;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
+import absolutelyaya.ultracraft.api.terminal.Tab;
+import absolutelyaya.ultracraft.client.gui.terminal.DefaultTabs;
 import absolutelyaya.ultracraft.client.gui.widget.TerminalPaletteWidget;
 import absolutelyaya.ultracraft.client.gui.widget.SimpleColorSelectionWidget;
 import absolutelyaya.ultracraft.client.ClientGraffitiManager;
@@ -24,7 +26,7 @@ public class TerminalScreen extends Screen
 	SimpleColorSelectionWidget textColorPicker, paletteColorPicker;
 	TerminalBlockEntity terminal;
 	TerminalPaletteWidget paletteWidget;
-	TerminalBlockEntity.Tab lastTab = TerminalBlockEntity.Tab.MAIN_MENU;
+	Tab lastTab = new DefaultTabs.MainMenu();
 	CheckboxWidget editPalleteCheckbox;
 	Vector2i graffitiTexturePos = new Vector2i();
 	TextFieldWidget exportName;
@@ -63,10 +65,9 @@ public class TerminalScreen extends Screen
 		exportName.setText(Text.translatable("screen.ultracraft.terminal.graffiti.default_name").getString());
 		exportName.setPlaceholder(Text.translatable("screen.ultracraft.terminal.graffiti.name_placeholder"));
 		exportName.setChangedListener(s -> exportButton.setMessage(Text.translatable("screen.ultracraft.terminal.graffiti.export", s)));
-		exportButton = addDrawableChild(ButtonWidget.builder(Text.translatable("screen.ultracraft.terminal.graffiti.export", exportName.getText()), b -> {
-			ClientGraffitiManager.exportGraffitiPng(terminal, exportName.getText());
-		}).dimensions(63, height / 2 + 67 + 22, 130, 20).build());
-		if(!terminal.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI))
+		exportButton = addDrawableChild(ButtonWidget.builder(Text.translatable("screen.ultracraft.terminal.graffiti.export", exportName.getText()),
+				b -> ClientGraffitiManager.exportGraffitiPng(terminal, exportName.getText())).dimensions(63, height / 2 + 67 + 22, 130, 20).build());
+		if(!terminal.getTab().id.equals(Tab.GRAFFITI_ID))
 		{
 			editPalleteCheckbox.active = false;
 			editPalleteCheckbox.visible = false;
@@ -83,8 +84,8 @@ public class TerminalScreen extends Screen
 		super.render(context, mouseX, mouseY, delta);
 		switch (terminal.getTab().id)
 		{
-			case TerminalBlockEntity.Tab.CUSTOMIZATION_ID -> {
-				if(!lastTab.equals(TerminalBlockEntity.Tab.CUSTOMIZATION))
+			case Tab.CUSTOMIZATION_ID -> {
+				if(!lastTab.id.equals(Tab.CUSTOMIZATION_ID))
 				{
 					textColorPicker.setActive(true);
 					editPalleteCheckbox.active = false;
@@ -97,7 +98,7 @@ public class TerminalScreen extends Screen
 				}
 				textColorPicker.render(context, mouseX, mouseY, delta);
 			}
-			case TerminalBlockEntity.Tab.GRAFFITI_ID -> renderGraffitiMenu(context, mouseX, mouseY, delta);
+			case Tab.GRAFFITI_ID -> renderGraffitiMenu(context, mouseX, mouseY, delta);
 			default -> {
 				if(!lastTab.equals(terminal.getTab()))
 				{
@@ -182,7 +183,7 @@ public class TerminalScreen extends Screen
 			return true;
 		if(paletteColorPicker.mouseDragged(mouseX, mouseY, button, deltaX, deltaY))
 			return true;
-		if(!editPalleteCheckbox.isChecked() && terminal.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI) &&
+		if(!editPalleteCheckbox.isChecked() && terminal.getTab().id.equals(Tab.GRAFFITI_ID) &&
 				   mouseX > graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 128 && mouseY > graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 128)
 		{
 			int x = (int)Math.round((mouseX - graffitiTexturePos.x) / 128f * 32f);
@@ -199,7 +200,7 @@ public class TerminalScreen extends Screen
 		terminal.onHit(button);
 		if(!exportName.isMouseOver(mouseX, mouseY))
 			exportName.setFocused(false);
-		if(!editPalleteCheckbox.isChecked() && terminal.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI) &&
+		if(!editPalleteCheckbox.isChecked() && terminal.getTab().id.equals(Tab.GRAFFITI_ID) &&
 				   mouseX > graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 128 && mouseY > graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 128)
 		{
 			int x = (int)Math.round((mouseX - graffitiTexturePos.x) / 128f * 32f);
@@ -225,7 +226,7 @@ public class TerminalScreen extends Screen
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers)
 	{
-		if(terminal.getTab().equals(TerminalBlockEntity.Tab.EDIT_SCREENSAVER))
+		if(terminal.getTab().id.equals(Tab.EDIT_SCREENSAVER_ID))
 		{
 			switch(keyCode)
 			{
@@ -252,17 +253,17 @@ public class TerminalScreen extends Screen
 						terminal.getLines().set(v.y, line);
 					}
 				}
-				case 256, 257 -> terminal.setTab(TerminalBlockEntity.Tab.CUSTOMIZATION); //ESC or Enter
+				case 256, 257 -> terminal.setTab(new DefaultTabs.Customization()); //ESC or Enter
 			}
 			return true;
 		}
-		if(terminal.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI) && !exportName.isFocused())
+		if(terminal.getTab().id.equals(Tab.GRAFFITI_ID) && !exportName.isFocused())
 		{
 			switch (keyCode)
 			{
 				case 262, 68 -> terminal.rotateGrafittiCam(modifiers == 2 ? -15 : -7.5f); //right
 				case 263, 65 -> terminal.rotateGrafittiCam(modifiers == 2 ? 15 : 7.5f); //left
-				case 256 -> terminal.setTab(TerminalBlockEntity.Tab.CUSTOMIZATION); // ESC
+				case 256 -> terminal.setTab(new DefaultTabs.Customization()); // ESC
 			}
 			return true;
 		}
@@ -274,7 +275,7 @@ public class TerminalScreen extends Screen
 	@Override
 	public boolean charTyped(char chr, int modifiers)
 	{
-		if(terminal.getTab().equals(TerminalBlockEntity.Tab.EDIT_SCREENSAVER))
+		if(terminal.getTab().id.equals(Tab.EDIT_SCREENSAVER_ID))
 		{
 			Vector2i v = terminal.getCaret();
 			List<String> text = terminal.getLines();
@@ -292,7 +293,7 @@ public class TerminalScreen extends Screen
 			}
 			return true;
 		}
-		if(terminal.isOwner(client.player.getUuid()) && terminal.getTab().equals(TerminalBlockEntity.Tab.MAIN_MENU))
+		if(terminal.isOwner(client.player.getUuid()) && terminal.getTab().id.equals(Tab.MAIN_MENU_ID))
 		{
 			if(secretInput == null)
 				secretInput = "";

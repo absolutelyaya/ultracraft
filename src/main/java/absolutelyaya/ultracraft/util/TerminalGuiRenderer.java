@@ -1,6 +1,9 @@
 package absolutelyaya.ultracraft.util;
 
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.ColorButton;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.TextBox;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.RenderLayer;
@@ -12,6 +15,7 @@ import org.joml.*;
 
 import java.lang.Math;
 import java.text.MessageFormat;
+import java.util.List;
 
 public class TerminalGuiRenderer
 {
@@ -29,27 +33,18 @@ public class TerminalGuiRenderer
 		this.terminal = terminal;
 	}
 	
-	public void drawTab(MatrixStack matrices, VertexConsumerProvider buffers, String title, boolean returnButton)
+	public void drawTab(MatrixStack matrices, VertexConsumerProvider buffers, String title, Button returnButton)
 	{
-		drawTab(matrices, buffers, title, "-", returnButton, "mainmenu");
+		drawTab(matrices, buffers, title, "-", returnButton);
 	}
 	
-	public void drawTab(MatrixStack matrices, VertexConsumerProvider buffers, String title, boolean returnButton, String returnAction)
-	{
-		drawTab(matrices, buffers, title, "-", returnButton, returnAction);
-	}
-	
-	public void drawTab(MatrixStack matrices, VertexConsumerProvider buffers, String title, String titleBorder, boolean returnButton, String returnAction)
+	public void drawTab(MatrixStack matrices, VertexConsumerProvider buffers, String title, String titleBorder, Button returnButton)
 	{
 		String t = MessageFormat.format("{0} {1} {0}", titleBorder, Text.translatable(title).getString());
 		drawBG(matrices, buffers);
 		drawText(buffers, matrices, t, 50 - textRenderer.getWidth(t) / 2, - 100 + textRenderer.fontHeight, 0.01f);
-		if(returnButton)
-		{
-			t = Text.translatable(TerminalBlockEntity.Button.RETURN_LABEL).getString();
-			drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, 95 - textRenderer.fontHeight,
-					textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, returnAction);
-		}
+		if(returnButton != null)
+			drawButton(buffers, matrices, returnButton);
 	}
 	
 	public void drawBG(MatrixStack matrices, VertexConsumerProvider buffers)
@@ -81,32 +76,18 @@ public class TerminalGuiRenderer
 		matrices.pop();
 	}
 	
-	public void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, TerminalBlockEntity.Button button)
+	public void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, Button button)
 	{
-		Vector2i pos = button.getPos();
+		drawButton(buffers, matrices, button, button.getLabel());
+	}
+	
+	public void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, Button button, String label)
+	{
+		String text = Text.translatable(label).getString();
+		int x = button.getPos().x, y = button.getPos().y;
+		int sizeX = textRenderer.getWidth(text) + 3, sizeY = textRenderer.fontHeight + 2;
 		if(button.isCentered())
-			drawButtonCentered(buffers, matrices, Text.translatable(button.getLabel()).getString(), pos.x, pos.y, button.getAction() + "@" + button.getValue());
-		else
-			drawButton(buffers, matrices, Text.translatable(button.getLabel()).getString(), pos.x, pos.y, button.getAction() + "@" + button.getValue());
-	}
-	
-	public void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, String text, int x, int y, String action)
-	{
-		text = Text.translatable(text).getString();
-		int tWidth = textRenderer.getWidth(text);
-		drawButton(buffers, matrices, text, x, y, tWidth + 3, textRenderer.fontHeight + 2, action);
-	}
-	
-	public void drawButtonCentered(VertexConsumerProvider buffers, MatrixStack matrices, String text, int x, int y, String action)
-	{
-		text = Text.translatable(text).getString();
-		int tWidth = textRenderer.getWidth(text);
-		drawButton(buffers, matrices, text, x - tWidth / 2, y, tWidth + 3, textRenderer.fontHeight + 2, action);
-	}
-	
-	public void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, String text, int x, int y, int sizeX, int sizeY, String action)
-	{
-		text = Text.translatable(text).getString();
+			x -= sizeX / 2;
 		Vector2d cursor = new Vector2d(terminal.getCursor()).mul(100f);
 		boolean hovered = cursor.x > x && cursor.x < x + sizeX && cursor.y > y && cursor.y < y + sizeY;
 		matrices.push();
@@ -115,17 +96,18 @@ public class TerminalGuiRenderer
 		{
 			matrices.translate(0f, 0f, -0.001f);
 			drawBox(buffers, matrices, x, y, sizeX, sizeY, terminal.getTextColor());
-			terminal.setLastHovered(action);
+			terminal.setLastHovered(button);
 		}
-		else if(terminal.getLastHovered() != null && terminal.getLastHovered().equals(action))
+		else if(terminal.getLastHovered() != null && terminal.getLastHovered().equals(button))
 			terminal.setLastHovered(null);
 		matrices.translate(0f, 1f, -0.002f);
 		drawText(buffers, matrices, text, x + 2, y + 2, 0f, hovered ? 0xff000000 : terminal.getTextColor());
 		matrices.pop();
 	}
 	
-	public void drawColorButton(VertexConsumerProvider buffers, MatrixStack matrices, int color, int x, int y, int sizeX, int sizeY, String action)
+	public void drawColorButton(VertexConsumerProvider buffers, MatrixStack matrices, int sizeX, int sizeY, ColorButton button)
 	{
+		int x = button.getPos().x, y = button.getPos().y, color = button.getColor();
 		Vector2d cursor = new Vector2d(terminal.getCursor()).mul(100f);
 		boolean hovered = cursor.x > x && cursor.x < x + sizeX && cursor.y > y && cursor.y < y + sizeY;
 		matrices.push();
@@ -133,11 +115,10 @@ public class TerminalGuiRenderer
 		if(hovered)
 		{
 			drawBoxOutline(buffers, matrices, x, y, sizeX, sizeY, terminal.getTextColor());
-			terminal.setLastHovered(action);
+			terminal.setLastHovered(button);
 		}
-		else if(terminal.getLastHovered() != null && terminal.getLastHovered().equals(action))
+		else if(terminal.getLastHovered() != null && terminal.getLastHovered().equals(button))
 			terminal.setLastHovered(null);
-		matrices.translate(0f, 1f, -0.01f);
 		matrices.pop();
 	}
 	
@@ -176,6 +157,37 @@ public class TerminalGuiRenderer
 		consumer.vertex(poseMatrix, x + sizeX, y + sizeY, 0f).color(color).texture(1, 1).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
 		consumer.vertex(poseMatrix, x + sizeX, y, 0f).color(color).texture(1, 0).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
 		matrices.pop();
+	}
+	
+	public void drawTextBox(VertexConsumerProvider buffers, MatrixStack matrices, int x, int y, TextBox box, int color)
+	{
+		int sizeX = box.getMaxLength(), sizeY = box.getMaxLines() * (textRenderer.fontHeight + 2);
+		Vector2d cursor = new Vector2d(terminal.getCursor()).mul(100f);
+		boolean hovered = cursor.x > x && cursor.x < x + sizeX && cursor.y > y && cursor.y < y + sizeY;
+		matrices.push();
+		drawBox(buffers, matrices, x, y, sizeX, sizeY, color, 0.005f);
+		if(hovered)
+		{
+			drawBoxOutline(buffers, matrices, x, y, sizeX, sizeY, terminal.getTextColor());
+			terminal.setLastHovered(box);
+		}
+		else if(terminal.getLastHovered() != null && terminal.getLastHovered().equals(box))
+			terminal.setLastHovered(null);
+		
+		drawBoxOutline(buffers, matrices, 0, 0, 100, 100, 0xffffffff);
+		List<String> lines = terminal.getLines();
+		for (int i = 0; i < lines.size(); i++)
+			drawText(buffers, matrices, lines.get(i), 2, textRenderer.fontHeight * (i + 1) - 108, 0.005f);
+		if(terminal.getCaretTimer() <= 1f)
+		{
+			Vector2i caret = terminal.getCaret();
+			String before = (caret.x == 0 || lines.get(caret.y).length() == 0 ? "" : lines.get(caret.y).substring(0, caret.x));
+			matrices.push();
+			matrices.translate(0f, 0f, -0.005f);
+			drawBox(buffers, matrices, textRenderer.getWidth(before) + 1, textRenderer.fontHeight * caret.y, 1, textRenderer.fontHeight,
+					terminal.getTextColor());
+			matrices.pop();
+		}
 	}
 	
 	static {

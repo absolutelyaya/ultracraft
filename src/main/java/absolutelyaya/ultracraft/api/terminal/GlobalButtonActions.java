@@ -1,6 +1,7 @@
-package absolutelyaya.ultracraft.api;
+package absolutelyaya.ultracraft.api.terminal;
 
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
+import absolutelyaya.ultracraft.client.gui.terminal.DefaultTabs;
 import absolutelyaya.ultracraft.client.gui.terminal.EditMainMenuTab;
 
 import java.util.HashMap;
@@ -41,17 +42,16 @@ public class GlobalButtonActions
 	}
 	
 	static {
-		registerAction("customize", (t, v) -> t.setTab(TerminalBlockEntity.Tab.CUSTOMIZATION));
-		registerAction("bestiary", (t, v) -> t.setTab(TerminalBlockEntity.Tab.COMING_SOON));
-		registerAction("weapons", (t, v) -> t.setTab(TerminalBlockEntity.Tab.WEAPONS));
-		registerAction("mainmenu", (t, v) -> t.setTab(TerminalBlockEntity.Tab.MAIN_MENU));
-		registerAction("edit-screensaver", (t, v) -> t.setTab(TerminalBlockEntity.Tab.EDIT_SCREENSAVER));
-		registerAction("edit-base", (t, v) -> t.setTab(TerminalBlockEntity.Tab.BASE_SELECT));
-		registerAction("graffiti", (t, v) -> t.setTab(TerminalBlockEntity.Tab.GRAFFITI));
+		registerAction("customize", (t, v) -> t.setTab(new DefaultTabs.Customization()));
+		registerAction("bestiary", (t, v) -> t.setTab(new Tab(Tab.COMING_SOON_ID)));
+		registerAction("weapons", (t, v) -> t.setTab(new Tab(Tab.WEAPONS_ID)));
+		registerAction("mainmenu", (t, v) -> t.setTab(new DefaultTabs.MainMenu()));
+		registerAction("edit-screensaver", (t, v) -> t.setTab(new DefaultTabs.ScreenSaverEditor()));
+		registerAction("edit-base", (t, v) -> t.setTab(new DefaultTabs.BaseSelection()));
+		registerAction("graffiti", (t, v) -> t.setTab(new DefaultTabs.Graffiti()));
 		registerAction("edit-mainmenu", (t, v) -> t.setTab(new EditMainMenuTab()));
 		
 		registerAction("set-base", (t, v) -> t.setBase(TerminalBlockEntity.Base.values()[v]));
-		registerAction("toggle-lock", (t, v) -> t.toggleLock());
 		registerAction("force-screensaver", (t, v) -> t.setInactivity(60f));
 	}
 }

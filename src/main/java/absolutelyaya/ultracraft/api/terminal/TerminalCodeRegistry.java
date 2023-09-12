@@ -1,4 +1,4 @@
-package absolutelyaya.ultracraft.api;
+package absolutelyaya.ultracraft.api.terminal;
 
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import net.fabricmc.api.EnvType;

@@ -372,12 +372,11 @@ public class PacketRegistry
 			BlockPos pos = buf.readBlockPos();
 			int textColor = buf.readInt();
 			int base = buf.readInt();
-			boolean locked = buf.readBoolean();
 			NbtCompound screenSaver = buf.readNbt();
 			server.execute(() ->  {
 				BlockEntity be = player.getWorld().getBlockEntity(pos);
 				if(be instanceof TerminalBlockEntity terminal)
-					terminal.syncCustomization(textColor, base, locked, screenSaver);
+					terminal.syncCustomization(textColor, base, screenSaver);
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(GRAFFITI_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {

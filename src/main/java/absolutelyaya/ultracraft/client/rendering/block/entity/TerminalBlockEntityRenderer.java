@@ -2,7 +2,8 @@ package absolutelyaya.ultracraft.client.rendering.block.entity;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
-import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.client.gui.terminal.DefaultTabs;
+import absolutelyaya.ultracraft.api.terminal.Tab;
 import absolutelyaya.ultracraft.util.TerminalGuiRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -112,19 +113,14 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 		{
 			switch (animatable.getTab().id)
 			{
-				case TerminalBlockEntity.Tab.MAIN_MENU_ID -> drawMainMenu(matrices, buffers);
-				case TerminalBlockEntity.Tab.COMING_SOON_ID -> drawComingSoon(matrices, buffers);
-				case TerminalBlockEntity.Tab.WEAPONS_ID -> drawWeapons(matrices, buffers);
-				case TerminalBlockEntity.Tab.BESTIARY_ID -> drawBestiary(matrices, buffers);
-				case TerminalBlockEntity.Tab.CUSTOMIZATION_ID -> drawCustomization(matrices, buffers);
-				case TerminalBlockEntity.Tab.BASE_SELECT_ID -> drawBaseSelection(matrices, buffers);
-				case TerminalBlockEntity.Tab.EDIT_SCREENSAVER_ID -> drawEditScreensaver(matrices, buffers);
-				case TerminalBlockEntity.Tab.GRAFFITI_ID -> drawGraffitiTab(matrices, buffers);
+				case Tab.COMING_SOON_ID -> drawComingSoon(matrices, buffers);
+				case Tab.WEAPONS_ID -> drawWeapons(matrices, buffers);
+				case Tab.BESTIARY_ID -> drawBestiary(matrices, buffers);
 				default -> animatable.getTab().render(matrices, terminal, buffers);
 			}
 		}
 		
-		if(!animatable.getTab().equals(TerminalBlockEntity.Tab.GRAFFITI))
+		if(!animatable.getTab().id.equals(Tab.GRAFFITI_ID))
 		{
 			matrices.translate(0f, 0f, -0.005f);
 			Vector2d cursor = terminal.getCursor();
@@ -179,107 +175,19 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 			GUI.drawText(buffers, matrices, lines.get(i), 2, textRenderer.fontHeight * (i + 1) - 108, 0.005f);
 	}
 	
-	void drawMainMenu(MatrixStack matrices, VertexConsumerProvider buffers)
-	{
-		if(animatable.isLocked() && !animatable.isOwner(MinecraftClient.getInstance().player.getUuid()))
-		{
-			GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.no-access", "!", true, "force-screensaver");
-			return;
-		}
-		GUI.drawTab(matrices, buffers, animatable.getMainMenuTitle(), false);
-		for (TerminalBlockEntity.Button b : animatable.getMainMenuButtons())
-			GUI.drawButton(buffers, matrices, b);
-	}
-	
 	void drawComingSoon(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
-		GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.coming-soon", "///", true, "mainmenu");
+		GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.coming-soon", "///", Tab.DEFAULT_RETURN_BUTTON);
 	}
 	
 	void drawWeapons(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
-		GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.weapons", true);
+		GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.weapons", Tab.DEFAULT_RETURN_BUTTON);
 	}
 	
 	void drawBestiary(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
-		GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.bestiary", true);
-	}
-	
-	void drawCustomization(MatrixStack matrices, VertexConsumerProvider buffers)
-	{
-		GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.customize", true);
-		int y = 77;
-		String t;
-		if(MinecraftClient.getInstance().player instanceof WingedPlayerEntity winged && !animatable.equals(winged.getFocusedTerminal()))
-		{
-			t = Text.translatable("screen.ultracraft.terminal.focus-pls").getString();
-			GUI.drawText(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y, 0.02f);
-		}
-		y -= textRenderer.fontHeight + 5;
-		t = Text.translatable("screen.ultracraft.terminal.customize.mainmenu").getString();
-		GUI.drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
-				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "edit-mainmenu");
-		y -= textRenderer.fontHeight + 5;
-		if(UltracraftClient.isCanGraffiti())
-		{
-			t = Text.translatable("screen.ultracraft.terminal.customize.graffiti").getString();
-			GUI.drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
-					textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "graffiti");
-			y -= textRenderer.fontHeight + 5;
-		}
-		t = Text.translatable("screen.ultracraft.terminal.customize.base-clr").getString();
-		GUI.drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
-				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "edit-base");
-		y -= textRenderer.fontHeight + 5;
-		t = Text.translatable("screen.ultracraft.terminal.customize.screensaver").getString();
-		GUI.drawButton(buffers, matrices, t, 48 - textRenderer.getWidth(t) / 2, y,
-				textRenderer.getWidth(t) + 2, textRenderer.fontHeight + 2, "edit-screensaver");
-	}
-	
-	void drawBaseSelection(MatrixStack matrices, VertexConsumerProvider buffers)
-	{
-		GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.customize.base-clr", true, "customize");
-		int[] colors = new int[] {
-				0xffd7f6fa, 0xffcfc6b8, 0xff7d7071, 0xff282235,
-				0xff994f51, 0xffbc2f27, 0xfff47e1b, 0xfffcc330,
-				0xffb6d53c, 0xff397b44, 0xff4ae6bf, 0xff28ccdf,
-				0xff3978a8, 0xff6e3696, 0xffaf3ca7, 0xffe98cd1
-		};
-		int size = 14;
-		for (int y = 0; y < 4; y++)
-			for (int x = 0; x < 4; x++)
-				GUI.drawColorButton(buffers, matrices, colors[y * 4 + x], 16 + x * (size + 3), 18 + y * (size + 3), size, size, "set-base@" + (y * 4 + x));
-	}
-	
-	void drawEditScreensaver(MatrixStack matrices, VertexConsumerProvider buffers)
-	{
-		GUI.drawBG(matrices, buffers);
-		GUI.drawBoxOutline(buffers, matrices, 0, 0, 100, 100, 0xffffffff);
-		List<String> lines = animatable.getLines();
-		for (int i = 0; i < lines.size(); i++)
-			GUI.drawText(buffers, matrices, lines.get(i), 2, textRenderer.fontHeight * (i + 1) - 108, 0.005f);
-		if(animatable.getCaretTimer() <= 1f)
-		{
-			Vector2i caret = animatable.getCaret();
-			String before = (caret.x == 0 || lines.get(caret.y).length() == 0 ? "" : lines.get(caret.y).substring(0, caret.x));
-			matrices.push();
-			matrices.translate(0f, 0f, -0.005f);
-			GUI.drawBox(buffers, matrices, textRenderer.getWidth(before) + 1, textRenderer.fontHeight * caret.y, 1, textRenderer.fontHeight,
-					animatable.getTextColor());
-			matrices.pop();
-		}
-		String t = Text.translatable(TerminalBlockEntity.Button.RETURN_LABEL).getString();
-		GUI.drawButton(buffers, matrices, t,  103, 100 - textRenderer.fontHeight - 2,
-				textRenderer.getWidth(t) + 4, textRenderer.fontHeight + 2, "customize");
-	}
-	
-	void drawGraffitiTab(MatrixStack matrices, VertexConsumerProvider buffers)
-	{
-		GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.customize.graffiti", false, "customize");
-		
-		String t = Text.translatable("screen.ultracraft.terminal.focus-pls").getString();
-		GUI.drawText(buffers, matrices, t, 50 - textRenderer.getWidth(t) / 2, -22 + textRenderer.fontHeight - 2, 0.005f, animatable.getTextColor());
+		GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.bestiary", Tab.DEFAULT_RETURN_BUTTON);
 	}
 	
 	static {

@@ -2,7 +2,7 @@ package absolutelyaya.ultracraft.client;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
-import absolutelyaya.ultracraft.api.TerminalCodeRegistry;
+import absolutelyaya.ultracraft.api.terminal.TerminalCodeRegistry;
 import absolutelyaya.ultracraft.client.gui.screen.EpilepsyPopupScreen;
 import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
 import absolutelyaya.ultracraft.client.gui.terminal.FlorpTab;
