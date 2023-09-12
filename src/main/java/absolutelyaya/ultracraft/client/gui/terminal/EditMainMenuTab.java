@@ -2,7 +2,7 @@ package absolutelyaya.ultracraft.client.gui.terminal;
 
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
-import absolutelyaya.ultracraft.api.terminal.Tab;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.TextBox;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
@@ -23,7 +23,7 @@ public class EditMainMenuTab extends Tab
 	static final int maxButtons = 5;
 	
 	final Button centeredToggle, hideToggle;
-	final TextBox titleBox;
+	final TextBox titleBox, buttonLabelTextBox;
 	
 	List<Button> customizableButtons = new ArrayList<>();
 	int selectedButton = -1;
@@ -36,6 +36,7 @@ public class EditMainMenuTab extends Tab
 		hideToggle = new Button("O", new Vector2i(103, 61), "toggle-hide", 0, false, false);
 		centeredToggle = new Button("O", new Vector2i(103, 75), "toggle-center", 0, false, false);
 		titleBox = new TextBox(1, 100, true, true);
+		buttonLabelTextBox = new TextBox(1, 95, true, false);
 	}
 	
 	@Override
@@ -82,18 +83,20 @@ public class EditMainMenuTab extends Tab
 			}
 		}
 		
-		if(selectedButton > 0)
-			drawInspector(matrices, buffers);
+		if(selectedButton >= 0)
+			drawInspector(matrices, terminal, buffers);
 	}
 	
-	void drawInspector(MatrixStack matrices, VertexConsumerProvider buffers)
+	void drawInspector(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
 	{
 		Button b = customizableButtons.get(selectedButton);
-		GUI.drawButton(buffers, matrices, hideToggle, b.isHide() ? "O" : "X");
+		GUI.drawButton(buffers, matrices, hideToggle, b.isHide() ? "Y" : "N");
 		GUI.drawText(buffers, matrices, "Hide", 114, -37, 0.001f);
-		GUI.drawButton(buffers, matrices, centeredToggle, b.isCentered() ? "O" : "X");
+		GUI.drawButton(buffers, matrices, centeredToggle, b.isCentered() ? "Y" : "N");
 		GUI.drawText(buffers, matrices, "Center", 114, -23, 0.001f);
-		//TODO: Button Label Textbox
+		GUI.drawText(buffers, matrices, "Button Label", -96, -91, 0.001f);
+		GUI.drawTextBox(buffers, matrices, -98, 9 + textRenderer.fontHeight, buttonLabelTextBox,
+				buttonLabelTextBox.equals(terminal.getFocusedTextbox()) ? getRainbow(1f / 3f) : 0xffffffff);
 		//TODO: Global Button Action list + Scroll input
 		//TODO: Redstone output button
 	}
@@ -121,7 +124,20 @@ public class EditMainMenuTab extends Tab
 	{
 		switch(action)
 		{
-			case "select" -> selectedButton = value;
+			case "select" -> {
+				selectedButton = value;
+				if(selectedButton >= 0)
+				{
+					Button b = customizableButtons.get(value);
+					buttonLabelTextBox.setChangeConsumer(t -> {
+						b.setLabel(t);
+						clampButtonPos(b);
+					});
+					buttonLabelTextBox.getLines().set(0, b.getLabel());
+				}
+				else
+					buttonLabelTextBox.setChangeConsumer(null);
+			}
 			case "toggle-hide" -> customizableButtons.get(selectedButton).toggleHide();
 			case "toggle-center" -> customizableButtons.get(selectedButton).toggleCentered();
 			default -> {
@@ -148,11 +164,24 @@ public class EditMainMenuTab extends Tab
 	Vector2i calculateButtonPos(Vector2d pos, Button b)
 	{
 		String label = b.getLabel();
-		int l = textRenderer.getWidth(Text.translatable(label).getString()) / 2 + 1;
+		boolean center = b.isCentered();
+		int l = textRenderer.getWidth(Text.translatable(label).getString()) + 1;
 		int h = textRenderer.fontHeight / 2 + 1;
-		int x = (int)MathHelper.clamp(pos.x * 100 - 1, bounds.x + l, bounds.z - l - 2);
+		int x = (int)MathHelper.clamp(pos.x * 100 - 1, bounds.x + (center ? l / 2f + 2 : 1), bounds.z - ((center ? l / 2f - 1 : l) + 1) - 2);
 		int y = (int)MathHelper.clamp(pos.y * 100 - 1 - (int)(textRenderer.fontHeight / 2f), bounds.y + h, bounds.w - h - 7);
 		return new Vector2i(x, y);
+	}
+	
+	void clampButtonPos(Button b)
+	{
+		Vector2i pos = b.getPos();
+		String label = b.getLabel();
+		boolean center = b.isCentered();
+		int l = textRenderer.getWidth(Text.translatable(label).getString()) + 1;
+		int h = textRenderer.fontHeight / 2 + 1;
+		int x = MathHelper.clamp(pos.x, bounds.x + (center ? l : 1), bounds.z - ((center ? l / 2 : l) + 1) - 2);
+		int y = MathHelper.clamp(pos.y, bounds.y + h, bounds.w - h - 7);
+		pos.set(x, y);
 	}
 	
 	boolean isInBounds(Vector2i pos)

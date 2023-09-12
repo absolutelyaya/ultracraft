@@ -6,12 +6,16 @@ import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class TextBox implements Element
 {
 	final List<String> lines = new ArrayList<>();
 	final int maxLines, maxLength;
 	final boolean allowTranslations, centered;
+	
+	
+	Consumer<String> changeConsumer;
 	
 	public TextBox(int maxLines, int maxLength, boolean allowTranslations, boolean centered)
 	{
@@ -62,5 +66,17 @@ public class TextBox implements Element
 			if(!fits(lines.get(i)))
 				lines.set(i, "");
 		}
+	}
+	
+	public void onChange(int line)
+	{
+		if(changeConsumer != null)
+			changeConsumer.accept(lines.get(line));
+	}
+	
+	
+	public void setChangeConsumer(Consumer<String> supplier)
+	{
+		changeConsumer = supplier;
 	}
 }

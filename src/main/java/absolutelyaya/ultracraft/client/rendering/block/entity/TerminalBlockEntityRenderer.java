@@ -2,7 +2,7 @@ package absolutelyaya.ultracraft.client.rendering.block.entity;
 
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
-import absolutelyaya.ultracraft.api.terminal.Tab;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
 import absolutelyaya.ultracraft.util.TerminalGuiRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -171,7 +171,7 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 		GUI.drawBG(matrices, buffers);
 		List<String> lines = animatable.getScreensaver();
 		for (int i = 0; i < lines.size(); i++)
-			GUI.drawText(buffers, matrices, lines.get(i), 2, textRenderer.fontHeight * (i + 1) - 108, 0.005f);
+			GUI.drawText(buffers, matrices, Text.translatable(lines.get(i)).getString(), 2, textRenderer.fontHeight * (i + 1) - 108, 0.005f);
 	}
 	
 	void drawComingSoon(MatrixStack matrices, VertexConsumerProvider buffers)
@@ -181,12 +181,12 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	
 	void drawWeapons(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
-		GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.weapons", Tab.DEFAULT_RETURN_BUTTON);
+		GUI.drawTab(matrices, buffers, "terminal.weapons", Tab.DEFAULT_RETURN_BUTTON);
 	}
 	
 	void drawBestiary(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
-		GUI.drawTab(matrices, buffers, "screen.ultracraft.terminal.bestiary", Tab.DEFAULT_RETURN_BUTTON);
+		GUI.drawTab(matrices, buffers, "terminal.bestiary", Tab.DEFAULT_RETURN_BUTTON);
 	}
 	
 	static {

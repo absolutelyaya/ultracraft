@@ -1,4 +1,4 @@
-package absolutelyaya.ultracraft.api.terminal;
+package absolutelyaya.ultracraft.client.gui.terminal.elements;
 
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;

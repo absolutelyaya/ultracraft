@@ -180,14 +180,15 @@ public class TerminalGuiRenderer
 			boolean translation = box.hasTranslation(s);
 			int l = textRenderer.getWidth(s);
 			int xOffset = 2 + (centered ? (box.getMaxLength() / 2 - l / 2) : 0);
-			drawText(buffers, matrices, s, x + xOffset, y + textRenderer.fontHeight * (i + 1) - 107, 0.002f);
-			if(box.hasTranslation(s))
+			if(box.hasTranslation(s) && !box.equals(terminal.getFocusedTextbox()))
 			{
 				s = Text.translatable(s).getString();
 				l = textRenderer.getWidth(s);
 				xOffset = 2 + (centered ? (box.getMaxLength() / 2 - l / 2) : 0);
-				drawText(buffers, matrices, s, x + xOffset, y + textRenderer.fontHeight * (i + 1) - 107, 0.001f, 0xff888888);
+				drawText(buffers, matrices, s, x + xOffset, y + textRenderer.fontHeight * (i + 1) - 107, 0.001f, 0xffffff00);
 			}
+			else
+				drawText(buffers, matrices, s, x + xOffset, y + textRenderer.fontHeight * (i + 1) - 107, 0.002f, translation ? 0xff00ff00 : 0xffffffff);
 		}
 		if(box.equals(terminal.getFocusedTextbox()) && terminal.getCaretTimer() <= 1f)
 		{
@@ -197,7 +198,7 @@ public class TerminalGuiRenderer
 			matrices.translate(0f, 0f, -0.003f);
 			int l = textRenderer.getWidth(lines.get(caret.y));
 			int xOffset = 1 + (centered ? (box.getMaxLength() / 2 - l / 2) : 0);
-			drawBox(buffers, matrices, x + textRenderer.getWidth(before) + xOffset, y + textRenderer.fontHeight * caret.y, 1, textRenderer.fontHeight,
+			drawBox(buffers, matrices, x + textRenderer.getWidth(before) + xOffset, y + textRenderer.fontHeight * caret.y + 1, 1, textRenderer.fontHeight,
 					terminal.getTextColor());
 			matrices.pop();
 		}

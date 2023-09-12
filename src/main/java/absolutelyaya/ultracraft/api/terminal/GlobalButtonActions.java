@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.api.terminal;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.gui.terminal.DefaultTabs;
 import absolutelyaya.ultracraft.client.gui.terminal.EditMainMenuTab;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
 
 import java.util.HashMap;
 import java.util.Set;

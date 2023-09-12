@@ -6,7 +6,7 @@ import absolutelyaya.ultracraft.api.terminal.GlobalButtonActions;
 import absolutelyaya.ultracraft.client.gui.terminal.DefaultTabs;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Element;
-import absolutelyaya.ultracraft.api.terminal.Tab;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.TextBox;
 import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
@@ -86,9 +86,9 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		{
 			add(new Button("screen.ultracraft.terminal.customize", new Vector2i(48, 50),
 					"customize", 0, true, true));
-			add(new Button("screen.ultracraft.terminal.bestiary", new Vector2i(48, 36),
+			add(new Button("terminal.bestiary", new Vector2i(48, 36),
 					"bestiary", 0, true, true));
-			add(new Button("screen.ultracraft.terminal.weapons", new Vector2i(48, 22),
+			add(new Button("terminal.weapons", new Vector2i(48, 22),
 					"weapons", 0, true, true));
 		}
 	};

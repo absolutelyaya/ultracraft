@@ -3,7 +3,7 @@ package absolutelyaya.ultracraft.client.gui.screen;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.api.terminal.TerminalCodeRegistry;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
-import absolutelyaya.ultracraft.api.terminal.Tab;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
 import absolutelyaya.ultracraft.client.gui.terminal.DefaultTabs;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.TextBox;
 import absolutelyaya.ultracraft.client.gui.widget.TerminalPaletteWidget;
@@ -243,6 +243,7 @@ public class TerminalScreen extends Screen
 						String line = box.getLines().get(v.y);
 						line = line.substring(0, v.x - 1) + (v.x < line.length() ? line.substring(v.x) : "");
 						box.getLines().set(v.y, line);
+						box.onChange(v.y);
 						terminal.setCaret(v.sub(1, 0));
 					}
 				}
@@ -253,6 +254,7 @@ public class TerminalScreen extends Screen
 					{
 						line = line.substring(0, v.x) + (v.x < line.length() ? line.substring(v.x + 1) : "");
 						box.getLines().set(v.y, line);
+						box.onChange(v.y);
 					}
 				}
 				case 256, 257 -> terminal.setFocusedTextbox(null); //ESC or Enter
@@ -289,9 +291,10 @@ public class TerminalScreen extends Screen
 				line = chr + line;
 			else
 				line = line.substring(0, v.x) + chr + line.substring(v.x);
-			if(textRenderer.getWidth(line) <= box.getMaxLength())
+			if(textRenderer.getWidth(line) < box.getMaxLength())
 			{
 				text.set(v.y, line);
+				box.onChange(v.y);
 				terminal.setCaret(terminal.getCaret().add(1, 0));
 			}
 			return true;

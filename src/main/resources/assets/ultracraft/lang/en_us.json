@@ -334,11 +334,12 @@
   "screen.ultracraft.terminal.graffiti.name_placeholder": "File Name",
   "screen.ultracraft.terminal.graffiti.export_success": "Exported Graffiti Successfully!",
   "screen.ultracraft.terminal.graffiti.export_fail": "Export Failed.",
-  "screen.ultracraft.terminal.bestiary": "Enemies",
-  "screen.ultracraft.terminal.weapons": "Weapons",
-  "screen.ultracraft.terminal.button.back": "Return",
-  "screen.ultracraft.terminal.focus-pls": "R-Click 2 Focus",
-  "screen.ultracraft.terminal.no-access": "Access Denied",
+
+  "terminal.bestiary": "Enemies",
+  "terminal.weapons": "Weapons",
+  "terminal.return": "Return",
+  "terminal.focus-pls": "R-Click 2 Focus",
+  "terminal.no-access": "Access Denied",
   "terminal.main-menu": "Main Menu",
 
   "wing-preset.ultracraft.amethyst": "Amethyst",

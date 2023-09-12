@@ -1,12 +1,11 @@
 package absolutelyaya.ultracraft.client.gui.terminal.elements;
 
-import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import net.minecraft.nbt.NbtCompound;
 import org.joml.Vector2i;
 
 public class Button implements Element
 {
-	public static final String RETURN_LABEL = "screen.ultracraft.terminal.button.back";
+	public static final String RETURN_LABEL = "terminal.return";
 	
 	protected String label, action;
 	protected Vector2i position;
@@ -26,6 +25,11 @@ public class Button implements Element
 	public String getLabel()
 	{
 		return label;
+	}
+	
+	public void setLabel(String s)
+	{
+		label = s;
 	}
 	
 	public String getAction()
