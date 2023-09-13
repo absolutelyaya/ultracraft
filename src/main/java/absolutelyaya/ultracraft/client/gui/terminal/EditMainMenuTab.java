@@ -172,7 +172,10 @@ public class EditMainMenuTab extends Tab
 					buttonLabelTextBox.setChangeConsumer(null);
 			}
 			case "toggle-hide" -> customizableButtons.get(selectedButton).toggleHide();
-			case "toggle-center" -> customizableButtons.get(selectedButton).toggleCentered();
+			case "toggle-center" -> {
+				customizableButtons.get(selectedButton).toggleCentered();
+				clampButtonPos(customizableButtons.get(selectedButton));
+			}
 			case "add-button" -> {
 				if(customizableButtons.size() < maxButtons)
 				{
