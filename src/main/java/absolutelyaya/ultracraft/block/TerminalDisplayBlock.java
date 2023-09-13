@@ -5,6 +5,8 @@ import absolutelyaya.ultracraft.item.TerminalItem;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
@@ -151,5 +153,33 @@ public class TerminalDisplayBlock extends BlockWithEntity
 		BlockEntity entity = world.getBlockEntity(pos);
 		if(entity instanceof TerminalBlockEntity terminalEntity)
 			terminalEntity.onHit(0);
+	}
+	
+	@Override
+	public int getStrongRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction)
+	{
+		BlockEntity be = world.getBlockEntity(pos);
+		if(be instanceof TerminalBlockEntity terminal)
+			return terminal.getRedstoneStrength();
+		return super.getStrongRedstonePower(state, world, pos, direction);
+	}
+	
+	@Override
+	public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction)
+	{
+		return getStrongRedstonePower(state, world, pos, direction);
+	}
+	
+	@Override
+	public boolean emitsRedstonePower(BlockState state)
+	{
+		return true;
+	}
+	
+	@Nullable
+	@Override
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type)
+	{
+		return TerminalBlockEntity::tick;
 	}
 }

@@ -6,6 +6,8 @@ import absolutelyaya.ultracraft.registry.BlockRegistry;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -148,5 +150,28 @@ public class TerminalBlock extends BlockWithEntity
 		if(be instanceof TerminalBlockEntity terminal)
 			return TerminalItem.getStack(terminal.getBase());
 		return ItemStack.EMPTY;
+	}
+	
+	@Override
+	public int getStrongRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction)
+	{
+		Direction dir = state.get(HALF).equals(DoubleBlockHalf.LOWER) ? Direction.UP : Direction.DOWN;
+		pos = pos.offset(dir, 1);
+		BlockEntity be = world.getBlockEntity(pos);
+		if(be instanceof TerminalBlockEntity terminal)
+			return terminal.getRedstoneStrength();
+		return super.getStrongRedstonePower(state, world, pos, direction);
+	}
+	
+	@Override
+	public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction)
+	{
+		return getStrongRedstonePower(state, world, pos, direction);
+	}
+	
+	@Override
+	public boolean emitsRedstonePower(BlockState state)
+	{
+		return true;
 	}
 }

@@ -10,6 +10,7 @@ import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
+import net.bettercombat.utils.MathHelper;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BellBlock;
 import net.minecraft.block.BlockState;
@@ -55,6 +56,7 @@ public class PacketRegistry
 	public static final Identifier KILLER_FISH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "killerfish");
 	public static final Identifier TERMINAL_SYNC_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "terminal_c2s");
 	public static final Identifier GRAFFITI_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "graffiti_c2s");
+	public static final Identifier TERMINAL_REDSTONE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "terminal_redstone");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
@@ -393,6 +395,15 @@ public class PacketRegistry
 					terminal.setGraffiti(ByteArrayList.of(pixels));
 					terminal.setGraffitiRevision(revision);
 				}
+			});
+		});
+		ServerPlayNetworking.registerGlobalReceiver(TERMINAL_REDSTONE_PACKET_ID, (server, player, handler, buf, sender) -> {
+			BlockPos pos = buf.readBlockPos();
+			int strength = buf.readInt();
+			server.execute(() -> {
+				BlockEntity be = player.getWorld().getBlockEntity(pos);
+				if(be instanceof TerminalBlockEntity terminal)
+					terminal.redstoneImpulse((int)MathHelper.clamp(strength, 0, 15));
 			});
 		});
 	}

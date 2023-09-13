@@ -4,6 +4,10 @@ import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.gui.terminal.DefaultTabs;
 import absolutelyaya.ultracraft.client.gui.terminal.EditMainMenuTab;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
+import absolutelyaya.ultracraft.registry.PacketRegistry;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.network.PacketByteBuf;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -54,5 +58,11 @@ public class GlobalButtonActions
 		
 		registerAction("set-base", (t, v) -> t.setBase(TerminalBlockEntity.Base.values()[v]));
 		registerAction("force-screensaver", (t, v) -> t.setInactivity(60f));
+		registerAction("redstone", (t, v) -> {
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeBlockPos(t.getPos());
+			buf.writeInt(v);
+			ClientPlayNetworking.send(PacketRegistry.TERMINAL_REDSTONE_PACKET_ID, buf);
+		});
 	}
 }

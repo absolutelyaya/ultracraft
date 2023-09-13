@@ -28,6 +28,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 import org.apache.commons.lang3.ArrayUtils;
 import org.joml.*;
 import software.bernie.geckolib.animatable.GeoBlockEntity;
@@ -103,6 +104,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	Tab tab = new DefaultTabs.MainMenu();
 	Vector2f normalWindowSize = new Vector2f(100f, 100f), curWindowSize = new Vector2f(normalWindowSize), sizeOverride = null;
 	Identifier graffitiTexture;
+	int redstoneTimer, redstoneStrength;
 	
 	public TerminalBlockEntity(BlockPos pos, BlockState state)
 	{
@@ -213,6 +215,25 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		nbt.putUuid("terminal-id", Objects.requireNonNullElseGet(terminalID, () -> terminalID = UUID.randomUUID()));
 		nbt.put("graffiti", serializeGraffiti());
 		nbt.put("mainmenu", serializeMainMenu());
+	}
+	
+	public static <T extends BlockEntity> void tick(World world, BlockPos blockPos, BlockState state, T t)
+	{
+		if(t instanceof TerminalBlockEntity terminal)
+			terminal.tickRedstoneTimer();
+	}
+	
+	void tickRedstoneTimer()
+	{
+		if(redstoneTimer > 0)
+			redstoneTimer--;
+		else if(redstoneStrength > 0)
+		{
+			redstoneStrength = 0;
+			world.updateNeighbors(getPos(), world.getBlockState(pos).getBlock());
+			world.updateNeighbors(getPos().down(), world.getBlockState(pos.down()).getBlock());
+			world.updateNeighbors(getPos().up(), world.getBlockState(pos.up()).getBlock());
+		}
 	}
 	
 	void applyScreensaver(NbtCompound screensaver)
@@ -646,6 +667,20 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		if(focusedTextbox != null)
 			focusedTextbox.unfocus();
 		focusedTextbox = box;
+	}
+	
+	public void redstoneImpulse(int strength)
+	{
+		redstoneStrength = strength;
+		redstoneTimer = 2;
+		world.updateNeighbors(getPos(), world.getBlockState(pos).getBlock());
+		world.updateNeighbors(getPos().down(), world.getBlockState(pos.down()).getBlock());
+		world.updateNeighbors(getPos().up(), world.getBlockState(pos.up()).getBlock());
+	}
+	
+	public int getRedstoneStrength()
+	{
+		return redstoneStrength;
 	}
 	
 	public enum Base
