@@ -1,7 +1,9 @@
 package absolutelyaya.ultracraft.client.gui.terminal;
 
+import absolutelyaya.ultracraft.api.terminal.GlobalButtonActions;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.ListElement;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.TextBox;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -23,7 +25,8 @@ public class EditMainMenuTab extends Tab
 	static final int maxButtons = 5;
 	
 	final Button centeredToggle, hideToggle, addButton, deleteButton;
-	final TextBox titleBox, buttonLabelTextBox;
+	final TextBox titleBox, buttonLabelTextBox, buttonValueTextBox;
+	final ListElement globalActionsList;
 	
 	List<Button> customizableButtons = new ArrayList<>();
 	List<String> buttonActions = new ArrayList<>();
@@ -35,12 +38,15 @@ public class EditMainMenuTab extends Tab
 		super(ID);
 		buttons.add(new Button(Button.RETURN_LABEL,
 				new Vector2i(103, 100 - textRenderer.fontHeight - 2), "customize", 0, false, false));
-		hideToggle = new Button("O", new Vector2i(103, 61), "toggle-hide", 0, false, false);
-		centeredToggle = new Button("O", new Vector2i(103, 75), "toggle-center", 0, false, false);
+		hideToggle = new Button("O", new Vector2i(103, 33), "toggle-hide", 0, false, false);
+		centeredToggle = new Button("O", new Vector2i(103, 47), "toggle-center", 0, false, false);
+		addButton = new Button("+", new Vector2i(103, 61), "add-button", 0, false, false);
+		deleteButton = new Button("-", new Vector2i(103, 75), "delete-button", 0, false, false);
 		titleBox = new TextBox(1, 100, true, true);
 		buttonLabelTextBox = new TextBox(1, 95, true, false);
-		addButton = new Button("+", new Vector2i(- 98, 100 - textRenderer.fontHeight - 2), "add-button", 0, false, false);
-		deleteButton = new Button("-", new Vector2i(- 98 + 12, 100 - textRenderer.fontHeight - 2), "delete-button", 0, false, false);
+		globalActionsList = new ListElement(95, 3);
+		buttonValueTextBox = new TextBox(1, 92 - textRenderer.getWidth(Text.translatable("terminal.value")),
+				false, false);
 	}
 	
 	@Override
@@ -56,6 +62,10 @@ public class EditMainMenuTab extends Tab
 			buttonValues.add(b.getValue());
 		}
 		titleBox.getLines().set(0, terminal.getMainMenuTitle());
+		globalActionsList.getEntries().addAll(GlobalButtonActions.getAllActions());
+		globalActionsList.setOnSelect(i -> buttonActions.set(selectedButton, globalActionsList.getEntries().get(i)));
+		buttonValueTextBox.setNumbersOnly(true);
+		buttonValueTextBox.setChangeConsumer(t -> buttonValues.set(selectedButton, Integer.parseInt(t)));
 	}
 	
 	@Override
@@ -92,20 +102,30 @@ public class EditMainMenuTab extends Tab
 			drawInspector(matrices, terminal, buffers);
 		
 		GUI.drawButton(buffers, matrices, addButton, customizableButtons.size() < maxButtons ? terminal.getTextColor() : 0xff888888);
+		GUI.drawText(buffers, matrices, "Add Button", 114, -37, 0.001f);
 		GUI.drawButton(buffers, matrices, deleteButton, selectedButton > 0 ? terminal.getTextColor() : 0xff888888);
+		GUI.drawText(buffers, matrices, "Delete Button", 114, -23, 0.001f);
 	}
 	
 	void drawInspector(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
 	{
 		Button b = customizableButtons.get(selectedButton);
 		GUI.drawButton(buffers, matrices, hideToggle, b.isHide() ? "Y" : "N");
-		GUI.drawText(buffers, matrices, "Hide", 114, -37, 0.001f);
+		GUI.drawText(buffers, matrices, "Hide", 114, -65, 0.001f);
 		GUI.drawButton(buffers, matrices, centeredToggle, b.isCentered() ? "Y" : "N");
-		GUI.drawText(buffers, matrices, "Center", 114, -23, 0.001f);
+		GUI.drawText(buffers, matrices, "Center", 114, -51, 0.001f);
 		GUI.drawText(buffers, matrices, "Button Label", -96, -91, 0.001f);
 		GUI.drawTextBox(buffers, matrices, -98, 9 + textRenderer.fontHeight, buttonLabelTextBox,
 				buttonLabelTextBox.equals(terminal.getFocusedTextbox()) ? getRainbow(1f / 3f) : 0xffffffff);
-		//TODO: Global Button Action list + Scroll input
+		if(selectedButton > 0)
+		{
+			GUI.drawText(buffers, matrices, "Button Action", -96, -69 + 5, 0.001f);
+			GUI.drawList(buffers, matrices, -98, 13 + textRenderer.fontHeight * 3 + 5, globalActionsList);
+			String s = Text.translatable("terminal.value").getString();
+			GUI.drawText(buffers, matrices, s, -96, -textRenderer.fontHeight, 0.001f);
+			GUI.drawTextBox(buffers, matrices, -95 + textRenderer.getWidth(s), 100 - textRenderer.fontHeight - 2, buttonValueTextBox,
+					buttonValueTextBox.equals(terminal.getFocusedTextbox()) ? getRainbow(1f / 3f) : 0xffffffff);
+		}
 		//TODO: Redstone output button
 	}
 	
@@ -143,6 +163,10 @@ public class EditMainMenuTab extends Tab
 					});
 					buttonLabelTextBox.getLines().set(0, b.getLabel());
 					deleteButton.setValue(selectedButton);
+					String selectedAction = buttonActions.get(selectedButton);
+					if(globalActionsList.getEntries().contains(selectedAction))
+						globalActionsList.select(globalActionsList.getEntries().indexOf(selectedAction));
+					buttonValueTextBox.getLines().set(0, String.valueOf(buttonValues.get(selectedButton)));
 				}
 				else
 					buttonLabelTextBox.setChangeConsumer(null);

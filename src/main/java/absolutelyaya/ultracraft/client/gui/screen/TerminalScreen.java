@@ -225,6 +225,13 @@ public class TerminalScreen extends Screen
 	}
 	
 	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double amount)
+	{
+		terminal.scroll(amount);
+		return super.mouseScrolled(mouseX, mouseY, amount);
+	}
+	
+	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers)
 	{
 		TextBox box = terminal.getFocusedTextbox();
@@ -280,7 +287,7 @@ public class TerminalScreen extends Screen
 	public boolean charTyped(char chr, int modifiers)
 	{
 		TextBox box = terminal.getFocusedTextbox();
-		if(box != null)
+		if(box != null && (!box.isNumbersOnly() || Character.isDigit(chr)))
 		{
 			Vector2i v = terminal.getCaret();
 			List<String> text = box.getLines();

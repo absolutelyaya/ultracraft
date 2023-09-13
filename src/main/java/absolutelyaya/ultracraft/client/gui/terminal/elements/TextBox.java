@@ -14,8 +14,8 @@ public class TextBox implements Element
 	final int maxLines, maxLength;
 	final boolean allowTranslations, centered;
 	
-	
 	Consumer<String> changeConsumer;
+	boolean numbersOnly;
 	
 	public TextBox(int maxLines, int maxLength, boolean allowTranslations, boolean centered)
 	{
@@ -71,9 +71,24 @@ public class TextBox implements Element
 	public void onChange(int line)
 	{
 		if(changeConsumer != null)
-			changeConsumer.accept(lines.get(line));
+		{
+			String s = lines.get(line);
+			if(isNumbersOnly() && s.equals(""))
+				changeConsumer.accept("0");
+			else
+				changeConsumer.accept(s);
+		}
 	}
 	
+	public boolean isNumbersOnly()
+	{
+		return numbersOnly;
+	}
+	
+	public void setNumbersOnly(boolean numbersOnly)
+	{
+		this.numbersOnly = numbersOnly;
+	}
 	
 	public void setChangeConsumer(Consumer<String> supplier)
 	{

@@ -4,10 +4,8 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.api.terminal.GlobalButtonActions;
 import absolutelyaya.ultracraft.client.gui.terminal.DefaultTabs;
-import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
-import absolutelyaya.ultracraft.client.gui.terminal.elements.Element;
-import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
-import absolutelyaya.ultracraft.client.gui.terminal.elements.TextBox;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.*;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.ListElement;
 import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
 import absolutelyaya.ultracraft.client.ClientGraffitiManager;
@@ -44,7 +42,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	//Persistent
 	Base base = Base.YELLOW;
 	UUID owner = null;
-	List<String> lines = new ArrayList<>() {
+	java.util.List<String> lines = new ArrayList<>() {
 		{
 			add("+--------------+");
 			add("   Tip of the Day");
@@ -60,7 +58,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		}
 	};
 	int textColor = 0xffffffff;
-	List<Integer> palette = new ArrayList<>() {
+	java.util.List<Integer> palette = new ArrayList<>() {
 		{
 			//0 is reserved for transparency
 			add(0xffd9e7ff);
@@ -82,7 +80,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	};
 	ByteArrayList graffiti = new ByteArrayList();
 	UUID terminalID;
-	List<Button> mainMenuButtons = new ArrayList<>() {
+	java.util.List<Button> mainMenuButtons = new ArrayList<>() {
 		{
 			add(new Button("terminal.customize", new Vector2i(48, 50),
 					"customize", 0, true, true));
@@ -96,7 +94,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	//Don't save all this
 	float displayVisibility = 0f, inactivity = 600f, caretTimer = 0f, graffitiCamRotation = 0f;
 	AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
-	List<WingedPlayerEntity> focusedPlayers = new ArrayList<>();
+	java.util.List<WingedPlayerEntity> focusedPlayers = new ArrayList<>();
 	int colorOverride = -1, graffitiRevision = 0;
 	Vector2d cursor = new Vector2d();
 	Vector2i caret = new Vector2i();
@@ -137,6 +135,16 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			focusedTextbox.unfocus();
 			setFocusedTextbox(null);
 		}
+		if(lastHovered instanceof ListElement list && list.getLastHovered() != -1)
+			list.select(list.getLastHovered());
+			
+	}
+	
+	public void scroll(double amount)
+	{
+		tab.onScroll(amount);
+		if(lastHovered instanceof ListElement list)
+			list.onScroll(amount);
 	}
 	
 	void handleButtonPress(Button element, int mouseButton)
@@ -245,7 +253,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		return graffiti;
 	}
 	
-	public static String serializePixels(List<Byte> pixelPairs)
+	public static String serializePixels(java.util.List<Byte> pixelPairs)
 	{
 		StringBuilder out = new StringBuilder();
 		for (byte b : pixelPairs)
@@ -332,7 +340,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		return displayVisibility;
 	}
 	
-	public List<String> getScreensaver()
+	public java.util.List<String> getScreensaver()
 	{
 		return lines;
 	}
@@ -509,7 +517,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public void setCaret(Vector2i v)
 	{
-		List<String> lines = focusedTextbox.getLines();
+		java.util.List<String> lines = focusedTextbox.getLines();
 		int y = v.y < 0 ? lines.size() - 1 : v.y % lines.size();
 		int x;
 		int len = lines.get(y).length();
@@ -538,7 +546,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		graffiti = pixels;
 	}
 	
-	public void setPalette(List<Integer> colors)
+	public void setPalette(java.util.List<Integer> colors)
 	{
 		palette = colors;
 	}
@@ -549,7 +557,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			palette.set(idx, color);
 	}
 	
-	public List<Integer> getPalette()
+	public java.util.List<Integer> getPalette()
 	{
 		return palette;
 	}
@@ -612,7 +620,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		graffitiTexture = identifier;
 	}
 	
-	public List<Button> getMainMenuButtons()
+	public java.util.List<Button> getMainMenuButtons()
 	{
 		return mainMenuButtons;
 	}

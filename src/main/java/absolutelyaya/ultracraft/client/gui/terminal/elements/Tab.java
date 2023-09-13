@@ -114,6 +114,11 @@ public class Tab
 		return false;
 	}
 	
+	public void onScroll(double amount)
+	{
+		
+	}
+	
 	public boolean drawCustomCursor(MatrixStack matrices, VertexConsumerProvider buffers, Vector2d pos)
 	{
 		return false;

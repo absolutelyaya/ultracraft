@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.util;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.ColorButton;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.ListElement;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.TextBox;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -213,6 +214,36 @@ public class TerminalGuiRenderer
 			matrices.pop();
 		}
 		matrices.pop();
+	}
+	
+	public void drawList(VertexConsumerProvider buffers, MatrixStack matrices, int x, int y, ListElement list)
+	{
+		int sizeX = list.getWidth(), sizeY = list.getLines() * (textRenderer.fontHeight + 3) + 1;
+		Vector2d cursor = new Vector2d(terminal.getCursor()).mul(100f);
+		drawBoxOutline(buffers, matrices, x, y, sizeX, sizeY);
+		int startEntry = (int)list.getScroll();
+		for (int i = startEntry; i < Math.min(startEntry + list.getLines(), list.getEntries().size()); i++)
+		{
+			int boxColor = list.getSelected() == i ? 0xff00ff00 : 0xff444444;
+			int textColor = list.getSelected() == i ? 0xff00ff00 : 0xff666666;
+			int x1 = x + 2, y1 = y + 2 + (i - startEntry) * (textRenderer.fontHeight + 3);
+			boolean hovered = cursor.x > x1 && cursor.x < x1 + sizeX - 4 && cursor.y > y1 && cursor.y < y1 + textRenderer.fontHeight;
+			drawBoxOutline(buffers, matrices, x1, y1, sizeX - 4, textRenderer.fontHeight, hovered ? 0xffffffff : boxColor);
+			matrices.push();
+			matrices.translate(0f, 1f, -0.002f);
+			String s = list.getEntries().get(i);
+			if(textRenderer.getWidth(s) > sizeX - 4)
+				s = textRenderer.trimToWidth(s, sizeX - 4 - textRenderer.getWidth("...")) + "...";
+			drawText(buffers, matrices, s, x1 + 2, y1 + 1, 0f, hovered ? 0xffffffff : textColor);
+			matrices.pop();
+			if(hovered)
+				list.setLastHovered(i);
+		}
+		boolean hovered = cursor.x > x && cursor.x < x + sizeX && cursor.y > y && cursor.y < y + sizeY;
+		if(hovered)
+			terminal.setLastHovered(list);
+		else if(terminal.getLastHovered() != null && terminal.getLastHovered().equals(list))
+			terminal.setLastHovered(null);
 	}
 	
 	static {
