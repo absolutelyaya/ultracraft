@@ -174,6 +174,8 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 	
 	protected boolean canHit(Entity entity)
 	{
+		if(!entity.canHit() && !entity.canBeHitByProjectile())
+			return false;
 		boolean parried = isParried();
 		if(entity.getClass().equals(ignore) && !parried)
 			return false;

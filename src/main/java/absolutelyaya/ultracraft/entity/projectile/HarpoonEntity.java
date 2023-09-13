@@ -35,6 +35,7 @@ public class HarpoonEntity extends PersistentProjectileEntity
 	protected static final TrackedData<Float> IMPACT_YAW = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.FLOAT);
 	
 	LivingEntity victim;
+	int unmovingTicks;
 	
 	public HarpoonEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world)
 	{
@@ -97,7 +98,11 @@ public class HarpoonEntity extends PersistentProjectileEntity
 			}
 		}
 		if(getVelocity().equals(Vec3d.ZERO) && !inGround && victim == null)
-			discard();
+			unmovingTicks++;
+		else if(unmovingTicks > 0)
+			unmovingTicks = 0;
+		if(unmovingTicks > 20)
+			despawn();
 		if(victim != null && !dataTracker.get(RETURNING))
 		{
 			if(!victim.isAlive())

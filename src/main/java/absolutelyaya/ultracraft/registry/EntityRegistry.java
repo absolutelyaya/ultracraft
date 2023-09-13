@@ -85,7 +85,7 @@ public class EntityRegistry
 					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().disableSummon().build("flame"));
 	public static final EntityType<HideousMortarEntity> MORTAR = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "mortar"),
-			EntityType.Builder.create(HideousMortarEntity::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
+			EntityType.Builder.create(HideousMortarEntity::new, SpawnGroup.MISC).setDimensions(0.75f, 0.75f)
 					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("mortar"));
 	public static final EntityType<HarpoonEntity> HARPOON = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "harpoon"),

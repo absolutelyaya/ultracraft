@@ -78,6 +78,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	private static final byte ANIMATION_CLAP = 5;
 	private static final byte ANIMATION_HARPOON = 6;
 	private static final byte ANIMATION_ENRAGED = 7;
+	private static final Vec3d[] partPosDefault, partPosMortar, partPosLaying, partPosEnraged;
 	private final HideousPart[] parts;
 	private final HideousPart body1;
 	private final HideousPart body2;
@@ -90,15 +91,11 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	private final HideousPart left_arm;
 	private final HideousPart cap_laying;
 	private final Vec3d[] partPositions;
-	private final Vec3d[] partPosDefault;
-	private final Vec3d[] partPosLaying;
-	private final Vec3d[] partPosEnraged;
 	
 	HarpoonEntity harpoon;
 	DamageSource killingBlow;
 	boolean mortarSide;
 	
-	//TODO: some projectiles don't hit correctly, for example shotgun pellets
 	public HideousMassEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
 		super(entityType, world);
@@ -118,25 +115,6 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		cap_laying = new HideousPart(this, "cap", new Vec2f(3.5f, 2f), true);
 		cap_laying.enabled = false;
 		parts = new HideousPart[] {body1, body2, body3, cap, mask, entrails, tail, right_arm, left_arm, cap_laying};
-		
-		partPosDefault = new Vec3d[] {
-				new Vec3d(0, 3.5, 1.7), new Vec3d(0, 2, 1.3), new Vec3d(0, 0.75, -0.5),
-				new Vec3d(0, 4.5, 2), new Vec3d(0, 3.25, 2.9), new Vec3d(0, 2, 2.2),
-				new Vec3d(0, 0.5, -2.5),  new Vec3d(-2, 2.3, 2.35), new Vec3d(2, 2.3, 2.35),
-				new Vec3d(0, 4.5, 2)
-		};
-		partPosLaying = new Vec3d[] {
-			new Vec3d(0, 0.5, 1.7), new Vec3d(0, 2.5, -1), new Vec3d(0, 1.75, 0.5),
-			new Vec3d(0, 0.5, 4), new Vec3d(0, 3.25, 2.9), new Vec3d(0, 2, 2.2),
-			new Vec3d(0, 4.75, -1),  new Vec3d(-2, 2.3, 2.35), new Vec3d(2, 2.3, 2.35),
-			new Vec3d(0, 0.5, 4)
-		};
-		partPosEnraged = new Vec3d[] {
-				new Vec3d(0, 0.4, 1.5), new Vec3d(0, 0.1, -1), new Vec3d(0, 1.75, 0.5),
-				new Vec3d(0, 0.5, 2.5), new Vec3d(0, 3.25, 2.9), new Vec3d(0, 0.9, 1.3),
-				new Vec3d(0, 2.75, -2.75),  new Vec3d(-2, 2.3, 2.35), new Vec3d(2, 2.3, 2.35),
-				new Vec3d(0, 0.5, 4)
-		};
 		
 		partPositions = partPosDefault.clone();
 	}
@@ -360,16 +338,17 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 			part.lastRenderZ = part.getZ();
 		}
 		Vec3d[] dest;
-		if(dataTracker.get(LAYING))
+		if(getAnimation() == ANIMATION_MORTAR)
+			dest = partPosMortar;
+		else if(dataTracker.get(LAYING))
 			dest = partPosLaying;
 		else if(dataTracker.get(ENRAGED))
 			dest = partPosEnraged;
 		else
 			dest = partPosDefault;
-		cap.setTargetDimensions(new Vec2f(5f, 2f));
 		for (int i = 0; i < partPositions.length; i++)
 		{
-			partPositions[i] = partPositions[i].lerp(dest[i], 1f / 20f);
+			partPositions[i] = partPositions[i].lerp(dest[i], 1f / 5f);
 			positionPart(parts[i], partPositions[i]);
 		}
 		
@@ -788,5 +767,32 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 			mob.dataTracker.set(ENRAGED, true);
 			mob.setAnimation(ANIMATION_ENRAGED);
 		}
+	}
+	
+	static {
+		partPosDefault = new Vec3d[] {
+				new Vec3d(0, 3.5, 1.7), new Vec3d(0, 2, 1.3), new Vec3d(0, 0.75, -0.5),
+				new Vec3d(0, 4.5, 2), new Vec3d(0, 3.25, 2.9), new Vec3d(0, 2, 2.2),
+				new Vec3d(0, 0.5, -2.5),  new Vec3d(-2, 2.3, 2.35), new Vec3d(2, 2.3, 2.35),
+				new Vec3d(0, 4.5, 2)
+		};
+		partPosMortar = new Vec3d[] {
+				new Vec3d(0, 2.25, 1.7), new Vec3d(0, 1.5, 1.3), new Vec3d(0, 0.75, -0.5),
+				new Vec3d(0, 3.5, 2), new Vec3d(0, 2.25, 2.9), new Vec3d(0, 1, 2.2),
+				new Vec3d(0, 0.5, -2.5),  new Vec3d(-2, 1.5, 2.35), new Vec3d(2, 1.5, 2.35),
+				new Vec3d(0, 3, 2)
+		};
+		partPosLaying = new Vec3d[] {
+				new Vec3d(0, 0.5, 1.7), new Vec3d(0, 2.5, -1), new Vec3d(0, 1.75, 0.5),
+				new Vec3d(0, 0.5, 4), new Vec3d(0, 3.25, 2.9), new Vec3d(0, 2, 2.2),
+				new Vec3d(0, 4.75, -1),  new Vec3d(-2, 2.3, 2.35), new Vec3d(2, 2.3, 2.35),
+				new Vec3d(0, 0.5, 4)
+		};
+		partPosEnraged = new Vec3d[] {
+				new Vec3d(0, 0.4, 1.5), new Vec3d(0, 0.1, -1), new Vec3d(0, 1.75, 0.5),
+				new Vec3d(0, 0.5, 2.5), new Vec3d(0, 3.25, 2.9), new Vec3d(0, 0.9, 1.3),
+				new Vec3d(0, 2.75, -2.75),  new Vec3d(-2, 2.3, 2.35), new Vec3d(2, 2.3, 2.35),
+				new Vec3d(0, 0.5, 4)
+		};
 	}
 }
