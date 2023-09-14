@@ -134,6 +134,7 @@ public class UltracraftClient implements ClientModInitializer
 		EntityRendererRegistry.register(EntityRegistry.FLAME, FlameRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.MORTAR, HideousMortarRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.HARPOON, HarpoonEntityRenderer::new);
+		EntityRendererRegistry.register(EntityRegistry.SOAP, ThrownSoapRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.SHOCKWAVE, ShockwaveRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.VERICAL_SHOCKWAVE, VerticalShockwaveRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.INTERRUPTABLE_CHARGE, InterruptableChargeRenderer::new);
@@ -151,6 +152,7 @@ public class UltracraftClient implements ClientModInitializer
 		particleRegistry.register(ParticleRegistry.EJECTED_CORE_FLASH, EjectedCoreFlashParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.BLOOD_SPLASH, WaterSplashParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.BLOOD_BUBBLE, WaterBubbleParticle.Factory::new);
+		particleRegistry.register(ParticleRegistry.SOAP_BUBBLE, SoapBubbleParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.RIPPLE, RippleParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.PARRY_INDICATOR, ParryIndicatorParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.TELEPORT, TeleportParticle.Factory::new);

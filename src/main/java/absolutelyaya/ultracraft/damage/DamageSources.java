@@ -31,6 +31,7 @@ public class DamageSources
 	public static final RegistryKey<DamageType> BACK_TANK = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "back_tank"));
 	public static final RegistryKey<DamageType> HARPOON = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "harpoon"));
 	public static final RegistryKey<DamageType> HARPOON_RIP = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "harpoon_rip"));
+	public static final RegistryKey<DamageType> SOAP = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "soap"));
 	
 	public static DamageSource get(World world, RegistryKey<DamageType> type)
 	{

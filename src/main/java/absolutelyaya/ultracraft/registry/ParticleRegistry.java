@@ -30,6 +30,8 @@ public class ParticleRegistry
 			new Identifier(Ultracraft.MOD_ID, "blood_splash"), FabricParticleTypes.simple());
 	public static final DefaultParticleType BLOOD_BUBBLE = Registry.register(Registries.PARTICLE_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "blood_bubble"), FabricParticleTypes.simple());
+	public static final DefaultParticleType SOAP_BUBBLE = Registry.register(Registries.PARTICLE_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "soap_bubble"), FabricParticleTypes.simple());
 	public static final DefaultParticleType RIPPLE = Registry.register(Registries.PARTICLE_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "ripple"), FabricParticleTypes.simple());
 	public static final DefaultParticleType RICOCHET_WARNING = Registry.register(Registries.PARTICLE_TYPE,

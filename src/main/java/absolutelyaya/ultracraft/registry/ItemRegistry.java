@@ -17,6 +17,7 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Rarity;
 
 public class ItemRegistry
 {
@@ -58,11 +59,6 @@ public class ItemRegistry
 							  .statusEffect(new StatusEffectInstance(StatusEffects.REGENERATION, 500, 0), 1f).build())));
 	public static final DroneMaskItem DRONE_MASK = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "drone_mask"), new DroneMaskItem(new FabricItemSettings()));
-	public static final Item HARPOON = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "harpoon"), new HarpoonItem(6f, -2.75f,
-					new FabricItemSettings().maxCount(4)));
-	public static final Item HARPOON_GUN = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "harpoon_gun"), new HarpoonGunItem(new FabricItemSettings(), 25, 0f));
 	
 	//Weapons
 	public static final PierceRevolverItem PIERCE_REVOLVER = Registry.register(Registries.ITEM,
@@ -80,6 +76,13 @@ public class ItemRegistry
 					new FabricItemSettings().maxCount(1)));
 	public static final FlamethrowerItem FLAMETHROWER = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "flamethrower"), new FlamethrowerItem(new FabricItemSettings().maxCount(1), 0, 0));
+	public static final Item HARPOON = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "harpoon"), new HarpoonItem(6f, -2.75f,
+					new FabricItemSettings().maxCount(4)));
+	public static final Item HARPOON_GUN = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "harpoon_gun"), new HarpoonGunItem(new FabricItemSettings(), 25, 0f));
+	public static final SoapItem SOAP = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "soap"), new SoapItem(new FabricItemSettings().maxCount(4).rarity(Rarity.EPIC)));
 	
 	//Spawn Eggs
 	public static final SpawnEggItem FILTH_SPAWN_EGG = Registry.register(Registries.ITEM,
@@ -157,6 +160,7 @@ public class ItemRegistry
 			content.add(FLAMETHROWER);
 			content.add(HARPOON);
 			content.add(HARPOON_GUN);
+			content.add(SOAP);
 			content.add(FILTH_SPAWN_EGG);
 			content.add(STRAY_SPAWN_EGG);
 			content.add(SCHISM_SPAWN_EGG);

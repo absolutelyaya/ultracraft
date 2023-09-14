@@ -73,6 +73,7 @@
   "item.ultracraft.terminal.flavor.pink": "Strawberries",
   "item.ultracraft.harpoon": "Harpoon",
   "item.ultracraft.harpoon_gun": "Repulsive Skewer",
+  "item.ultracraft.soap": "Soap",
 
   "rei-group.ultracraft.terminals": "Terminal Variants",
 
@@ -123,6 +124,7 @@
   "entity.ultracraft.blood_orb": "Blood Orb",
   "entity.ultracraft.flame": "Flame",
   "entity.ultracraft.harpoon": "Harpoon",
+  "entity.ultracraft.soap": "Soap",
 
   "effect.ultracraft.chilled": "Chilled",
   "effect.ultracraft.instant_energy": "Instant Energy",
@@ -170,6 +172,9 @@
   "death.attack.harpoon_rip": "%1$s was torn apart with a harpoons barb",
   "death.attack.harpoon_rip.player": "%1$s was torn apart with a harpoons barb by %2$s",
   "death.attack.harpoon_rip.item": "%1$s was torn apart with a harpoons barb by %2$s using %3$s",
+  "death.attack.soap": "%1$s was cleansed by %2$s",
+  "death.attack.soap.player": "%1$s was cleansed by %2$s",
+  "death.attack.soap.item": "%1$s was cleansed by %2$s using %3$s",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 

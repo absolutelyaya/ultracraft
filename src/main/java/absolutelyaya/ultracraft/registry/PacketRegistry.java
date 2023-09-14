@@ -8,6 +8,7 @@ import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
+import absolutelyaya.ultracraft.item.SoapItem;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import net.bettercombat.utils.MathHelper;
@@ -81,6 +82,7 @@ public class PacketRegistry
 	public static final Identifier RICOCHET_WARNING_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "warn_ricochet");
 	public static final Identifier REPLENISH_STAMINA_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "replenish_stamina");
 	public static final Identifier ANIMATION_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "animation_s2c");
+	public static final Identifier SOAP_KILL_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "soapkill");
 	
 	public static void registerC2S()
 	{
@@ -97,6 +99,12 @@ public class PacketRegistry
 			server.execute(() -> {
 				Vec3d forward = player.getRotationVector().normalize();
 				player.swingHand(Hand.OFF_HAND, true);
+				
+				if(player.getOffHandStack().getItem() instanceof SoapItem soap)
+				{
+					soap.onOffhandThrow(world, player);
+					return;
+				}
 				
 				//Punch Entity; Takes Priority over Projectile Parries
 				if(target != null)

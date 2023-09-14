@@ -330,5 +330,21 @@ public class ClientPacketRegistry
 				PlayerAnimator.playAnimation(target, animID, fade, firstperson, true);
 			});
 		});
+		ClientPlayNetworking.registerGlobalReceiver(SOAP_KILL_PACKET_ID, (((client, handler, buf, responseSender) -> {
+			if(client.player == null)
+				return;
+			Vec3d pos = new Vec3d(buf.readVector3f());
+			double width = buf.readDouble();
+			double height = buf.readDouble();
+			MinecraftClient.getInstance().execute(() -> {
+				Random rand = client.player.getRandom();
+				for (int i = 0; i < 24; i++)
+				{
+					Vec3d pos1 = pos.add((rand.nextFloat() - 0.5f) * width, (rand.nextFloat() - 0.5f) * height, (rand.nextFloat() - 0.5f) * width);
+					Vec3d vel = Vec3d.ZERO.addRandom(rand, 0.2f);
+					client.player.getWorld().addParticle(ParticleRegistry.SOAP_BUBBLE, pos1.x, pos1.y, pos1.z, vel.x, vel.y, vel.z);
+				}
+			});
+		})));
 	}
 }

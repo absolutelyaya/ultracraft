@@ -276,7 +276,7 @@ public class UltraHudRenderer
 	
 	boolean shouldRenderSpriteInstead(Item item)
 	{
-		return item instanceof AbstractWeaponItem || item instanceof MachineSwordItem || item instanceof PlushieItem;
+		return (item instanceof AbstractWeaponItem weapon && weapon.getHUDTexture() != null) || item instanceof MachineSwordItem || item instanceof PlushieItem;
 	}
 	
 	void drawItem(MatrixStack matrices, Matrix4f textureMatrix, MinecraftClient client, VertexConsumerProvider immediate, ItemStack stack, boolean hand)
