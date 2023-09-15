@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.api.terminal;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.gui.terminal.DefaultTabs;
 import absolutelyaya.ultracraft.client.gui.terminal.EditMainMenuTab;
+import absolutelyaya.ultracraft.client.gui.terminal.WeaponsTab;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
@@ -49,7 +50,7 @@ public class GlobalButtonActions
 	static {
 		registerAction("customize", (t, v) -> t.setTab(new DefaultTabs.Customization()));
 		registerAction("bestiary", (t, v) -> t.setTab(new Tab(Tab.COMING_SOON_ID)));
-		registerAction("weapons", (t, v) -> t.setTab(new Tab(Tab.WEAPONS_ID)));
+		registerAction("weapons", (t, v) -> t.setTab(new WeaponsTab()));
 		registerAction("mainmenu", (t, v) -> t.setTab(new DefaultTabs.MainMenu()));
 		registerAction("edit-screensaver", (t, v) -> t.setTab(new DefaultTabs.ScreenSaverEditor()));
 		registerAction("edit-base", (t, v) -> t.setTab(new DefaultTabs.BaseSelection()));

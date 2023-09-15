@@ -113,7 +113,6 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 			switch (animatable.getTab().id)
 			{
 				case Tab.COMING_SOON_ID -> drawComingSoon(matrices, buffers);
-				case Tab.WEAPONS_ID -> drawWeapons(matrices, buffers);
 				case Tab.BESTIARY_ID -> drawBestiary(matrices, buffers);
 				default -> animatable.getTab().render(matrices, terminal, buffers);
 			}

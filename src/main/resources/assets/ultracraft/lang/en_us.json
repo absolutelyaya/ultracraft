@@ -350,6 +350,12 @@
   "terminal.no-access": "Access Denied",
   "terminal.main-menu": "Main Menu",
   "terminal.value": "Value",
+  "terminal.weapon.revolver": "Revolver",
+  "terminal.weapon.shotgun": "Shotgun",
+  "terminal.weapon.nailgun": "Nailgun",
+  "terminal.weapon.railcannon": "Railcannon",
+  "terminal.weapon.rocket_launcher": "Rocket Launcher",
+  "terminal.craft": "Craft",
 
   "wing-preset.ultracraft.amethyst": "Amethyst",
   "wing-preset.ultracraft.cyber": "Cyber",

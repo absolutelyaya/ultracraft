@@ -159,7 +159,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 				return;
 		}
 		if(!GlobalButtonActions.runAction(this, action, value))
-			Ultracraft.LOGGER.error("Undefined Behavior for Terminal button '" + lastHovered + "'");
+			Ultracraft.LOGGER.error("Undefined Behavior for Terminal button '" + action + "@" + value + "'");
 	}
 	
 	void onBlockBreak()
@@ -472,7 +472,6 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 				sizeOverride = null;
 			}
 			case Tab.COMING_SOON_ID -> colorOverride = 0xffffff00;
-			case Tab.WEAPONS_ID, Tab.BESTIARY_ID -> sizeOverride = new Vector2f(200, 100);
 			case Tab.EDIT_SCREENSAVER_ID -> {
 				caret = new Vector2i();
 				sizeOverride = new Vector2f(200, 106);
