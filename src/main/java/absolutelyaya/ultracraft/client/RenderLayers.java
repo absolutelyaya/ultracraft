@@ -41,6 +41,11 @@ public class RenderLayers extends RenderLayer
 		return FLESH;
 	}
 	
+	public static RenderLayer getGuiTexture(Identifier texture)
+	{
+		return GUI_TEXTURE.apply(texture);
+	}
+	
 	private static final Function<Identifier, RenderLayer> SHOCKWAVE = Util.memoize((texture) -> {
 		RenderLayer.MultiPhaseParameters multiPhaseParameters =
 				RenderLayer.MultiPhaseParameters.builder().program(BEACON_BEAM_PROGRAM)
@@ -62,6 +67,14 @@ public class RenderLayers extends RenderLayer
 						.overlay(RenderPhase.DISABLE_OVERLAY_COLOR).transparency(NO_TRANSPARENCY).cull(DISABLE_CULLING).lightmap(ENABLE_LIGHTMAP)
 						.build(true);
 		return of("wings_colored", VertexFormats.POSITION_COLOR_TEXTURE_OVERLAY_LIGHT_NORMAL, VertexFormat.DrawMode.QUADS, 256, true, false, multiPhaseParameters);
+	});
+	
+	private static final Function<Identifier, RenderLayer> GUI_TEXTURE = Util.memoize((texture) -> {
+		RenderLayer.MultiPhaseParameters multiPhaseParameters =
+				RenderLayer.MultiPhaseParameters.builder().program(POSITION_COLOR_TEXTURE_PROGRAM)
+						.texture(new Texture(texture, false, false)).transparency(RenderPhase.TRANSLUCENT_TRANSPARENCY)
+						.writeMaskState(ALL_MASK).build(false);
+		return of("gui_texture", VertexFormats.POSITION_COLOR_TEXTURE, VertexFormat.DrawMode.QUADS, 256, multiPhaseParameters);
 	});
 	
 	static {

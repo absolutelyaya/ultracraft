@@ -5,7 +5,7 @@ import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.api.terminal.TerminalCodeRegistry;
 import absolutelyaya.ultracraft.client.gui.screen.EpilepsyPopupScreen;
 import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
-import absolutelyaya.ultracraft.client.gui.terminal.FlorpTab;
+import absolutelyaya.ultracraft.client.gui.terminal.PetTab;
 import absolutelyaya.ultracraft.client.rendering.TrailRenderer;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.client.rendering.block.entity.CerberusBlockRenderer;
@@ -321,7 +321,7 @@ public class UltracraftClient implements ClientModInitializer
 		BlockRenderLayerMap.INSTANCE.putFluids(RenderLayer.getSolid(), FluidRegistry.STILL_BLOOD, FluidRegistry.Flowing_BLOOD);
 		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.FLESH, RenderLayers.getFlesh());
 		
-		TerminalCodeRegistry.registerCode("florp", t -> t.setTab(new FlorpTab()));
+		TerminalCodeRegistry.registerCode("saiai", t -> t.setTab(new PetTab()));
 		TerminalCodeRegistry.registerCode("somethingwicked", new TerminalCodeRegistry.Result(t -> {
 			t.setColorOverride(0x460006);
 			MinecraftClient.getInstance().player.sendMessage(Text.of("Something Wicked this way comes"), true);

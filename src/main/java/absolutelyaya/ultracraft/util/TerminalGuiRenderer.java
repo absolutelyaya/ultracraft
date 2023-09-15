@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.util;
 
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
+import absolutelyaya.ultracraft.client.RenderLayers;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.ColorButton;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.ListElement;
@@ -12,6 +13,7 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.joml.*;
 
 import java.lang.Math;
@@ -244,6 +246,40 @@ public class TerminalGuiRenderer
 			terminal.setLastHovered(list);
 		else if(terminal.getLastHovered() != null && terminal.getLastHovered().equals(list))
 			terminal.setLastHovered(null);
+	}
+	
+	public void drawSpriteCentered(VertexConsumerProvider buffers, MatrixStack matrices, Identifier tex, Vector2i pos, float z, Vector2i uv, Vector2i size, Vector2i texSize)
+	{
+		drawSprite(buffers, matrices, tex, pos.sub(size.x / 2, size.y / 2), z, uv, size, texSize, 0xffffffff);
+	}
+	
+	public void drawSprite(VertexConsumerProvider buffers, MatrixStack matrices, Identifier tex, Vector2i pos, float z, Vector2i uv, Vector2i size, Vector2i texSize)
+	{
+		drawSprite(buffers, matrices, tex, pos, z, uv, size, texSize, 0xffffffff);
+	}
+	
+	public void drawSpriteCentered(VertexConsumerProvider buffers, MatrixStack matrices, Identifier tex, Vector2i pos, float z, Vector2i uv, Vector2i size, Vector2i texSize, int color)
+	{
+		drawSprite(buffers, matrices, tex, pos.sub(size.x / 2, size.y / 2), z, uv, size, texSize, color);
+	}
+	
+	public void drawSprite(VertexConsumerProvider buffers, MatrixStack matrices, Identifier tex, Vector2i pos, float z, Vector2i uv, Vector2i size, Vector2i texSize, int color)
+	{
+		matrices.push();
+		VertexConsumer consumer = buffers.getBuffer(RenderLayers.getGuiTexture(tex));
+		matrices.translate(0.5f, 0.5f, 0f);
+		matrices.scale(-0.01f, -0.01f, -1f);
+		matrices.translate(0f, 0f, z);
+		int x = pos.x, y = pos.y, sizeX = size.x, sizeY = size.y;
+		float u1 = (float)uv.x / (float)texSize.x, v1 = (float)uv.y / (float)texSize.y;
+		float u2 = (float)(size.x + uv.x) / (float)texSize.x, v2 = (float)(size.y + uv.y) / (float)texSize.y;
+		Matrix4f poseMatrix = new Matrix4f(matrices.peek().getPositionMatrix());
+		Matrix3f normalMatrix = new Matrix3f(matrices.peek().getNormalMatrix());
+		consumer.vertex(poseMatrix, x, y, 0f).color(color).texture(u1, v1).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, x, y + sizeY, 0f).color(color).texture(u1, v2).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, x + sizeX, y + sizeY, 0f).color(color).texture(u2, v2).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, x + sizeX, y, 0f).color(color).texture(u2, v1).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		matrices.pop();
 	}
 	
 	static {
