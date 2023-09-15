@@ -39,7 +39,7 @@ public class HideousMortarEntity extends HellBulletEntity implements ProjectileE
 		HideousMortarEntity mortar = new HideousMortarEntity(owner, world);
 		mortar.setPosition(pos);
 		mortar.setTarget(target);
-		mortar.setVelocity(0, 1.35, 0);
+		mortar.setVelocity(0, 1.1, 0);
 		mortar.setIgnored(owner.getClass());
 		world.spawnEntity(mortar);
 		return mortar;

@@ -14,6 +14,7 @@ import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.control.LookControl;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.Goal;
@@ -47,6 +48,8 @@ import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 
+import java.util.List;
+
 public class HideousMassEntity extends AbstractUltraHostileEntity implements GeoEntity, IAnimatedEnemy, Enrageable
 {
 	protected static final TrackedData<Integer> ATTACK_COOLDOWN = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.INTEGER);
@@ -57,6 +60,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	protected static final TrackedData<Boolean> HAS_HARPOON = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Float> HARPOON_HEALTH = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.FLOAT);
 	protected static final TrackedData<Integer> DEATH = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Boolean> HIDDEN = DataTracker.registerData(HideousMassEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	static final RawAnimation POSE_ANIM = RawAnimation.begin().thenPlay("pose");
 	static final RawAnimation LAY_POSE_ANIM = RawAnimation.begin().thenPlay("lay_pose");
 	static final RawAnimation MORTAR_ANIM = RawAnimation.begin().thenPlay("mortar");
@@ -69,6 +73,8 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	static final RawAnimation TURN_ANIM = RawAnimation.begin().thenPlay("turn");
 	static final RawAnimation TURN_LAYING_ANIM = RawAnimation.begin().thenPlay("lay_turn");
 	static final RawAnimation ENRAGED_TURN_ANIM = RawAnimation.begin().thenPlay("enrage_turn");
+	static final RawAnimation HIDE_POSE_ANIM = RawAnimation.begin().thenPlay("hide_pose");
+	static final RawAnimation UNHIDE_ANIM = RawAnimation.begin().thenPlay("unhide");
 	final AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
 	private static final byte ANIMATION_IDLE = 0;
 	private static final byte ANIMATION_MORTAR = 1;
@@ -78,6 +84,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	private static final byte ANIMATION_CLAP = 5;
 	private static final byte ANIMATION_HARPOON = 6;
 	private static final byte ANIMATION_ENRAGED = 7;
+	private static final byte ANIMATION_UNHIDE = 8;
 	private static final Vec3d[] partPosDefault, partPosMortar, partPosLaying, partPosEnraged;
 	private final HideousPart[] parts;
 	private final HideousPart body1;
@@ -140,11 +147,13 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		dataTracker.startTracking(HAS_HARPOON, true);
 		dataTracker.startTracking(HARPOON_HEALTH, 0f);
 		dataTracker.startTracking(DEATH, 0);
+		dataTracker.startTracking(HIDDEN, false);
 	}
 	
 	@Override
 	protected void initGoals()
 	{
+		goalSelector.add(0, new UnhideGoal(this));
 		goalSelector.add(0, new EnrageGoal(this));
 		goalSelector.add(1, new StandupGoal(this));
 		goalSelector.add(2, new MortarAttackGoal(this));
@@ -200,30 +209,21 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		{
 			if(dataTracker.get(LAYING))
 			{
-				mask.enabled = false;
-				entrails.enabled = false;
-				left_arm.enabled = false;
-				right_arm.enabled = false;
-				cap.enabled = false;
+				mask.enabled = entrails.enabled = left_arm.enabled = right_arm.enabled = cap.enabled = false;
 				cap_laying.enabled = true;
 			}
 			else
 			{
-				mask.enabled = true;
-				entrails.enabled = true;
-				left_arm.enabled = true;
-				right_arm.enabled = true;
-				cap.enabled = true;
+				mask.enabled = entrails.enabled = left_arm.enabled = right_arm.enabled = cap.enabled = true;
 				cap_laying.enabled = false;
 			}
 		}
 		if(data.equals(ENRAGED))
 		{
-			left_arm.enabled = false;
-			right_arm.enabled = false;
-			mask.enabled = false;
-			body3.enabled = false;
+			left_arm.enabled = right_arm.enabled = mask.enabled = body3.enabled = false;
 		}
+		if(data.equals(HIDDEN) && !dataTracker.get(HIDDEN))
+			setAllMainPartsEnabled(true);
 	}
 	
 	private PlayState predicate(AnimationState<GeoAnimatable> event)
@@ -231,7 +231,12 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		event.getController().setAnimationSpeed((isDying() || isDead()) ? 0f : 1f);
 		switch(getAnimation())
 		{
-			case ANIMATION_IDLE -> event.setAnimation(dataTracker.get(LAYING) ? LAY_POSE_ANIM : POSE_ANIM);
+			case ANIMATION_IDLE -> {
+				if(dataTracker.get(HIDDEN))
+					event.setAnimation(HIDE_POSE_ANIM);
+				else
+					event.setAnimation(dataTracker.get(LAYING) ? LAY_POSE_ANIM : POSE_ANIM);
+			}
 			case ANIMATION_MORTAR -> event.setAnimation(MORTAR_ANIM);
 			case ANIMATION_SLAM_STANDING -> event.setAnimation(SLAM_STANDING_ANIM);
 			case ANIMATION_SLAM_LAYING -> event.setAnimation(SLAM_LAYING_ANIM);
@@ -239,6 +244,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 			case ANIMATION_CLAP -> event.setAnimation(CLAP_ANIM);
 			case ANIMATION_HARPOON -> event.setAnimation(HARPOON_ANIM);
 			case ANIMATION_ENRAGED -> event.setAnimation(ENRAGED_ANIM);
+			case ANIMATION_UNHIDE -> event.setAnimation(UNHIDE_ANIM);
 		}
 		return PlayState.CONTINUE;
 	}
@@ -268,21 +274,35 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	public void readCustomDataFromNbt(NbtCompound nbt)
 	{
 		super.readCustomDataFromNbt(nbt);
-		nbt.putBoolean("laying", dataTracker.get(LAYING));
-		nbt.putBoolean("enraged", dataTracker.get(ENRAGED));
-		nbt.putBoolean("boss", dataTracker.get(BOSS));
-	}
-	
-	@Override
-	public void writeCustomDataToNbt(NbtCompound nbt)
-	{
-		super.writeCustomDataToNbt(nbt);
+		if(nbt.contains("hidden", NbtElement.BYTE_TYPE))
+		{
+			boolean b = nbt.getBoolean("hidden");
+			dataTracker.set(HIDDEN, b);
+			if(b)
+				setAllMainPartsEnabled(false);
+		}
 		if(nbt.contains("laying", NbtElement.BYTE_TYPE))
 			dataTracker.set(LAYING, nbt.getBoolean("laying"));
 		if(nbt.contains("enraged", NbtElement.BYTE_TYPE))
 			dataTracker.set(ENRAGED, nbt.getBoolean("enraged"));
 		if(!nbt.contains("boss", NbtElement.BYTE_TYPE))
 			dataTracker.set(BOSS, true);
+	}
+	
+	void setAllMainPartsEnabled(boolean b)
+	{
+		body1.enabled = body2.enabled = body3.enabled = cap.enabled = mask.enabled = b;
+		entrails.enabled = tail.enabled = right_arm.enabled = left_arm.enabled = b;
+	}
+	
+	@Override
+	public void writeCustomDataToNbt(NbtCompound nbt)
+	{
+		super.writeCustomDataToNbt(nbt);
+		nbt.putBoolean("hidden", dataTracker.get(HIDDEN));
+		nbt.putBoolean("laying", dataTracker.get(LAYING));
+		nbt.putBoolean("enraged", dataTracker.get(ENRAGED));
+		nbt.putBoolean("boss", dataTracker.get(BOSS));
 	}
 	
 	@Override
@@ -556,6 +576,11 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		return dataTracker.get(DEATH) > 0 && dataTracker.get(DEATH) < 101;
 	}
 	
+	public boolean isHidden()
+	{
+		return dataTracker.get(HIDDEN) && getAnimation() != ANIMATION_UNHIDE;
+	}
+	
 	@Override
 	public Vec3d getEnrageFeatureSize()
 	{
@@ -566,6 +591,24 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	public Vec3d getEnragedFeatureOffset()
 	{
 		return new Vec3d(0, -0.5f, 0);
+	}
+	
+	@Override
+	protected double getTeleportParticleSize()
+	{
+		return 5f;
+	}
+	
+	@Override
+	public boolean isBossBarVisible()
+	{
+		return !dataTracker.get(HIDDEN);
+	}
+	
+	@Override
+	public boolean cannotDespawn()
+	{
+		return isBoss();
 	}
 	
 	@Override
@@ -757,7 +800,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 				return false;
 			if(mob.getCooldown() > 0 || mob.getAnimation() != ANIMATION_IDLE)
 				return false;
-			return mob.isHasHarpoon() && !mob.dataTracker.get(LAYING) && !mob.isEnraged() && mob.getHealth() < 50f;
+			return !mob.dataTracker.get(LAYING) && !mob.isEnraged() && mob.getHealth() < 50f;
 		}
 		
 		@Override
@@ -766,6 +809,36 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 			super.start();
 			mob.dataTracker.set(ENRAGED, true);
 			mob.setAnimation(ANIMATION_ENRAGED);
+		}
+	}
+	
+	static class UnhideGoal extends TimedAttackGoal<HideousMassEntity>
+	{
+		HideousMassEntity mob;
+		
+		public UnhideGoal(HideousMassEntity mob)
+		{
+			super(mob, ANIMATION_IDLE, ANIMATION_UNHIDE, 45);
+			this.mob = mob;
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			if(mob.isDying() || mob.isDead())
+				return false;
+			if(mob.getAnimation() != ANIMATION_IDLE)
+				return false;
+			List<PlayerEntity> nearby = mob.getWorld().getPlayers(TargetPredicate.DEFAULT.setPredicate(e -> e.distanceTo(mob) < 24f), mob,
+					mob.getBoundingBox().expand(64));
+			return mob.getTarget() != null && mob.isHidden() && nearby.size() > 0;
+		}
+		
+		@Override
+		public void stop()
+		{
+			super.stop();
+			mob.dataTracker.set(HIDDEN, false);
 		}
 	}
 	

@@ -2,9 +2,8 @@ package absolutelyaya.ultracraft.item;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.item.SpawnEggItem;
 
-public class MultiColorSpawnEggItem extends SpawnEggItem
+public class MultiColorSpawnEggItem extends SpecialSpawnEggItem
 {
 	int[] colors;
 	

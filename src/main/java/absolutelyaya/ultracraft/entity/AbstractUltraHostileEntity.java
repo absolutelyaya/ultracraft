@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.particle.TeleportParticleEffect;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.boss.BossBar;
 import net.minecraft.entity.boss.ServerBossBar;
 import net.minecraft.entity.damage.DamageSource;
@@ -31,6 +32,7 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	protected static final TrackedData<Boolean> BOSS = DataTracker.registerData(AbstractUltraHostileEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	
 	protected ServerBossBar bossBar;
+	boolean wasBossbarVisible;
 	
 	protected AbstractUltraHostileEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -129,7 +131,7 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	public void setCustomName(@Nullable Text name)
 	{
 		super.setCustomName(name);
-		if(isBoss())
+		if(isBoss() && isBossBarVisible())
 			bossBar.setName(getDisplayName());
 	}
 	
@@ -137,7 +139,7 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	public void onStartedTrackingBy(ServerPlayerEntity player)
 	{
 		super.onStartedTrackingBy(player);
-		if(isBoss())
+		if(isBoss() && isBossBarVisible())
 			bossBar.addPlayer(player);
 	}
 	
@@ -145,7 +147,7 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	public void onStoppedTrackingBy(ServerPlayerEntity player)
 	{
 		super.onStoppedTrackingBy(player);
-		if(isBoss())
+		if(isBoss() && isBossBarVisible())
 			bossBar.removePlayer(player);
 	}
 	
@@ -153,15 +155,25 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	protected void mobTick()
 	{
 		super.mobTick();
-		if(isBoss())
+		if(isBoss() && isBossBarVisible())
 			bossBar.setPercent(getHealth() / getMaxHealth());
+		if(getWorld().isClient || !isBoss())
+			return;
+		if(wasBossbarVisible && !isBossBarVisible())
+			bossBar.clearPlayers();
+		else if(!wasBossbarVisible && isBossBarVisible())
+		{
+			getWorld().getPlayers(TargetPredicate.DEFAULT, this, getBoundingBox().expand(64))
+					.forEach(p -> bossBar.addPlayer((ServerPlayerEntity)p));
+		}
+		wasBossbarVisible = isBossBarVisible();
 	}
 	
 	@Override
 	public boolean damage(DamageSource source, float amount)
 	{
 		boolean b = super.damage(source, amount);
-		if(isBoss())
+		if(isBoss() && isBossBarVisible())
 			bossBar.setPercent(getHealth() / getMaxHealth());
 		return b;
 	}
@@ -177,5 +189,10 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 		if(boss && bossBar == null)
 			bossBar = initBossBar();
 		return boss;
+	}
+	
+	public boolean isBossBarVisible()
+	{
+		return true;
 	}
 }

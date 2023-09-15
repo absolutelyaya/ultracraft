@@ -71,7 +71,7 @@ public class ThrownSoapEntity extends ThrownItemEntity
 	@Override
 	protected void onBlockHit(BlockHitResult blockHitResult)
 	{
-		if(getOwner().isPlayer() && !((PlayerEntity)getOwner()).isCreative())
+		if(getOwner() != null && getOwner().isPlayer() && !((PlayerEntity)getOwner()).isCreative())
 			dropItem(getStack().getItem());
 		super.onBlockHit(blockHitResult);
 	}

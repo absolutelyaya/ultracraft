@@ -112,7 +112,7 @@ public class ItemRegistry
 	public static final SpawnEggItem STREET_CLEANER_SPAWN_EGG = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "streetcleaner_spawn_egg"),
 			new SpawnEggItem(EntityRegistry.STREET_CLEANER, 0xb1723a, 0x211c1b, new FabricItemSettings()));
-	public static final SpawnEggItem HIDEOUS_SPAWN_EGG = Registry.register(Registries.ITEM,
+	public static final SpecialSpawnEggItem HIDEOUS_SPAWN_EGG = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "hideous_spawn_egg"),
 			new MultiColorSpawnEggItem(EntityRegistry.HIDEOUS_MASS, new int[] {0xffffff}, new FabricItemSettings()));
 	
@@ -167,11 +167,14 @@ public class ItemRegistry
 			content.add(MALICIOUS_SPAWN_EGG);
 			content.add(CERBERUS_SPAWN_EGG);
 			content.add(SWORDSMACHINE_SPAWN_EGG);
-			content.add(SWORDSMACHINE_SPAWN_EGG.getDefaultStack("item.ultracraft.swordsmachine_spawn_egg.special", "Dan"));
+			content.add(SpecialSpawnEggItem.putLore(SWORDSMACHINE_SPAWN_EGG.getDefaultNamedStack("item.ultracraft.swordsmachine_spawn_egg.dan", "Dan"),
+					new String[] {"item.ultracraft.swordsmachine_spawn_egg.dan.lore"}, new String[] {"item.ultracraft.swordsmachine_spawn_egg.dan.hiddenlore"}));
+			content.add(SWORDSMACHINE_SPAWN_EGG.getDefaultBossStack("item.ultracraft.swordsmachine_spawn_egg.unremarkable", false));
 			content.add(DESTINY_SWORDSMACHINE_SPAWN_EGG);
 			content.add(DRONE_SPAWN_EGG);
 			content.add(STREET_CLEANER_SPAWN_EGG);
 			content.add(HIDEOUS_SPAWN_EGG);
+			content.add(HIDEOUS_SPAWN_EGG.getDefaultBossStack("item.ultracraft.hideous_spawn_egg.unremarkable", false));
 			content.add(PLUSHIE.getDefaultStack("yaya"));
 			content.add(PLUSHIE.getDefaultStack("hakita"));
 			content.add(PITR.getDefaultStack("pitr"));

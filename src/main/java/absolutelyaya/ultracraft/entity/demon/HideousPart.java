@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.entity.demon;
 
+import absolutelyaya.ultracraft.damage.DamageSources;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
@@ -10,7 +11,6 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector4f;
@@ -19,11 +19,10 @@ public class HideousPart extends Entity
 {
 	public final HideousMassEntity owner;
 	public final String name;
-	private EntityDimensions dimensions;
+	private final EntityDimensions dimensions;
 	private final boolean deflect;
 	
 	boolean enabled = true;
-	Vec2f targetDimensions;
 	
 	public HideousPart(HideousMassEntity owner, String name, Vec2f dimensions, boolean deflect)
 	{
@@ -55,7 +54,7 @@ public class HideousPart extends Entity
 	
 	public boolean damage(DamageSource source, float amount)
 	{
-		if(!deflect && enabled)
+		if(!deflect && enabled || source.isOf(DamageSources.SOAP))
 			return owner.damagePart(this, source, amount);
 		return false;
 	}
@@ -128,10 +127,5 @@ public class HideousPart extends Entity
 	public ItemStack getPickBlockStack()
 	{
 		return owner.getPickBlockStack();
-	}
-	
-	public void setTargetDimensions(Vec2f dimensions)
-	{
-	
 	}
 }

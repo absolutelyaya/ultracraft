@@ -1,6 +1,5 @@
 package absolutelyaya.ultracraft.item;
 
-import absolutelyaya.ultracraft.registry.EntityRegistry;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.MobEntity;
@@ -8,6 +7,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.text.Text;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -16,17 +17,43 @@ import java.util.List;
 
 public class SpecialSpawnEggItem extends SpawnEggItem
 {
+	
 	public SpecialSpawnEggItem(EntityType<? extends MobEntity> type, int primaryColor, int secondaryColor, Settings settings)
 	{
 		super(type, primaryColor, secondaryColor, settings);
 	}
 	
-	public ItemStack getDefaultStack(String name, String entityName)
+	public ItemStack getDefaultNamedStack(String name, String entityName)
 	{
 		ItemStack stack = super.getDefaultStack();
 		stack.getOrCreateNbt().putString("realname", name);
 		NbtCompound entity = stack.getOrCreateSubNbt("EntityTag");
 		entity.putString("CustomName", Text.Serializer.toJson(Text.translatable(entityName)));
+		return stack;
+	}
+	
+	public ItemStack getDefaultBossStack(String name, boolean boss)
+	{
+		ItemStack stack = super.getDefaultStack();
+		stack.getOrCreateNbt().putString("realname", name);
+		NbtCompound entity = stack.getOrCreateSubNbt("EntityTag");
+		entity.putBoolean("boss", boss);
+		return stack;
+	}
+	
+	public static ItemStack putLore(ItemStack stack, boolean hidden, String[] lines)
+	{
+		NbtList list = new NbtList();
+		for (String s : lines)
+			list.add(NbtString.of(s));
+		stack.getOrCreateNbt().put(hidden ? "hiddenLore" : "lore", list);
+		return stack;
+	}
+	
+	public static ItemStack putLore(ItemStack stack, String[] lines, String[] hiddenLines)
+	{
+		putLore(stack, false, lines);
+		putLore(stack, true, hiddenLines);
 		return stack;
 	}
 	
@@ -42,12 +69,12 @@ public class SpecialSpawnEggItem extends SpawnEggItem
 	public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context)
 	{
 		super.appendTooltip(stack, world, tooltip, context);
-		if (stack.getNbt() != null && stack.getNbt().getString("realname").equals("item.ultracraft.swordsmachine_spawn_egg.special") &&
-					((SpawnEggItem)stack.getItem()).getEntityType(stack.getNbt()).equals(EntityRegistry.SWORDSMACHINE))
-		{
-			tooltip.add(Text.translatable("item.ultracraft.swordsmachine_spawn_egg.special.lore"));
-			if (context.isAdvanced())
-				tooltip.add(Text.translatable("item.ultracraft.swordsmachine_spawn_egg.special.hiddenlore"));
-		}
+		if(!stack.hasNbt())
+			return;
+		NbtCompound nbt = stack.getNbt();
+		if(nbt.contains("lore", NbtElement.LIST_TYPE))
+			nbt.getList("lore", NbtElement.STRING_TYPE).forEach(s -> tooltip.add(Text.translatable(s.asString())));
+		if(nbt.contains("hiddenLore", NbtElement.LIST_TYPE) && context.isAdvanced())
+			nbt.getList("hiddenLore", NbtElement.STRING_TYPE).forEach(s -> tooltip.add(Text.translatable(s.asString())));
 	}
 }
