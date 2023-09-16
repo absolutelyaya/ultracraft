@@ -2,10 +2,7 @@ package absolutelyaya.ultracraft.util;
 
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.RenderLayers;
-import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
-import absolutelyaya.ultracraft.client.gui.terminal.elements.ColorButton;
-import absolutelyaya.ultracraft.client.gui.terminal.elements.ListElement;
-import absolutelyaya.ultracraft.client.gui.terminal.elements.TextBox;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.render.RenderLayer;
@@ -81,7 +78,8 @@ public class TerminalGuiRenderer
 	
 	public void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, Button button)
 	{
-		drawButton(buffers, matrices, button, button.getLabel(), terminal.getTextColor());
+		int c = button.getColor();
+		drawButton(buffers, matrices, button, button.getLabel(), c == -1 ? terminal.getTextColor() : c);
 	}
 	
 	public void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, Button button, int color)
@@ -96,15 +94,16 @@ public class TerminalGuiRenderer
 	
 	public void drawButton(VertexConsumerProvider buffers, MatrixStack matrices, Button button, String label, int color)
 	{
-		String text = Text.translatable(label).getString();
 		int x = button.getPos().x, y = button.getPos().y;
-		int sizeX = textRenderer.getWidth(text) + 3, sizeY = textRenderer.fontHeight + 2;
+		int sizeX = button.getSize().x, sizeY = button.getSize().y;
 		if(button.isCentered())
 			x -= sizeX / 2;
 		Vector2d cursor = new Vector2d(terminal.getCursor()).mul(100f);
-		boolean hovered = cursor.x > x && cursor.x < x + sizeX && cursor.y > y && cursor.y < y + sizeY;
+		boolean hovered = button.isClickable() && (cursor.x > x && cursor.x < x + sizeX && cursor.y - 1 > y && cursor.y - 1 < y + sizeY);
+		
 		matrices.push();
-		drawBoxOutline(buffers, matrices, x, y, sizeX, sizeY, color);
+		if(button.isDrawBorder())
+			drawBoxOutline(buffers, matrices, x, y, sizeX, sizeY, color);
 		if(hovered)
 		{
 			matrices.translate(0f, 0f, -0.001f);
@@ -113,8 +112,27 @@ public class TerminalGuiRenderer
 		}
 		else if(terminal.getLastHovered() != null && terminal.getLastHovered().equals(button))
 			terminal.setLastHovered(null);
-		matrices.translate(0f, 1f, -0.002f);
-		drawText(buffers, matrices, text, x + 2, y + 2, 0f, hovered ? 0xff000000 : color);
+		
+		Sprite sprite = button.getSprite();
+		if(sprite != null)
+		{
+			Vector3f spritePos = new Vector3f(sprite.getPos()).add(x, y, 0.002f);
+			drawSprite(buffers, matrices, sprite, spritePos, hovered ? 0xff000000 : sprite.getColor());
+		}
+		if(label != null && label.length() > 0)
+		{
+			matrices.translate(0f, 1f, -0.003f);
+			String text = Text.translatable(label).getString();
+			int width = textRenderer.getWidth(text);
+			switch(button.getLabelMode())
+			{
+				case LEFTBOUND -> drawText(buffers, matrices, text, x + 2, y + 2, 0f, hovered ? 0xff000000 : color);
+				case CENTERED -> drawText(buffers, matrices, text,
+						x + sizeX / 2 - width / 2 - 2, y + sizeY / 2 - textRenderer.fontHeight / 2 - 1, 0f, hovered ? 0xff000000 : color);
+				case RIGHTBOUND -> drawText(buffers, matrices, text,
+						x + sizeX - width - 2, y + sizeY - textRenderer.fontHeight / 2 - 1, 0f, hovered ? 0xff000000 : color);
+			}
+		}
 		matrices.pop();
 	}
 	
@@ -246,6 +264,26 @@ public class TerminalGuiRenderer
 			terminal.setLastHovered(list);
 		else if(terminal.getLastHovered() != null && terminal.getLastHovered().equals(list))
 			terminal.setLastHovered(null);
+	}
+	
+	public void drawSprite(VertexConsumerProvider buffers, MatrixStack matrices, Sprite sprite)
+	{
+		drawSprite(buffers, matrices, sprite, sprite.getPos());
+	}
+	
+	public void drawSprite(VertexConsumerProvider buffers, MatrixStack matrices, Sprite sprite, Vector3f pos)
+	{
+		drawSprite(buffers, matrices, sprite, pos, sprite.getColor());
+	}
+	
+	public void drawSprite(VertexConsumerProvider buffers, MatrixStack matrices, Sprite sprite, Vector3f pos, int color)
+	{
+		if(sprite.isCentered())
+			drawSpriteCentered(buffers, matrices, sprite.getTex(), new Vector2i((int)pos.x, (int)pos.y), pos.z,
+					sprite.getUv(), sprite.getSize(), sprite.getTexSize(), color);
+		else
+			drawSprite(buffers, matrices, sprite.getTex(), new Vector2i((int)pos.x, (int)pos.y), pos.z,
+					sprite.getUv(), sprite.getSize(), sprite.getTexSize(), color);
 	}
 	
 	public void drawSpriteCentered(VertexConsumerProvider buffers, MatrixStack matrices, Identifier tex, Vector2i pos, float z, Vector2i uv, Vector2i size, Vector2i texSize)

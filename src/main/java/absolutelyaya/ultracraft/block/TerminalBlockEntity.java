@@ -84,11 +84,11 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	java.util.List<Button> mainMenuButtons = new ArrayList<>() {
 		{
 			add(new Button("terminal.customize", new Vector2i(48, 50),
-					"customize", 0, true, true));
+					"customize", 0, true).setHide(true));
 			add(new Button("terminal.bestiary", new Vector2i(48, 36),
-					"bestiary", 0, true, true));
+					"bestiary", 0, true));
 			add(new Button("terminal.weapons", new Vector2i(48, 22),
-					"weapons", 0, true, true));
+					"weapons", 0, true));
 		}
 	};
 	String mainMenuTitle = "terminal.main-menu";
@@ -109,6 +109,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public TerminalBlockEntity(BlockPos pos, BlockState state)
 	{
 		super(BlockEntityRegistry.TERMINAL, pos, state);
+		tab.init(this);
 	}
 	
 	@Override
@@ -153,11 +154,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	{
 		String action = element.getAction();
 		int value = element.getValue();
-		if(!Tab.isDefaultTab(tab.id))
-		{
-			if(tab.onButtonClicked(action, value))
-				return;
-		}
+		if(tab.onButtonClicked(action, value))
+			return;
 		if(!GlobalButtonActions.runAction(this, action, value))
 			Ultracraft.LOGGER.error("Undefined Behavior for Terminal button '" + action + "@" + value + "'");
 	}

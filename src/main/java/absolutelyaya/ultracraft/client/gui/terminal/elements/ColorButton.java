@@ -8,7 +8,8 @@ public class ColorButton extends Button
 	
 	public ColorButton(Vector2i position, String action, int value, boolean hide, boolean centered, int color)
 	{
-		super("", position, action, value, hide, centered);
+		super("", position, action, value, centered);
+		setHide(hide);
 		this.color = color;
 	}
 	

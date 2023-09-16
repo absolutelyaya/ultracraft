@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.client.gui.terminal;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.Sprite;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
@@ -16,12 +17,15 @@ public class PetTab extends Tab
 	public static final String ID = "PET-GAME";
 	boolean mainMenu = true;
 	Button startGameButton;
+	Sprite petSprite;
 	float hunger, energy, hygiene;
 	
 	public PetTab()
 	{
 		super(ID);
-		startGameButton = new Button("Start Game", new Vector2i(50, 30), "start", 0, false, true);
+		startGameButton = new Button("Start Game", new Vector2i(50, 30), "start", 0, true);
+		petSprite = new Sprite(SPRITE_SHEET, new Vector2i(50, 50), 0.01f,
+				new Vector2i(0, 0), new Vector2i(16, 19), new Vector2i(100, 100)).setCentered(true);
 	}
 	
 	@Override
@@ -48,8 +52,7 @@ public class PetTab extends Tab
 	void drawPetScreen(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
 		GUI.drawBG(matrices, buffers);
-		GUI.drawSpriteCentered(buffers, matrices, SPRITE_SHEET, new Vector2i(50, 50), 0.01f,
-				new Vector2i(0, 0), new Vector2i(16, 19), new Vector2i(100, 100));
+		GUI.drawSprite(buffers, matrices, petSprite);
 		drawStatMeters(matrices, buffers);
 	}
 	

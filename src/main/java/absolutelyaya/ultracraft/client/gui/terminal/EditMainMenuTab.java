@@ -37,11 +37,11 @@ public class EditMainMenuTab extends Tab
 	{
 		super(ID);
 		buttons.add(new Button(Button.RETURN_LABEL,
-				new Vector2i(103, 100 - textRenderer.fontHeight - 2), "customize", 0, false, false));
-		hideToggle = new Button("O", new Vector2i(103, 33), "toggle-hide", 0, false, false);
-		centeredToggle = new Button("O", new Vector2i(103, 47), "toggle-center", 0, false, false);
-		addButton = new Button("+", new Vector2i(103, 61), "add-button", 0, false, false);
-		deleteButton = new Button("-", new Vector2i(103, 75), "delete-button", 0, false, false);
+				new Vector2i(103, 100 - textRenderer.fontHeight - 2), "customize", 0,  false));
+		hideToggle = new Button("O", new Vector2i(103, 33), "toggle-hide", 0,  false);
+		centeredToggle = new Button("O", new Vector2i(103, 47), "toggle-center", 0,  false);
+		addButton = new Button("+", new Vector2i(103, 61), "add-button", 0,  false);
+		deleteButton = new Button("-", new Vector2i(103, 75), "delete-button", 0,  false);
 		titleBox = new TextBox(1, 100, true, true);
 		buttonLabelTextBox = new TextBox(1, 95, true, false);
 		globalActionsList = new ListElement(95, 3);
@@ -57,7 +57,7 @@ public class EditMainMenuTab extends Tab
 		for (int i = 0; i < mainMenu.size(); i++)
 		{
 			Button b = mainMenu.get(i);
-			customizableButtons.add(new Button(b.getLabel(), b.getPos(), "select", i, b.isHide(), b.isCentered()));
+			customizableButtons.add(new Button(b.getLabel(), b.getPos(), "select", i, b.isCentered()).setHide(b.isHide()));
 			buttonActions.add(b.getAction());
 			buttonValues.add(b.getValue());
 		}
@@ -180,7 +180,7 @@ public class EditMainMenuTab extends Tab
 				if(customizableButtons.size() < maxButtons)
 				{
 					customizableButtons.add(new Button("terminal.button",
-							new Vector2i(50, 50 - textRenderer.fontHeight / 2), "select", customizableButtons.size(), false, true));
+							new Vector2i(50, 50 - textRenderer.fontHeight / 2), "select", customizableButtons.size(), true));
 					buttonActions.add("mainmenu");
 					buttonValues.add(0);
 				}
@@ -253,7 +253,7 @@ public class EditMainMenuTab extends Tab
 		for (int i = 0; i < customizableButtons.size(); i++)
 		{
 			Button b = customizableButtons.get(i);
-			mainMenu.add(new Button(b.getLabel(), b.getPos(), buttonActions.get(i), buttonValues.get(i), b.isHide(), b.isCentered()));
+			mainMenu.add(new Button(b.getLabel(), b.getPos(), buttonActions.get(i), buttonValues.get(i), b.isCentered()).setHide(b.isHide()));
 		}
 		terminal.setMainMenuTitle(titleBox.getLines().get(0));
 	}

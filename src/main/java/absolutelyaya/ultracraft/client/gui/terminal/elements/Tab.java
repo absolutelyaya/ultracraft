@@ -1,7 +1,6 @@
 package absolutelyaya.ultracraft.client.gui.terminal.elements;
 
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
-import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
 import absolutelyaya.ultracraft.client.rendering.block.entity.TerminalBlockEntityRenderer;
 import absolutelyaya.ultracraft.util.TerminalGuiRenderer;
 import net.minecraft.client.MinecraftClient;
@@ -53,13 +52,13 @@ public class Tab
 	public Tab(String id)
 	{
 		this.id = id;
-		returnButton = new Button(Button.RETURN_LABEL, new Vector2i(48, 95 - textRenderer.fontHeight), "mainmenu", 0, false, true);
+		returnButton = new Button(Button.RETURN_LABEL, new Vector2i(48, 95 - textRenderer.fontHeight), "mainmenu", 0, true);
 	}
 	
 	public Tab(String id, String returnAction)
 	{
 		this.id = id;
-		returnButton = new Button(Button.RETURN_LABEL, new Vector2i(48, 95 - textRenderer.fontHeight), returnAction, 0, false, true);
+		returnButton = new Button(Button.RETURN_LABEL, new Vector2i(48, 95 - textRenderer.fontHeight), returnAction, 0, true);
 	}
 	
 	@ApiStatus.Internal
@@ -137,6 +136,6 @@ public class Tab
 	static {
 		textRenderer = MinecraftClient.getInstance().textRenderer;
 		GUI = TerminalBlockEntityRenderer.GUI;
-		DEFAULT_RETURN_BUTTON = new Button(Button.RETURN_LABEL, new Vector2i(48, 95 - textRenderer.fontHeight), "mainmenu", 0, false, true);
+		DEFAULT_RETURN_BUTTON = new Button(Button.RETURN_LABEL, new Vector2i(48, 95 - textRenderer.fontHeight), "mainmenu", 0, true);
 	}
 }

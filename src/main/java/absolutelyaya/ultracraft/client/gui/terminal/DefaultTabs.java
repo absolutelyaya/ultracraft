@@ -23,11 +23,17 @@ public class DefaultTabs
 		}
 		
 		@Override
+		public void init(TerminalBlockEntity terminal)
+		{
+			super.init(terminal);
+			buttons.addAll(terminal.getMainMenuButtons());
+		}
+		
+		@Override
 		public void drawCustomTab(MatrixStack matrices, TerminalBlockEntity terminal, VertexConsumerProvider buffers)
 		{
 			GUI.drawTab(matrices, buffers, terminal.getMainMenuTitle(), null);
-			for (Button b : terminal.getMainMenuButtons())
-				GUI.drawButton(buffers, matrices, b);
+			drawButtons(matrices, terminal, buffers);
 		}
 	}
 	
@@ -38,19 +44,19 @@ public class DefaultTabs
 			super(CUSTOMIZATION_ID);
 			int y = 64;
 			buttons.add(new Button("terminal.customize.mainmenu", new Vector2i(48, y),
-					"edit-mainmenu", 0, false, true));
+					"edit-mainmenu", 0, true));
 			if(UltracraftClient.isCanGraffiti())
 			{
 				y -= textRenderer.fontHeight + 5;
 				buttons.add(new Button("terminal.customize.graffiti", new Vector2i(48, y),
-						"graffiti", 0, false, true));
+						"graffiti", 0, true));
 			}
 			y -= textRenderer.fontHeight + 5;
 			buttons.add(new Button("terminal.customize.base-clr", new Vector2i(48, y),
-					"edit-base", 0, false, true));
+					"edit-base", 0, true));
 			y -= textRenderer.fontHeight + 5;
 			buttons.add(new Button("terminal.customize.screensaver", new Vector2i(48, y),
-					"edit-screensaver", 0, false, true));
+					"edit-screensaver", 0, true));
 		}
 		
 		@Override
@@ -108,7 +114,7 @@ public class DefaultTabs
 		{
 			super(EDIT_SCREENSAVER_ID);
 			returnButton = new Button(Button.RETURN_LABEL, new Vector2i(103, 100 - textRenderer.fontHeight - 2),
-					"customize", 0, false, false);
+					"customize", 0, false);
 		}
 		
 		@Override
@@ -150,7 +156,7 @@ public class DefaultTabs
 		{
 			GUI.drawTab(matrices, buffers, "terminal.customize.graffiti", null);
 			
-			String t = Text.translatable("screen.ultracraft.terminal.focus-pls").getString();
+			String t = Text.translatable("terminal.focus-pls").getString();
 			GUI.drawText(buffers, matrices, t, 50 - textRenderer.getWidth(t) / 2, -22 + textRenderer.fontHeight - 2, 0.005f, terminal.getTextColor());
 		}
 		
