@@ -1,10 +1,11 @@
 package absolutelyaya.ultracraft.client.gui.screen;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WidgetAccessor;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.widget.WingColorSelectionWidget;
+import absolutelyaya.ultracraft.components.IWingDataComponent;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.WingColorPresetManager;
 import absolutelyaya.ultracraft.registry.WingPatterns;
@@ -331,12 +332,12 @@ public class WingCustomizationScreen extends Screen
 		if(tab == Tab.PRESETS)
 			WingColorPresetManager.unloadPresets();
 		
-		WingedPlayerEntity winged = (WingedPlayerEntity)client.player;
+		IWingDataComponent wings = UltraComponents.WING_DATA.get(client.player);
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-		buf.writeBoolean(winged.isWingsActive());
-		buf.writeVector3f(winged.getWingColors()[0].toVector3f());
-		buf.writeVector3f(winged.getWingColors()[1].toVector3f());
-		buf.writeString(winged.getWingPattern());
+		buf.writeBoolean(wings.isVisible());
+		buf.writeVector3f(wings.getColors()[0]);
+		buf.writeVector3f(wings.getColors()[1]);
+		buf.writeString(wings.getPattern());
 		ClientPlayNetworking.send(PacketRegistry.SEND_WINGED_DATA_C2S_PACKET_ID, buf);
 	}
 	

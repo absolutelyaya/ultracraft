@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.ExplosionHandler;
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ITrailEnjoyer;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
@@ -9,6 +10,7 @@ import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.compat.PlayerAnimator;
+import absolutelyaya.ultracraft.components.IWingDataComponent;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
@@ -36,10 +38,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
-import org.apache.commons.lang3.ArrayUtils;
 import org.joml.Vector3f;
 
-import java.util.Arrays;
 import java.util.UUID;
 
 import static absolutelyaya.ultracraft.registry.PacketRegistry.*;
@@ -140,22 +140,23 @@ public class ClientPacketRegistry
 			String pattern = buf.readString();
 			MinecraftClient.getInstance().execute(() -> {
 				Ultraconfig config = UltracraftClient.getConfigHolder().get();
-				WingedPlayerEntity winged = ((WingedPlayerEntity)player);
-				winged.setWingsVisible(b);
+				IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
+				WingedPlayerEntity winged = (WingedPlayerEntity)player;
+				wings.setVisible(b);
 				if(config.blockedPlayers.contains(id))
 				{
 					winged.setBlocked(true);
 					Vec3d[] colors = UltracraftClient.getDefaultWingColors();
-					winged.setWingColor(colors[0], 0);
-					winged.setWingColor(colors[1], 1);
-					winged.setWingPattern("");
+					wings.setColor(colors[0].toVector3f(), 0);
+					wings.setColor(colors[1].toVector3f(), 1);
+					wings.setPattern("");
 					return;
 				}
 				else
 					winged.setBlocked(false);
-				winged.setWingColor(new Vec3d(wingColor), 0);
-				winged.setWingColor(new Vec3d(metalColor), 1);
-				winged.setWingPattern(UltracraftClient.getConfigHolder().get().safeVFX ? "" : pattern);
+				wings.setColor(wingColor, 0);
+				wings.setColor(metalColor, 1);
+				wings.setPattern(UltracraftClient.getConfigHolder().get().safeVFX ? "" : pattern);
 			});
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SET_GUNCD_PACKET_ID, ((client, handler, buf, sender) -> {

@@ -1,11 +1,13 @@
 package absolutelyaya.ultracraft.client.rendering.entity.feature;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.HideWingsSetting;
 import absolutelyaya.ultracraft.client.RenderLayers;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
+import absolutelyaya.ultracraft.components.IWingDataComponent;
 import absolutelyaya.ultracraft.registry.WingPatterns;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gl.ShaderProgram;
@@ -20,19 +22,19 @@ import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>> extends FeatureRenderer<T, M>
 {
 	private static final Identifier TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/entity/wings_clr.png");
-	private final WingsModel<T> wings;
+	private final WingsModel<T> wingsModel;
 	
 	public WingsFeature(FeatureRendererContext<T, M> context, EntityModelLoader loader)
 	{
 		super(context);
-		wings = new WingsModel<>(loader.getModelPart(UltracraftClient.WINGS_LAYER), (identifier) -> RenderLayers.getWingsPattern(identifier, UltracraftClient.wingPattern));
+		wingsModel = new WingsModel<>(loader.getModelPart(UltracraftClient.WINGS_LAYER), (identifier) -> RenderLayers.getWingsPattern(identifier, UltracraftClient.wingPattern));
 	}
 	
 	@Override
@@ -57,24 +59,25 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 		}
 		if(winged.isWingsActive() || (entity.isMainPlayer() && WingCustomizationScreen.MenuOpen))
 		{
-			Vec3d[] clrs = winged.getWingColors();
-			String patternID = winged.getWingPattern();
+			IWingDataComponent wings = UltraComponents.WING_DATA.get(entity);
+			Vector3f[] clrs = wings.getColors();
+			String patternID = wings.getPattern();
 			WingPatterns.WingPattern p = null;
 			if(patternID.length() > 0)
 				p = WingPatterns.getPattern(patternID);
 			ShaderProgram wingShader = p == null ? UltracraftClient.getWingsColoredShaderProgram() : p.program().get();
-			wingShader.getUniform("WingColor").set(clrs[0].toVector3f());
-			wingShader.getUniform("MetalColor").set(clrs[1].toVector3f());
+			wingShader.getUniform("WingColor").set(clrs[0]);
+			wingShader.getUniform("MetalColor").set(clrs[1]);
 			RenderSystem.setShader(p == null ? UltracraftClient::getWingsColoredShaderProgram : p.program());
 			matrices.push();
-			wings.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, winged);
+			wingsModel.setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch, winged);
 			VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayers.getWingsPattern(TEXTURE, patternID));
 			ModelTransform transform = getContextModel().body.getTransform();
 			matrices.translate(transform.pivotX / 16, transform.pivotY / 16, transform.pivotZ / 16);
 			matrices.multiply(new Quaternionf(new AxisAngle4f(transform.pitch, 1f, 0f, 0f)));
 			matrices.multiply(new Quaternionf(new AxisAngle4f(transform.yaw, 0f, 1f, 0f)));
 			matrices.multiply(new Quaternionf(new AxisAngle4f(transform.roll, 0f, 0f, 1f)));
-			wings.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
+			wingsModel.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV, 1f, 1f, 1f, 1f);
 			matrices.pop();
 		}
 	}

@@ -35,6 +35,9 @@
     ],
     "rei_client": [
       "absolutelyaya.ultracraft.compat.REIClientPlugin"
+    ],
+    "cardinal-components-entity": [
+      "absolutelyaya.ultracraft.UltraComponents"
     ]
   },
   "mixins": [
@@ -58,7 +61,11 @@
         "ultrakill.game": "http://devilmayquake.com",
         "yaya.support.kofi": "https://ko-fi.com/absolutelyaya"
       }
-    }
+    },
+    "cardinal-components": [
+      "ultracraft:wing_data",
+      "ultracraft:winged"
+    ]
   },
   "accessWidener": "ultracraft.accesswidener"
 }

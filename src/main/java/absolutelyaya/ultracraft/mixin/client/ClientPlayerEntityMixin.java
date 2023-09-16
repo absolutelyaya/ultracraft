@@ -579,18 +579,6 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	}
 	
 	@Override
-	public Vec3d[] getWingColors()
-	{
-		return UltracraftClient.getWingColors();
-	}
-	
-	@Override
-	public String getWingPattern()
-	{
-		return UltracraftClient.wingPattern;
-	}
-	
-	@Override
 	public boolean isAirControlIncreased()
 	{
 		return increaseAirControl;

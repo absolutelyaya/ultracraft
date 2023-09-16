@@ -76,21 +76,21 @@ public class Ultracraft implements ModInitializer
                     supporterCache.put(uuid, i - 1);
             });
         });
-        ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
-            Vec3d[] colors = ((WingedPlayerEntity)oldPlayer).getWingColors();
-            ((WingedPlayerEntity)newPlayer).setWingsVisible(((WingedPlayerEntity)oldPlayer).isWingsActive());
-            ((WingedPlayerEntity)newPlayer).setWingColor(colors[0], 0);
-            ((WingedPlayerEntity)newPlayer).setWingColor(colors[1], 1);
-            ((WingedPlayerEntity)newPlayer).setWingPattern(((WingedPlayerEntity)oldPlayer).getWingPattern());
-            PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-            buf.writeUuid(newPlayer.getUuid());
-            buf.writeBoolean(((WingedPlayerEntity)oldPlayer).isWingsActive());
-            buf.writeVector3f(colors[0].toVector3f());
-            buf.writeVector3f(colors[1].toVector3f());
-            buf.writeString(((WingedPlayerEntity)oldPlayer).getWingPattern());
-            for (ServerPlayerEntity p : ((ServerWorld)newPlayer.getWorld()).getPlayers())
-                ServerPlayNetworking.send(p, PacketRegistry.WING_DATA_S2C_PACKET_ID, buf);
-        });
+        //ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
+        //    Vec3d[] colors = ((WingedPlayerEntity)oldPlayer).getWingColors();
+        //    ((WingedPlayerEntity)newPlayer).setWingsVisible(((WingedPlayerEntity)oldPlayer).isWingsActive());
+        //    ((WingedPlayerEntity)newPlayer).setWingColor(colors[0], 0);
+        //    ((WingedPlayerEntity)newPlayer).setWingColor(colors[1], 1);
+        //    ((WingedPlayerEntity)newPlayer).setWingPattern(((WingedPlayerEntity)oldPlayer).getWingPattern());
+        //    PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+        //    buf.writeUuid(newPlayer.getUuid());
+        //    buf.writeBoolean(((WingedPlayerEntity)oldPlayer).isWingsActive());
+        //    buf.writeVector3f(colors[0].toVector3f());
+        //    buf.writeVector3f(colors[1].toVector3f());
+        //    buf.writeString(((WingedPlayerEntity)oldPlayer).getWingPattern());
+        //    for (ServerPlayerEntity p : ((ServerWorld)newPlayer.getWorld()).getPlayers())
+        //        ServerPlayNetworking.send(p, PacketRegistry.WING_DATA_S2C_PACKET_ID, buf);
+        //});
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
             newPlayer.getInventory().main.forEach(stack -> {
                 Item item = stack.getItem();

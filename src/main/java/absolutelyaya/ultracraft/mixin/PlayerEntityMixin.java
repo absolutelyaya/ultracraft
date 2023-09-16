@@ -63,16 +63,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	
 	@Shadow public abstract PlayerInventory getInventory();
 	
-	@Shadow public abstract void sendMessage(Text message, boolean overlay);
-	
 	boolean wingsActive, groundPounding, ignoreSlowdown, blocked, primaryFiring;
 	byte wingState, lastState;
 	float wingAnimTime;
 	int dashingTicks = -2, slamDamageCooldown, stamina, wingHintDisplayTicks, bloodHealCooldown, sharpshooterCooldown;
 	GunCooldownManager gunCDM;
 	Multimap<EntityAttribute, EntityAttributeModifier> curSpeedMod;
-	Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f / 255f, 1f, 154f / 255f), new Vec3d(117f / 255f, 154f / 255f, 1f) };
-	String wingPattern = "";
 	AbstractWeaponItem lastPrimaryWeapon;
 	BackTank backtank;
 	
@@ -458,30 +454,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	{
 		return isWingsActive() && !getWorld().getGameRules().getBoolean(GameruleRegistry.HIVEL_DROWNING);
 	}
-	
-	@Override
-	public Vec3d[] getWingColors()
-	{
-		return wingColors;
-	}
-	
-	@Override
-	public void setWingColor(Vec3d val, int idx)
-	{
-		wingColors[idx] = val;
-	}
-	
-	@Override
-	public String getWingPattern()
-	{
-		return wingPattern;
-	}
-	
-	@Override
-	public void setWingPattern(String id)
-	{
-		wingPattern = id;
-  }
   
 	@Override
 	public void bloodHeal(float val)

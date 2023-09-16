@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.client;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.api.terminal.TerminalCodeRegistry;
@@ -29,6 +30,7 @@ import absolutelyaya.ultracraft.client.sound.MovingSlideSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingSwordsmachineSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingWindSoundInstance;
 import absolutelyaya.ultracraft.compat.PlayerAnimator;
+import absolutelyaya.ultracraft.components.IWingDataComponent;
 import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import absolutelyaya.ultracraft.particle.*;
@@ -205,10 +207,11 @@ public class UltracraftClient implements ClientModInitializer
 			ClientPlayNetworking.send(PacketRegistry.SEND_WINGED_DATA_C2S_PACKET_ID, buf);
 			
 			refreshSupporter();
-			WingedPlayerEntity winged = ((WingedPlayerEntity)client.player);
-			winged.setWingColor(wingColors[0], 0);
-			winged.setWingColor(wingColors[1], 1);
-			winged.setWingPattern(wingPattern);
+			IWingDataComponent wings = (UltraComponents.WING_DATA.get(client.player));
+			wings.setColor(wingColors[0].toVector3f(), 0);
+			wings.setColor(wingColors[1].toVector3f(), 1);
+			wings.setPattern(wingPattern);
+			wings.setVisible(isHiVelEnabled());
 			if(config.get().showEpilepsyWarning)
 				MinecraftClient.getInstance().setScreen(new EpilepsyPopupScreen(null));
 			if(config.get().serverJoinInfo)
@@ -523,7 +526,7 @@ public class UltracraftClient implements ClientModInitializer
 	{
 		wingColors[idx] = val;
 		if(MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player instanceof WingedPlayerEntity winged)
-			winged.setWingColor(val, idx);
+			UltraComponents.WING_DATA.get(winged).setColor(val.toVector3f(), idx);
 	}
 	
 	public static Vec3d[] getWingColors()
@@ -540,7 +543,7 @@ public class UltracraftClient implements ClientModInitializer
 	{
 		wingPattern = id;
 		if(MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player instanceof WingedPlayerEntity winged)
-			winged.setWingPattern(id);
+			UltraComponents.WING_DATA.get(winged).setPattern(id);
 	}
 	
 	public static void refreshSupporter()

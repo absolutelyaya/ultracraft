@@ -44,6 +44,7 @@ repositories {
     maven { url "https://cursemaven.com" }
     maven { url 'https://maven.kosmx.dev/' }
     maven { url 'https://api.modrinth.com/maven' }
+    maven { url 'https://maven.ladysnake.org/releases'}
 }
 
 configurations {
@@ -87,6 +88,11 @@ dependencies {
 
     //Sodium
     modCompileOnly "maven.modrinth:sodium:mc1.20.1-0.5.2"
+
+    //cadinal components
+    include modApi("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cardinal_components_version}")
+    include modApi("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cardinal_components_version}")
+    include modApi("dev.onyxstudios.cardinal-components-api:cardinal-components-level:${project.cardinal_components_version}")
 }
 
 processResources {

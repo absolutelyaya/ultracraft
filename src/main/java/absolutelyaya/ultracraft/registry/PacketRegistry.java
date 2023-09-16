@@ -1,10 +1,12 @@
 package absolutelyaya.ultracraft.registry;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.*;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.block.PedestalBlock;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
+import absolutelyaya.ultracraft.components.IWingDataComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
@@ -243,11 +245,9 @@ public class PacketRegistry
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(SEND_WING_STATE_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
-			WingedPlayerEntity winged = (WingedPlayerEntity)player;
-			if(winged == null)
-				return;
+			IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
 			boolean wingsActive = buf.readBoolean();
-			server.execute(() -> winged.setWingsVisible(wingsActive));
+			server.execute(() -> wings.setVisible(wingsActive));
 			for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers())
 			{
 				buf = new PacketByteBuf(Unpooled.buffer());
@@ -257,17 +257,17 @@ public class PacketRegistry
 			}
 		});
 		ServerPlayNetworking.registerGlobalReceiver(SEND_WINGED_DATA_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
-			WingedPlayerEntity winged = (WingedPlayerEntity)player;
-			if(winged == null)
+			IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
+			if(wings == null)
 				return;
 			boolean wingsActive = buf.readBoolean();
 			Vector3f wingColor = buf.readVector3f(), metalColor = buf.readVector3f();
 			String pattern = Ultracraft.checkSupporter(player.getUuid(), false) ? buf.readString() : "";
 			server.execute(() -> {
-				winged.setWingsVisible(wingsActive);
-				winged.setWingColor(new Vec3d(wingColor), 0);
-				winged.setWingColor(new Vec3d(metalColor), 1);
-				winged.setWingPattern(pattern);
+				wings.setVisible(wingsActive);
+				wings.setColor(wingColor, 0);
+				wings.setColor(metalColor, 1);
+				wings.setPattern(pattern);
 			});
 			for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers())
 			{
@@ -315,13 +315,13 @@ public class PacketRegistry
 			PlayerEntity target = server.getPlayerManager().getPlayer(targetID);
 			if(target == null)
 				return;
-			WingedPlayerEntity winged = (WingedPlayerEntity)target;
+			IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
 			buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeUuid(targetID);
-			buf.writeBoolean(winged.isWingsActive());
-			buf.writeVector3f(winged.getWingColors()[0].toVector3f());
-			buf.writeVector3f(winged.getWingColors()[1].toVector3f());
-			buf.writeString(winged.getWingPattern());
+			buf.writeBoolean(wings.isVisible());
+			buf.writeVector3f(wings.getColors()[0]);
+			buf.writeVector3f(wings.getColors()[1]);
+			buf.writeString(wings.getPattern());
 			ServerPlayNetworking.send(player, WING_DATA_S2C_PACKET_ID, buf);
 		});
 		ServerPlayNetworking.registerGlobalReceiver(SKIM_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
