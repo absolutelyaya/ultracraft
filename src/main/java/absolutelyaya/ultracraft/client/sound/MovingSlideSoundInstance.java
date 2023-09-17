@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.client.sound;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import net.minecraft.entity.player.PlayerEntity;
@@ -22,8 +23,7 @@ public class MovingSlideSoundInstance extends MovingPlayerSoundInstance
 		x = owner.getX();
 		y = owner.getY();
 		z = owner.getZ();
-		WingedPlayerEntity winged = (WingedPlayerEntity)owner;
-		if(winged.isWingsActive() && owner.isSprinting() && owner.isOnGround())
+		if(UltraComponents.WING_DATA.get(owner).isVisible() && owner.isSprinting() && owner.isOnGround())
 		{
 			float speed = (float)owner.getVelocity().length();
 			pitch = speed * 4f;

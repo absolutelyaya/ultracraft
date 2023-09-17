@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.client.rendering;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.Ultraconfig;
@@ -41,7 +42,7 @@ public class UltraHudRenderer
 	final Identifier WEAPONS_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/weapon_icons.png");
 	final Identifier CROSSHAIR_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/crosshair_stats.png");
 	float healthPercent, staminaPercent, absorptionPercent, yOffset;
-	static float fishTimer, coinTimer, coinRot = 0, coinRotDest = 0;
+	static float fishTimer, coinTimer, coinRot = 0, coinRotDest = 0, wingHintDisplayTimer;
 	static ItemStack lastCatch;
 	static int fishCaught, coinCombo;
 	final String[] fishMania = new String[] {"message.ultracraft.fish.mania1", "message.ultracraft.fish.mania2", "message.ultracraft.fish.mania3", "message.ultracraft.fish.mania4"};
@@ -154,7 +155,7 @@ public class UltraHudRenderer
 		RenderSystem.enableBlend();
 		
 		healthPercent = MathHelper.lerp(tickDelta, healthPercent, player.getHealth() / player.getMaxHealth());
-		staminaPercent = MathHelper.lerp(tickDelta, staminaPercent, ((WingedPlayerEntity)player).getStamina() / 90f);
+		staminaPercent = MathHelper.lerp(tickDelta, staminaPercent, UltraComponents.WINGED_ENTITY.get(player).getStamina() / 90f);
 		absorptionPercent = MathHelper.lerp(tickDelta, absorptionPercent, Math.min(player.getAbsorptionAmount() / 20f, 1f));
 		//Crosshair
 		if(config.ultraHudCrosshair)
@@ -260,15 +261,15 @@ public class UltraHudRenderer
 		matrices.pop();
 		matrices.pop();
 		
-		int hdt = ((WingedPlayerEntity)player).getWingHintDisplayTicks();
-		if(hdt > 0)
+		if(wingHintDisplayTimer > 0)
 		{
 			if(config.moveUltrahud)
 				matrices.translate(0f, yOffset * 0.7f - (config.switchSides ? 7 : 0), 0f);
 			matrices.translate(5, 0, 150);
 			drawText(matrices, Text.translatable(
 					UltracraftClient.isHiVelEnabled() ? "message.ultracraft.hi-vel.enable" : "message.ultracraft.hi-vel.disable"),
-					-80 + (flip ? -40 : 0), -10, Math.min(hdt / 20f, 1f), false);
+					-80 + (flip ? -40 : 0), -10, Math.min(wingHintDisplayTimer, 1f), false);
+			wingHintDisplayTimer -= tickDelta / 20f;
 		}
 		matrices.pop();
 		RenderSystem.restoreProjectionMatrix();
@@ -364,7 +365,12 @@ public class UltraHudRenderer
 		BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
 		BufferRenderer.resetCurrentVertexBuffer();
 	}
-  
+ 
+	public static void onUpdateWingsActive()
+	{
+		wingHintDisplayTimer = 2.5f;
+	}
+	
 	public static void onCatchFish(ItemStack stack)
 	{
 		if(UltracraftClient.getConfigHolder().get().fishingJoke)

@@ -1,8 +1,10 @@
 package absolutelyaya.ultracraft.item;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.FlamethrowerRenderer;
+import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.entity.projectile.FlameProjectileEntity;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
@@ -61,14 +63,15 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 	{
 		if(!(user instanceof WingedPlayerEntity winged))
 			return false;
-		if(!winged.getGunCooldownManager().isUsable(this, GunCooldownManager.PRIMARY))
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(winged).getGunCooldownManager();
+		if(!cdm.isUsable(this, GunCooldownManager.PRIMARY))
 			return false;
 		ItemStack stack = user.getMainHandStack();
 		if(!stack.isOf(this))
 			return false;
 		int heat = getHeat(stack);
 		boolean overdrive = heat > 200;
-		winged.getGunCooldownManager().setCooldown(this, overdrive ? 2 : 4, GunCooldownManager.PRIMARY);
+		cdm.setCooldown(this, overdrive ? 2 : 4, GunCooldownManager.PRIMARY);
 		if(!world.isClient)
 		{
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), overdrive ? "overdrive" : "start");
@@ -84,7 +87,7 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 					(overdrive ? 1f : 0.8f) + user.getRandom().nextFloat() * 0.4f);
 			if(heat > 300)
 			{
-				winged.getGunCooldownManager().setCooldown(this, 600, GunCooldownManager.PRIMARY);
+				cdm.setCooldown(this, 600, GunCooldownManager.PRIMARY);
 				world.playSound(null, user.getBlockPos(), SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.PLAYERS, 1f,
 						0.25f + user.getRandom().nextFloat() * 0.1f);
 			}
@@ -108,9 +111,8 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 	{
 		super.inventoryTick(stack, world, entity, slot, selected);
 		int heat = getHeat(stack);
-		if(heat > 0 && entity.age % 2 == 0 && (entity instanceof WingedPlayerEntity winged &&
-													   (!winged.isPrimaryFiring() ||
-																winged.getGunCooldownManager().getCooldown(this, GunCooldownManager.PRIMARY) > 5)))
+		IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(entity);
+		if(heat > 0 && entity.age % 2 == 0 && (!winged.isPrimaryFiring() || winged.getGunCooldownManager().getCooldown(this, GunCooldownManager.PRIMARY) > 5))
 			setHeat(stack, heat - 1);
 	}
 	
@@ -119,8 +121,9 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 	{
 		if(!(user instanceof WingedPlayerEntity winged))
 			return;
-		if(winged.getGunCooldownManager().getCooldown(this, GunCooldownManager.PRIMARY) < 5)
-			winged.getGunCooldownManager().setCooldown(this, getHeat(user.getMainHandStack()) > 200 ? 25 : 50, GunCooldownManager.PRIMARY);
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(user).getGunCooldownManager();
+		if(cdm.getCooldown(this, GunCooldownManager.PRIMARY) < 5)
+			cdm.setCooldown(this, getHeat(user.getMainHandStack()) > 200 ? 25 : 50, GunCooldownManager.PRIMARY);
 		if(!world.isClient)
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), "stop");
 	}

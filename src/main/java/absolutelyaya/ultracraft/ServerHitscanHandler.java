@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft;
 import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.other.AbstractOrbEntity;
 import absolutelyaya.ultracraft.entity.other.BackTank;
@@ -142,7 +143,8 @@ public class ServerHitscanHandler
 			}
 		}
 		boolean disableExplosion = false;
-		boolean explodeProjectile = type == SHARPSHOOTER && user instanceof WingedPlayerEntity p && p.getSharpshooterCooldown() <= 0;
+		IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(user);
+		boolean explodeProjectile = type == SHARPSHOOTER && winged.getSharpshooterCooldown() <= 0;
 		for (int i = 0; i < entities.size(); i++)
 		{
 			Entity e = entities.get(i);
@@ -151,12 +153,12 @@ public class ServerHitscanHandler
 			//hit the last pierced enemy with up to 10 of the remaining pierce shots. A Pierce revolver shot that hits just one enemy, will damage it 3 times.
 			for (int j = 0; j < Math.min(10, i == entities.size() - 1 && maxHits < 16 ? maxHits + 1 : 1); j++)
 				e.damage(source, damage * getDamageMultipier(world, type));
-			if(explodeProjectile && e instanceof ProjectileEntity proj && !(e instanceof ThrownCoinEntity) && user instanceof WingedPlayerEntity p)
+			if(explodeProjectile && e instanceof ProjectileEntity proj && !(e instanceof ThrownCoinEntity))
 			{
 				ExplosionHandler.explosion(user, world, proj.getPos(), DamageSources.get(world, DamageTypes.EXPLOSION, user), 5f, 1f, 5f, true);
 				proj.kill();
 				explodeProjectile = false;
-				p.setSharpshooterCooldown(5);
+				winged.setSharpshooterCooldown(5);
 			}
 			if(e instanceof ThrownCoinEntity)
 				disableExplosion = true;

@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.mixin.client;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
@@ -7,6 +8,7 @@ import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.TerminalScreen;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import absolutelyaya.ultracraft.compat.PlayerAnimator;
+import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
@@ -98,7 +100,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	Vec3d dashDir = Vec3d.ZERO;
 	Vec3d slideDir = Vec3d.ZERO;
 	boolean slamming, lastSlamming, strongGroundPound, lastJumping, lastSprintPressed, lastTouchedWater, wasHiVel, slamStored,
-			slideStartedSideways, increaseAirControl;
+			slideStartedSideways;
 	int slamTicks, slamCooldown, slamJumpTimer = -1, slideTicks, wallJumps = 3, coyote, disableJumpTicks, jumpTicks, slidePreservationTicks;
 	float slideVelocity = 0.33f;
 	final float baseJumpVel = 0.42f;
@@ -110,7 +112,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		{
 			if(isSneaking() && !lastSneaking)
 			{
-				if(!consumeStamina())
+				IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(this);
+				if(!winged.consumeStamina())
 					return;
 				if(slamming)
 					slamming = false;
@@ -131,7 +134,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				}
 				setVelocity(dir);
 				dashDir = dir;
-				onDash();
+				winged.onDash();
 				if(isSprinting())
 					setSliding(false, true);
 			}
@@ -147,6 +150,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				setFocusedTerminal(null); //exit focused Terminal
 		}
 		
+		IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(this);
 		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying && !isSpectator())
 		{
 			boolean grounded = isGrounded(0.1f);
@@ -166,7 +170,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				//start ground pound
 				if(isUnSolid(posToBlock(getPos().subtract(0f, 0.99f, 0f))) && !verticalCollision && slamCooldown == 0)
 				{
-					cancelDash();
+					winged.cancelDash();
 					slamTicks = 0;
 					slamming = true;
 					strongGroundPound = true;
@@ -175,7 +179,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 						PlayerAnimator.playAnimation(client.player, PlayerAnimator.SLAM_LOOP, 5, false);
 				}
 				//start slide
-				else if(!horizontalCollision && !jumping && !isDashing() && !wasDashing(2))
+				else if(!horizontalCollision && !jumping && !winged.isDashing() && !winged.wasDashing(2))
 				{
 					BlockPos pos = posToBlock(getPos().add(Vec3d.fromPolar(0f, getYaw()).normalize()));
 					setSliding((isGrounded(0.79f) || verticalCollision) &&
@@ -196,7 +200,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				{
 					setVelocity(slideDir.multiply(1f + 0.05 * UltracraftClient.speed).multiply(slideVelocity * 1.25));
 					addVelocity(0, baseJumpVel, 0);
-					setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
+					winged.setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
 				}
 				boolean moved = new Vec3d(lastX, lastBaseY, lastZ).distanceTo(getPos()) > slideVelocity / 2f || Ultracraft.isTimeFrozen() || slideTicks < 1;
 				setSprinting(client.options.sprintKey.isPressed() && !slamming && moved && !jumping);
@@ -253,7 +257,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					slamJumpTimer = -1;
 					if(client.options.sprintKey.isPressed() && !strongGroundPound) //Dive / Ultradive
 					{
-						setIgnoreSlowdown(true);
+						winged.setIgnoreSlowdown(true);
 						setVelocity(Vec3d.fromPolar(0, getYaw()).multiply(slamStored ? 4f : 1.5f).add(0, getJumpVelocity(), 0));
 						if(isMainPlayer())
 							PlayerAnimator.playAnimation(client.player,
@@ -280,25 +284,25 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				ci.cancel();
 			}
 			//dash velocity
-			if(isDashing())
+			if(winged.isDashing())
 			{
 				float f = hasStatusEffect(StatusEffectRegistry.IMPALED) ? 0.05f : 1f;
 				setVelocity(dashDir.multiply(f + 0.2 * UltracraftClient.speed));
 				ci.cancel();
 			}
 			//dash jump (preserves velocity)
-			if(wasDashing() && input.jumping && !lastJumping && (isGrounded(0.49f) || coyote > 0))
+			if(winged.wasDashing() && input.jumping && !lastJumping && (isGrounded(0.49f) || coyote > 0))
 			{
-				onDashJump();
-				if(!consumeStamina())
+				winged.onDashJump();
+				if(!winged.consumeStamina())
 					setVelocity(dashDir.multiply(0.3));
 				addVelocity(0f, baseJumpVel, 0f);
-				setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
+				winged.setIgnoreSlowdown(true); //don't slow down from air friction during movement tech
 				if(isMainPlayer())
 					PlayerAnimator.playAnimation(client.player, forwardSpeed >= 0 ? PlayerAnimator.DASH_FORWARD : PlayerAnimator.DASH_BACK, 5, false);
 			}
 			//stop dashing
-			if(wasDashing() && !isDashing())
+			if(winged.wasDashing() && !winged.isDashing())
 			{
 				float slipandslide = getSteppingBlockState().getBlock().getSlipperiness();
 				if(!grounded)
@@ -311,15 +315,15 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			}
 			//stop ignoring slowdown when not sliding/dashing and on ground
 			if((verticalCollision && grounded) &&
-					   !isSprinting() && shouldIgnoreSlowdown() && !isDashing())
-				setIgnoreSlowdown(false);
+					   !isSprinting() && winged.shouldIgnoreSlowdown() && !winged.isDashing())
+				winged.setIgnoreSlowdown(false);
 			//reset walljumps upon landing
 			if(!lastOnGround && isOnGround())
 			{
 				if(grounded)
 					coyote = 4;
 				wallJumps = 3;
-				increaseAirControl = false;
+				winged.setAirControlIncreased(false);
 				if(slamming)
 					slamming = false;
 				slidePreservationTicks = 5;
@@ -368,8 +372,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 					slamStored = true;
 				if(!isCreative())
 					wallJumps--;
-				setIgnoreSlowdown(false);
-				increaseAirControl = true;
+				winged.setIgnoreSlowdown(false);
+				winged.setAirControlIncreased(true);
 				ci.cancel();
 			}
 			//update movement data
@@ -385,7 +389,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				lastTouchedWater = getWorld().getBlockState(posToBlock(getPos().subtract(0f, 0.1, 0f))).getBlock() instanceof FluidBlock;
 				if(lastSlamming != slamming)
 				{
-					boolean strong = strongGroundPound && !slamming && consumeStamina();
+					boolean strong = strongGroundPound && !slamming && winged.consumeStamina();
 					PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 					buf.writeBoolean(slamming);
 					buf.writeBoolean(strong);
@@ -399,7 +403,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			}
 			if(isSprinting() && slideVelocity > 0.33f && slideTicks > 50)
 				slideVelocity = Math.max(0.33f, slideVelocity * 0.995f);
-			lastSprintPressed = client.options.sprintKey.isPressed() && !isDashing() && !wasDashing(2);
+			lastSprintPressed = client.options.sprintKey.isPressed() && !winged.isDashing() && !winged.wasDashing(2);
 			lastJumping = jumping;
 			lastOnGround = isOnGround();
 			if(lastSneaking != isSneaking())
@@ -409,8 +413,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		}
 		else
 		{
-			if (shouldIgnoreSlowdown())
-				setIgnoreSlowdown(false);
+			if (winged.shouldIgnoreSlowdown())
+				winged.setIgnoreSlowdown(false);
 			if((!wasHiVel || getAbilities().flying || isSpectator()) && UltracraftClient.isHiVelEnabled() && isSprinting())
 				setSliding(false, true);
 			if(slamming)
@@ -473,7 +477,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		}
 		else if(!sliding && last && isMainPlayer())
 			PlayerAnimator.playAnimation(client.player, PlayerAnimator.STOP_SLIDE, 0, false);
-		if(!wasDashing())
+		if(!UltraComponents.WINGED_ENTITY.get(this).wasDashing())
 			slideVelocity = Math.max(0.33f, Math.max((float)getVelocity().multiply(1f, 0f, 1f).length(), last ? 0f : slideVelocity * 0.75f));
 		else
 			slideVelocity = 0.33f;
@@ -538,13 +542,6 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		return isUsingItem();
 	}
 	
-	@Inject(method = "tick", at = @At(value = "HEAD"))
-	void onTick(CallbackInfo ci)
-	{
-		if(getWingAnimTime() < 1f)
-			setWingAnimTime(getWingAnimTime() + MinecraftClient.getInstance().getTickDelta());
-	}
-	
 	@Override
 	public void setSprinting(boolean sprinting)
 	{
@@ -556,15 +553,9 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Inject(method = "canSprint", at = @At(value = "HEAD"), cancellable = true)
 	void onCanSprint(CallbackInfoReturnable<Boolean> cir)
 	{
-		WingedPlayerEntity winged = this;
+		IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(this);
 		if((UltracraftClient.isHiVelEnabled() && !isSprinting() && !isOnGround()) || winged.isDashing())
 			cir.setReturnValue(false);
-	}
-	
-	@Override
-	public boolean isWingsActive()
-	{
-		return UltracraftClient.isHiVelEnabled();
 	}
 	
 	@Override
@@ -576,12 +567,6 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	BlockPos posToBlock(Vec3d vec)
 	{
 		return new BlockPos(new Vec3i((int)Math.floor(vec.x), (int)Math.floor(vec.y), (int)Math.floor(vec.z)));
-	}
-	
-	@Override
-	public boolean isAirControlIncreased()
-	{
-		return increaseAirControl;
 	}
 	
 	@Override

@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.mixin.client;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
@@ -28,7 +29,7 @@ public abstract class ClientLivingEntityMixin implements LivingEntityAccessor
 	float modifySlowdown(float constant)
 	{
 		if(this instanceof WingedPlayerEntity winged && winged instanceof ClientPlayerEntity)
-			return winged.shouldIgnoreSlowdown() ? 1f : constant;
+			return UltraComponents.WINGED_ENTITY.get(winged).shouldIgnoreSlowdown() ? 1f : constant;
 		else
 			return constant;
 	}
@@ -36,7 +37,7 @@ public abstract class ClientLivingEntityMixin implements LivingEntityAccessor
 	@Inject(method = "getJumpVelocity", at = @At("RETURN"), cancellable = true)
 	void onGetJumpVelocity(CallbackInfoReturnable<Float> cir)
 	{
-		if(this instanceof WingedPlayerEntity winged && winged.isWingsActive())
+		if(this instanceof WingedPlayerEntity winged && UltraComponents.WING_DATA.get(winged).isVisible())
 			cir.setReturnValue(cir.getReturnValue() + 0.1f * Math.max(UltracraftClient.jumpBoost, 0));
 	}
 	

@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.mixin.client.render;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ChainParryAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.rendering.entity.other.ParryAuraRenderer;
 import absolutelyaya.ultracraft.util.RenderingUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -40,7 +41,7 @@ public abstract class EntityRendererMixin<T extends Entity>
 	@Inject(method = "renderLabelIfPresent", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/font/TextRenderer;draw(Lnet/minecraft/text/Text;FFIZLorg/joml/Matrix4f;Lnet/minecraft/client/render/VertexConsumerProvider;Lnet/minecraft/client/font/TextRenderer$TextLayerType;II)I", ordinal = 0))
 	void onRenderLabel(T entity, Text text, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci)
 	{
-		if(entity instanceof WingedPlayerEntity winged && winged.isBlocked())
+		if(entity.isPlayer() && UltracraftClient.isBlocked(entity.getUuid()))
 		{
 			matrices.push();
 			matrices.translate(getTextRenderer().getWidth(text) / 2f + 2, -1, 0);

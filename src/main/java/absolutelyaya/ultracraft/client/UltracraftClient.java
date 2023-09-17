@@ -570,6 +570,11 @@ public class UltracraftClient implements ClientModInitializer
 		return visualFreezeTicks > 0;
 	}
 	
+	public static boolean isBlocked(UUID uuid)
+	{
+		return config.get().blockedPlayers.contains(uuid);
+	}
+	
 	public static boolean isCanGraffiti()
 	{
 		return switch(GraffitiOption)

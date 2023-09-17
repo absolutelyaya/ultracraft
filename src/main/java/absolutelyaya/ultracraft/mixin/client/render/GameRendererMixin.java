@@ -1,8 +1,10 @@
 package absolutelyaya.ultracraft.mixin.client.render;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.components.IWingDataComponent;
+import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.Camera;
@@ -34,8 +36,9 @@ public class GameRendererMixin
 	{
 		if(client.player == null)
 			return;
-		WingedPlayerEntity winged = (WingedPlayerEntity)client.player;
-		if(winged.isWingsActive() && (client.player.isSprinting() || winged.isDashing()))
+		IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(client.player);
+		IWingDataComponent wings = UltraComponents.WING_DATA.get(client.player);
+		if(wings.isVisible() && (client.player.isSprinting() || winged.isDashing()))
 			ci.cancel();
 		if(Ultracraft.isTimeFrozen())
 			ci.cancel();

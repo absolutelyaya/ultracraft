@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.components;
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -56,6 +57,8 @@ public class WingDataComponent implements IWingDataComponent, AutoSyncedComponen
 	public void setVisible(boolean b)
 	{
 		visible = b;
+		if(provider.isMainPlayer())
+			UltraHudRenderer.onUpdateWingsActive();
 	}
 	
 	public void sync()

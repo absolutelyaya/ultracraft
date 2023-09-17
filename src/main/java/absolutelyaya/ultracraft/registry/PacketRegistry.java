@@ -7,6 +7,7 @@ import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.block.PedestalBlock;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.components.IWingDataComponent;
+import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
@@ -224,9 +225,10 @@ public class PacketRegistry
 			byte action = buf.readByte();
 			Vec3d velocity = action > 0 ? new Vec3d(buf.readVector3f()) : Vec3d.ZERO;
 			server.execute(() -> {
+				IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(player);
 				if (player.getMainHandStack().getItem() instanceof AbstractWeaponItem gun)
 				{
-					((WingedPlayerEntity)player).setPrimaryFiring(action > 0);
+					winged.setPrimaryFiring(action > 0);
 					if (action == 0 || !gun.onPrimaryFire(player.getWorld(), player, velocity))
 						return;
 					for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers(p -> player.distanceTo(p) < 128f))
@@ -237,7 +239,7 @@ public class PacketRegistry
 					}
 				}
 				else if(action == 0)
-					((WingedPlayerEntity)player).setPrimaryFiring(false);
+					winged.setPrimaryFiring(false);
 				else
 					Ultracraft.LOGGER.warn(player + " tried to use primary fire action but is holding a non-weapon Item!");
 			});
@@ -275,7 +277,7 @@ public class PacketRegistry
 			buf.writeDouble(dir.z);
 			for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers())
 				ServerPlayNetworking.send(p, DASH_S2C_PACKET_ID, buf);
-			server.execute(() -> ((WingedPlayerEntity)player).onDash());
+			server.execute(() -> UltraComponents.WINGED_ENTITY.get(player).onDash());
 		});
 		ServerPlayNetworking.registerGlobalReceiver(GROUND_POUND_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			boolean start = buf.readBoolean();

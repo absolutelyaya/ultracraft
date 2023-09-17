@@ -8,6 +8,7 @@ import absolutelyaya.ultracraft.client.RenderLayers;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import absolutelyaya.ultracraft.components.IWingDataComponent;
+import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.registry.WingPatterns;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gl.ShaderProgram;
@@ -56,7 +57,7 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 			}
 			case NONE -> {}
 		}
-		WingedPlayerEntity winged = ((WingedPlayerEntity)entity);
+		IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(entity);
 		IWingDataComponent wings = UltraComponents.WING_DATA.get(entity);
 		if(wings.isVisible() || (entity.isMainPlayer() && WingCustomizationScreen.MenuOpen))
 		{

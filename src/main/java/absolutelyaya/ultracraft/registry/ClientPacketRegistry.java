@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.ExplosionHandler;
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ITrailEnjoyer;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
@@ -69,7 +70,7 @@ public class ClientPacketRegistry
 			Vec3d dir = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
 			MinecraftClient.getInstance().execute(() -> {
 				Random rand = client.player.getRandom();
-				((WingedPlayerEntity)player).onDash();
+				UltraComponents.WINGED_ENTITY.get(player).onDash();
 				Vec3d pos;
 				for (int i = 0; i < 5; i++)
 				{
@@ -117,7 +118,7 @@ public class ClientPacketRegistry
 			int idx = buf.readInt();
 			MinecraftClient.getInstance().execute(() -> {
 				if(client.player != null)
-					((WingedPlayerEntity)client.player).getGunCooldownManager().setCooldown(item, ticks, idx);
+					UltraComponents.WINGED_ENTITY.get(client.player).getGunCooldownManager().setCooldown(item, ticks, idx);
 			});
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.CATCH_FISH_PACKET_ID, ((client, handler, buf, sender) -> {
@@ -261,8 +262,7 @@ public class ClientPacketRegistry
 		ClientPlayNetworking.registerGlobalReceiver(REPLENISH_STAMINA_PACKET_ID, (client, handler, buf, sender) -> {
 			int i = buf.readInt();
 			client.execute(() -> {
-				if(client.player instanceof WingedPlayerEntity winged)
-					winged.replenishStamina(i);
+				UltraComponents.WINGED_ENTITY.get(client.player).replenishStamina(i);
 			});
 		});
 		ClientPlayNetworking.registerGlobalReceiver(ANIMATION_S2C_PACKET_ID, (client, handler, buf, sender) -> {

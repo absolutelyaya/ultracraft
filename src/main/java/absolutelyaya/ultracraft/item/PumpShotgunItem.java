@@ -1,9 +1,11 @@
 package absolutelyaya.ultracraft.item;
 
 import absolutelyaya.ultracraft.ExplosionHandler;
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.PumpShotgunRenderer;
+import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
@@ -72,7 +74,7 @@ public class PumpShotgunItem extends AbstractShotgunItem
 		Hand hand = user.getActiveHand();
 		if(hand.equals(Hand.OFF_HAND))
 			return;
-		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(user).getGunCooldownManager();
 		if(!cdm.isUsable(this, GunCooldownManager.SECONDARY))
 			return;
 		user.setCurrentHand(hand);
@@ -115,7 +117,8 @@ public class PumpShotgunItem extends AbstractShotgunItem
 		ItemStack itemStack = user.getMainHandStack();
 		boolean overcharge = getPelletCount(itemStack) == 0;
 		boolean b = super.onPrimaryFire(world, user, userVelocity);
-		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
+		IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(user);
+		GunCooldownManager cdm = winged.getGunCooldownManager();
 		if(!b)
 			return false;
 		cdm.setCooldown(this, 30, GunCooldownManager.PRIMARY);
@@ -123,7 +126,7 @@ public class PumpShotgunItem extends AbstractShotgunItem
 			itemStack.getNbt().putInt("charge", 0);
 		if(overcharge && !world.isClient)
 		{
-			((WingedPlayerEntity)user).blockBloodHeal(10);
+			winged.setBloodHealCooldown(10);
 			ExplosionHandler.explosion(user, world, user.getPos().add(user.getRotationVector()),
 					DamageSources.get(world, DamageSources.OVERCHARGE, user), 10, 0, 3, true, true);
 			user.damage(DamageSources.get(world, DamageSources.OVERCHARGE_SELF), 4);

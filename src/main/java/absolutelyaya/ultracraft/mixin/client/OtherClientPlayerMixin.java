@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.mixin.client;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import com.mojang.authlib.GameProfile;
@@ -30,7 +31,7 @@ public abstract class OtherClientPlayerMixin extends PlayerEntity implements Win
 	{
 		World world = MinecraftClient.getInstance().world;
 		MinecraftClient.getInstance().execute(() -> {
-			if(getDashingTicks() >= -1)
+			if(UltraComponents.WINGED_ENTITY.get(this).getDashingTicks() >= -1)
 			{
 				if(!wasDashing)
 				{
@@ -45,7 +46,7 @@ public abstract class OtherClientPlayerMixin extends PlayerEntity implements Win
 				world.addParticle(ParticleRegistry.DASH, true, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
 				lastDashPos = getPos();
 			}
-			if(isSprinting() && isWingsActive())
+			if(isSprinting() && UltraComponents.WING_DATA.get(this).isVisible())
 			{
 				if(!wasSprinting)
 				{
@@ -61,7 +62,7 @@ public abstract class OtherClientPlayerMixin extends PlayerEntity implements Win
 				lastSlidePos = getPos();
 			}
 			wasSprinting = isSprinting();
-			wasDashing = getDashingTicks() >= -1;
+			wasDashing = UltraComponents.WINGED_ENTITY.get(this).getDashingTicks() >= -1;
 		});
 	}
 }

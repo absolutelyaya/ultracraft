@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.mixin;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import net.minecraft.entity.player.HungerManager;
 import net.minecraft.entity.player.PlayerEntity;
@@ -22,7 +23,7 @@ public abstract class HungerManagerMixin
 	@Inject(method = "update", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;heal(F)V"), cancellable = true)
 	void onHeal(PlayerEntity player, CallbackInfo ci)
 	{
-		if(((WingedPlayerEntity)player).isWingsActive())
+		if(UltraComponents.WING_DATA.get(player).isVisible())
 			ci.cancel();
 	}
 	

@@ -1,7 +1,10 @@
 package absolutelyaya.ultracraft.client.rendering.entity.feature;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
+import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -39,7 +42,7 @@ public class WingsModel<T extends LivingEntity> extends AnimalModel<T>
 	private final ModelPart RightWing4;
 	
 	private final Vec3d[] DashPose = new Vec3d[] {new Vec3d(0.0f, -27.5f, 0.0f), new Vec3d(18.63f, -50.02f, -23.75f), new Vec3d(0.0f, -25.0f, 0.0f), new Vec3d(0.0f, -40.0f, 0.0f), new Vec3d(0.0f, -17.5f, 0.0f), new Vec3d(-7.85f, -31.63f, 14.72f), new Vec3d(0.0f, -10.0f, 0.0f), new Vec3d(-15.0f, -32.0f, 26.82f)};
-	private final Vec3d[] RestPose = new Vec3d[] {new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f)};
+	private final Vec3d[] RestPose = new Vec3d[] {new Vec3d(0.0f, -15.0f, 0.0f), new Vec3d(0.0f, -15.0f, 0.0f), new Vec3d(0.0f, -15.0f, 0.0f), new Vec3d(0.0f, -15.0f, 0.0f), new Vec3d(0.0f, -15.0f, 0.0f), new Vec3d(0.0f, -15.0f, 0.0f), new Vec3d(0.0f, -15.0f, 0.0f), new Vec3d(0.0f, -15.0f, 0.0f)};
 	private final Vec3d[] SlidePose = new Vec3d[] {new Vec3d(0.0f + 70, -27.5f, 0.0f - 12), new Vec3d(18.63f, -50.02f + 20, -23.75f + 22.5), new Vec3d(0.0f + 70, -25.0f, 0.0f - 18), new Vec3d(0.0f,  -40.0f + 10, 0.0f - 5), new Vec3d(0.0f + 70, -17.5f, 0.0f - 24), new Vec3d(-7.85f, -31.63f + 7.5, 14.72f - 10), new Vec3d(0.0f + 70, -10.0f, 0.0f - 32), new Vec3d(-15.0f, -32.0f + 5, 26.82f - 15)};
 	
 	public WingsModel(ModelPart root, Function<Identifier, RenderLayer> renderLayerFactory)
@@ -140,7 +143,7 @@ public class WingsModel<T extends LivingEntity> extends AnimalModel<T>
 		return List.of();
 	}
 	
-	public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch, WingedPlayerEntity winged)
+	public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch, IWingedPlayerComponent winged)
 	{
 		winged.getWingState();
 		setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
@@ -171,14 +174,15 @@ public class WingsModel<T extends LivingEntity> extends AnimalModel<T>
 	public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch)
 	{
 		Vec3d[] curPose = getPoseFromIndex((byte)0);
-		if(entity instanceof WingedPlayerEntity winged)
+		if(entity instanceof WingedPlayerEntity wingedPlayer)
 		{
-			Vec3d[] lastPose = winged.getWingPose();
-			Vec3d[] desiredPose = getPoseFromIndex(winged.getWingState());
+			IWingedPlayerComponent wingedData = UltraComponents.WINGED_ENTITY.get(wingedPlayer);
+			Vec3d[] lastPose = wingedPlayer.getWingPose();
+			Vec3d[] desiredPose = getPoseFromIndex(wingedData.getWingState());
 			
 			for (int i = 0; i < 8; i++)
-				curPose[i] = lastPose[i].lerp(desiredPose[i], 1f / 60f / getAnimLength(winged.getWingState()));
-			winged.setWingPose(curPose);
+				curPose[i] = lastPose[i].lerp(desiredPose[i], MinecraftClient.getInstance().getTickDelta() / 20f / getAnimLength(wingedData.getWingState()));
+			wingedPlayer.setWingPose(curPose);
 		}
 		
 		//Left

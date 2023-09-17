@@ -1,9 +1,13 @@
 package absolutelyaya.ultracraft.mixin.client;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
+import absolutelyaya.ultracraft.components.IWingDataComponent;
+import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
+import dev.architectury.event.events.common.TickEvent;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -94,13 +98,14 @@ public abstract class CameraMixin
 	@Inject(method = "update", at = @At("TAIL"))
 	void onUpdate(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci)
 	{
-		if(!(focusedEntity instanceof WingedPlayerEntity winged))
+		if(!(focusedEntity instanceof PlayerEntity player))
 			return;
 		float f = UltracraftClient.getConfigHolder().get().slideCamOffset / 100f;
 		if(thirdPerson && f > 0f)
 		{
-			boolean flip = ((PlayerEntity)winged).getMainArm().equals(Arm.LEFT);
-			if(winged.isWingsActive() && ((PlayerEntity)winged).isSprinting())
+			boolean flip = player.getMainArm().equals(Arm.LEFT);
+			IWingDataComponent winged = UltraComponents.WING_DATA.get(player);
+			if(winged.isVisible() && player.isSprinting())
 			{
 				Vec3d offset = rotationize(new Vec3d(1.5f * f, f, -1.5f * f * (flip ? -1 : 1)));
 				HitResult hitResult = area.raycast(new RaycastContext(getPos(), getPos().add(offset), RaycastContext.ShapeType.VISUAL, RaycastContext.FluidHandling.NONE, focusedEntity));

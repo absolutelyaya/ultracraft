@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.client.rendering.item;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
@@ -41,7 +42,7 @@ public class CoreEjectShotgunRenderer extends GeoItemRenderer<CoreEjectShotgunIt
 		else if(useTime > 0f)
 			return new Identifier(Ultracraft.MOD_ID, "textures/item/core_shotgun3.png");
 		
-		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
 		float primaryCD = cdm.getCooldownPercent(animatable, 0);
 		if(primaryCD < 0.45f)
 			return new Identifier(Ultracraft.MOD_ID, "textures/item/core_shotgun2.png");

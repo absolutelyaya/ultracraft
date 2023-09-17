@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.item;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
@@ -30,8 +31,9 @@ public abstract class AbstractWeaponItem extends Item
 	
 	protected boolean isCanFirePrimary(PlayerEntity user)
 	{
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(user).getGunCooldownManager();
 		return /*user.getAttackCooldownProgress(0.3f) >= 1f &&*/
-					   (user instanceof WingedPlayerEntity winged && winged.getGunCooldownManager().isUsable(this, GunCooldownManager.PRIMARY));
+					   (user instanceof WingedPlayerEntity winged && cdm.isUsable(this, GunCooldownManager.PRIMARY));
 	}
 	
 	public boolean onPrimaryFire(World world, PlayerEntity user, Vec3d userVelocity)
@@ -54,7 +56,7 @@ public abstract class AbstractWeaponItem extends Item
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
 	{
 		super.inventoryTick(stack, world, entity, slot, selected);
-		if(world.isClient && entity instanceof WingedPlayerEntity winged && winged.isPrimaryFiring() && selected &&
+		if(world.isClient && UltraComponents.WINGED_ENTITY.get(entity).isPrimaryFiring() && selected &&
 				   onPrimaryFire(world, (PlayerEntity)entity, entity.getVelocity()))
 		{
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
@@ -79,14 +81,14 @@ public abstract class AbstractWeaponItem extends Item
 	@Override
 	public boolean isItemBarVisible(ItemStack stack)
 	{
-		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
 		return !cdm.isUsable(stack.getItem(), GunCooldownManager.PRIMARY);
 	}
 	
 	@Override
 	public int getItemBarStep(ItemStack stack)
 	{
-		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
 		return (int)(cdm.getCooldownPercent(stack.getItem(), GunCooldownManager.PRIMARY) * 14);
 	}
 	

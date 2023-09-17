@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.mixin.client;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlock;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
@@ -96,7 +97,7 @@ public abstract class MinecraftClientMixin
 				ClientPlayNetworking.send(PacketRegistry.PRIMARY_SHOT_C2S_PACKET_ID, buf);
 				w.onPrimaryFire(world, player, player.getVelocity());
 				isShooting = options.attackKey.isPressed();
-				((WingedPlayerEntity)player).setPrimaryFiring(isShooting);
+				UltraComponents.WINGED_ENTITY.get(player).setPrimaryFiring(isShooting);
 			}
 		}
 		else if(isShooting)
@@ -109,7 +110,7 @@ public abstract class MinecraftClientMixin
 		buf.writeByte(0);
 		ClientPlayNetworking.send(PacketRegistry.PRIMARY_SHOT_C2S_PACKET_ID, buf);
 		isShooting = false;
-		((WingedPlayerEntity)player).setPrimaryFiring(false);
+		UltraComponents.WINGED_ENTITY.get(player).setPrimaryFiring(false);
 	}
 	
 	@Inject(method = "doAttack", at = @At("HEAD"), cancellable = true)
