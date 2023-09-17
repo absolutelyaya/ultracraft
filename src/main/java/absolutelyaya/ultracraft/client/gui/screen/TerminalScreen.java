@@ -99,7 +99,11 @@ public class TerminalScreen extends Screen
 				}
 				textColorPicker.render(context, mouseX, mouseY, delta);
 			}
-			case Tab.GRAFFITI_ID -> renderGraffitiMenu(context, mouseX, mouseY, delta);
+			case Tab.GRAFFITI_ID -> {
+				renderGraffitiMenu(context, mouseX, mouseY, delta);
+				if(!lastTab.id.equals(Tab.GRAFFITI_ID))
+					terminal.setLastHovered(null);
+			}
 			default -> {
 				if(!lastTab.equals(terminal.getTab()))
 				{

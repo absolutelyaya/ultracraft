@@ -1,13 +1,10 @@
 package absolutelyaya.ultracraft.block;
 
-import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.TerminalItem;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.enums.DoubleBlockHalf;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -100,7 +97,7 @@ public class TerminalBlock extends BlockWithEntity
 		if(world.getBlockState(pos).isOf(BlockRegistry.TERMINAL_DISPLAY))
 		{
 			BlockEntity be = world.getBlockEntity(pos);
-			if(be instanceof TerminalBlockEntity terminal && UltracraftClient.isTerminalProtEnabled() && terminal.isCannotBreak(player))
+			if(be instanceof TerminalBlockEntity terminal && world.getGameRules().getBoolean(GameruleRegistry.TERMINAL_PROT) && terminal.isCannotBreak(player))
 				return;
 			world.setBlockState(pos, Blocks.AIR.getDefaultState());
 			world.addBlockBreakParticles(pos, state);
@@ -121,7 +118,8 @@ public class TerminalBlock extends BlockWithEntity
 		Direction dir = state.get(HALF).equals(DoubleBlockHalf.LOWER) ? Direction.UP : Direction.DOWN;
 		pos = pos.offset(dir, 1);
 		BlockEntity be = world.getBlockEntity(pos);
-		if(be instanceof TerminalBlockEntity terminal && UltracraftClient.isTerminalProtEnabled() && !terminal.isOwner(player.getUuid()))
+		if(be instanceof TerminalBlockEntity terminal && player.getWorld().getGameRules().getBoolean(GameruleRegistry.TERMINAL_PROT) &&
+				   !terminal.isOwner(player.getUuid()))
 			return 0f;
 		return super.calcBlockBreakingDelta(state, player, world, pos);
 	}

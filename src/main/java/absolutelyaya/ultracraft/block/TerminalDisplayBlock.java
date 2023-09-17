@@ -8,7 +8,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.block.enums.DoubleBlockHalf;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.state.StateManager;
@@ -110,10 +109,7 @@ public class TerminalDisplayBlock extends BlockWithEntity
 				if(!terminal.focusedPlayers.contains(winged))
 					terminal.focusedPlayers.add(winged);
 				if(world.isClient)
-				{
 					winged.setFocusedTerminal(terminal);
-					MinecraftClient.getInstance().gameRenderer.setRenderHand(false);
-				}
 			}
 		}
 		return super.onUse(state, world, pos, player, hand, hit);

@@ -101,7 +101,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	Vector2i caret = new Vector2i();
 	Element lastHovered;
 	TextBox focusedTextbox;
-	Tab tab = new DefaultTabs.MainMenu();
+	Tab tab;
 	Vector2f normalWindowSize = new Vector2f(100f, 100f), curWindowSize = new Vector2f(normalWindowSize), sizeOverride = null;
 	Identifier graffitiTexture;
 	int redstoneTimer, redstoneStrength;
@@ -109,7 +109,6 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public TerminalBlockEntity(BlockPos pos, BlockState state)
 	{
 		super(BlockEntityRegistry.TERMINAL, pos, state);
-		tab.init(this);
 	}
 	
 	@Override
@@ -122,7 +121,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	{
 		inactivity = 0f;
 		boolean hovering = lastHovered != null;
-		tab.onClicked(getCursor(), hovering, mouseButton);
+		if(world.isClient)
+			getTab().onClicked(getCursor(), hovering, mouseButton);
 		if(!hovering)
 			return;
 		if(lastHovered instanceof Button b)
@@ -145,7 +145,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public void scroll(double amount)
 	{
-		tab.onScroll(amount);
+		getTab().onScroll(amount);
 		if(lastHovered instanceof ListElement list)
 			list.onScroll(amount);
 	}
@@ -154,7 +154,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	{
 		String action = element.getAction();
 		int value = element.getValue();
-		if(tab.onButtonClicked(action, value))
+		if(getTab().onButtonClicked(action, value))
 			return;
 		if(!GlobalButtonActions.runAction(this, action, value))
 			Ultracraft.LOGGER.error("Undefined Behavior for Terminal button '" + action + "@" + value + "'");
@@ -350,7 +350,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		displayVisibility = MathHelper.clamp(f, 0f, 1f);
 		if(getWorld().getBlockState(getPos()).isOf(BlockRegistry.TERMINAL_DISPLAY))
 			getWorld().setBlockState(getPos(), getWorld().getBlockState(getPos()).with(TerminalDisplayBlock.GLOWS,displayVisibility > 0.25f));
-		if(displayVisibility == 0f && !tab.id.equals(Tab.MAIN_MENU_ID))
+		if(displayVisibility == 0f && !getTab().id.equals(Tab.MAIN_MENU_ID))
 			setTab(new DefaultTabs.MainMenu());
 	}
 	
@@ -388,7 +388,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public void setInactivity(float f)
 	{
-		if(!tab.id.equals(Tab.MAIN_MENU_ID))
+		if(!getTab().id.equals(Tab.MAIN_MENU_ID))
 			f = 0f;
 		inactivity = MathHelper.clamp(f, 0f, 600f);
 		if(inactivity > 30f)
@@ -485,6 +485,11 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public Tab getTab()
 	{
+		if(tab == null)
+		{
+			tab = new DefaultTabs.MainMenu();
+			tab.init(this);
+		}
 		return tab;
 	}
 	
@@ -549,7 +554,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public Vec3d getCamOffset()
 	{
-		if(tab.id.equals(Tab.GRAFFITI_ID))
+		if(getTab().id.equals(Tab.GRAFFITI_ID))
 			return new Vec3d(0f, 0f, -2.5f).rotateY((getRotation() + graffitiCamRotation) * -MathHelper.RADIANS_PER_DEGREE);
 		return new Vec3d(0f, 0f, -1f).rotateY(getRotation() * -MathHelper.RADIANS_PER_DEGREE);
 	}

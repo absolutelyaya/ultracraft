@@ -612,7 +612,10 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 			if(this.focusedTerminal != terminal)
 				sendMessage(Text.translatable("screen.ultracraft.terminal.unfocus"), true);
 			if(getWorld().isClient)
+			{
+				MinecraftClient.getInstance().gameRenderer.setRenderHand(false);
 				client.setScreen(new TerminalScreen(terminal));
+			}
 		}
 		else
 		{

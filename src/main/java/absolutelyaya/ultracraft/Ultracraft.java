@@ -1,6 +1,5 @@
 package absolutelyaya.ultracraft;
 
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.command.UltracraftCommand;
 import absolutelyaya.ultracraft.item.MarksmanRevolverItem;
 import absolutelyaya.ultracraft.item.SharpshooterRevolverItem;
@@ -22,7 +21,6 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.JsonHelper;
-import net.minecraft.util.math.Vec3d;
 import org.slf4j.Logger;
 
 import java.io.IOException;
