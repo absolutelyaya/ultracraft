@@ -261,7 +261,7 @@ public class UltraHudRenderer
 		matrices.pop();
 		matrices.pop();
 		
-		if(wingHintDisplayTimer > 0)
+		if(wingHintDisplayTimer > 0.001f)
 		{
 			if(config.moveUltrahud)
 				matrices.translate(0f, yOffset * 0.7f - (config.switchSides ? 7 : 0), 0f);

@@ -42,7 +42,7 @@ public class WingsModel<T extends LivingEntity> extends AnimalModel<T>
 	private final ModelPart RightWing4;
 	
 	private final Vec3d[] DashPose = new Vec3d[] {new Vec3d(0.0f, -27.5f, 0.0f), new Vec3d(18.63f, -50.02f, -23.75f), new Vec3d(0.0f, -25.0f, 0.0f), new Vec3d(0.0f, -40.0f, 0.0f), new Vec3d(0.0f, -17.5f, 0.0f), new Vec3d(-7.85f, -31.63f, 14.72f), new Vec3d(0.0f, -10.0f, 0.0f), new Vec3d(-15.0f, -32.0f, 26.82f)};
-	private final Vec3d[] RestPose = new Vec3d[] {new Vec3d(0.0f, -15.0f, 0.0f), new Vec3d(0.0f, -15.0f, 0.0f), new Vec3d(0.0f, -15.0f, 0.0f), new Vec3d(0.0f, -15.0f, 0.0f), new Vec3d(0.0f, -15.0f, 0.0f), new Vec3d(0.0f, -15.0f, 0.0f), new Vec3d(0.0f, -15.0f, 0.0f), new Vec3d(0.0f, -15.0f, 0.0f)};
+	private final Vec3d[] RestPose = new Vec3d[] {new Vec3d(0.0f, -5.0f, 0.0f), new Vec3d(0.0f, -5.0f, 0.0f), new Vec3d(0.0f, -5.0f, 0.0f), new Vec3d(0.0f, -5.0f, 0.0f), new Vec3d(0.0f, -10.0f, 0.0f), new Vec3d(0.0f, -10.0f, 0.0f), new Vec3d(0.0f, -15.0f, 0.0f), new Vec3d(0.0f, -15.0f, 0.0f)};
 	private final Vec3d[] SlidePose = new Vec3d[] {new Vec3d(0.0f + 70, -27.5f, 0.0f - 12), new Vec3d(18.63f, -50.02f + 20, -23.75f + 22.5), new Vec3d(0.0f + 70, -25.0f, 0.0f - 18), new Vec3d(0.0f,  -40.0f + 10, 0.0f - 5), new Vec3d(0.0f + 70, -17.5f, 0.0f - 24), new Vec3d(-7.85f, -31.63f + 7.5, 14.72f - 10), new Vec3d(0.0f + 70, -10.0f, 0.0f - 32), new Vec3d(-15.0f, -32.0f + 5, 26.82f - 15)};
 	
 	public WingsModel(ModelPart root, Function<Identifier, RenderLayer> renderLayerFactory)
@@ -149,14 +149,19 @@ public class WingsModel<T extends LivingEntity> extends AnimalModel<T>
 		setAngles(entity, limbAngle, limbDistance, animationProgress, headYaw, headPitch);
 	}
 	
-	Vec3d[] getPoseFromIndex(byte idx)
+	Vec3d[] getPoseFromIndex(byte idx, float time)
 	{
 		if(WingCustomizationScreen.MenuOpen)
 			return RestPose.clone();
 		
 		return switch(idx) {
 			case 0 -> DashPose.clone();
-			default -> RestPose.clone(); // 1 = rest! Default being here is intentional.
+			default -> {
+				Vec3d[] output = new Vec3d[] {new Vec3d(7.5f, -5.0f, 0.0f), new Vec3d(7.5f, -5f, 0.0f), new Vec3d(5.0f, -7.5f, 0.0f), new Vec3d(5.0f, -7.5f, 0.0f), new Vec3d(2.5f, -10.0f, 0.0f), new Vec3d(2.5f, -10.0f, 0.0f), new Vec3d(-2.5f, -12.5f, 0.0f), new Vec3d(-2.5f, -12.5f, 0.0f)};
+				for (int i = 0; i < output.length; i++)
+					output[i] = output[i].multiply((Math.sin(time) + 1f) / 2f);
+				yield output;
+			} // 1 = rest! Default being here is intentional.
 			case 2 -> SlidePose.clone();
 		};
 	}
@@ -173,12 +178,13 @@ public class WingsModel<T extends LivingEntity> extends AnimalModel<T>
 	@Override
 	public void setAngles(T entity, float limbAngle, float limbDistance, float animationProgress, float headYaw, float headPitch)
 	{
-		Vec3d[] curPose = getPoseFromIndex((byte)0);
+		float time = (entity.age + MinecraftClient.getInstance().getTickDelta()) / 20f / 2f;
+		Vec3d[] curPose = getPoseFromIndex((byte)0, time);
 		if(entity instanceof WingedPlayerEntity wingedPlayer)
 		{
 			IWingedPlayerComponent wingedData = UltraComponents.WINGED_ENTITY.get(wingedPlayer);
 			Vec3d[] lastPose = wingedPlayer.getWingPose();
-			Vec3d[] desiredPose = getPoseFromIndex(wingedData.getWingState());
+			Vec3d[] desiredPose = getPoseFromIndex(wingedData.getWingState(), time);
 			
 			for (int i = 0; i < 8; i++)
 				curPose[i] = lastPose[i].lerp(desiredPose[i], MinecraftClient.getInstance().getTickDelta() / 20f / getAnimLength(wingedData.getWingState()));
