@@ -1,11 +1,12 @@
 package absolutelyaya.ultracraft.registry;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import absolutelyaya.ultracraft.compat.PlayerAnimator;
+import absolutelyaya.ultracraft.components.IWingDataComponent;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -52,7 +53,8 @@ public class KeybindRegistry
 				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 				buf.writeBoolean(UltracraftClient.isHiVelEnabled());
 				ClientPlayNetworking.send(PacketRegistry.SEND_WING_STATE_C2S_PACKET_ID, buf);
-				((WingedPlayerEntity)client.player).setWingsVisible(UltracraftClient.isHiVelEnabled());
+				IWingDataComponent wings = UltraComponents.WING_DATA.get(client.player);
+				wings.setVisible(UltracraftClient.isHiVelEnabled());
 				hivelPressed = true;
 			}
 			while(HIGH_VELOCITY_TOGGLE.wasPressed()); //remove stored hivel toggle presses

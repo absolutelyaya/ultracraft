@@ -48,7 +48,7 @@ public class PacketRegistry
 	public static final Identifier PUNCH_BLOCK_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_block");
 	public static final Identifier PRIMARY_SHOT_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "primary_shot_c2s");
 	public static final Identifier SEND_WING_STATE_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_winged_state_c2s");
-	public static final Identifier SEND_WINGED_DATA_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_winged_data_c2s");
+	public static final Identifier SEND_WING_DATA_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_winged_data_c2s");
 	public static final Identifier DASH_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_c2s");
 	public static final Identifier GROUND_POUND_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ground_pound_c2s");
 	public static final Identifier REQUEST_WINGED_DATA_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "request_wing_data");
@@ -65,8 +65,6 @@ public class PacketRegistry
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
 	public static final Identifier DASH_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_s2c");
 	public static final Identifier BLEED_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "bleed");
-	public static final Identifier WING_STATE_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "wing_state_s2c");
-	public static final Identifier WING_DATA_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "wing_data_s2c");
 	public static final Identifier SET_GUNCD_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_gcd");
 	public static final Identifier CATCH_FISH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "fish");
 	public static final Identifier SYNC_RULE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "sync_rule");
@@ -247,16 +245,13 @@ public class PacketRegistry
 		ServerPlayNetworking.registerGlobalReceiver(SEND_WING_STATE_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
 			boolean wingsActive = buf.readBoolean();
-			server.execute(() -> wings.setVisible(wingsActive));
-			for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers())
+			server.execute(() ->
 			{
-				buf = new PacketByteBuf(Unpooled.buffer());
-				buf.writeUuid(player.getUuid());
-				buf.writeBoolean(wingsActive);
-				ServerPlayNetworking.send(p, WING_STATE_S2C_PACKET_ID, buf);
-			}
+				wings.setVisible(wingsActive);
+				wings.sync();
+			});
 		});
-		ServerPlayNetworking.registerGlobalReceiver(SEND_WINGED_DATA_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
+		ServerPlayNetworking.registerGlobalReceiver(SEND_WING_DATA_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
 			if(wings == null)
 				return;
@@ -268,17 +263,8 @@ public class PacketRegistry
 				wings.setColor(wingColor, 0);
 				wings.setColor(metalColor, 1);
 				wings.setPattern(pattern);
+				wings.sync();
 			});
-			for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers())
-			{
-				buf = new PacketByteBuf(Unpooled.buffer());
-				buf.writeUuid(player.getUuid());
-				buf.writeBoolean(wingsActive);
-				buf.writeVector3f(wingColor);
-				buf.writeVector3f(metalColor);
-				buf.writeString(pattern);
-				ServerPlayNetworking.send(p, WING_DATA_S2C_PACKET_ID, buf);
-			}
 		});
 		ServerPlayNetworking.registerGlobalReceiver(DASH_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			Vec3d dir = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
@@ -315,14 +301,14 @@ public class PacketRegistry
 			PlayerEntity target = server.getPlayerManager().getPlayer(targetID);
 			if(target == null)
 				return;
-			IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
-			buf = new PacketByteBuf(Unpooled.buffer());
-			buf.writeUuid(targetID);
-			buf.writeBoolean(wings.isVisible());
-			buf.writeVector3f(wings.getColors()[0]);
-			buf.writeVector3f(wings.getColors()[1]);
-			buf.writeString(wings.getPattern());
-			ServerPlayNetworking.send(player, WING_DATA_S2C_PACKET_ID, buf);
+			UltraComponents.WING_DATA.get(player).sync();
+			//buf = new PacketByteBuf(Unpooled.buffer());
+			//buf.writeUuid(targetID);
+			//buf.writeBoolean(wings.isVisible());
+			//buf.writeVector3f(wings.getColors()[0]);
+			//buf.writeVector3f(wings.getColors()[1]);
+			//buf.writeString(wings.getPattern());
+			//ServerPlayNetworking.send(player, WING_DATA_S2C_PACKET_ID, buf);
 		});
 		ServerPlayNetworking.registerGlobalReceiver(SKIM_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			if(player == null)

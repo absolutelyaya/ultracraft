@@ -11,4 +11,5 @@ public interface IWingDataComponent extends ComponentV3
 	void setPattern(String id);
 	boolean isVisible();
 	void setVisible(boolean b);
+	void sync();
 }

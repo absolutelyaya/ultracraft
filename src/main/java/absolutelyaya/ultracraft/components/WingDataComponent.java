@@ -1,11 +1,14 @@
 package absolutelyaya.ultracraft.components;
 
+import absolutelyaya.ultracraft.UltraComponents;
+import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.client.UltracraftClient;
+import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3f;
 
-public class WingDataComponent implements IWingDataComponent
+public class WingDataComponent implements IWingDataComponent, AutoSyncedComponent
 {
 	Vector3f[] wingColors = new Vector3f[] { new Vector3f(247f / 255f, 1f, 154f / 255f), new Vector3f(117f / 255f, 154f / 255f, 1f) };
 	String wingPattern = "";
@@ -20,6 +23,8 @@ public class WingDataComponent implements IWingDataComponent
 	@Override
 	public Vector3f[] getColors()
 	{
+		if(UltracraftClient.getConfigHolder().get().blockedPlayers.contains(provider.getUuid()))
+			return UltracraftClient.getDefaultWingColors();
 		return wingColors;
 	}
 	
@@ -32,7 +37,7 @@ public class WingDataComponent implements IWingDataComponent
 	@Override
 	public String getPattern()
 	{
-		return wingPattern;
+		return Ultracraft.checkSupporter(provider.getUuid(), provider.getWorld().isClient) ? wingPattern : "";
 	}
 	
 	@Override
@@ -51,6 +56,11 @@ public class WingDataComponent implements IWingDataComponent
 	public void setVisible(boolean b)
 	{
 		visible = b;
+	}
+	
+	public void sync()
+	{
+		UltraComponents.WING_DATA.sync(provider);
 	}
 	
 	NbtCompound serializeColor(Vector3f color)

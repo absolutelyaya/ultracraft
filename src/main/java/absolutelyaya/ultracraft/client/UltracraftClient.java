@@ -76,10 +76,10 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Uuids;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import org.joml.Vector3f;
 import software.bernie.geckolib.network.GeckoLibNetwork;
 
 import java.util.UUID;
@@ -105,8 +105,8 @@ public class UltracraftClient implements ClientModInitializer
 	static boolean disableHandswap = false, slamStorage = true, fallDamage = false, drowning = false, effectivelyViolent = false, wasMovementSoundsEnabled, parryChaining, supporter = false, joinInfoPending, terminalProt;
 	public static int jumpBoost, speed, gravityReduction;
 	static float screenblood;
-	static Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f, 255f, 154f), new Vec3d(117f, 154f, 255f) };
-	static final Vec3d[] defaultWingColors = new Vec3d[] { new Vec3d(247f, 255f, 154f), new Vec3d(117f, 154f, 255f) };
+	static Vector3f[] wingColors = new Vector3f[] { new Vector3f(247f, 255f, 154f), new Vector3f(117f, 154f, 255f) };
+	static final Vector3f[] defaultWingColors = new Vector3f[] { new Vector3f(247f, 255f, 154f), new Vector3f(117f, 154f, 255f) };
 	static int visualFreezeTicks;
 	
 	static UltraHudRenderer hudRenderer;
@@ -199,19 +199,18 @@ public class UltracraftClient implements ClientModInitializer
 		WorldRenderEvents.END.register((context) -> hudRenderer.render(context.tickDelta(), context.camera()));
 		
 		ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> {
-			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-			buf.writeBoolean(isHiVelEnabled());
-			buf.writeVector3f(getWingColors()[0].toVector3f());
-			buf.writeVector3f(getWingColors()[1].toVector3f());
-			buf.writeString(wingPattern);
-			ClientPlayNetworking.send(PacketRegistry.SEND_WINGED_DATA_C2S_PACKET_ID, buf);
-			
 			refreshSupporter();
-			IWingDataComponent wings = (UltraComponents.WING_DATA.get(client.player));
-			wings.setColor(wingColors[0].toVector3f(), 0);
-			wings.setColor(wingColors[1].toVector3f(), 1);
+			IWingDataComponent wings = UltraComponents.WING_DATA.get(client.player);
+			wings.setColor(wingColors[0], 0);
+			wings.setColor(wingColors[1], 1);
 			wings.setPattern(wingPattern);
 			wings.setVisible(isHiVelEnabled());
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeBoolean(wings.isVisible());
+			buf.writeVector3f(wings.getColors()[0]);
+			buf.writeVector3f(wings.getColors()[1]);
+			buf.writeString(wings.getPattern());
+			ClientPlayNetworking.send(PacketRegistry.SEND_WING_DATA_C2S_PACKET_ID, buf);
 			if(config.get().showEpilepsyWarning)
 				MinecraftClient.getInstance().setScreen(new EpilepsyPopupScreen(null));
 			if(config.get().serverJoinInfo)
@@ -227,6 +226,7 @@ public class UltracraftClient implements ClientModInitializer
 					sound.play(new MovingSlideSoundInstance(player));
 					sound.play(new MovingWindSoundInstance(player));
 				}
+				UltraComponents.WING_DATA.get(player).sync();
 				if(player.getUuid().equals(MinecraftClient.getInstance().player.getUuid()))
 					return;
 				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
@@ -330,8 +330,8 @@ public class UltracraftClient implements ClientModInitializer
 			MinecraftClient.getInstance().player.sendMessage(Text.of("Something Wicked this way comes"), true);
 		}, SoundEvents.ENTITY_PLAYER_BREATH, 1.15f));
 		
-		setWingColor(config.get().wingColors[0], 0);
-		setWingColor(config.get().wingColors[1], 1);
+		setWingColor(config.get().wingColors[0].toVector3f(), 0);
+		setWingColor(config.get().wingColors[1].toVector3f(), 1);
 		wingPreset = config.get().wingPreset;
 		setWingPattern(config.get().wingPattern);
 		
@@ -416,7 +416,7 @@ public class UltracraftClient implements ClientModInitializer
 		GameruleRegistry.Setting option = HiVelOption;
 		if(option.equals(GameruleRegistry.Setting.FREE))
 		{
-			HiVelMode = !HiVelMode;
+			setHiVel(!HiVelMode, false);
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeBoolean(isHiVelEnabled());
 			ClientPlayNetworking.send(PacketRegistry.SEND_WING_STATE_C2S_PACKET_ID, buf);
@@ -446,6 +446,8 @@ public class UltracraftClient implements ClientModInitializer
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeBoolean(isHiVelEnabled());
 			ClientPlayNetworking.send(PacketRegistry.SEND_WING_STATE_C2S_PACKET_ID, buf);
+			IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
+			wings.setVisible(isHiVelEnabled());
 		}
 	}
 	
@@ -522,19 +524,19 @@ public class UltracraftClient implements ClientModInitializer
 		return flesh;
 	}
 	
-	public static void setWingColor(Vec3d val, int idx)
+	public static void setWingColor(Vector3f val, int idx)
 	{
 		wingColors[idx] = val;
 		if(MinecraftClient.getInstance().player != null && MinecraftClient.getInstance().player instanceof WingedPlayerEntity winged)
-			UltraComponents.WING_DATA.get(winged).setColor(val.toVector3f(), idx);
+			UltraComponents.WING_DATA.get(winged).setColor(val, idx);
 	}
 	
-	public static Vec3d[] getWingColors()
+	public static Vector3f[] getWingColors()
 	{
 		return wingColors;
 	}
 	
-	public static Vec3d[] getDefaultWingColors()
+	public static Vector3f[] getDefaultWingColors()
 	{
 		return defaultWingColors;
 	}

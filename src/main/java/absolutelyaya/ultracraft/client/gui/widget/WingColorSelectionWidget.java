@@ -71,7 +71,7 @@ public class WingColorSelectionWidget implements Element, Drawable, Selectable, 
 		}).dimensions(x + 2, y + 80, 155 / 2 - 2, 20).build();
 		revert = ButtonWidget.builder(Text.translatable("screen.ultracraft.wing-settings.revert"), button -> {
 			int idx = getPickerType() ? 1 : 0;
-			UltracraftClient.setWingColor(startColorSupplier.apply(type), idx);
+			UltracraftClient.setWingColor(startColorSupplier.apply(type).toVector3f(), idx);
 			setType(getPickerType());
 		}).dimensions(x + 1 + 155 / 2, y + 80, 155 / 2 - 2, 20).build();
 		typeSwitch = ButtonWidget.builder(Text.of(">"), button -> setType(!getPickerType())).dimensions(x + width - 13, y, 13, 13).build();
@@ -146,7 +146,7 @@ public class WingColorSelectionWidget implements Element, Drawable, Selectable, 
 		green.setFullColor(c);
 		blue.setFullColor(c);
 		
-		UltracraftClient.setWingColor(new Vec3d(red.getValue() * 0xff, green.getValue() * 0xff, blue.getValue() * 0xff), type ? 1 : 0);
+		UltracraftClient.setWingColor(new Vector3f((float)red.getValue() * 0xff, (float)green.getValue() * 0xff, (float)blue.getValue() * 0xff), type ? 1 : 0);
 		if(!initial)
 			UltracraftClient.wingPreset = "";
 	}
@@ -175,7 +175,7 @@ public class WingColorSelectionWidget implements Element, Drawable, Selectable, 
 		green.setFullColor(c);
 		blue.setFullColor(c);
 		
-		UltracraftClient.setWingColor(new Vec3d(r, g, b), type ? 1 : 0);
+		UltracraftClient.setWingColor(new Vector3f(r, g, b), type ? 1 : 0);
 		UltracraftClient.wingPreset = "";
 	}
 	
@@ -297,7 +297,7 @@ public class WingColorSelectionWidget implements Element, Drawable, Selectable, 
 		type = b;
 		title = type ? Text.translatable("screen.ultracraft.wing-settings.metal") : Text.translatable("screen.ultracraft.wing-settings.wing");
 		
-		Vec3d[] colors = UltracraftClient.getWingColors();
+		Vector3f[] colors = UltracraftClient.getWingColors();
 		if(type)
 		{
 			red.setValue(colors[1].x / 255f);

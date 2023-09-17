@@ -15,10 +15,7 @@
     "ProjectileEntityMixin",
     "ServerEntityHandlerMixin",
     "ServerWorldMixin",
-    "WorldMixin",
-    "compat.sodium.DefaultMaterialsMixin",
-    "compat.sodium.DefaultTerrainRenderPassesMixin",
-    "compat.sodium.SodiumWorldRendererMixin"
+    "WorldMixin"
   ],
   "client": [
     "client.render.BackgroundRendererMixin",
@@ -43,7 +40,10 @@
     "client.render.RenderLayerMixin",
     "client.gui.SkinOptionsScreenMixin",
     "client.gui.TitleScreenMixin",
-    "client.render.WorldRendererMixin"
+    "client.render.WorldRendererMixin",
+    "compat.sodium.DefaultMaterialsMixin",
+    "compat.sodium.DefaultTerrainRenderPassesMixin",
+    "compat.sodium.SodiumWorldRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

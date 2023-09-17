@@ -1,20 +1,16 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.ExplosionHandler;
-import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ITrailEnjoyer;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
-import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.compat.PlayerAnimator;
-import absolutelyaya.ultracraft.components.IWingDataComponent;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
-import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -26,7 +22,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
@@ -116,49 +111,6 @@ public class ClientPacketRegistry
 				}
 			});
 		})));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.WING_STATE_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
-			if(client.player == null)
-				return;
-			PlayerEntity player = client.player.getWorld().getPlayerByUuid(buf.readUuid());
-			if(player == null)
-				return;
-			boolean b = buf.readBoolean();
-			MinecraftClient.getInstance().execute(() -> {
-				WingedPlayerEntity winged = ((WingedPlayerEntity)player);
-				winged.setWingsVisible(b);
-			});
-		}));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.WING_DATA_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
-			if(client.player == null)
-				return;
-			UUID id = buf.readUuid();
-			PlayerEntity player = client.player.getWorld().getPlayerByUuid(id);
-			if(player == null)
-				return;
-			boolean b = buf.readBoolean();
-			Vector3f wingColor = buf.readVector3f(), metalColor = buf.readVector3f();
-			String pattern = buf.readString();
-			MinecraftClient.getInstance().execute(() -> {
-				Ultraconfig config = UltracraftClient.getConfigHolder().get();
-				IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
-				WingedPlayerEntity winged = (WingedPlayerEntity)player;
-				wings.setVisible(b);
-				if(config.blockedPlayers.contains(id))
-				{
-					winged.setBlocked(true);
-					Vec3d[] colors = UltracraftClient.getDefaultWingColors();
-					wings.setColor(colors[0].toVector3f(), 0);
-					wings.setColor(colors[1].toVector3f(), 1);
-					wings.setPattern("");
-					return;
-				}
-				else
-					winged.setBlocked(false);
-				wings.setColor(wingColor, 0);
-				wings.setColor(metalColor, 1);
-				wings.setPattern(UltracraftClient.getConfigHolder().get().safeVFX ? "" : pattern);
-			});
-		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SET_GUNCD_PACKET_ID, ((client, handler, buf, sender) -> {
 			Item item = buf.readItemStack().getItem();
 			int ticks = buf.readInt();
@@ -270,9 +222,6 @@ public class ClientPacketRegistry
 				if(!b)
 				{
 					UltracraftClient.getConfigHolder().get().blockedPlayers.add(target);
-					PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
-					cbuf.writeUuid(target);
-					ClientPlayNetworking.send(PacketRegistry.REQUEST_WINGED_DATA_PACKET_ID, cbuf);
 					UltracraftClient.getConfigHolder().save();
 				}
 				client.player.sendMessage(Text.translatable("command.ultracraft.block.client-" + (b ? "fail" : "success")));
@@ -283,9 +232,6 @@ public class ClientPacketRegistry
 				return;
 			UUID target = buf.readUuid();
 			MinecraftClient.getInstance().execute(() -> {
-				PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
-				cbuf.writeUuid(target);
-				ClientPlayNetworking.send(PacketRegistry.REQUEST_WINGED_DATA_PACKET_ID, cbuf);
 				boolean b = UltracraftClient.getConfigHolder().get().blockedPlayers.remove(target);
 				UltracraftClient.getConfigHolder().save();
 				client.player.sendMessage(Text.translatable("command.ultracraft.unblock.client-" + (b ? "success" : "fail")));

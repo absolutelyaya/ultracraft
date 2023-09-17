@@ -40,7 +40,6 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 	@Override
 	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch)
 	{
-		WingedPlayerEntity winged = ((WingedPlayerEntity)entity);
 		HideWingsSetting hideWings = UltracraftClient.getConfigHolder().get().hideWings;
 		switch(hideWings)
 		{
@@ -57,9 +56,10 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 			}
 			case NONE -> {}
 		}
-		if(winged.isWingsActive() || (entity.isMainPlayer() && WingCustomizationScreen.MenuOpen))
+		WingedPlayerEntity winged = ((WingedPlayerEntity)entity);
+		IWingDataComponent wings = UltraComponents.WING_DATA.get(entity);
+		if(wings.isVisible() || (entity.isMainPlayer() && WingCustomizationScreen.MenuOpen))
 		{
-			IWingDataComponent wings = UltraComponents.WING_DATA.get(entity);
 			Vector3f[] clrs = wings.getColors();
 			String patternID = wings.getPattern();
 			WingPatterns.WingPattern p = null;

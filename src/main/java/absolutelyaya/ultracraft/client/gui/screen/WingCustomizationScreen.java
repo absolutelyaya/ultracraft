@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.client.gui.screen;
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WidgetAccessor;
+import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.widget.WingColorSelectionWidget;
 import absolutelyaya.ultracraft.components.IWingDataComponent;
@@ -31,11 +32,9 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
-import org.joml.Matrix4f;
-import org.joml.Vector2i;
-import org.joml.Vector3i;
-import org.joml.Vector4f;
+import org.joml.*;
 
+import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -62,7 +61,7 @@ public class WingCustomizationScreen extends Screen
 	Tab tab = Tab.MAIN;
 	ButtonWidget closeButton;
 	WingColorSelectionWidget top, bottom;
-	Vec3d startWingColor, startMetalColor;
+	Vector3f startWingColor, startMetalColor;
 	
 	public WingCustomizationScreen(Screen parent)
 	{
@@ -311,7 +310,7 @@ public class WingCustomizationScreen extends Screen
 	
 	Vec3d getStartColor(Boolean type)
 	{
-		return type ? startMetalColor : startWingColor;
+		return new Vec3d(type ? startMetalColor : startWingColor);
 	}
 	
 	@Override
@@ -325,9 +324,11 @@ public class WingCustomizationScreen extends Screen
 		if(client.player != null)
 			client.player.setPitch(prevPitch);
 		MenuOpen = false;
-		UltracraftClient.getConfigHolder().getConfig().wingColors = UltracraftClient.getWingColors();
-		UltracraftClient.getConfigHolder().getConfig().wingPreset = UltracraftClient.wingPreset;
-		UltracraftClient.getConfigHolder().getConfig().wingPattern = UltracraftClient.wingPattern;
+		Ultraconfig config = UltracraftClient.getConfigHolder().getConfig();
+		config.wingColors[0] = new Vec3d(UltracraftClient.getWingColors()[0]);
+		config.wingColors[1] = new Vec3d(UltracraftClient.getWingColors()[1]);
+		config.wingPreset = UltracraftClient.wingPreset;
+		config.wingPattern = UltracraftClient.wingPattern;
 		UltracraftClient.getConfigHolder().save();
 		if(tab == Tab.PRESETS)
 			WingColorPresetManager.unloadPresets();
@@ -338,7 +339,7 @@ public class WingCustomizationScreen extends Screen
 		buf.writeVector3f(wings.getColors()[0]);
 		buf.writeVector3f(wings.getColors()[1]);
 		buf.writeString(wings.getPattern());
-		ClientPlayNetworking.send(PacketRegistry.SEND_WINGED_DATA_C2S_PACKET_ID, buf);
+		ClientPlayNetworking.send(PacketRegistry.SEND_WING_DATA_C2S_PACKET_ID, buf);
 	}
 	
 	@Override
@@ -408,8 +409,8 @@ public class WingCustomizationScreen extends Screen
 	{
 		PreviewButton pb = ((PreviewButton)button);
 		UltracraftClient.wingPreset = pb.id;
-		UltracraftClient.setWingColor(pb.preset.wings().multiply(255), 0);
-		UltracraftClient.setWingColor(pb.preset.metal().multiply(255), 1);
+		UltracraftClient.setWingColor(pb.preset.wings().multiply(255).toVector3f(), 0);
+		UltracraftClient.setWingColor(pb.preset.metal().multiply(255).toVector3f(), 1);
 		top.setType(top.getPickerType());
 		if(bottom != null)
 			bottom.setType(bottom.getPickerType());
@@ -599,8 +600,8 @@ public class WingCustomizationScreen extends Screen
 			super(x, y, width, height, Text.translatable("pattern.ultracraft." + id), onPress, DEFAULT_NARRATION_SUPPLIER);
 			this.pattern = pattern;
 			this.preset = null;
-			wingColor = UltracraftClient.getWingColors()[0].multiply(id.equals("none") ? 1f / 255f : 1f);
-			metalColor = UltracraftClient.getWingColors()[1].multiply(id.equals("none") ? 1f / 255f : 1f);
+			wingColor = new Vec3d(new Vector3f(UltracraftClient.getWingColors()[0]).mul(id.equals("none") ? 1f / 255f : 1f));
+			metalColor = new Vec3d(new Vector3f(UltracraftClient.getWingColors()[1]).mul(id.equals("none") ? 1f / 255f : 1f));
 			textColor = pattern.textColor();
 			this.id = id;
 			this.appearTime = appearTime;
