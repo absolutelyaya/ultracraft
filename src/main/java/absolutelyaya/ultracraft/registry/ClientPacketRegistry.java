@@ -4,7 +4,6 @@ import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ITrailEnjoyer;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
@@ -12,6 +11,9 @@ import absolutelyaya.ultracraft.compat.PlayerAnimator;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
+import absolutelyaya.ultracraft.recipe.UltraRecipe;
+import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
+import com.google.common.collect.ImmutableMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -31,11 +33,14 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import org.joml.Vector3f;
 
+import java.util.List;
 import java.util.UUID;
 
 import static absolutelyaya.ultracraft.registry.PacketRegistry.*;
@@ -292,6 +297,13 @@ public class ClientPacketRegistry
 					client.player.getWorld().addParticle(ParticleRegistry.SOAP_BUBBLE, pos1.x, pos1.y, pos1.z, vel.x, vel.y, vel.z);
 				}
 			});
+		})));
+		ClientPlayNetworking.registerGlobalReceiver(ULTRA_RECIPE_PACKET_ID, (((client, handler, buf, responseSender) -> {
+			List<Pair<Identifier, UltraRecipe>> list = buf.readList(UltraRecipe::deserialize);
+			ImmutableMap.Builder<Identifier, UltraRecipe> builder = ImmutableMap.builder();
+			for(Pair<Identifier, UltraRecipe> pair : list)
+				builder.put(pair.getLeft(), pair.getRight());
+			UltraRecipeManager.setRecipes(builder.build());
 		})));
 	}
 }

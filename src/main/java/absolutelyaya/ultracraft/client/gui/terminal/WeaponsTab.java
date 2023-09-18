@@ -7,9 +7,12 @@ import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Sprite;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
 import absolutelyaya.ultracraft.components.IProgressionComponent;
+import absolutelyaya.ultracraft.recipe.UltraRecipe;
+import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.joml.Vector2f;
@@ -37,14 +40,15 @@ public class WeaponsTab extends Tab
 	Button craftButton = new Button("terminal.craft", new Vector2i(150, 96 - textRenderer.fontHeight), "craft", 0, true);
 	final String[] weaponCategories = new String[] { "revolver", "shotgun", "nailgun", "railcannon", "rocket_launcher" };
 	Button blueWeapon = new Button(new Sprite(TEXTURE, new Vector2i(0, 0), 0.001f, new Vector2i(48, 32), new Vector2i(0, 0), new Vector2i(192, 192)),
-			new Vector2i(50, 23), "blue", 0, true);
+			new Vector2i(50, 23), "weapon", 0, true);
 	Button greenWeapon = new Button(new Sprite(TEXTURE, new Vector2i(0, 0), 0.001f, new Vector2i(48, 32), new Vector2i(48, 0), new Vector2i(192, 192)),
-			new Vector2i(26, 58), "green", 0, true);
+			new Vector2i(26, 58), "weapon", 1, true);
 	Button redWeapon = new Button(new Sprite(TEXTURE, new Vector2i(0, 0), 0.001f, new Vector2i(48, 32), new Vector2i(96, 0), new Vector2i(192, 192)),
-			new Vector2i(75, 58), "red", 0, true);
+			new Vector2i(75, 58), "weapon", 2, true);
 	List<Button> weaponCategoryButtons = new ArrayList<>();
 	int selectedCategory = -1;
 	Identifier selectedWeapon;
+	UltraRecipe selectedRecipe;
 	
 	public WeaponsTab()
 	{
@@ -127,37 +131,32 @@ public class WeaponsTab extends Tab
 			updateWeaponButton(blueWeapon, 0, selectedWeaponTypeIds, progression);
 			updateWeaponButton(greenWeapon, 1, selectedWeaponTypeIds, progression);
 			updateWeaponButton(redWeapon, 2, selectedWeaponTypeIds, progression);
+			updateSelectedWeapon(selectedWeaponTypeIds, -1);
 			return true;
 		}
 		
 		Identifier[] selectedWeaponTypeIds = getWeaponListForType(selectedCategory);
 		switch(action)
 		{
-			case "blue" -> {
-				if(selectedWeaponTypeIds.length < 1)
-					return true;
-				selectedWeapon = selectedWeaponTypeIds[0];
-				return true;
-			}
-			case "green" -> {
-				if(selectedWeaponTypeIds.length < 2)
-					return true;
-				selectedWeapon = selectedWeaponTypeIds[1];
-				return true;
-			}
-			case "red" -> {
-				if(selectedWeaponTypeIds.length < 3)
-					return true;
-				selectedWeapon = selectedWeaponTypeIds[2];
-				return true;
+			case "weapon" -> {
+				return updateSelectedWeapon(selectedWeaponTypeIds, value);
 			}
 			case "craft" -> {
-				//TODO: check if Player has Recipe Items
-				//TODO: add recipe System (bonus points if data oriented / datapack support)
-				//TODO: double check if weapon is unlocked
+				if(selectedRecipe == null)
+				{
+					craftButton.setClickable(false);
+					return true;
+				}
+				PlayerEntity player = MinecraftClient.getInstance().player;
+				if(selectedRecipe.canCraft(player) == 0)
+				{
+					player.sendMessage(Text.of("Insufficient Materials"));
+					return true;
+				}
+				selectedRecipe.craft(player);
+				player.sendMessage(Text.of("crafting successful!"));
+				
 				//TODO: unlock follow-up weapons (blue -> green & red)
-				//TODO: remove items from crafter
-				//TODO: obtain item
 				
 				//TODO: if weapon has been obtained and no Variant of this Weapon is held, give it as an item
 				return true;
@@ -177,6 +176,24 @@ public class WeaponsTab extends Tab
 		}
 		else
 			button.setClickable(true).setColor(0xffffffff);
+	}
+	
+	boolean updateSelectedWeapon(Identifier[] selectedWeaponTypeIds, int idx)
+	{
+		if(selectedWeaponTypeIds.length < idx + 1)
+			return true;
+		if(idx == -1)
+		{
+			selectedWeapon = null;
+			selectedRecipe = null;
+		}
+		else
+		{
+			selectedWeapon = selectedWeaponTypeIds[idx];
+			selectedRecipe = UltraRecipeManager.getRecipe(selectedWeapon);
+		}
+		craftButton.setClickable(selectedRecipe != null);
+		return true;
 	}
 	
 	@Override

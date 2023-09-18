@@ -136,7 +136,7 @@ public class GameruleRegistry
 		ServerPlayNetworking.send(player, PacketRegistry.SYNC_RULE_PACKET_ID, buf);
 	}
 	
-	public static void SyncAll(ServerPlayerEntity player)
+	public static void syncAll(ServerPlayerEntity player)
 	{
 		OnChanged(player, (byte)1, player.server.getGameRules().get(HIVEL_MODE).get().ordinal());
 		OnChanged(player, (byte)2, player.server.getGameRules().get(TIME_STOP).get().ordinal());

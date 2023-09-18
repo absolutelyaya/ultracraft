@@ -1,0 +1,7 @@
+{
+  "materials": [
+    { "item": "minecraft:iron_ingot", "count": 69 }
+  ],
+  "result": "ultracraft:pierce_revolver",
+  "extra-output": []
+}

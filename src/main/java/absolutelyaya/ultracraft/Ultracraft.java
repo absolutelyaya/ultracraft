@@ -3,6 +3,8 @@ package absolutelyaya.ultracraft;
 import absolutelyaya.ultracraft.command.UltracraftCommand;
 import absolutelyaya.ultracraft.item.MarksmanRevolverItem;
 import absolutelyaya.ultracraft.item.SharpshooterRevolverItem;
+import absolutelyaya.ultracraft.recipe.UltraRecipe;
+import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
 import absolutelyaya.ultracraft.registry.*;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
@@ -15,11 +17,18 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.Item;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.ResourceType;
+import net.minecraft.server.DataPackContents;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import org.slf4j.Logger;
 
@@ -39,6 +48,7 @@ public class Ultracraft implements ModInitializer
 	public static boolean DYN_LIGHTS;
 	static int freezeTicks;
     static Map<UUID, Integer> supporterCache = new HashMap<>(), supporterCacheAdditions = new HashMap<>();
+    public static final UltraRecipeManager RECIPE_MANAGER = new UltraRecipeManager();
     
     @Override
     public void onInitialize()
@@ -84,8 +94,11 @@ public class Ultracraft implements ModInitializer
             });
         });
         
-        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((serverPlayer, lastWorld, newWorld) -> GameruleRegistry.SyncAll(serverPlayer));
-        ServerPlayConnectionEvents.JOIN.register((networkHandler, sender, server) -> GameruleRegistry.SyncAll(networkHandler.player));
+        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((serverPlayer, lastWorld, newWorld) -> GameruleRegistry.syncAll(serverPlayer));
+        ServerPlayConnectionEvents.JOIN.register((networkHandler, sender, server) -> {
+            GameruleRegistry.syncAll(networkHandler.player);
+            UltraRecipeManager.sync(networkHandler.player);
+        });
         
         FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer -> VERSION = modContainer.getMetadata().getVersion().getFriendlyString());
         FabricLoader.getInstance().getModContainer("lambdynlights").ifPresent(container -> DYN_LIGHTS = true);
