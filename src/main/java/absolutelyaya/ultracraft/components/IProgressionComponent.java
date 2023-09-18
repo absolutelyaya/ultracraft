@@ -8,11 +8,15 @@ import java.util.List;
 
 public interface IProgressionComponent extends ComponentV3, AutoSyncedComponent
 {
+	void lock(Identifier id);
+	
 	void unlock(Identifier id);
 	
 	boolean isUnlocked(Identifier id);
 	
 	List<Identifier> getUnlockedList();
+	
+	void disown(Identifier id);
 	
 	void obtain(Identifier id);
 	

@@ -1,15 +1,18 @@
 package absolutelyaya.ultracraft.command;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.components.IProgressionComponent;
 import absolutelyaya.ultracraft.entity.machine.DestinyBondSwordsmachineEntity;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.command.CommandSource;
@@ -19,14 +22,19 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.function.TriFunction;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
+import static com.mojang.brigadier.arguments.StringArgumentType.string;
 import static net.minecraft.command.argument.EntityArgumentType.player;
+import static net.minecraft.command.argument.IdentifierArgumentType.identifier;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
@@ -42,8 +50,17 @@ public class UltracraftCommand
 				.then(literal("freeze").then(argument("ticks", integer(1)).executes(UltracraftCommand::executeFreeze)))
 				.then(literal("unfreeze").executes(UltracraftCommand::executeUnfreeze)))
 			.then(literal("debug").requires(source -> source.hasPermissionLevel(2))
-				.then(literal("ricoshot_warn").then(argument("pos", Vec3ArgumentType.vec3()).executes(UltracraftCommand::executeDebugRicoshotWarn)))));
-		dispatcher.register(literal("ultrasummon").requires(source -> source.hasPermissionLevel(2)).then(argument("type", StringArgumentType.string()).suggests((context, builder) -> CommandSource.suggestMatching(List.of("\"tundra//agony\""), builder)).then(argument("pos", Vec3ArgumentType.vec3()).then(argument("yaw", DoubleArgumentType.doubleArg()).executes(UltracraftCommand::executeSpecialSpawn)))));
+				.then(literal("ricoshot_warn").then(argument("pos", Vec3ArgumentType.vec3()).executes(UltracraftCommand::executeDebugRicoshotWarn))))
+			.then(literal("progression").requires(source -> source.hasPermissionLevel(2)).then(argument("list", string()).suggests(UltracraftCommand::ProgressionListProvider)
+				.then(literal("list").then(argument("target", player()).executes(UltracraftCommand::executeProgressionList)))
+				.then(literal("grant").then(argument("target", player()).then(argument("entry", identifier()).executes(UltracraftCommand::executeProgressionGrant))))
+				.then(literal("revoke").then(argument("target", player()).then(argument("entry", identifier()).suggests(UltracraftCommand::progressionListProvider).executes(UltracraftCommand::executeProgressionRevoke))))))
+			.then(literal("graffiti").requires(source -> source.hasPermissionLevel(2))
+				.then(literal("whitelist")
+					.then(literal("list"))
+					.then(literal("add"))
+					.then(literal("remove"))))); //TODO: Add Graffiti Whitelist
+		dispatcher.register(literal("ultrasummon").requires(source -> source.hasPermissionLevel(2)).then(argument("type", string()).suggests((context, builder) -> CommandSource.suggestMatching(List.of("\"tundra//agony\""), builder)).then(argument("pos", Vec3ArgumentType.vec3()).then(argument("yaw", DoubleArgumentType.doubleArg()).executes(UltracraftCommand::executeSpecialSpawn)))));
 	}
 	
 	static int executeInfo(CommandContext<ServerCommandSource> context)
@@ -141,6 +158,89 @@ public class UltracraftCommand
 		};
 		if(spawnConsumer != null)
 			spawnConsumer.apply(context.getSource().getWorld(), pos, (float)yaw);
+		return Command.SINGLE_SUCCESS;
+	}
+	
+	static CompletableFuture<Suggestions> ProgressionListProvider(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder)
+	{
+		return builder.suggest("unlocked").suggest("obtained").buildFuture();
+	}
+	
+	static List<Identifier> getProgressionList(ServerPlayerEntity target, String type)
+	{
+		IProgressionComponent progression = UltraComponents.PROGRESSION.get(target);
+		return switch(type)
+		{
+			case "unlocked" -> progression.getUnlockedList();
+			case "obtained" -> progression.getOwnedList();
+			default -> new ArrayList<>();
+		};
+	}
+	
+	private static CompletableFuture<Suggestions> progressionListProvider(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder) throws CommandSyntaxException
+	{
+		ServerPlayerEntity target = EntityArgumentType.getPlayer(context, "target");
+		String list = context.getArgument("list", String.class);
+		getProgressionList(target, list).forEach(i -> builder.suggest(i.toString()));
+		return builder.buildFuture();
+	}
+	
+	private static int executeProgressionList(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
+	{
+		ServerPlayerEntity target = EntityArgumentType.getPlayer(context, "target");
+		String type = context.getArgument("list", String.class);
+		StringBuilder builder = new StringBuilder(Text.translatable("command.ultracraft.progression.list-prefix", target.getName(), type).getString());
+		List<Identifier> list = getProgressionList(target, type);
+		for (int i = 0; i < list.size(); i++)
+		{
+			builder.append(i % 2 == 0 ? "§6" : "§e");
+			builder.append(list.get(i));
+			if(i < list.size() - 1)
+				builder.append(", ");
+		}
+		if(list.size() == 0)
+			builder.append(Text.translatable("command.ultracraft.progression.list-empty").getString());
+		context.getSource().sendMessage(Text.of(builder.toString()));
+		return Command.SINGLE_SUCCESS;
+	}
+	
+	private static int executeProgressionGrant(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
+	{
+		ServerPlayerEntity target = EntityArgumentType.getPlayer(context, "target");
+		String type = context.getArgument("list", String.class);
+		Identifier entry = IdentifierArgumentType.getIdentifier(context, "entry");
+		IProgressionComponent progression = UltraComponents.PROGRESSION.get(target);
+		switch(type)
+		{
+			case "unlocked" -> progression.unlock(entry);
+			case "obtained" -> progression.obtain(entry);
+			default -> {
+				context.getSource().sendError(Text.translatable("command.ultracraft.progression.invalid_list"));
+				return Command.SINGLE_SUCCESS;
+			}
+		}
+		progression.sync();
+		context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.grant-success", entry, type, target.getName().getString()));
+		return Command.SINGLE_SUCCESS;
+	}
+	
+	private static int executeProgressionRevoke(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
+	{
+		ServerPlayerEntity target = EntityArgumentType.getPlayer(context, "target");
+		String type = context.getArgument("list", String.class);
+		Identifier entry = IdentifierArgumentType.getIdentifier(context, "entry");
+		IProgressionComponent progression = UltraComponents.PROGRESSION.get(target);
+		switch(type)
+		{
+			case "unlocked" -> progression.lock(entry);
+			case "obtained" -> progression.disown(entry);
+			default -> {
+				context.getSource().sendError(Text.translatable("command.ultracraft.progression.invalid_list"));
+				return Command.SINGLE_SUCCESS;
+			}
+		}
+		progression.sync();
+		context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.revoke-success", entry, type, target.getName().getString()));
 		return Command.SINGLE_SUCCESS;
 	}
 }

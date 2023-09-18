@@ -27,6 +27,12 @@ public class ProgressionComponent implements IProgressionComponent, AutoSyncedCo
 	}
 	
 	@Override
+	public void lock(Identifier id)
+	{
+		unlocked.remove(id);
+	}
+	
+	@Override
 	public void unlock(Identifier id)
 	{
 		if(!unlocked.contains(id))
@@ -45,6 +51,12 @@ public class ProgressionComponent implements IProgressionComponent, AutoSyncedCo
 	public List<Identifier> getUnlockedList()
 	{
 		return unlocked;
+	}
+	
+	@Override
+	public void disown(Identifier id)
+	{
+		owned.remove(id);
 	}
 	
 	@Override
@@ -94,6 +106,4 @@ public class ProgressionComponent implements IProgressionComponent, AutoSyncedCo
 			owned.add(NbtString.of(id.toString()));
 		tag.put("owned", owned);
 	}
-	
-	//TODO: add command to revoke / give progression shit
 }

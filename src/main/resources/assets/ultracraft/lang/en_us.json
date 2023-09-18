@@ -191,6 +191,11 @@
   "command.ultracraft.time-freeze.fail": "[Ultracraft] Can't freeze time while the Time Freezing Gamerule is disabled.",
   "command.ultracraft.time-unfreeze.success": "[Ultracraft] %s unfroze Time.",
   "command.ultracraft.time-unfreeze.fail": "[Ultracraft] Time isn't Frozen.",
+  "command.ultracraft.progression.invalid_list": "[Ultracraft] Given list type invalid; valid types: [unlocked, obtained]",
+  "command.ultracraft.progression.list-prefix": "[Ultracraft] %1$s's %2$s list: ",
+  "command.ultracraft.progression.list-empty": "Empty ( ._.)",
+  "command.ultracraft.progression.grant-success": "[Ultracraft] Granted progression entry '%1$s' in list %2$s to %3$s",
+  "command.ultracraft.progression.revoke-success": "[Ultracraft] Revoked progression entry '%1$s' in list %2$s from %3$s",
 
   "gamerule.ultracraft.category.general": "ULTRACRAFT",
   "gamerule.ultra-projBoost": "Projectile Boosting",

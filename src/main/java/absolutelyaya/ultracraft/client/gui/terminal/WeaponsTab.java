@@ -124,16 +124,9 @@ public class WeaponsTab extends Tab
 			redWeapon.getSprite().setUv(new Vector2i(96, 32 * value));
 			
 			Identifier[] selectedWeaponTypeIds = getWeaponListForType(value);
-			if(selectedWeaponTypeIds.length < 2 || !progression.isUnlocked(selectedWeaponTypeIds[1]))
-			{
-				greenWeapon.getSprite().setUv(new Vector2i(144, 160));
-				greenWeapon.setClickable(false).setColor(0xff888888);
-			}
-			if(selectedWeaponTypeIds.length < 3 || !progression.isUnlocked(selectedWeaponTypeIds[2]))
-			{
-				redWeapon.getSprite().setUv(new Vector2i(144, 160));
-				redWeapon.setClickable(false).setColor(0xff888888);
-			}
+			updateWeaponButton(blueWeapon, 0, selectedWeaponTypeIds, progression);
+			updateWeaponButton(greenWeapon, 1, selectedWeaponTypeIds, progression);
+			updateWeaponButton(redWeapon, 2, selectedWeaponTypeIds, progression);
 			return true;
 		}
 		
@@ -173,6 +166,17 @@ public class WeaponsTab extends Tab
 				return super.onButtonClicked(action, value);
 			}
 		}
+	}
+	
+	void updateWeaponButton(Button button, int idx, Identifier[] selectedWeaponTypeIds, IProgressionComponent progression)
+	{
+		if(selectedWeaponTypeIds.length < (idx + 1) || !progression.isUnlocked(selectedWeaponTypeIds[idx]))
+		{
+			button.getSprite().setUv(new Vector2i(144, 160));
+			button.setClickable(false).setColor(0xff888888);
+		}
+		else
+			button.setClickable(true).setColor(0xffffffff);
 	}
 	
 	@Override
