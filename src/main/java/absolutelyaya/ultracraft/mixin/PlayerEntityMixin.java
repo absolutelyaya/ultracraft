@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
+import absolutelyaya.ultracraft.components.IProgressionComponent;
 import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
@@ -24,6 +25,8 @@ import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -262,6 +265,26 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			return 0.05f;
 		else
 			return val;
+	}
+	
+	@Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
+	void onWriteCustomData(NbtCompound nbt, CallbackInfo ci)
+	{
+		NbtCompound progression = new NbtCompound();
+		UltraComponents.PROGRESSION.get(this).writeToNbt(progression);
+		nbt.put("progression", progression);
+	}
+	
+	@Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
+	void onReadCustomData(NbtCompound nbt, CallbackInfo ci)
+	{
+		if(nbt.contains("progression", NbtElement.COMPOUND_TYPE))
+		{
+			NbtCompound progression = nbt.getCompound("progression");
+			IProgressionComponent progressionComponent = UltraComponents.PROGRESSION.get(this);
+			progressionComponent.readFromNbt(progression);
+			progressionComponent.sync();
+		}
 	}
 	
 	@Override

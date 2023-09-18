@@ -64,7 +64,8 @@
     },
     "cardinal-components": [
       "ultracraft:wing_data",
-      "ultracraft:winged"
+      "ultracraft:winged",
+      "ultracraft:progression"
     ]
   },
   "accessWidener": "ultracraft.accesswidener"
