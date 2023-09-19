@@ -50,11 +50,11 @@ public class UltraRecipeManager extends JsonDataLoader
 	{
 		ImmutableMap.Builder<Identifier, UltraRecipe> builder = ImmutableMap.builder();
 		for (Map.Entry<Identifier, JsonElement> entry : map.entrySet()) {
-			Identifier identifier = entry.getKey();
+			Identifier id = entry.getKey();
 			try
 			{
-				UltraRecipe recipe = UltraRecipe.deserialize((JsonObject)entry.getValue());
-				builder.put(identifier, recipe);
+				UltraRecipe recipe = UltraRecipe.deserialize(id, (JsonObject)entry.getValue());
+				builder.put(id, recipe);
 			}
 			catch (JsonParseException | IllegalArgumentException exception)
 			{

@@ -2,11 +2,14 @@ package absolutelyaya.ultracraft.recipe;
 
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.components.IProgressionComponent;
+import absolutelyaya.ultracraft.registry.PacketRegistry;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -24,12 +27,14 @@ import java.util.Map;
 
 public class UltraRecipe
 {
+	final Identifier id;
 	final Map<Item, Integer> material;
 	final Identifier result;
 	final List<ItemStack> extraOutput;
 	
-	public UltraRecipe(Map<Item, Integer> material, Identifier result, List<ItemStack> extraOutput)
+	public UltraRecipe(Identifier id, Map<Item, Integer> material, Identifier result, List<ItemStack> extraOutput)
 	{
+		this.id = id;
 		this.material = material;
 		this.result = result;
 		this.extraOutput = extraOutput;
@@ -60,10 +65,17 @@ public class UltraRecipe
 		return result;
 	}
 	
-	public void craft(PlayerEntity player) //TODO: move to C2S packet and only run crafting logic and checks on Server
+	public void craft(PlayerEntity player)
 	{
 		if(canCraft(player) == 0)
 			return;
+		if(player.getWorld().isClient)
+		{
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeIdentifier(id);
+			ClientPlayNetworking.send(PacketRegistry.TERMINAL_WEAPON_CRAFT_PACKET_ID, buf);
+			return;
+		}
 		//grant owned progression Entry
 		IProgressionComponent progression = UltraComponents.PROGRESSION.get(player);
 		progression.obtain(result);
@@ -88,7 +100,7 @@ public class UltraRecipe
 		}
 	}
 	
-	public static UltraRecipe deserialize(JsonObject json)
+	public static UltraRecipe deserialize(Identifier id, JsonObject json)
 	{
 		JsonArray materialsIn = json.getAsJsonArray("materials");
 		ImmutableMap.Builder<Item, Integer> materialsBuilder = ImmutableMap.builder();
@@ -108,7 +120,7 @@ public class UltraRecipe
 					extraOutputsBuilder.add(new ItemStack(JsonHelper.getItem(object, "item"), JsonHelper.getInt(object, "count")));
 			});
 		}
-		return new UltraRecipe(materialsBuilder.build(), result, extraOutputsBuilder.build());
+		return new UltraRecipe(id, materialsBuilder.build(), result, extraOutputsBuilder.build());
 	}
 	
 	public JsonObject serialize()
@@ -153,7 +165,7 @@ public class UltraRecipe
 			if(object.contains("item"))
 				extraOutputsBuilder.add(ItemStack.fromNbt(object.getCompound("item")));
 		});
-		return new Pair<>(id, new UltraRecipe(materialsBuilder.build(), result, extraOutputsBuilder.build()));
+		return new Pair<>(id, new UltraRecipe(id, materialsBuilder.build(), result, extraOutputsBuilder.build()));
 	}
 	
 	public static void serialize(PacketByteBuf buf, Pair<Identifier, UltraRecipe> pair)

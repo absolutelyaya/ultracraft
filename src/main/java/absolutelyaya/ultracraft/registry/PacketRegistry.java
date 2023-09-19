@@ -12,6 +12,7 @@ import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.item.SoapItem;
+import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import net.bettercombat.utils.MathHelper;
@@ -61,6 +62,7 @@ public class PacketRegistry
 	public static final Identifier TERMINAL_SYNC_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "terminal_c2s");
 	public static final Identifier GRAFFITI_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "graffiti_c2s");
 	public static final Identifier TERMINAL_REDSTONE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "terminal_redstone");
+	public static final Identifier TERMINAL_WEAPON_CRAFT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "terminal_weapon_craft");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
@@ -76,7 +78,7 @@ public class PacketRegistry
 	public static final Identifier DEBUG_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "debug");
 	public static final Identifier SKIM_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "skim_s2c");
 	public static final Identifier COIN_PUNCH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "coinpunch");
-	public static final Identifier WORLD_INFO_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "world-info");
+	public static final Identifier WORLD_INFO_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "world_info");
 	public static final Identifier BLOCK_PLAYER_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "block");
 	public static final Identifier UNBLOCK_PLAYER_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "unblock");
 	public static final Identifier OPEN_SERVER_CONFIG_MENU_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "server_config");
@@ -84,7 +86,7 @@ public class PacketRegistry
 	public static final Identifier REPLENISH_STAMINA_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "replenish_stamina");
 	public static final Identifier ANIMATION_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "animation_s2c");
 	public static final Identifier SOAP_KILL_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "soapkill");
-	public static final Identifier ULTRA_RECIPE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ultra-recipe");
+	public static final Identifier ULTRA_RECIPE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ultra_recipe");
 	
 	public static void registerC2S()
 	{
@@ -402,6 +404,10 @@ public class PacketRegistry
 				if(be instanceof TerminalBlockEntity terminal)
 					terminal.redstoneImpulse((int)MathHelper.clamp(strength, 0, 15));
 			});
+		});
+		ServerPlayNetworking.registerGlobalReceiver(TERMINAL_WEAPON_CRAFT_PACKET_ID, (server, player, handler, buf, sender) -> {
+			Identifier recipe = buf.readIdentifier();
+			server.execute(() -> UltraRecipeManager.getRecipe(recipe).craft(player));
 		});
 	}
 	
