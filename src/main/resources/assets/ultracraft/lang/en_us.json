@@ -196,6 +196,7 @@
   "command.ultracraft.progression.list-empty": "Empty ( ._.)",
   "command.ultracraft.progression.grant-success": "[Ultracraft] Granted progression entry '%1$s' in list %2$s to %3$s",
   "command.ultracraft.progression.revoke-success": "[Ultracraft] Revoked progression entry '%1$s' in list %2$s from %3$s",
+  "command.ultracraft.progression.reset-success": "[Ultracraft] Reset progression for %s",
 
   "gamerule.ultracraft.category.general": "ULTRACRAFT",
   "gamerule.ultra-projBoost": "Projectile Boosting",

@@ -51,10 +51,12 @@ public class UltracraftCommand
 				.then(literal("unfreeze").executes(UltracraftCommand::executeUnfreeze)))
 			.then(literal("debug").requires(source -> source.hasPermissionLevel(2))
 				.then(literal("ricoshot_warn").then(argument("pos", Vec3ArgumentType.vec3()).executes(UltracraftCommand::executeDebugRicoshotWarn))))
-			.then(literal("progression").requires(source -> source.hasPermissionLevel(2)).then(argument("list", string()).suggests(UltracraftCommand::ProgressionListProvider)
-				.then(literal("list").then(argument("target", player()).executes(UltracraftCommand::executeProgressionList)))
-				.then(literal("grant").then(argument("target", player()).then(argument("entry", identifier()).executes(UltracraftCommand::executeProgressionGrant))))
-				.then(literal("revoke").then(argument("target", player()).then(argument("entry", identifier()).suggests(UltracraftCommand::progressionListProvider).executes(UltracraftCommand::executeProgressionRevoke))))))
+			.then(literal("progression").requires(source -> source.hasPermissionLevel(2))
+				.then(argument("list", string()).suggests(UltracraftCommand::ProgressionListProvider)
+					.then(literal("list").then(argument("target", player()).executes(UltracraftCommand::executeProgressionList)))
+					.then(literal("grant").then(argument("target", player()).then(argument("entry", identifier()).executes(UltracraftCommand::executeProgressionGrant))))
+					.then(literal("revoke").then(argument("target", player()).then(argument("entry", identifier()).suggests(UltracraftCommand::progressionListProvider).executes(UltracraftCommand::executeProgressionRevoke)))))
+				.then(literal("reset").then(argument("target", player()).executes(UltracraftCommand::executeProgressionReset))))
 			.then(literal("graffiti").requires(source -> source.hasPermissionLevel(2))
 				.then(literal("whitelist")
 					.then(literal("list"))
@@ -241,6 +243,16 @@ public class UltracraftCommand
 		}
 		progression.sync();
 		context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.revoke-success", entry, type, target.getName().getString()));
+		return Command.SINGLE_SUCCESS;
+	}
+	
+	private static int executeProgressionReset(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
+	{
+		ServerPlayerEntity target = EntityArgumentType.getPlayer(context, "target");
+		IProgressionComponent progression = UltraComponents.PROGRESSION.get(target);
+		progression.reset();
+		progression.sync();
+		context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.reset-success", target.getName()));
 		return Command.SINGLE_SUCCESS;
 	}
 }

@@ -118,20 +118,7 @@ public class WeaponsTab extends Tab
 		IProgressionComponent progression = UltraComponents.PROGRESSION.get(MinecraftClient.getInstance().player);
 		if(action.equals("select"))
 		{
-			if(selectedCategory >= 0)
-				weaponCategoryButtons.get(selectedCategory).getPos().add(5, 0);
-			weaponCategoryButtons.get(value).getPos().sub(5, 0);
-			selectedCategory = value;
-			
-			blueWeapon.getSprite().setUv(new Vector2i(0, 32 * value));
-			greenWeapon.getSprite().setUv(new Vector2i(48, 32 * value));
-			redWeapon.getSprite().setUv(new Vector2i(96, 32 * value));
-			
-			Identifier[] selectedWeaponTypeIds = getWeaponListForType(value);
-			updateWeaponButton(blueWeapon, 0, selectedWeaponTypeIds, progression);
-			updateWeaponButton(greenWeapon, 1, selectedWeaponTypeIds, progression);
-			updateWeaponButton(redWeapon, 2, selectedWeaponTypeIds, progression);
-			updateSelectedWeapon(selectedWeaponTypeIds, -1);
+			updateTab(value, progression);
 			return true;
 		}
 		
@@ -139,7 +126,7 @@ public class WeaponsTab extends Tab
 		switch(action)
 		{
 			case "weapon" -> {
-				return updateSelectedWeapon(selectedWeaponTypeIds, value);
+				return updateSelectedWeapon(selectedWeaponTypeIds, value, progression);
 			}
 			case "craft" -> {
 				if(selectedRecipe == null)
@@ -148,15 +135,10 @@ public class WeaponsTab extends Tab
 					return true;
 				}
 				PlayerEntity player = MinecraftClient.getInstance().player;
-				if(selectedRecipe.canCraft(player) == 0)
-				{
-					player.sendMessage(Text.of("Insufficient Materials"));
+				if(selectedRecipe.canCraft(player) <= 1)
 					return true;
-				}
 				selectedRecipe.craft(player);
 				player.sendMessage(Text.of("crafting successful!"));
-				
-				//TODO: unlock follow-up weapons (blue -> green & red)
 				
 				//TODO: if weapon has been obtained and no Variant of this Weapon is held, give it as an item
 				return true;
@@ -165,6 +147,29 @@ public class WeaponsTab extends Tab
 				return super.onButtonClicked(action, value);
 			}
 		}
+	}
+	
+	public void updateTab(int tab, IProgressionComponent progression)
+	{
+		if(selectedCategory >= 0)
+			weaponCategoryButtons.get(selectedCategory).getPos().add(5, 0);
+		weaponCategoryButtons.get(tab).getPos().sub(5, 0);
+		selectedCategory = tab;
+		
+		blueWeapon.getSprite().setUv(new Vector2i(0, 32 * tab));
+		greenWeapon.getSprite().setUv(new Vector2i(48, 32 * tab));
+		redWeapon.getSprite().setUv(new Vector2i(96, 32 * tab));
+		
+		Identifier[] selectedWeaponTypeIds = getWeaponListForType(tab);
+		updateWeaponButton(blueWeapon, 0, selectedWeaponTypeIds, progression);
+		updateWeaponButton(greenWeapon, 1, selectedWeaponTypeIds, progression);
+		updateWeaponButton(redWeapon, 2, selectedWeaponTypeIds, progression);
+		updateSelectedWeapon(selectedWeaponTypeIds, -1, progression);
+	}
+	
+	public void refreshTab()
+	{
+		updateTab(selectedCategory, UltraComponents.PROGRESSION.get(MinecraftClient.getInstance().player));
 	}
 	
 	void updateWeaponButton(Button button, int idx, Identifier[] selectedWeaponTypeIds, IProgressionComponent progression)
@@ -178,7 +183,7 @@ public class WeaponsTab extends Tab
 			button.setClickable(true).setColor(0xffffffff);
 	}
 	
-	boolean updateSelectedWeapon(Identifier[] selectedWeaponTypeIds, int idx)
+	boolean updateSelectedWeapon(Identifier[] selectedWeaponTypeIds, int idx, IProgressionComponent progression)
 	{
 		if(selectedWeaponTypeIds.length < idx + 1)
 			return true;
@@ -189,6 +194,12 @@ public class WeaponsTab extends Tab
 		}
 		else
 		{
+			if(!progression.isUnlocked(selectedWeaponTypeIds[idx]))
+			{
+				refreshTab();
+				craftButton.setClickable(selectedRecipe != null);
+				return true;
+			}
 			selectedWeapon = selectedWeaponTypeIds[idx];
 			selectedRecipe = UltraRecipeManager.getRecipe(selectedWeapon);
 		}

@@ -16,8 +16,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registries;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.Pair;
@@ -31,20 +33,27 @@ public class UltraRecipe
 	final Map<Item, Integer> material;
 	final Identifier result;
 	final List<ItemStack> extraOutput;
+	final List<Identifier> unlocks;
 	
-	public UltraRecipe(Identifier id, Map<Item, Integer> material, Identifier result, List<ItemStack> extraOutput)
+	public UltraRecipe(Identifier id, Map<Item, Integer> material, Identifier result, List<ItemStack> extraOutput, List<Identifier> unlocks)
 	{
 		this.id = id;
 		this.material = material;
 		this.result = result;
 		this.extraOutput = extraOutput;
+		this.unlocks = unlocks;
 	}
 	
 	public int canCraft(PlayerEntity player)
 	{
+		if(UltraComponents.PROGRESSION.get(player).isOwned(result))
+		{
+			player.sendMessage(Text.of("[Error#1] Result is already owned."));
+			return 1; //result is already owned
+		}
 		if(player.isCreativeLevelTwoOp())
-			return 1;
-		int result = 1;
+			return 2;
+		int result = 2;
 		for(Item item : material.keySet())
 		{
 			int count = 0;
@@ -54,20 +63,23 @@ public class UltraRecipe
 				{
 					count += stack.getCount();
 					if(stack.hasCustomName() || stack.hasEnchantments())
-						result = 2; //can craft, but some items that could get consumed might not be intended to be used for it
+						result = 3; //can craft, but some items that could get consumed might not be intended to be used for it
 					if(count >= material.get(item))
 						break; //item count is sufficient, lets stop counting
 				}
 			}
 			if(count < material.get(item))
+			{
+				player.sendMessage(Text.of("[Error#0]Insufficient Materials"));
 				return 0; //an item is insufficient; cannot craft
+			}
 		}
 		return result;
 	}
 	
 	public void craft(PlayerEntity player)
 	{
-		if(canCraft(player) == 0)
+		if(canCraft(player) <= 1)
 			return;
 		if(player.getWorld().isClient)
 		{
@@ -79,6 +91,11 @@ public class UltraRecipe
 		//grant owned progression Entry
 		IProgressionComponent progression = UltraComponents.PROGRESSION.get(player);
 		progression.obtain(result);
+		for (Identifier unlockID : unlocks)
+		{
+			progression.unlock(unlockID);
+			System.out.println(unlockID);
+		}
 		progression.sync();
 		//dispense extra output
 		for (ItemStack stack : extraOutput)
@@ -120,7 +137,11 @@ public class UltraRecipe
 					extraOutputsBuilder.add(new ItemStack(JsonHelper.getItem(object, "item"), JsonHelper.getInt(object, "count")));
 			});
 		}
-		return new UltraRecipe(id, materialsBuilder.build(), result, extraOutputsBuilder.build());
+		JsonArray unlocksIn = json.getAsJsonArray("unlocks");
+		ImmutableList.Builder<Identifier> unlocksBuilder = ImmutableList.builder();
+		if(unlocksIn != null)
+			unlocksIn.forEach(i -> unlocksBuilder.add(Identifier.tryParse(i.getAsString())));
+		return new UltraRecipe(id, materialsBuilder.build(), result, extraOutputsBuilder.build(), unlocksBuilder.build());
 	}
 	
 	public JsonObject serialize()
@@ -165,7 +186,11 @@ public class UltraRecipe
 			if(object.contains("item"))
 				extraOutputsBuilder.add(ItemStack.fromNbt(object.getCompound("item")));
 		});
-		return new Pair<>(id, new UltraRecipe(id, materialsBuilder.build(), result, extraOutputsBuilder.build()));
+		NbtList unlocksIn = nbt.getList("unlocks", NbtElement.STRING_TYPE);
+		ImmutableList.Builder<Identifier> unlocksBuilder = ImmutableList.builder();
+		if(unlocksIn != null)
+			unlocksIn.forEach(i -> unlocksBuilder.add(Identifier.tryParse(i.asString())));
+		return new Pair<>(id, new UltraRecipe(id, materialsBuilder.build(), result, extraOutputsBuilder.build(), unlocksBuilder.build()));
 	}
 	
 	public static void serialize(PacketByteBuf buf, Pair<Identifier, UltraRecipe> pair)
@@ -191,6 +216,10 @@ public class UltraRecipe
 			extraOutputs.add(stack);
 		}
 		nbt.put("extra-outputs", extraOutputs);
+		NbtList unlocks = new NbtList();
+		for (Identifier entry : recipe.unlocks)
+			unlocks.add(NbtString.of(entry.toString()));
+		nbt.put("unlocks", unlocks);
 		buf.writeNbt(nbt);
 	}
 }

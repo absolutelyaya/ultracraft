@@ -2,12 +2,15 @@ package absolutelyaya.ultracraft.components;
 
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.client.gui.terminal.WeaponsTab;
 import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 
@@ -78,6 +81,14 @@ public class ProgressionComponent implements IProgressionComponent, AutoSyncedCo
 		return owned;
 	}
 	
+	@Override
+	public void reset()
+	{
+		unlocked = new ArrayList<>();
+		owned = new ArrayList<>();
+		unlocked.add(new Identifier(Ultracraft.MOD_ID, "pierce_revolver"));
+	}
+	
 	public void sync()
 	{
 		UltraComponents.PROGRESSION.sync(provider);
@@ -105,5 +116,13 @@ public class ProgressionComponent implements IProgressionComponent, AutoSyncedCo
 		for (Identifier id : this.owned)
 			owned.add(NbtString.of(id.toString()));
 		tag.put("owned", owned);
+	}
+	
+	@Override
+	public void applySyncPacket(PacketByteBuf buf)
+	{
+		IProgressionComponent.super.applySyncPacket(buf);
+		if(provider instanceof WingedPlayerEntity winged && winged.getFocusedTerminal() != null && winged.getFocusedTerminal().getTab() instanceof WeaponsTab weaponsTab)
+			weaponsTab.refreshTab();
 	}
 }

@@ -3,5 +3,6 @@
     { "item": "minecraft:iron_ingot", "count": 69 }
   ],
   "result": "ultracraft:pierce_revolver",
-  "extra-output": []
+  "extra-output": [],
+  "unlocks": ["ultracraft:marksman_revolver", "ultracraft:sharpshooter_revolver"]
 }

@@ -24,5 +24,7 @@ public interface IProgressionComponent extends ComponentV3, AutoSyncedComponent
 	
 	List<Identifier> getOwnedList();
 	
+	void reset();
+	
 	void sync();
 }
