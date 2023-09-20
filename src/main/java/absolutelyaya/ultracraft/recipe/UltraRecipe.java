@@ -222,4 +222,9 @@ public class UltraRecipe
 		nbt.put("unlocks", unlocks);
 		buf.writeNbt(nbt);
 	}
+	
+	public Map<Item, Integer> getMaterials()
+	{
+		return material;
+	}
 }

@@ -1,6 +1,7 @@
 {
   "materials": [
-    { "item": "minecraft:iron_ingot", "count": 69 }
+    { "item": "minecraft:iron_ingot", "count": 69 },
+    { "item": "minecraft:diamond", "count": 3 }
   ],
   "result": "ultracraft:pierce_revolver",
   "extra-output": [],

@@ -5,21 +5,27 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Sprite;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.SpriteListElement;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
 import absolutelyaya.ultracraft.components.IProgressionComponent;
 import absolutelyaya.ultracraft.recipe.UltraRecipe;
 import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
+import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class WeaponsTab extends Tab
 {
@@ -49,6 +55,7 @@ public class WeaponsTab extends Tab
 	int selectedCategory = -1;
 	Identifier selectedWeapon;
 	UltraRecipe selectedRecipe;
+	SpriteListElement ingredientList = new SpriteListElement(94, 6, 16);
 	
 	public WeaponsTab()
 	{
@@ -73,6 +80,7 @@ public class WeaponsTab extends Tab
 		buttons.add(blueWeapon);
 		buttons.add(greenWeapon);
 		buttons.add(redWeapon);
+		ingredientList.setSelectable(false);
 		
 		onButtonClicked("select", 0);
 	}
@@ -98,6 +106,8 @@ public class WeaponsTab extends Tab
 		//the two arrows
 		GUI.drawSprite(buffers, matrices, TEXTURE, new Vector2i(11, 36), 0.002f, new Vector2i(0, 139), new Vector2i(13, 20), new Vector2i(192, 192), terminal.getTextColor());
 		GUI.drawSprite(buffers, matrices, TEXTURE, new Vector2i(76, 36), 0.002f, new Vector2i(14, 139), new Vector2i(13, 20), new Vector2i(192, 192), terminal.getTextColor());
+		//ingredients
+		GUI.drawSpriteList(buffers, matrices, 104, 2, ingredientList);
 	}
 	
 	Identifier[] getWeaponListForType(int idx)
@@ -187,6 +197,8 @@ public class WeaponsTab extends Tab
 	{
 		if(selectedWeaponTypeIds.length < idx + 1)
 			return true;
+		List<Pair<Sprite, String>> ingredients = ingredientList.getElements();
+		ingredients.clear();
 		if(idx == -1)
 		{
 			selectedWeapon = null;
@@ -202,6 +214,16 @@ public class WeaponsTab extends Tab
 			}
 			selectedWeapon = selectedWeaponTypeIds[idx];
 			selectedRecipe = UltraRecipeManager.getRecipe(selectedWeapon);
+			if(selectedRecipe != null)
+			{
+				Map<Item, Integer> materials = selectedRecipe.getMaterials();
+				materials.forEach((item, amount) -> {
+					Identifier id = Registries.ITEM.getId(item);
+					ingredients.add(new Pair<>(new Sprite(new Identifier(id.getNamespace(), "textures/item/" + id.getPath() + ".png"),
+							new Vector2i(0, 0), 0.001f, new Vector2i(16, 16), new Vector2i(0, 0), new Vector2i(16, 16)),
+							amount + " " + Text.translatable(item.getTranslationKey()).getString() + (amount > 0 ? "s" : "")));
+				});
+			}
 		}
 		craftButton.setClickable(selectedRecipe != null);
 		return true;

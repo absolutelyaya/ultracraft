@@ -14,6 +14,7 @@ public class ListElement implements Element
 	double scroll;
 	int selected = -1, lastHovered;
 	Consumer<Integer> onSelect;
+	boolean selectable;
 	
 	public ListElement(int width, int lines)
 	{
@@ -48,6 +49,8 @@ public class ListElement implements Element
 	
 	public void select(int idx)
 	{
+		if(!selectable)
+			return;
 		if(idx < entries.size())
 			selected = idx;
 		if(onSelect != null)
@@ -57,6 +60,16 @@ public class ListElement implements Element
 	public int getSelected()
 	{
 		return selected;
+	}
+	
+	public void setSelectable(boolean b)
+	{
+		selectable = b;
+	}
+	
+	public boolean isSelectable()
+	{
+		return selectable;
 	}
 	
 	public void setLastHovered(int i)

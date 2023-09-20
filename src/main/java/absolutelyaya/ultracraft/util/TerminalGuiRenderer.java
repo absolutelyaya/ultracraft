@@ -11,6 +11,7 @@ import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 import org.joml.*;
 
 import java.lang.Math;
@@ -318,6 +319,40 @@ public class TerminalGuiRenderer
 		consumer.vertex(poseMatrix, x + sizeX, y + sizeY, 0f).color(color).texture(u2, v2).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
 		consumer.vertex(poseMatrix, x + sizeX, y, 0f).color(color).texture(u2, v1).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
 		matrices.pop();
+	}
+	
+	public void drawSpriteList(VertexConsumerProvider buffers, MatrixStack matrices, int x, int y, SpriteListElement list)
+	{
+		int sizeX = list.getWidth(), sizeY = list.getLines() * (textRenderer.fontHeight + 3) + 1, spriteSize = list.getSpriteSize();
+		Vector2d cursor = new Vector2d(terminal.getCursor()).mul(100f);
+		drawBoxOutline(buffers, matrices, x, y, sizeX, sizeY);
+		int startEntry = (int)list.getScroll(), lineHeight = Math.max(textRenderer.fontHeight, spriteSize);
+		for (int i = startEntry; i < Math.min(startEntry + list.getLines(), list.getElements().size()); i++)
+		{
+			Pair<Sprite, String> element = list.getElement(i);
+			int boxColor = list.getSelected() == i ? 0xff00ff00 : 0xff444444;
+			int textColor = list.getSelected() == i ? 0xff00ff00 : 0xff666666;
+			if(!list.isSelectable())
+				boxColor = textColor = 0xffffffff;
+			int x1 = x + 2, y1 = y + 2 + (i - startEntry) * (lineHeight + 3);
+			boolean hovered = cursor.x > x1 && cursor.x < x1 + sizeX - 4 && cursor.y > y1 && cursor.y < y1 + lineHeight;
+			drawBoxOutline(buffers, matrices, x1, y1, sizeX - 4, lineHeight, hovered ? 0xffffffff : boxColor);
+			matrices.push();
+			drawSprite(buffers, matrices, element.getLeft(), new Vector3f(x1 + 1, y1, 0.0005f));
+			matrices.translate(0f, 1f, -0.002f);
+			String s = element.getRight();
+			if(textRenderer.getWidth(s) > sizeX - 6 - spriteSize)
+				s = textRenderer.trimToWidth(s, sizeX - 6 - spriteSize - textRenderer.getWidth("...")) + "...";
+			drawText(buffers, matrices, s, x1 + 2 + spriteSize, y1 + lineHeight / 3, 0f, hovered ? 0xffffffff : textColor);
+			matrices.pop();
+			if(hovered)
+				list.setLastHovered(i);
+		}
+		boolean hovered = cursor.x > x && cursor.x < x + sizeX && cursor.y > y && cursor.y < y + sizeY;
+		if(hovered)
+			terminal.setLastHovered(list);
+		else if(terminal.getLastHovered() != null && terminal.getLastHovered().equals(list))
+			terminal.setLastHovered(null);
 	}
 	
 	static {
