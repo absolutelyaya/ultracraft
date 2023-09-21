@@ -2,9 +2,13 @@ package absolutelyaya.ultracraft.item;
 
 import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.UltraComponents;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
+import absolutelyaya.ultracraft.registry.ItemRegistry;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -50,5 +54,67 @@ public abstract class AbstractRevolverItem extends AbstractWeaponItem implements
 		}
 		else
 			return false;
+	}
+	
+	@Override
+	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
+	{
+		if(!(entity instanceof PlayerEntity player))
+			return;
+		super.inventoryTick(stack, world, entity, slot, selected);
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(player).getGunCooldownManager();
+		//Marksman Coin Tick
+		int coins = getCoins(stack);
+		if(coins < 4 && cdm.isUsable(this, GunCooldownManager.SECONDARY))
+		{
+			setCoins(stack, coins + 1); //TODO: adds 2 coins if not held
+			if(coins + 1 < 4)
+				cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
+			player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.75f);
+		}
+		//Sharpshooter Charges Tick
+		int charges = getCharges(stack);
+		if(charges < 3 && cdm.isUsable(this, GunCooldownManager.TRITARY))
+		{
+			setCharges(stack, charges + 1);
+			cdm.setCooldown(this, 200, GunCooldownManager.TRITARY);
+			player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.5f);
+		}
+	}
+	
+	@Override
+	Item[] getVariants()
+	{
+		return new Item[]{ItemRegistry.PIERCE_REVOLVER, ItemRegistry.MARKSMAN_REVOLVER, ItemRegistry.SHARPSHOOTER_REVOLVER};
+	}
+	
+	@Override
+	int getSwitchCooldown()
+	{
+		return 4;
+	}
+	
+	public int getCoins(ItemStack stack)
+	{
+		if(!stack.hasNbt() || !stack.getNbt().contains("coins", NbtElement.INT_TYPE))
+			stack.getOrCreateNbt().putInt("coins", 4);
+		return stack.getNbt().getInt("coins");
+	}
+	
+	public void setCoins(ItemStack stack, int i)
+	{
+		stack.getOrCreateNbt().putInt("coins", i);
+	}
+	
+	public int getCharges(ItemStack stack)
+	{
+		if(!stack.hasNbt() || !stack.getNbt().contains("charges", NbtElement.INT_TYPE))
+			stack.getOrCreateNbt().putInt("charges", 3);
+		return stack.getNbt().getInt("charges");
+	}
+	
+	public void setCharges(ItemStack stack, int i)
+	{
+		stack.getOrCreateNbt().putInt("charges", i);
 	}
 }

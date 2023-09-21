@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.entity.projectile.ThrownSoapEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
@@ -65,6 +66,18 @@ public class SoapItem extends AbstractWeaponItem
 	public boolean hasVariantBG()
 	{
 		return false;
+	}
+	
+	@Override
+	Item[] getVariants()
+	{
+		return new Item[0];
+	}
+	
+	@Override
+	int getSwitchCooldown()
+	{
+		return 0;
 	}
 	
 	@Override

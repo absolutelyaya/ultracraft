@@ -8,9 +8,11 @@ import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
+import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
@@ -97,6 +99,18 @@ public abstract class AbstractShotgunItem extends AbstractWeaponItem implements 
 			world.addParticle(new ParryIndicatorParticleEffect(false), pos.x, pos.y, pos.z, 0f, 0f, 0f);
 		}
 		return true;
+	}
+	
+	@Override
+	Item[] getVariants()
+	{
+		return new Item[] {ItemRegistry.CORE_SHOTGUN, ItemRegistry.PUMP_SHOTGUN};
+	}
+	
+	@Override
+	int getSwitchCooldown()
+	{
+		return 6;
 	}
 	
 	public String getShotAnimationName()

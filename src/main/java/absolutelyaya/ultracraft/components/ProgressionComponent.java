@@ -102,7 +102,7 @@ public class ProgressionComponent implements IProgressionComponent, AutoSyncedCo
 		NbtList list = tag.getList("unlocks", NbtElement.STRING_TYPE);
 		list.forEach(i -> unlocked.add(Identifier.tryParse(i.asString())));
 		list = tag.getList("owned", NbtElement.STRING_TYPE);
-		list.forEach(i -> unlocked.add(Identifier.tryParse(i.asString())));
+		list.forEach(i -> owned.add(Identifier.tryParse(i.asString())));
 	}
 	
 	@Override

@@ -17,6 +17,7 @@ public class GunCooldownManager
 {
 	public static final int PRIMARY = 0;
 	public static final int SECONDARY = 1;
+	public static final int TRITARY = 2;
 	
 	final PlayerEntity owner;
 	final HashMap<Item, Entry[]> cooldowns = new HashMap<>();
@@ -62,14 +63,14 @@ public class GunCooldownManager
 		if(!cooldowns.containsKey(item))
 		{
 			List<Entry> list = new ArrayList<>();
-			for (int i = 0; i < 2; i++)
+			for (int i = 0; i < 3; i++)
 			{
 				if(i == idx)
 					list.add(new Entry(ticks, new AtomicInteger(ticks)));
 				else
 					list.add(new Entry(0, new AtomicInteger(0)));
 			}
-			cooldowns.put(item, list.toArray(new Entry[2]));
+			cooldowns.put(item, list.toArray(new Entry[3]));
 		}
 		else
 			cooldowns.get(item)[idx].set(ticks, ticks);

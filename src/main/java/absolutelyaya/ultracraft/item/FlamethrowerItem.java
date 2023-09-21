@@ -9,6 +9,7 @@ import absolutelyaya.ultracraft.entity.projectile.FlameProjectileEntity;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.particle.ParticleTypes;
@@ -169,6 +170,18 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 	public boolean hasVariantBG()
 	{
 		return false;
+	}
+	
+	@Override
+	Item[] getVariants()
+	{
+		return new Item[0];
+	}
+	
+	@Override
+	int getSwitchCooldown()
+	{
+		return 0;
 	}
 	
 	@Override

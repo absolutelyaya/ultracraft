@@ -7,6 +7,7 @@ import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import absolutelyaya.ultracraft.compat.PlayerAnimator;
 import absolutelyaya.ultracraft.components.IWingDataComponent;
+import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -41,8 +42,11 @@ public class KeybindRegistry
 	public static final KeyBinding WING_CUSTOMIZATION = KeyBindingHelper.registerKeyBinding(
 			new KeyBinding("key.ultracraft.wing_customization", InputUtil.Type.KEYSYM,
 					GLFW.GLFW_KEY_APOSTROPHE, "category.ultracraft"));
+	public static final KeyBinding WEAPON_CYCLE = KeyBindingHelper.registerKeyBinding(
+			new KeyBinding("key.ultracraft.weapon_cycle", InputUtil.Type.KEYSYM,
+					GLFW.GLFW_KEY_R, "category.ultracraft"));
 	
-	static boolean hivelPressed = false, punchPressed = false, wingCustomizationPressed = false;
+	static boolean hivelPressed = false, punchPressed = false, wingCustomizationPressed = false, weaponCyclePressed = false;
 	
 	public static void register()
 	{
@@ -110,11 +114,22 @@ public class KeybindRegistry
 		ClientTickEvents.END_CLIENT_TICK.register(client ->
 		{
 			while (WING_CUSTOMIZATION.wasPressed() && !wingCustomizationPressed)
-			{
 				client.setScreen(new WingCustomizationScreen(null));
-			}
-			while(WING_CUSTOMIZATION.wasPressed()); //remove stored punch presses
+			while(WING_CUSTOMIZATION.wasPressed()); //remove stored presses
 			wingCustomizationPressed = WING_CUSTOMIZATION.isPressed();
+		});
+		ClientTickEvents.END_CLIENT_TICK.register(client ->
+		{
+			while (WEAPON_CYCLE.wasPressed() && !weaponCyclePressed)
+			{
+				ClientPlayerEntity player = client.player;
+				if(player.getMainHandStack().getItem() instanceof AbstractWeaponItem)
+				{
+					AbstractWeaponItem.cycleVariant(player);
+				}
+			}
+			while(WEAPON_CYCLE.wasPressed()); //remove stored presses
+			weaponCyclePressed = WEAPON_CYCLE.isPressed();
 		});
 	}
 }

@@ -2,7 +2,6 @@ package absolutelyaya.ultracraft.item;
 
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.CoreEjectShotgunRenderer;
 import absolutelyaya.ultracraft.entity.projectile.EjectedCoreEntity;

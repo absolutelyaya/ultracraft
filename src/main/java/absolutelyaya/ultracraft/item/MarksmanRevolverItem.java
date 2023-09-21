@@ -90,23 +90,6 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 	}
 	
 	@Override
-	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
-	{
-		if(!(entity instanceof PlayerEntity player))
-			return;
-		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(player).getGunCooldownManager();
-		super.inventoryTick(stack, world, entity, slot, selected);
-		int coins = getCoins(stack);
-		if(coins < 4 && cdm.isUsable(this, GunCooldownManager.SECONDARY))
-		{
-			setCoins(stack, coins + 1);
-			if(coins + 1 < 4)
-				cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
-			player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.75f);
-		}
-	}
-	
-	@Override
 	public Vector2i getHUDTexture()
 	{
 		return new Vector2i(1, 0);
@@ -190,17 +173,5 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 	public String getCountString(ItemStack stack)
 	{
 		return Formatting.GOLD + String.valueOf(getCoins(stack));
-	}
-	
-	public int getCoins(ItemStack stack)
-	{
-		if(!stack.hasNbt() || !stack.getNbt().contains("coins", NbtElement.INT_TYPE))
-			stack.getOrCreateNbt().putInt("coins", 4);
-		return stack.getNbt().getInt("coins");
-	}
-	
-	public void setCoins(ItemStack stack, int i)
-	{
-		stack.getOrCreateNbt().putInt("coins", i);
 	}
 }

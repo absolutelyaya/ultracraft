@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
+import absolutelyaya.ultracraft.components.IProgressionComponent;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -12,7 +13,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -114,5 +117,55 @@ public abstract class AbstractWeaponItem extends Item
 	public boolean hasVariantBG()
 	{
 		return true;
+	}
+	
+	abstract Item[] getVariants();
+	
+	abstract int getSwitchCooldown();
+	
+	static Item getNextVariant(ItemStack stack, IProgressionComponent progression)
+	{
+		if(!(stack.getItem() instanceof AbstractWeaponItem weapon))
+			return null;
+		Item[] variants = weapon.getVariants();
+		for (int i = 0; i < variants.length; i++)
+		{
+			if(!stack.getItem().equals(variants[i]))
+				continue;
+			Item item = variants[(i + 1) % variants.length];
+			if(!item.equals(stack.getItem()) && progression.isOwned(Registries.ITEM.getId(item)))
+				return item;
+		}
+		return null;
+	}
+	
+	public static void cycleVariant(PlayerEntity player)
+	{
+		if(player.getWorld().isClient)
+		{
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			ClientPlayNetworking.send(PacketRegistry.CYCLE_WEAPON_VARIANT_PACKET_ID, buf);
+			return;
+		}
+		ItemStack stack = player.getMainHandStack();
+		if(!(stack.getItem() instanceof AbstractWeaponItem))
+			return;
+		IProgressionComponent progression = UltraComponents.PROGRESSION.get(player);
+		Item nextItem = getNextVariant(stack, progression);
+		if(nextItem == null)
+			return;
+		NbtCompound nbt = stack.getOrCreateNbt();
+		if(nbt.contains("charging"))
+			nbt.remove("charging"); //TODO: doesn't work
+		ItemStack nextStack = new ItemStack(nextItem);
+		nextStack.setNbt(nbt);
+		player.getInventory().main.set(player.getInventory().selectedSlot, nextStack);
+		if(nextItem instanceof AbstractWeaponItem weapon)
+		{
+			GunCooldownManager gcdm = UltraComponents.WINGED_ENTITY.get(player).getGunCooldownManager();
+			int cd = weapon.getSwitchCooldown();
+			if(gcdm.getCooldown(weapon, GunCooldownManager.PRIMARY) < cd)
+				UltraComponents.WINGED_ENTITY.get(player).getGunCooldownManager().setCooldown(weapon, cd, GunCooldownManager.PRIMARY);
+		}
 	}
 }

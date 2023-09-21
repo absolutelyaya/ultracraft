@@ -101,17 +101,7 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 			else if(entity instanceof PlayerEntity player)
 				triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "spin");
 		}
-		if(!(entity instanceof PlayerEntity player))
-			return;
-		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(player).getGunCooldownManager();
 		super.inventoryTick(stack, world, entity, slot, selected);
-		int charges = getCharges(stack);
-		if(charges < 3 && cdm.isUsable(this, GunCooldownManager.SECONDARY))
-		{
-			setCharges(stack, charges + 1);
-			cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
-			player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.5f);
-		}
 	}
 	
 	@Override
@@ -144,7 +134,7 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 				if(!world.isClient)
 				{
 					if(charges == 3)
-						cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
+						cdm.setCooldown(this, 200, GunCooldownManager.TRITARY);
 					setCharges(stack, charges - 1);
 					triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "discharge");
 					world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, SoundCategory.PLAYERS, 1f,
@@ -224,7 +214,7 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 		if(!cdm.isUsable(this, GunCooldownManager.PRIMARY))
 			return (int)(cdm.getCooldownPercent(stack.getItem(), GunCooldownManager.PRIMARY) * 14);
 		else
-			return (int)((1f - cdm.getCooldownPercent(stack.getItem(), GunCooldownManager.SECONDARY)) * 14);
+			return (int)((1f - cdm.getCooldownPercent(stack.getItem(), GunCooldownManager.TRITARY)) * 14);
 	}
 	
 	@Override
@@ -248,17 +238,5 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 		if(stack.hasNbt() && stack.getNbt().contains("charges"))
 			return Formatting.GOLD + String.valueOf(getCharges(stack));
 		return null;
-	}
-	
-	public int getCharges(ItemStack stack)
-	{
-		if(!stack.hasNbt() || !stack.getNbt().contains("charges", NbtElement.INT_TYPE))
-			stack.getOrCreateNbt().putInt("charges", 3);
-		return stack.getNbt().getInt("charges");
-	}
-	
-	public void setCharges(ItemStack stack, int i)
-	{
-		stack.getOrCreateNbt().putInt("charges", i);
 	}
 }
