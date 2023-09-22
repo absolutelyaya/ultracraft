@@ -1,10 +1,10 @@
 package absolutelyaya.ultracraft.client;
 
+import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 
@@ -20,7 +20,7 @@ public class GunCooldownManager
 	public static final int TRITARY = 2;
 	
 	final PlayerEntity owner;
-	final HashMap<Item, Entry[]> cooldowns = new HashMap<>();
+	final HashMap<Class<? extends AbstractWeaponItem>, Entry[]> cooldowns = new HashMap<>();
 	
 	public GunCooldownManager(PlayerEntity owner)
 	{
@@ -29,11 +29,11 @@ public class GunCooldownManager
 	
 	public void tickCooldowns()
 	{
-		List<Item> remove = new ArrayList<>();
-		Object[] keys = cooldowns.keySet().toArray();
+		List<Class<? extends AbstractWeaponItem>> remove = new ArrayList<>();
+		Class<? extends AbstractWeaponItem>[] keys = cooldowns.keySet().toArray(new Class[]{});
 		for (int i = 0; i < cooldowns.size(); i++)
 		{
-			Item key = (Item)keys[i];
+			Class<? extends AbstractWeaponItem> key = keys[i];
 			boolean r = true;
 			for (int j = 0; j < cooldowns.get(key).length; j++)
 			{
@@ -50,7 +50,7 @@ public class GunCooldownManager
 		remove.forEach(cooldowns::remove);
 	}
 	
-	public void setCooldown(Item item, int ticks, int idx)
+	public void setCooldown(AbstractWeaponItem item, int ticks, int idx)
 	{
 		if(!owner.getWorld().isClient)
 		{
@@ -60,7 +60,7 @@ public class GunCooldownManager
 			buf.writeInt(idx);
 			ServerPlayNetworking.send((ServerPlayerEntity)owner, PacketRegistry.SET_GUNCD_PACKET_ID, buf);
 		}
-		if(!cooldowns.containsKey(item))
+		if(!cooldowns.containsKey(item.getCooldownClass()))
 		{
 			List<Entry> list = new ArrayList<>();
 			for (int i = 0; i < 3; i++)
@@ -70,13 +70,18 @@ public class GunCooldownManager
 				else
 					list.add(new Entry(0, new AtomicInteger(0)));
 			}
-			cooldowns.put(item, list.toArray(new Entry[3]));
+			cooldowns.put(item.getCooldownClass(), list.toArray(new Entry[3]));
 		}
 		else
-			cooldowns.get(item)[idx].set(ticks, ticks);
+			cooldowns.get(item.getCooldownClass())[idx].set(ticks, ticks);
 	}
 	
-	public int getCooldown(Item item, int idx)
+	public int getCooldown(AbstractWeaponItem item, int idx)
+	{
+		return getCooldown(item.getCooldownClass(), idx);
+	}
+	
+	public int getCooldown(Class<? extends AbstractWeaponItem> item, int idx)
 	{
 		if(cooldowns.containsKey(item) && idx < cooldowns.get(item).length)
 			return cooldowns.get(item)[idx].get();
@@ -84,7 +89,12 @@ public class GunCooldownManager
 			return 0;
 	}
 	
-	public boolean isUsable(Item item, int idx)
+	public boolean isUsable(AbstractWeaponItem item, int idx)
+	{
+		return isUsable(item.getCooldownClass(), idx);
+	}
+	
+	public boolean isUsable(Class<? extends AbstractWeaponItem> item, int idx)
 	{
 		if(cooldowns.containsKey(item) && idx < cooldowns.get(item).length)
 			return cooldowns.get(item)[idx].get() - (owner.getWorld().isClient ? 1 : 0) <= 0;
@@ -92,7 +102,12 @@ public class GunCooldownManager
 			return true;
 	}
 	
-	public float getCooldownPercent(Item item, int idx)
+	public float getCooldownPercent(AbstractWeaponItem item, int idx)
+	{
+		return getCooldownPercent(item.getCooldownClass(), idx);
+	}
+	
+	public float getCooldownPercent(Class<? extends AbstractWeaponItem> item, int idx)
 	{
 		if(!cooldowns.containsKey(item) || idx > cooldowns.get(item).length)
 			return 0f;

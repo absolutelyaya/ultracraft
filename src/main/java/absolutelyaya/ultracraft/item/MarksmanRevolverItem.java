@@ -10,12 +10,9 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -147,7 +144,7 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 	public boolean isItemBarVisible(ItemStack stack)
 	{
 		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
-		return !cdm.isUsable(stack.getItem(), GunCooldownManager.PRIMARY) || getCoins(stack) < 4;
+		return !cdm.isUsable(getCooldownClass(stack), GunCooldownManager.PRIMARY) || getCoins(stack) < 4;
 	}
 	
 	@Override
@@ -155,9 +152,9 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 	{
 		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
 		if(!cdm.isUsable(this, GunCooldownManager.PRIMARY))
-			return (int)(cdm.getCooldownPercent(stack.getItem(), GunCooldownManager.PRIMARY) * 14);
+			return (int)(cdm.getCooldownPercent(getCooldownClass(stack), GunCooldownManager.PRIMARY) * 14);
 		else
-			return (int)((1f - cdm.getCooldownPercent(stack.getItem(), GunCooldownManager.SECONDARY)) * 14);
+			return (int)((1f - cdm.getCooldownPercent(getCooldownClass(stack), GunCooldownManager.SECONDARY)) * 14);
 	}
 	
 	@Override

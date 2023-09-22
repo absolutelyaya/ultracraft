@@ -122,8 +122,8 @@ public class ClientPacketRegistry
 			int ticks = buf.readInt();
 			int idx = buf.readInt();
 			MinecraftClient.getInstance().execute(() -> {
-				if(client.player != null)
-					UltraComponents.WINGED_ENTITY.get(client.player).getGunCooldownManager().setCooldown(item, ticks, idx);
+				if(client.player != null && item instanceof AbstractWeaponItem weapon)
+					UltraComponents.WINGED_ENTITY.get(client.player).getGunCooldownManager().setCooldown(weapon, ticks, idx);
 			});
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.CATCH_FISH_PACKET_ID, ((client, handler, buf, sender) -> {

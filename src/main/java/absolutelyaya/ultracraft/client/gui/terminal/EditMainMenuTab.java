@@ -126,7 +126,6 @@ public class EditMainMenuTab extends Tab
 			GUI.drawTextBox(buffers, matrices, -95 + textRenderer.getWidth(s), 100 - textRenderer.fontHeight - 2, buttonValueTextBox,
 					buttonValueTextBox.equals(terminal.getFocusedTextbox()) ? getRainbow(1f / 3f) : 0xffffffff);
 		}
-		//TODO: Redstone output button
 	}
 	
 	@Override

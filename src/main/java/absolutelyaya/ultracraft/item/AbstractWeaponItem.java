@@ -85,14 +85,14 @@ public abstract class AbstractWeaponItem extends Item
 	public boolean isItemBarVisible(ItemStack stack)
 	{
 		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
-		return !cdm.isUsable(stack.getItem(), GunCooldownManager.PRIMARY);
+		return !cdm.isUsable(getCooldownClass(stack), GunCooldownManager.PRIMARY);
 	}
 	
 	@Override
 	public int getItemBarStep(ItemStack stack)
 	{
 		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
-		return (int)(cdm.getCooldownPercent(stack.getItem(), GunCooldownManager.PRIMARY) * 14);
+		return (int)(cdm.getCooldownPercent(getCooldownClass(stack), GunCooldownManager.PRIMARY) * 14);
 	}
 	
 	@Override
@@ -167,5 +167,17 @@ public abstract class AbstractWeaponItem extends Item
 			if(gcdm.getCooldown(weapon, GunCooldownManager.PRIMARY) < cd)
 				UltraComponents.WINGED_ENTITY.get(player).getGunCooldownManager().setCooldown(weapon, cd, GunCooldownManager.PRIMARY);
 		}
+	}
+	
+	public Class<? extends AbstractWeaponItem> getCooldownClass()
+	{
+		return getClass();
+	}
+	
+	public Class<? extends AbstractWeaponItem> getCooldownClass(ItemStack stack)
+	{
+		if(stack.getItem() instanceof AbstractWeaponItem weapon)
+			return weapon.getCooldownClass();
+		return getClass();
 	}
 }

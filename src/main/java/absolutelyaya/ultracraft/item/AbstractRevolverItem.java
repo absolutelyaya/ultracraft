@@ -67,7 +67,7 @@ public abstract class AbstractRevolverItem extends AbstractWeaponItem implements
 		int coins = getCoins(stack);
 		if(coins < 4 && cdm.isUsable(this, GunCooldownManager.SECONDARY))
 		{
-			setCoins(stack, coins + 1); //TODO: adds 2 coins if not held
+			setCoins(stack, coins + 1);
 			if(coins + 1 < 4)
 				cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
 			player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.75f);
@@ -116,5 +116,11 @@ public abstract class AbstractRevolverItem extends AbstractWeaponItem implements
 	public void setCharges(ItemStack stack, int i)
 	{
 		stack.getOrCreateNbt().putInt("charges", i);
+	}
+	
+	@Override
+	public Class<? extends AbstractWeaponItem> getCooldownClass()
+	{
+		return AbstractRevolverItem.class;
 	}
 }

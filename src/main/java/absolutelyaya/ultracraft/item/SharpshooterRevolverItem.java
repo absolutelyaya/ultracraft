@@ -2,10 +2,8 @@ package absolutelyaya.ultracraft.item;
 
 import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.UltraComponents;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.SharpshooterRevolverRenderer;
-import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
@@ -13,7 +11,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -204,7 +201,7 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	public boolean isItemBarVisible(ItemStack stack)
 	{
 		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
-		return !cdm.isUsable(stack.getItem(), GunCooldownManager.PRIMARY) || getCharges(stack) < 3;
+		return !cdm.isUsable(getCooldownClass(stack), GunCooldownManager.PRIMARY) || getCharges(stack) < 3;
 	}
 	
 	@Override
@@ -212,9 +209,9 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	{
 		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
 		if(!cdm.isUsable(this, GunCooldownManager.PRIMARY))
-			return (int)(cdm.getCooldownPercent(stack.getItem(), GunCooldownManager.PRIMARY) * 14);
+			return (int)(cdm.getCooldownPercent(getCooldownClass(stack), GunCooldownManager.PRIMARY) * 14);
 		else
-			return (int)((1f - cdm.getCooldownPercent(stack.getItem(), GunCooldownManager.TRITARY)) * 14);
+			return (int)((1f - cdm.getCooldownPercent(getCooldownClass(stack), GunCooldownManager.TRITARY)) * 14);
 	}
 	
 	@Override
