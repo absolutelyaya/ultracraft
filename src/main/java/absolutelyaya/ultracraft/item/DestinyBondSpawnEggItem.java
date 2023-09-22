@@ -29,9 +29,8 @@ public class DestinyBondSpawnEggItem extends SpawnEggItem
 	public ActionResult useOnBlock(ItemUsageContext context)
 	{
 		World world = context.getWorld();
-		if (!(world instanceof ServerWorld)) {
+		if (!(world instanceof ServerWorld))
 			return ActionResult.SUCCESS;
-		}
 		if(!context.getPlayer().isCreative())
 			context.getStack().decrement(1);
 		world.emitGameEvent(context.getPlayer(), GameEvent.ENTITY_PLACE, context.getBlockPos());

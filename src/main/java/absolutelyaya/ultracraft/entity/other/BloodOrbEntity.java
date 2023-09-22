@@ -21,7 +21,7 @@ public class BloodOrbEntity extends AbstractOrbEntity
 	@Override
 	public Identifier getTexture()
 	{
-		return new Identifier(Ultracraft.MOD_ID, "textures/entity/blood_orb.png");
+		return new Identifier(Ultracraft.MOD_ID, "textures/item/blood_orb.png");
 	}
 	
 	@Override

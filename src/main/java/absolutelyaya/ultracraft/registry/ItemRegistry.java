@@ -115,6 +115,10 @@ public class ItemRegistry
 	public static final SpecialSpawnEggItem HIDEOUS_SPAWN_EGG = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "hideous_spawn_egg"),
 			new MultiColorSpawnEggItem(EntityRegistry.HIDEOUS_MASS, new int[] {0xffffff}, new FabricItemSettings()));
+	public static final OrbItem SOUL_ORB = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "soul_orb"), new OrbItem(new FabricItemSettings(), EntityRegistry.SOUL_ORB));
+	public static final OrbItem BLOOD_ORB = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "blood_orb"), new OrbItem(new FabricItemSettings(), EntityRegistry.BLOOD_ORB));
 	
 	//Special
 	public static final TerminalItem TERMINAL = Registry.register(Registries.ITEM,
@@ -175,6 +179,8 @@ public class ItemRegistry
 			content.add(STREET_CLEANER_SPAWN_EGG);
 			content.add(HIDEOUS_SPAWN_EGG);
 			content.add(HIDEOUS_SPAWN_EGG.getDefaultBossStack("item.ultracraft.hideous_spawn_egg.unremarkable", false));
+			content.add(SOUL_ORB);
+			content.add(BLOOD_ORB);
 			content.add(PLUSHIE.getDefaultStack("yaya"));
 			content.add(PLUSHIE.getDefaultStack("hakita"));
 			content.add(PITR.getDefaultStack("pitr"));
