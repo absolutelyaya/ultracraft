@@ -20,7 +20,6 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.resource.Resource;
@@ -49,6 +48,7 @@ public class PlayerAnimator
 	public static final int SLAM_DIVE = 10;
 	public static final int SLAMSTORE_DIVE = 11;
 	public static final int PUNCH = 12;
+	public static final int SLIDE_PUNCH = 13;
 	
 	static List<KeyframeAnimation> ANIMATIONS;
 	static boolean DISABLED = false;
@@ -118,8 +118,6 @@ public class PlayerAnimator
 		}
 		if(DISABLED)
 			return;
-		if(!firstPerson && player.isMainPlayer() && !MinecraftClient.getInstance().gameRenderer.getCamera().isThirdPerson())
-			return;
 		ModifierLayer<IAnimation> animationLayer = (ModifierLayer<IAnimation>)PlayerAnimationAccess.getPlayerAssociatedData(player)
 															   .get(new Identifier(Ultracraft.MOD_ID, "animation"));
 		
@@ -134,7 +132,7 @@ public class PlayerAnimator
 		else if(anim != null)
 		{
 			animationLayer.replaceAnimationWithFade(AbstractFadeModifier.functionalFadeIn(fade, (modelName, type, value) -> value),
-					new KeyframeAnimationPlayer(anim).setFirstPersonMode(FirstPersonMode.THIRD_PERSON_MODEL)
+					new KeyframeAnimationPlayer(anim).setFirstPersonMode(FirstPersonMode.VANILLA)
 							.setFirstPersonConfiguration(new FirstPersonConfiguration())
 			);
 		}

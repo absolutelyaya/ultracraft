@@ -71,7 +71,9 @@ public class KeybindRegistry
 				if(player == null || !((LivingEntityAccessor)player).punch() || player.isSpectator())
 					continue;
 				if(player.isMainPlayer())
-					PlayerAnimator.playAnimation(player, PlayerAnimator.PUNCH, 0, false);
+					PlayerAnimator.playAnimation(player,
+							(UltraComponents.WING_DATA.get(player).isVisible() && player.isSprinting()) ? PlayerAnimator.SLIDE_PUNCH : PlayerAnimator.PUNCH,
+							0, false);
 				
 				HitResult crosshairTarget = client.crosshairTarget;
 				Entity entity = null;
