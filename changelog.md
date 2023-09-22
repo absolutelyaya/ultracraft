@@ -1,50 +1,71 @@
 ## Major Changes
-- Added Better Combat Support
-  - Install that mod as well to get better Melee Weapons (Only Machinesword atm)!
-- Integrated Player Animator
-  - No extra download required, it's included with the mod
-- Primary Fire can now be held down
-- Guns now have a short cooldown after switching
-- Added Secret Level Elevator blocks
-- Added Recipes to all Elevator Blocks
-- Added Proximity Activated Cerberus Statues
-- Swordsmachine can now Damage its target with melee attacks regardless of type
-- Tundra Machinesword now causes Freezing Damage
-- Blood now turns into Blocks when making contact with other fluids
-  - water -> Netherrack
-  - lava -> Red Netherwart Blocks (Placeholder)
-- Hitscan Improvements
-  - Hitscans cannot hit Spectators anymore
-  - Thrown Machinesword won't get targeted by Sharpshooter auto-aim anymore
-  - Coin Punches now respect PvP being turned off and ignore spectators
-  - Sharpshooter bounces increase in damage each bounce
-    - emulates the "multiple hits" per hitscan thingie
-- Added fatigue to discourage parry spamming
-  - Punches slow down by 75% after performing 3 in quick succession
-- Tundra Machinesword now freezes Targets
-- Fishing Bobber is no longer parriable due to Balance concerns and general weirdness
-  - It can still be Projectile Boosted if the ultra-projBoost Gamerule permits it
+- Added Drone Enemy
+- Added Cosmetic Drone Mask
+- Added Street Cleaner Enemy
+- Added Flamethrower Weapon
+  - Hold Primary fire to shoot a stream of flames
+  - Heats up over time
+    - Enters "Overdrive" at 200°
+    - Overheats at 300°
+  - While held, Players have an Explosive Tank on their Back just like Streetcleaners
+- Added Hideous Mass Enemy
+- Added Harpoons
+- Added "Repulsive Skewer" Weapon
+  - Use Primary Fire to shoot a harpoon like Hideous Mass
+  - Use Alt fire to reel all fired Harpoons back in
+    - Harpoons stuck in non-Heavy enemies fill throw them towards you
+    - Harpoons stuck in Blocks or Heavy Enemies throw you towards them
+- Added Blocks
+  - Rusty Pipe
+  - Rusty Mesh
+  - F L E S H (not animated with Sodium due to world rendering changes)
+  - Cracked Stone
+  - Vent Cover
+- Added Terminals
+  - Right-Click to focus; all parts of the menu that are on the actual display block can also be punched when unfocused though
+  - Added new Weapon Crafting System
+    - Weapon Recipes can be customized via Datapacks
+  - Almost too much Customization
+    - Define Base Hull and Text Color
+    - Paint Graffiti on the Back and Sides (can be disabled via gamerule & Whitelist)
+    - Write your own Text Screensaver (Basically a fancy 11-Line Sign for Map-Makers)
+    - Customize the Main Menu
+    - Add your Own Tabs and Button Actions using the new Termianl GUI API
+- Shockwaves are now actually Round (cursed, I know)
+- Added Soap
+- Fully moved Wing Customization and Player Data to Cardinal Components
+- Added Progression System (Which weapons have been crafted and which are unlocked)
+- Added Weapon Variant Switching Keybind (Default: `R`)
 ## Settings & Gamerules
-- Moved all mod Gamerules to a new Category
-- Added ultra-iFrames Gamerule
-  - Defines how many ticks of Invincibility players in HiVel Mode after getting hit
+- Added ultra-flamethrowerGrief Gamerule
+- Added ultra-graffiti Gamerule
+- Added ultra-terminalProtection Gamerule
+- ultra-iFrames actually works now
+## Commands
+- Added `/ultracraft progression` subcommand (mainly for Debug)
+  - Lets you list, grant or revoke Progression Entries
+- Added `/ultracraft graffiti` subcommand
+  - Lets you whitelist or ban specific Players from being able to make graffitis on Terminals
 ## Tweaks
-- Set the default I-Frames for Players in HiVel Mode to 4 (previously 0)
+- Tweaked a Filth Animation
 ## Minor Changes
-- Thrown Machineswords can't afflict their owner with their type effect anymore
-- ??? now greets everyone
-- NBT block-picking Pedestals now saves their Lock State correctly
-- Elevator Blocks now have break particles with a pixel density of x16
-- Fixed Z-Fighting on Swordsmachine entity and plushies
-- Fixed missing wires on Tundra//Agony Plushies
-- Elevator Wall/Floor Blocks are now properly mineable in survival
-- Fixed Broken line breaks in Fishing Popup
-- Improved Special Fishing Reliability
-- Hopefully fixed Cerberus Blocks sometimes being invisible after joining a world
-- Reduced Revolver primary fire visual hitscan lifetime
-- Improved Time Stop VFX slightly
-  - Timestop VFX will now show regardless of Time Stop gamerule
-    - It can still be disabled using the client Setting however
-  - Added slight FoV effect to time stops
-- changed some assets slightly
-- Tundra//Agony is now /summon-able
+- Discontinued Russian Translation
+- Primary Fire can now be held down
+- Fixed weirdness with Tundra//Agony Spawn Egg
+- Added Love
+- Fixed Spectator Gun Bug (again)
+- Increased Weapon Chargin Shake (remains the same if SafeVFX is enabled)
+- Improved Hell Bullets
+- Added Scrap Item (Replaces Weapons crafted before the new System was added)
+## Resource Changes
+- Added new Texture State for fully Charged Pierce Revolver (`pierce_revolver4.png`)
+## API Changes
+- Added Terminal API Tools
+  - Allows adding fully Custom Coded Tabs and Global Button Actions to Terminals
+  - Premade Rendering GUI Tool Supports:
+    - Text
+    - Buttons
+    - Text Fields
+    - Sprites
+    - Lists (with Selectable Entries)
+  - Otherwise you can of course write your own rendering stuff
