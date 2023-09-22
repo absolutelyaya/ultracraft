@@ -10,16 +10,23 @@ import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
 import absolutelyaya.ultracraft.components.IProgressionComponent;
 import absolutelyaya.ultracraft.recipe.UltraRecipe;
 import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
-import absolutelyaya.ultracraft.registry.ItemRegistry;
+import absolutelyaya.ultracraft.registry.PacketRegistry;
+import absolutelyaya.ultracraft.util.InventoryUtil;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
+import net.minecraft.util.collection.DefaultedList;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
 
@@ -107,14 +114,23 @@ public class WeaponsTab extends Tab
 		GUI.drawSprite(buffers, matrices, TEXTURE, new Vector2i(11, 36), 0.002f, new Vector2i(0, 139), new Vector2i(13, 20), new Vector2i(192, 192), terminal.getTextColor());
 		GUI.drawSprite(buffers, matrices, TEXTURE, new Vector2i(76, 36), 0.002f, new Vector2i(14, 139), new Vector2i(13, 20), new Vector2i(192, 192), terminal.getTextColor());
 		//ingredients
-		GUI.drawSpriteList(buffers, matrices, 104, 2, ingredientList);
+		if(selectedRecipe != null)
+			GUI.drawSpriteList(buffers, matrices, 104, 2, ingredientList);
+		else
+		{
+			String t = Text.translatable("terminal.no-recipe").getString();
+			matrices.push();
+			matrices.translate(0, 1, 0);
+			GUI.drawText(buffers, matrices, t, 152 - textRenderer.getWidth(t) / 2, 40, 0.001f, 0xffdd0000);
+			matrices.pop();
+		}
 	}
 	
 	Identifier[] getWeaponListForType(int idx)
 	{
 		if(idx < 0 || idx > weaponCategories.length)
 			return new Identifier[]{};
-		return switch(weaponCategories[selectedCategory])
+		return switch(weaponCategories[idx])
 		{
 			case "revolver" -> REVOLVERS;
 			case "shotgun" -> SHOTGUNS;
@@ -145,18 +161,35 @@ public class WeaponsTab extends Tab
 					return true;
 				}
 				PlayerEntity player = MinecraftClient.getInstance().player;
+				if(progression.isOwned(selectedWeapon) && !isResultHeld())
+				{
+					PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+					buf.writeIdentifier(selectedWeapon);
+					ClientPlayNetworking.send(PacketRegistry.TERMINAL_WEAPON_DISPENSE_PACKET_ID, buf);
+					player.giveItemStack(Registries.ITEM.get(selectedWeapon).getDefaultStack());
+					refreshTab();
+					return true;
+				}
 				if(selectedRecipe.canCraft(player) <= 1)
 					return true;
 				selectedRecipe.craft(player);
-				player.sendMessage(Text.of("crafting successful!"));
-				
-				//TODO: if weapon has been obtained and no Variant of this Weapon is held, give it as an item
 				return true;
 			}
 			default -> {
 				return super.onButtonClicked(action, value);
 			}
 		}
+	}
+	
+	boolean isResultHeld()
+	{
+		PlayerEntity player = MinecraftClient.getInstance().player;
+		PlayerInventory inv = player.getInventory();
+		if(inv.offHand.get(0).isOf(Registries.ITEM.get(selectedWeapon)))
+			return true;
+		DefaultedList<ItemStack> invList = inv.main;
+		Item outputItem = Registries.ITEM.get(selectedWeapon);
+		return outputItem != null && InventoryUtil.containsItem(invList, outputItem, 1);
 	}
 	
 	public void updateTab(int tab, IProgressionComponent progression)
@@ -174,7 +207,7 @@ public class WeaponsTab extends Tab
 		updateWeaponButton(blueWeapon, 0, selectedWeaponTypeIds, progression);
 		updateWeaponButton(greenWeapon, 1, selectedWeaponTypeIds, progression);
 		updateWeaponButton(redWeapon, 2, selectedWeaponTypeIds, progression);
-		updateSelectedWeapon(selectedWeaponTypeIds, -1, progression);
+		updateSelectedWeapon(selectedWeaponTypeIds, 0, progression);
 	}
 	
 	public void refreshTab()
@@ -223,9 +256,14 @@ public class WeaponsTab extends Tab
 							new Vector2i(0, 0), 0.001f, new Vector2i(16, 16), new Vector2i(0, 0), new Vector2i(16, 16)),
 							amount + " " + Text.translatable(item.getTranslationKey()).getString() + (amount > 0 ? "s" : "")));
 				});
+				if(isResultHeld())
+					craftButton.setLabel(Text.translatable("terminal.held").getString());
+				else
+					craftButton.setLabel(Text.translatable("terminal." + (progression.isOwned(selectedWeapon) ? "dispense" : "craft")).getString());
 			}
 		}
-		craftButton.setClickable(selectedRecipe != null);
+		boolean clickable = selectedRecipe != null && !isResultHeld();
+		craftButton.setClickable(clickable).setColor(clickable ? 0xffffffff : 0xff888888);
 		return true;
 	}
 	

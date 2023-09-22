@@ -27,6 +27,7 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -63,6 +64,7 @@ public class PacketRegistry
 	public static final Identifier GRAFFITI_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "graffiti_c2s");
 	public static final Identifier TERMINAL_REDSTONE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "terminal_redstone");
 	public static final Identifier TERMINAL_WEAPON_CRAFT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "terminal_weapon_craft");
+	public static final Identifier TERMINAL_WEAPON_DISPENSE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "terminal_weapon_dispense");
 	public static final Identifier CYCLE_WEAPON_VARIANT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "cycle_weapon_variant");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
@@ -409,6 +411,14 @@ public class PacketRegistry
 		ServerPlayNetworking.registerGlobalReceiver(TERMINAL_WEAPON_CRAFT_PACKET_ID, (server, player, handler, buf, sender) -> {
 			Identifier recipe = buf.readIdentifier();
 			server.execute(() -> UltraRecipeManager.getRecipe(recipe).craft(player));
+		});
+		ServerPlayNetworking.registerGlobalReceiver(TERMINAL_WEAPON_DISPENSE_PACKET_ID, (server, player, handler, buf, sender) -> {
+			Identifier weapon = buf.readIdentifier();
+			server.execute(() ->
+			{
+				if(UltraComponents.PROGRESSION.get(player).isOwned(weapon))
+					player.giveItemStack(Registries.ITEM.get(weapon).getDefaultStack());
+			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(CYCLE_WEAPON_VARIANT_PACKET_ID, (server, player, handler, buf, sender) -> {
 			server.execute(() -> AbstractWeaponItem.cycleVariant(player));

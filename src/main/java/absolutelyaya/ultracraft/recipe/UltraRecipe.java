@@ -48,7 +48,7 @@ public class UltraRecipe
 	{
 		if(UltraComponents.PROGRESSION.get(player).isOwned(result))
 		{
-			player.sendMessage(Text.of("[Error#1] Result is already owned."));
+			player.sendMessage(Text.translatable("terminal.craft.err0"), true);
 			return 1; //result is already owned
 		}
 		if(player.isCreativeLevelTwoOp())
@@ -70,7 +70,7 @@ public class UltraRecipe
 			}
 			if(count < material.get(item))
 			{
-				player.sendMessage(Text.of("[Error#0]Insufficient Materials"));
+				player.sendMessage(Text.translatable("terminal.craft.err0"), true);
 				return 0; //an item is insufficient; cannot craft
 			}
 		}
@@ -92,10 +92,7 @@ public class UltraRecipe
 		IProgressionComponent progression = UltraComponents.PROGRESSION.get(player);
 		progression.obtain(result);
 		for (Identifier unlockID : unlocks)
-		{
 			progression.unlock(unlockID);
-			System.out.println(unlockID);
-		}
 		progression.sync();
 		//dispense extra output
 		for (ItemStack stack : extraOutput)

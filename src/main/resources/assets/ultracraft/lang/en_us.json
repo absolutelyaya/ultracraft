@@ -362,6 +362,11 @@
   "terminal.weapon.railcannon": "Railcannon",
   "terminal.weapon.rocket_launcher": "Rocket Launcher",
   "terminal.craft": "Craft",
+  "terminal.craft.err0": "[Error#0] Insufficient Materials",
+  "terminal.craft.err1": "[Error#1] Result is already owned.",
+  "terminal.dispense": "Dispense",
+  "terminal.held": "! Already Held !",
+  "terminal.no-recipe": "! No Recipe !",
 
   "wing-preset.ultracraft.amethyst": "Amethyst",
   "wing-preset.ultracraft.cyber": "Cyber",
@@ -399,6 +404,8 @@
   "category.ultracraft": "Ultracraft",
   "key.ultracraft.hivel_toggle": "Toggle High Velocity Mode",
   "key.ultracraft.punch": "Punch",
+  "key.ultracraft.wing_customization": "Open Wing Customization",
+  "key.ultracraft.weapon_cycle": "Cycle Weapon Variant",
 
   "advancements.ultracraft.root.title": "ULTRACRAFT",
   "advancements.ultracraft.root.description": "Here are some Challenges for you",
