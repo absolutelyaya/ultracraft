@@ -124,9 +124,7 @@ public class KeybindRegistry
 			{
 				ClientPlayerEntity player = client.player;
 				if(player.getMainHandStack().getItem() instanceof AbstractWeaponItem)
-				{
 					AbstractWeaponItem.cycleVariant(player);
-				}
 			}
 			while(WEAPON_CYCLE.wasPressed()); //remove stored presses
 			weaponCyclePressed = WEAPON_CYCLE.isPressed();

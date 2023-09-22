@@ -340,6 +340,8 @@
   "screen.ultracraft.terminal.graffiti.name_placeholder": "File Name",
   "screen.ultracraft.terminal.graffiti.export_success": "Exported Graffiti Successfully!",
   "screen.ultracraft.terminal.graffiti.export_fail": "Export Failed.",
+  "screen.ultracraft.death.title": "[YOU ARE DEAD]",
+  "screen.ultracraft.death.respawn": "PRESS [R] TO RESPAWN",
 
   "terminal.coming-soon": "Coming Soon",
   "terminal.button": "Button",
@@ -510,5 +512,8 @@
   "text.autoconfig.ultracraft.option.hideWings.@Tooltip": "Lets you hide High Velocity Wings",
 
   "text.autoconfig.ultracraft.option.ultraHudFixed": "Fixed Rotation",
-  "text.autoconfig.ultracraft.option.ultraHudFixed.@Tooltip": "Prevents the Ultrahud from moving / \"following\" the view"
+  "text.autoconfig.ultracraft.option.ultraHudFixed.@Tooltip": "Prevents the Ultrahud from moving / \"following\" the view",
+
+  "text.autoconfig.ultracraft.option.deathScreen": "Ultrakill Death Screen",
+  "text.autoconfig.ultracraft.option.deathScreen.@Tooltip": "Replaces the Death Screen with the one from Ultrakill"
 }

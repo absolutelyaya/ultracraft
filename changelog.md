@@ -46,6 +46,7 @@
   - Lets you list, grant or revoke Progression Entries
 - Added `/ultracraft graffiti` subcommand
   - Lets you whitelist or ban specific Players from being able to make graffitis on Terminals
+- Added Setting for disabling the new Custom Death Screen
 ## Tweaks
 - Tweaked a Filth Animation
 ## Minor Changes
@@ -57,6 +58,7 @@
 - Increased Weapon Chargin Shake (remains the same if SafeVFX is enabled)
 - Improved Hell Bullets
 - Added Scrap Item (Replaces Weapons crafted before the new System was added)
+- Added Custom Death Screen
 ## Resource Changes
 - Added new Texture State for fully Charged Pierce Revolver (`pierce_revolver4.png`)
 ## API Changes
