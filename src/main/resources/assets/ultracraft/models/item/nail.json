@@ -1,8 +1,8 @@
 {
 	"credit": "Made by Absolutelyaya",
 	"textures": {
-		"0": "nail",
-		"particle": "nail"
+		"0": "ultracraft:item/nail",
+		"particle": "ultracraft:item/nail"
 	},
 	"elements": [
 		{
@@ -45,6 +45,12 @@
 			}
 		}
 	],
+	"display": {
+		"gui": {
+			"rotation": [30, 225, 0],
+			"scale": [4, 4, 4]
+		}
+	},
 	"groups": [
 		{
 			"name": "root",

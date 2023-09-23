@@ -66,6 +66,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	
 	@Shadow public abstract boolean isAlive();
 	
+	@Shadow protected float lastDamageTaken;
 	final int punchDuration = 6;
 	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
 	int punchTicks, ricochetCooldown, fatique;
@@ -112,6 +113,11 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			return;
 		if(source.isOf(DamageSources.GUN) || source.isOf(DamageSources.SHOTGUN))
 			timeUntilRegen = 9;
+		if(source.isOf(DamageSources.NAIL))
+		{
+			timeUntilRegen = 9;
+			lastDamageTaken = 0f;
+		}
 		if(source.isOf(DamageSources.SWORDSMACHINE))
 			timeUntilRegen = 12;
 	}

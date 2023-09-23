@@ -52,7 +52,7 @@ public class MagnetEntity extends PersistentProjectileEntity implements GeoEntit
 	
 	public static MagnetEntity spawn(LivingEntity owner, Vec3d pos, Vec3d vel)
 	{
-		MagnetEntity magnet = new MagnetEntity(EntityRegistry.HARPOON, owner.getWorld());
+		MagnetEntity magnet = new MagnetEntity(EntityRegistry.MAGNET, owner.getWorld());
 		magnet.setOwner(owner);
 		magnet.setPosition(pos);
 		magnet.setVelocity(vel);

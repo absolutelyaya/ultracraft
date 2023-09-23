@@ -36,6 +36,8 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "fake_shield"), new Item(new FabricItemSettings().maxCount(0)));
 	public static final Item FAKE_BANNER = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "fake_banner"), new Item(new FabricItemSettings().maxCount(0)));
+	public static final Item NAIL = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "nail"), new Item(new FabricItemSettings().maxCount(0)));
 	public static final Item BLOOD_BUCKET = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "blood_bucket"), new BucketItem(FluidRegistry.STILL_BLOOD,
 					new FabricItemSettings().maxCount(1).recipeRemainder(Items.BUCKET)));
@@ -83,6 +85,8 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "harpoon_gun"), new HarpoonGunItem(new FabricItemSettings(), 25, 0f));
 	public static final SoapItem SOAP = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "soap"), new SoapItem(new FabricItemSettings().maxCount(4).rarity(Rarity.EPIC)));
+	public static final AttractorNailgunItem ATTRACTOR_NAILGUN = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "attractor_nailgun"), new AttractorNailgunItem(new FabricItemSettings().maxCount(1)));
 	
 	//Spawn Eggs
 	public static final SpawnEggItem FILTH_SPAWN_EGG = Registry.register(Registries.ITEM,
@@ -158,6 +162,7 @@ public class ItemRegistry
 			content.add(SHARPSHOOTER_REVOLVER.getStackedSharpshooter());
 			content.add(CORE_SHOTGUN);
 			content.add(PUMP_SHOTGUN);
+			content.add(ATTRACTOR_NAILGUN);
 			content.add(MACHINE_SWORD.getDefaultStack(MachineSwordItem.Type.NORMAL));
 			content.add(MACHINE_SWORD.getDefaultStack(MachineSwordItem.Type.TUNDRA));
 			content.add(MACHINE_SWORD.getDefaultStack(MachineSwordItem.Type.AGONY));

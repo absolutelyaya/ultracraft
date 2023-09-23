@@ -143,8 +143,10 @@ public class ServerHitscanHandler
 			}
 		}
 		boolean disableExplosion = false;
-		IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(user);
-		boolean explodeProjectile = type == SHARPSHOOTER && winged.getSharpshooterCooldown() <= 0;
+		IWingedPlayerComponent winged = null;
+		if(user instanceof WingedPlayerEntity)
+			winged = UltraComponents.WINGED_ENTITY.get(user);
+		boolean explodeProjectile = type == SHARPSHOOTER && winged != null && winged.getSharpshooterCooldown() <= 0;
 		for (int i = 0; i < entities.size(); i++)
 		{
 			Entity e = entities.get(i);
@@ -158,7 +160,8 @@ public class ServerHitscanHandler
 				ExplosionHandler.explosion(user, world, proj.getPos(), DamageSources.get(world, DamageTypes.EXPLOSION, user), 5f, 1f, 5f, true);
 				proj.kill();
 				explodeProjectile = false;
-				winged.setSharpshooterCooldown(5);
+				if(winged != null)
+					winged.setSharpshooterCooldown(5);
 			}
 			if(e instanceof ThrownCoinEntity)
 				disableExplosion = true;

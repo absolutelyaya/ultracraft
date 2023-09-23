@@ -1,0 +1,9 @@
+{
+  "credit": "Made by Absolutelyaya",
+  "parent": "builtin/entity",
+  "texture_size": [
+    64,
+    64
+  ],
+  "display": {}
+}

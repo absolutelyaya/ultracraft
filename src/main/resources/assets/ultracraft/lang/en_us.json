@@ -11,6 +11,7 @@
   "item.ultracraft.sharpshooter_revolver": "Sharpshooter Revolver",
   "item.ultracraft.core_shotgun": "Core Eject Shotgun",
   "item.ultracraft.pump_shotgun": "Pump Shotgun",
+  "item.ultracraft.attractor_nailgun": "Attractor Nailgun",
   "item.ultracraft.machinesword": "Machinesword",
   "item.ultracraft.machinesword.lore.tundra": "§1§lTUNDRA",
   "item.ultracraft.machinesword.lore.agony": "§4§lAGONY",
@@ -178,9 +179,12 @@
   "death.attack.harpoon_rip": "%1$s was torn apart with a harpoons barb",
   "death.attack.harpoon_rip.player": "%1$s was torn apart with a harpoons barb by %2$s",
   "death.attack.harpoon_rip.item": "%1$s was torn apart with a harpoons barb by %2$s using %3$s",
-  "death.attack.soap": "%1$s was cleansed by %2$s",
+  "death.attack.soap": "%s was cleansed",
   "death.attack.soap.player": "%1$s was cleansed by %2$s",
   "death.attack.soap.item": "%1$s was cleansed by %2$s using %3$s",
+  "death.attack.nail": "%1$s became %2$s's pin-cushion",
+  "death.attack.nail.player": "%1$s became %2$s's pin-cushion",
+  "death.attack.nail.item": "%1$s became %2$s's pin-cushion through the use of %3$s",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 

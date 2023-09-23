@@ -26,7 +26,8 @@ public class REIClientPlugin implements me.shedaniel.rei.api.client.plugins.REIC
 				EntryStacks.of(ItemRegistry.FAKE_SHIELD),
 				EntryStacks.of(ItemRegistry.KILLERFISH),
 				EntryStacks.of(ItemRegistry.BLOOD_RAY),
-				EntryStacks.of(ItemRegistry.EJECTED_CORE)));
+				EntryStacks.of(ItemRegistry.EJECTED_CORE),
+				EntryStacks.of(ItemRegistry.NAIL)));
 	}
 	
 	@Override
