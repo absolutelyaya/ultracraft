@@ -95,6 +95,10 @@ public class EntityRegistry
 			new Identifier(Ultracraft.MOD_ID, "soap"),
 			EntityType.Builder.create(ThrownSoapEntity::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
 					.maxTrackingRange(5).trackingTickInterval(1).build("soap"));
+	public static final EntityType<MagnetEntity> MAGNET = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "magnet"),
+			EntityType.Builder.create(MagnetEntity::new, SpawnGroup.MISC).setDimensions(0.35f, 0.35f)
+					.maxTrackingRange(5).trackingTickInterval(1).build("magnet"));
 	
 	public static final EntityType<ShockwaveEntity> SHOCKWAVE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "shockwave"),
