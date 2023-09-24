@@ -3,7 +3,6 @@ package absolutelyaya.ultracraft.entity.projectile;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.damage.DamageSources;
-import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -53,13 +52,14 @@ public class NailEntity extends ProjectileEntity implements ProjectileEntityAcce
 	@Override
 	protected void onEntityHit(EntityHitResult entityHitResult)
 	{
-		super.onEntityHit(entityHitResult);
 		Entity entity = entityHitResult.getEntity();
+		if(isOwner(entity))
+			return;
+		super.onEntityHit(entityHitResult);
 		float amount = 0.2f;
 		//if(entity instanceof AbstractUltraHostileEntity)
 		//	amount *= 0.6f;
-		if(!isOwner(entity))
-			entity.damage(DamageSources.get(getWorld(), DamageSources.NAIL, getOwner(), this), amount);
+		entity.damage(DamageSources.get(getWorld(), DamageSources.NAIL, getOwner(), this), amount);
 	}
 	
 	@Override
@@ -74,6 +74,8 @@ public class NailEntity extends ProjectileEntity implements ProjectileEntityAcce
 				setVelocity(vel.multiply(dir.x == 0 ? 0.35f : -0.35f, dir.y == 0 ? 0.4f : -0.4f, dir.z == 0 ? 0.35f : -0.35f));
 				return;
 			}
+			if(hitResult instanceof EntityHitResult eHit && isOwner(eHit.getEntity()))
+				return;
 			getWorld().sendEntityStatus(this, (byte)3);
 			discard();
 		}

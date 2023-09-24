@@ -16,6 +16,7 @@ import net.minecraft.particle.ItemStackParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.TypeFilter;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -23,6 +24,8 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
+
+import java.util.List;
 
 public class MagnetEntity extends PersistentProjectileEntity implements GeoEntity
 {
@@ -69,8 +72,6 @@ public class MagnetEntity extends PersistentProjectileEntity implements GeoEntit
 	public void tick()
 	{
 		super.tick();
-		if(inGround || victim != null)
-			dataTracker.set(GROUND_TICKS, dataTracker.get(GROUND_TICKS) + 1);
 		if(dataTracker.get(GROUND_TICKS) > 240)
 			despawn();
 		int groundTicks = dataTracker.get(GROUND_TICKS);
@@ -96,13 +97,32 @@ public class MagnetEntity extends PersistentProjectileEntity implements GeoEntit
 			setPosition(victim.getPos().add(0f, victim.getHeight() / 2, 0f));
 			setYaw(dataTracker.get(IMPACT_YAW));
 		}
+		if(isRemoved())
+			return;
+		List<NailEntity> nails = getWorld().getEntitiesByType(TypeFilter.instanceOf(NailEntity.class), getBoundingBox().expand(8), n -> true);
+		List<MagnetEntity> magnets = getWorld().getEntitiesByType(TypeFilter.instanceOf(MagnetEntity.class), getBoundingBox().expand(8), n -> true);
+		Vec3d pos = getPos();
+		for (MagnetEntity magnet : magnets)
+			pos = pos.add(magnet.getPos());
+		pos = pos.multiply(1f / (magnets.size() + 1));
+		for (NailEntity nail : nails)
+			nail.setVelocity(nail.getVelocity().lerp(pos.add(0, 1, 0).subtract(nail.getPos()).normalize(),
+					Math.max(1f - nail.distanceTo(this) / 6f, 0)));
+		if(inGround || victim != null)
+			dataTracker.set(GROUND_TICKS, dataTracker.get(GROUND_TICKS) + 1 + (nails.size() / 42 / Math.max(magnets.size(), 1)));
 	}
 	
 	void despawn()
 	{
 		getWorld().sendEntityStatus(this, EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES);
 		if(!getWorld().isClient())
+		{
+			List<MagnetEntity> magnets = getWorld().getEntitiesByType(TypeFilter.instanceOf(MagnetEntity.class), getBoundingBox().expand(8), n -> n != this);
+			if(magnets.size() == 0)
+				getWorld().getEntitiesByType(TypeFilter.instanceOf(NailEntity.class), getBoundingBox().expand(8), n -> true)
+					 .forEach(n -> n.setVelocity(Vec3d.ZERO.addRandom(random, 1f).normalize().multiply((float)n.getVelocity().length())));
 			discard();
+		}
 	}
 	
 	@Override
