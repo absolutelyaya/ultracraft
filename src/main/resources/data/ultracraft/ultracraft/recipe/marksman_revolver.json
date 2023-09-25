@@ -1,0 +1,9 @@
+{
+  "materials": [
+    { "item": "minecraft:iron_ingot", "count": 32 },
+    { "item": "minecraft:gold_ingot", "count": 24 }
+  ],
+  "result": "ultracraft:marksman_revolver",
+  "extra-output": [],
+  "unlocks": []
+}

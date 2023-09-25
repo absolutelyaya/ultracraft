@@ -46,6 +46,9 @@ public class WeaponsTab extends Tab
 			new Identifier(Ultracraft.MOD_ID, "core_shotgun"),
 			new Identifier(Ultracraft.MOD_ID, "pump_shotgun")
 	};
+	static final Identifier[] NAILGUNS = new Identifier[]{
+			new Identifier(Ultracraft.MOD_ID, "attractor_nailgun")
+	};
 	
 	Button returnButton = new Button(Button.RETURN_LABEL,
 			new Vector2i(-6 - textRenderer.getWidth(Text.translatable(Button.RETURN_LABEL).getString()), 96 - textRenderer.fontHeight),
@@ -62,7 +65,7 @@ public class WeaponsTab extends Tab
 	int selectedCategory = -1;
 	Identifier selectedWeapon;
 	UltraRecipe selectedRecipe;
-	SpriteListElement ingredientList = new SpriteListElement(94, 6, 16);
+	SpriteListElement ingredientList = new SpriteListElement(94, 4, 16);
 	
 	public WeaponsTab()
 	{
@@ -76,10 +79,12 @@ public class WeaponsTab extends Tab
 		for (int i = 0; i < weaponCategories.length; i++)
 		{
 			String t = "terminal.weapon." + weaponCategories[i];
-			Button b = new Button(t, new Vector2i(-6 - textRenderer.getWidth(Text.translatable("terminal.weapon." + weaponCategories[i]).getString()),
+			boolean locked = i >= 0 && !unlockedAny(weaponCategories[i]);
+			Button b = new Button(t,
+					new Vector2i(-6 - textRenderer.getWidth(locked ? "???" : Text.translatable("terminal.weapon." + weaponCategories[i]).getString()),
 					2 + (i * (textRenderer.fontHeight + 5))), "select", i, false);
-			if(i >= 0 && !unlockedAny(weaponCategories[i]))
-				b.setClickable(false).setColor(0xff888888);
+			if(locked)
+				b.setClickable(false).setColor(0xff888888).setLabel("???");
 			buttons.add(b);
 			weaponCategoryButtons.add(b);
 		}
@@ -99,6 +104,7 @@ public class WeaponsTab extends Tab
 		{
 			case "revolver" -> progression.isUnlocked(REVOLVERS[0]) || progression.isUnlocked(REVOLVERS[1]) || progression.isUnlocked(REVOLVERS[2]);
 			case "shotgun" -> progression.isUnlocked(SHOTGUNS[0]) || progression.isUnlocked(SHOTGUNS[1]);
+			case "nailgun" -> progression.isUnlocked(NAILGUNS[0]);
 			default -> false;
 		};
 	}
@@ -134,6 +140,7 @@ public class WeaponsTab extends Tab
 		{
 			case "revolver" -> REVOLVERS;
 			case "shotgun" -> SHOTGUNS;
+			case "nailgun" -> NAILGUNS;
 			default -> new Identifier[]{};
 		};
 	}
@@ -161,7 +168,7 @@ public class WeaponsTab extends Tab
 					return true;
 				}
 				PlayerEntity player = MinecraftClient.getInstance().player;
-				if(progression.isOwned(selectedWeapon) && !isResultHeld())
+				if(progression.isOwned(selectedWeapon) && !isResultTypeHeld())
 				{
 					PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 					buf.writeIdentifier(selectedWeapon);
@@ -181,15 +188,20 @@ public class WeaponsTab extends Tab
 		}
 	}
 	
-	boolean isResultHeld()
+	boolean isResultTypeHeld()
 	{
-		PlayerEntity player = MinecraftClient.getInstance().player;
-		PlayerInventory inv = player.getInventory();
-		if(inv.offHand.get(0).isOf(Registries.ITEM.get(selectedWeapon)))
-			return true;
-		DefaultedList<ItemStack> invList = inv.main;
-		Item outputItem = Registries.ITEM.get(selectedWeapon);
-		return outputItem != null && InventoryUtil.containsItem(invList, outputItem, 1);
+		for (Identifier weapon : getWeaponListForType(selectedCategory))
+		{
+			PlayerEntity player = MinecraftClient.getInstance().player;
+			PlayerInventory inv = player.getInventory();
+			Item outputItem = Registries.ITEM.get(weapon);
+			if(inv.offHand.get(0).isOf(outputItem))
+				return true;
+			DefaultedList<ItemStack> invList = inv.main;
+			if(outputItem != null && InventoryUtil.containsItem(invList, outputItem, 1))
+				return true;
+		}
+		return false;
 	}
 	
 	public void updateTab(int tab, IProgressionComponent progression)
@@ -256,13 +268,13 @@ public class WeaponsTab extends Tab
 							new Vector2i(0, 0), 0.001f, new Vector2i(16, 16), new Vector2i(0, 0), new Vector2i(16, 16)),
 							amount + " " + Text.translatable(item.getTranslationKey()).getString() + (amount > 0 ? "s" : "")));
 				});
-				if(isResultHeld())
+				if(isResultTypeHeld())
 					craftButton.setLabel(Text.translatable("terminal.held").getString());
 				else
 					craftButton.setLabel(Text.translatable("terminal." + (progression.isOwned(selectedWeapon) ? "dispense" : "craft")).getString());
 			}
 		}
-		boolean clickable = selectedRecipe != null && !isResultHeld();
+		boolean clickable = selectedRecipe != null && !isResultTypeHeld();
 		craftButton.setClickable(clickable).setColor(clickable ? 0xffffffff : 0xff888888);
 		return true;
 	}

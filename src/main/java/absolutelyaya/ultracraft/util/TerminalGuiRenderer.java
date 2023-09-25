@@ -323,7 +323,7 @@ public class TerminalGuiRenderer
 	
 	public void drawSpriteList(VertexConsumerProvider buffers, MatrixStack matrices, int x, int y, SpriteListElement list)
 	{
-		int sizeX = list.getWidth(), sizeY = list.getLines() * (textRenderer.fontHeight + 3) + 1, spriteSize = list.getSpriteSize();
+		int sizeX = list.getWidth(), sizeY = list.getLines() * (textRenderer.fontHeight + 10) + 1, spriteSize = list.getSpriteSize();
 		Vector2d cursor = new Vector2d(terminal.getCursor()).mul(100f);
 		drawBoxOutline(buffers, matrices, x, y, sizeX, sizeY);
 		int startEntry = (int)list.getScroll(), lineHeight = Math.max(textRenderer.fontHeight, spriteSize);
