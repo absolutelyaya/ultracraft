@@ -1,6 +1,8 @@
 package absolutelyaya.ultracraft;
 
 import absolutelyaya.ultracraft.command.UltracraftCommand;
+import absolutelyaya.ultracraft.item.AbstractNailgunItem;
+import absolutelyaya.ultracraft.item.AttractorNailgunItem;
 import absolutelyaya.ultracraft.item.MarksmanRevolverItem;
 import absolutelyaya.ultracraft.item.SharpshooterRevolverItem;
 import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
@@ -79,10 +81,12 @@ public class Ultracraft implements ModInitializer
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
             newPlayer.getInventory().main.forEach(stack -> {
                 Item item = stack.getItem();
-                if(item instanceof MarksmanRevolverItem marksman && marksman.getCoins(stack) < 4)
-                    marksman.setCoins(stack, 4);
-                else if (item instanceof SharpshooterRevolverItem sharpshooter && sharpshooter.getCharges(stack) < 3)
-                    sharpshooter.setCharges(stack, 3);
+                if(item instanceof MarksmanRevolverItem marksman && marksman.getNbt(stack, "coins") < 4)
+                    marksman.setNbt(stack, "coins", 4);
+                else if (item instanceof SharpshooterRevolverItem sharpshooter && sharpshooter.getNbt(stack, "charges") < 3)
+                    sharpshooter.setNbt(stack, "charges", 3);
+                else if (item instanceof AbstractNailgunItem nailgun && nailgun.getNbt(stack, "nails") < 100)
+                    nailgun.setNbt(stack, "nails", 100);
             });
         });
         

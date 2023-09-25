@@ -64,19 +64,19 @@ public abstract class AbstractRevolverItem extends AbstractWeaponItem implements
 		super.inventoryTick(stack, world, entity, slot, selected);
 		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(player).getGunCooldownManager();
 		//Marksman Coin Tick
-		int coins = getCoins(stack);
+		int coins = getNbt(stack, "coins");
 		if(coins < 4 && cdm.isUsable(this, GunCooldownManager.SECONDARY))
 		{
-			setCoins(stack, coins + 1);
+			setNbt(stack, "coins", coins + 1);
 			if(coins + 1 < 4)
 				cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
 			player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.75f);
 		}
 		//Sharpshooter Charges Tick
-		int charges = getCharges(stack);
+		int charges = getNbt(stack, "charges");
 		if(charges < 3 && cdm.isUsable(this, GunCooldownManager.TRITARY))
 		{
-			setCharges(stack, charges + 1);
+			setNbt(stack, "charges", charges + 1);
 			cdm.setCooldown(this, 200, GunCooldownManager.TRITARY);
 			player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.5f);
 		}
@@ -94,33 +94,19 @@ public abstract class AbstractRevolverItem extends AbstractWeaponItem implements
 		return 4;
 	}
 	
-	public int getCoins(ItemStack stack)
-	{
-		if(!stack.hasNbt() || !stack.getNbt().contains("coins", NbtElement.INT_TYPE))
-			stack.getOrCreateNbt().putInt("coins", 4);
-		return stack.getNbt().getInt("coins");
-	}
-	
-	public void setCoins(ItemStack stack, int i)
-	{
-		stack.getOrCreateNbt().putInt("coins", i);
-	}
-	
-	public int getCharges(ItemStack stack)
-	{
-		if(!stack.hasNbt() || !stack.getNbt().contains("charges", NbtElement.INT_TYPE))
-			stack.getOrCreateNbt().putInt("charges", 3);
-		return stack.getNbt().getInt("charges");
-	}
-	
-	public void setCharges(ItemStack stack, int i)
-	{
-		stack.getOrCreateNbt().putInt("charges", i);
-	}
-	
 	@Override
 	public Class<? extends AbstractWeaponItem> getCooldownClass()
 	{
 		return AbstractRevolverItem.class;
+	}
+	
+	@Override
+	public int getNbtDefault(String nbt)
+	{
+		if(nbt.equals("charges"))
+			return 3;
+		else if(nbt.equals("coins"))
+			return 4;
+		return 0;
 	}
 }

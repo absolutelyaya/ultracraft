@@ -14,6 +14,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.Registries;
 import net.minecraft.util.Hand;
@@ -36,7 +37,7 @@ public abstract class AbstractWeaponItem extends Item
 	{
 		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(user).getGunCooldownManager();
 		return /*user.getAttackCooldownProgress(0.3f) >= 1f &&*/
-					   (user instanceof WingedPlayerEntity winged && cdm.isUsable(this, GunCooldownManager.PRIMARY));
+					   (user instanceof WingedPlayerEntity && cdm.isUsable(this, GunCooldownManager.PRIMARY));
 	}
 	
 	public boolean onPrimaryFire(World world, PlayerEntity user, Vec3d userVelocity)
@@ -179,5 +180,22 @@ public abstract class AbstractWeaponItem extends Item
 		if(stack.getItem() instanceof AbstractWeaponItem weapon)
 			return weapon.getCooldownClass();
 		return getClass();
+	}
+	
+	public int getNbt(ItemStack stack, String nbt)
+	{
+		if(!stack.hasNbt() || !stack.getNbt().contains(nbt, NbtElement.INT_TYPE))
+			stack.getOrCreateNbt().putInt(nbt, getNbtDefault(nbt));
+		return stack.getNbt().getInt(nbt);
+	}
+	
+	public void setNbt(ItemStack stack, String nbt, int i)
+	{
+		stack.getOrCreateNbt().putInt(nbt, i);
+	}
+	
+	protected int getNbtDefault(String nbt)
+	{
+		return 0;
 	}
 }

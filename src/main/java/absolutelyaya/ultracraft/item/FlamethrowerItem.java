@@ -11,7 +11,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -70,7 +69,7 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 		ItemStack stack = user.getMainHandStack();
 		if(!stack.isOf(this))
 			return false;
-		int heat = getHeat(stack);
+		int heat = getNbt(stack, "heat");
 		boolean overdrive = heat > 200;
 		cdm.setCooldown(this, overdrive ? 2 : 4, GunCooldownManager.PRIMARY);
 		if(!world.isClient)
@@ -92,7 +91,7 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 				world.playSound(null, user.getBlockPos(), SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.PLAYERS, 1f,
 						0.25f + user.getRandom().nextFloat() * 0.1f);
 			}
-			setHeat(stack, heat + 4);
+			setNbt(stack, "heat", heat + 4);
 		}
 		if(heat > 300)
 		{
@@ -111,20 +110,20 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
 	{
 		super.inventoryTick(stack, world, entity, slot, selected);
-		int heat = getHeat(stack);
+		int heat = getNbt(stack, "heat");
 		IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(entity);
 		if(heat > 0 && entity.age % 2 == 0 && (!winged.isPrimaryFiring() || winged.getGunCooldownManager().getCooldown(this, GunCooldownManager.PRIMARY) > 5))
-			setHeat(stack, heat - 1);
+			setNbt(stack, "heat", heat - 1);
 	}
 	
 	@Override
 	public void onPrimaryFireStop(World world, PlayerEntity user)
 	{
-		if(!(user instanceof WingedPlayerEntity winged))
+		if(!(user instanceof WingedPlayerEntity))
 			return;
 		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(user).getGunCooldownManager();
 		if(cdm.getCooldown(this, GunCooldownManager.PRIMARY) < 5)
-			cdm.setCooldown(this, getHeat(user.getMainHandStack()) > 200 ? 25 : 50, GunCooldownManager.PRIMARY);
+			cdm.setCooldown(this, getNbt(user.getMainHandStack(), "heat") > 200 ? 25 : 50, GunCooldownManager.PRIMARY);
 		if(!world.isClient)
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), "stop");
 	}
@@ -187,7 +186,7 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 	@Override
 	public String getCountString(ItemStack stack)
 	{
-		int heat = getHeat(stack);
+		int heat = getNbt(stack, "heat");
 		if(heat == 0)
 			return "";
 		String c = heat <= 200 ? "§6" : "§4";
@@ -197,21 +196,15 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 	@Override
 	public int getItemBarColor(ItemStack stack)
 	{
-		int heat = getHeat(stack);
+		int heat = getNbt(stack, "heat");
 		int c = ((255 - Math.max(heat - 200, 0)) << 8) + Math.round(Math.max(1f - heat / 200f, 0.1f) * 255);
 		c = (c << 8);
 		return c;
 	}
 	
-	public int getHeat(ItemStack stack)
+	@Override
+	public int getNbtDefault(String nbt)
 	{
-		if(!stack.hasNbt() || !stack.getNbt().contains("heat", NbtElement.INT_TYPE))
-			stack.getOrCreateNbt().putInt("heat", 0);
-		return stack.getNbt().getInt("heat");
-	}
-	
-	public void setHeat(ItemStack stack, int i)
-	{
-		stack.getOrCreateNbt().putInt("heat", i);
+		return 0;
 	}
 }
