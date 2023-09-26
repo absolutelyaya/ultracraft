@@ -8,15 +8,24 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Arm;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoItem;
-
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.core.object.PlayState;
+//TODO: fix third person Transform
 public abstract class AbstractNailgunItem extends AbstractWeaponItem implements GeoItem
 {
+	final RawAnimation AnimationFireLoop = RawAnimation.begin().thenPlay("fire_loop");
+	final RawAnimation AnimationFireStop = RawAnimation.begin().thenPlay("fire_stop");
+	
 	public AbstractNailgunItem(Settings settings)
 	{
 		super(settings, 0.5f, 15f);
@@ -34,7 +43,8 @@ public abstract class AbstractNailgunItem extends AbstractWeaponItem implements 
 				return true;
 			}
 			NailEntity nail = new NailEntity(EntityRegistry.NAIL, world);
-			nail.setPosition(user.getEyePos().subtract(0, 0.25, 0));
+			nail.setPosition(user.getEyePos().subtract(0, 0.25, 0).add(user.getRotationVector().rotateY((float)Math.toRadians(90))
+																			   .multiply(user.getMainArm().equals(Arm.RIGHT) ? -0.3 : 0.3)));
 			nail.setOwner(user);
 			nail.setVelocity(user, user.getPitch(), user.getYaw(), 0f, 1f, 10f);
 			world.spawnEntity(nail);
@@ -43,6 +53,22 @@ public abstract class AbstractNailgunItem extends AbstractWeaponItem implements 
 		}
 		else
 			return false;
+	}
+	
+	@Override
+	public void onPrimaryFireStart(World world, PlayerEntity user)
+	{
+		super.onPrimaryFireStart(world, user);
+		if(!world.isClient)
+			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), "fire_loop");
+	}
+	
+	@Override
+	public void onPrimaryFireStop(World world, PlayerEntity user)
+	{
+		super.onPrimaryFireStop(world, user);
+		if(!world.isClient)
+			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), "fire_stop");
 	}
 	
 	@Override
@@ -81,6 +107,14 @@ public abstract class AbstractNailgunItem extends AbstractWeaponItem implements 
 	int getSwitchCooldown()
 	{
 		return 10;
+	}
+	
+	@Override
+	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
+	{
+		controllerRegistrar.add(new AnimationController<>(this, getControllerName(), 1, state -> PlayState.STOP)
+										.triggerableAnim("fire_loop", AnimationFireLoop)
+										.triggerableAnim("fire_stop", AnimationFireStop));
 	}
 	
 	@Override

@@ -46,6 +46,11 @@ public abstract class AbstractWeaponItem extends Item
 		return true;
 	}
 	
+	public void onPrimaryFireStart(World world, PlayerEntity user)
+	{
+	
+	}
+	
 	public void onPrimaryFireStop(World world, PlayerEntity user)
 	{
 	
@@ -140,7 +145,6 @@ public abstract class AbstractWeaponItem extends Item
 			return null;
 		for (int i = 1; i < variants.length; i++)
 		{
-			System.out.println((start + i) % (variants.length));
 			Item item = variants[(start + i) % (variants.length)];
 			if(!item.equals(stack.getItem()) && progression.isOwned(Registries.ITEM.getId(item)))
 				return item;

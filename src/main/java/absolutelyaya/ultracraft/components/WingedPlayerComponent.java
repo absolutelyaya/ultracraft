@@ -201,11 +201,16 @@ public class WingedPlayerComponent implements IWingedPlayerComponent, AutoSynced
 	@Override
 	public void setPrimaryFiring(boolean firing)
 	{
+		boolean last = primaryFiring;
 		primaryFiring = firing;
 		if(firing)
 		{
 			if(provider.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w)
+			{
 				lastPrimaryWeapon = w;
+				if(!last)
+					w.onPrimaryFireStart(provider.getWorld(), provider);
+			}
 		}
 		else
 		{
