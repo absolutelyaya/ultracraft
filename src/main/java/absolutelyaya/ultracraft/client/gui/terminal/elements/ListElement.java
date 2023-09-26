@@ -14,7 +14,7 @@ public class ListElement implements Element
 	double scroll;
 	int selected = -1, lastHovered;
 	Consumer<Integer> onSelect;
-	boolean selectable;
+	boolean selectable = true;
 	
 	public ListElement(int width, int lines)
 	{

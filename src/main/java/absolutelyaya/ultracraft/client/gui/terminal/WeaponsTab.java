@@ -268,13 +268,13 @@ public class WeaponsTab extends Tab
 							new Vector2i(0, 0), 0.001f, new Vector2i(16, 16), new Vector2i(0, 0), new Vector2i(16, 16)),
 							amount + " " + Text.translatable(item.getTranslationKey()).getString() + (amount > 0 ? "s" : "")));
 				});
-				if(isResultTypeHeld())
+				if(isResultTypeHeld() && progression.isOwned(selectedWeapon))
 					craftButton.setLabel(Text.translatable("terminal.held").getString());
 				else
 					craftButton.setLabel(Text.translatable("terminal." + (progression.isOwned(selectedWeapon) ? "dispense" : "craft")).getString());
 			}
 		}
-		boolean clickable = selectedRecipe != null && !isResultTypeHeld();
+		boolean clickable = selectedRecipe != null && !(isResultTypeHeld() && progression.isOwned(selectedWeapon));
 		craftButton.setClickable(clickable).setColor(clickable ? 0xffffffff : 0xff888888);
 		return true;
 	}

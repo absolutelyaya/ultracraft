@@ -48,7 +48,7 @@ public class UltraRecipe
 	{
 		if(UltraComponents.PROGRESSION.get(player).isOwned(result))
 		{
-			player.sendMessage(Text.translatable("terminal.craft.err0"), true);
+			player.sendMessage(Text.translatable("terminal.craft.err1"), true);
 			return 1; //result is already owned
 		}
 		if(player.isCreativeLevelTwoOp())

@@ -63,7 +63,10 @@ public class EditMainMenuTab extends Tab
 		}
 		titleBox.getLines().set(0, terminal.getMainMenuTitle());
 		globalActionsList.getEntries().addAll(GlobalButtonActions.getAllActions());
-		globalActionsList.setOnSelect(i -> buttonActions.set(selectedButton, globalActionsList.getEntries().get(i)));
+		globalActionsList.setOnSelect(i -> {
+			buttonActions.set(selectedButton, globalActionsList.getEntries().get(i));
+			System.out.println(i);
+		});
 		buttonValueTextBox.setNumbersOnly(true);
 		buttonValueTextBox.setChangeConsumer(t -> buttonValues.set(selectedButton, Integer.parseInt(t)));
 	}
