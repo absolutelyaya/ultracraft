@@ -18,7 +18,7 @@ public class WingedPlayerComponent implements IWingedPlayerComponent, AutoSynced
 	GunCooldownManager gunCDM;
 	boolean slamming, ignoreSlowdown, primaryFiring, airControlIncreased;
 	byte wingState, lastState;
-	int dashingTicks = -2, slamDamageCooldown, stamina, bloodHealCooldown, sharpshooterCooldown;
+	int dashingTicks = -2, slamDamageCooldown, stamina, bloodHealCooldown, sharpshooterCooldown, magnets;
 	AbstractWeaponItem lastPrimaryWeapon;
 	
 	public WingedPlayerComponent(PlayerEntity provider)
@@ -248,6 +248,16 @@ public class WingedPlayerComponent implements IWingedPlayerComponent, AutoSynced
 	public void setSlamDamageCooldown(int i)
 	{
 		slamDamageCooldown = i;
+	}
+	
+	public void setMagnets(int i)
+	{
+		magnets = i;
+	}
+	
+	public int getMagnets()
+	{
+		return magnets;
 	}
 	
 	@Override

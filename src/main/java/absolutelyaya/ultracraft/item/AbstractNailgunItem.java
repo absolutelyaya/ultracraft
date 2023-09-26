@@ -46,7 +46,7 @@ public abstract class AbstractNailgunItem extends AbstractWeaponItem implements 
 			nail.setPosition(user.getEyePos().subtract(0, 0.25, 0).add(user.getRotationVector().rotateY((float)Math.toRadians(90))
 																			   .multiply(user.getMainArm().equals(Arm.RIGHT) ? -0.3 : 0.3)));
 			nail.setOwner(user);
-			nail.setVelocity(user, user.getPitch(), user.getYaw(), 0f, 1f, 10f);
+			nail.setVelocity(user, user.getPitch(), user.getYaw(), 0f, 2.5f, 7.5f);
 			world.spawnEntity(nail);
 			setNbt(stack, "nails", getNbt(stack, "nails") - 1);
 			return true;

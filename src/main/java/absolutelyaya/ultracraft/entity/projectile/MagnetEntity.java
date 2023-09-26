@@ -1,5 +1,8 @@
 package absolutelyaya.ultracraft.entity.projectile;
 
+import absolutelyaya.ultracraft.UltraComponents;
+import absolutelyaya.ultracraft.client.GunCooldownManager;
+import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
@@ -97,10 +100,10 @@ public class MagnetEntity extends PersistentProjectileEntity implements GeoEntit
 			setPosition(victim.getPos().add(0f, victim.getHeight() / 2, 0f));
 			setYaw(dataTracker.get(IMPACT_YAW));
 		}
-		if(isRemoved())
+		if(isRemoved() || !isInGround())
 			return;
 		List<NailEntity> nails = getWorld().getEntitiesByType(TypeFilter.instanceOf(NailEntity.class), getBoundingBox().expand(8), n -> true);
-		List<MagnetEntity> magnets = getWorld().getEntitiesByType(TypeFilter.instanceOf(MagnetEntity.class), getBoundingBox().expand(8), n -> true);
+		List<MagnetEntity> magnets = getWorld().getEntitiesByType(TypeFilter.instanceOf(MagnetEntity.class), getBoundingBox().expand(8), MagnetEntity::isInGround);
 		Vec3d pos = getPos();
 		for (MagnetEntity magnet : magnets)
 			pos = pos.add(magnet.getPos());
@@ -121,6 +124,14 @@ public class MagnetEntity extends PersistentProjectileEntity implements GeoEntit
 			if(magnets.size() == 0)
 				getWorld().getEntitiesByType(TypeFilter.instanceOf(NailEntity.class), getBoundingBox().expand(8), n -> true)
 					 .forEach(n -> n.setVelocity(Vec3d.ZERO.addRandom(random, 1f).normalize().multiply((float)n.getVelocity().length())));
+			if(getOwner() instanceof PlayerEntity player)
+			{
+				IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(player);
+				winged.setMagnets(Math.max(winged.getMagnets() - 1, 0));
+				GunCooldownManager gcdm = winged.getGunCooldownManager();
+				if(gcdm.isUsable(ItemRegistry.ATTRACTOR_NAILGUN, GunCooldownManager.SECONDARY))
+					gcdm.setCooldown(ItemRegistry.ATTRACTOR_NAILGUN, 10, GunCooldownManager.SECONDARY);
+			}
 			discard();
 		}
 	}

@@ -71,4 +71,8 @@ public interface IWingedPlayerComponent extends ComponentV3, CommonTickingCompon
 	float getSlamDamageCooldown();
 	
 	void setSlamDamageCooldown(int i);
+	
+	int getMagnets();
+	
+	void setMagnets(int i);
 }

@@ -1,9 +1,16 @@
 package absolutelyaya.ultracraft.item;
 
+import absolutelyaya.ultracraft.UltraComponents;
+import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.AttractorNailgunRenderer;
+import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.entity.projectile.MagnetEntity;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
+import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
 import org.joml.Vector2i;
 import software.bernie.geckolib.animatable.GeoItem;
@@ -32,6 +39,36 @@ public class AttractorNailgunItem extends AbstractNailgunItem
 		super.onAltFire(world, user);
 		MagnetEntity magnet = MagnetEntity.spawn(user, user.getEyePos(), user.getRotationVector().multiply(1.5f));
 		world.spawnEntity(magnet);
+		ItemStack stack = user.getMainHandStack();
+		setNbt(stack, "magnets", getNbt(stack, "magnets") - 1);
+		IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(user);
+		winged.setMagnets(winged.getMagnets() + 1);
+	}
+	
+	@Override
+	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
+	{
+		int magnets = UltraComponents.WINGED_ENTITY.get(user).getMagnets();
+		ItemStack itemStack = user.getStackInHand(hand);
+		if(magnets >= 3 || getNbt(itemStack, "magnets") <= 0)
+			return TypedActionResult.fail(itemStack);
+		return super.use(world, user, hand);
+	}
+	
+	@Override
+	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
+	{
+		if(entity instanceof PlayerEntity)
+		{
+			IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(entity);
+			GunCooldownManager gcdm = winged.getGunCooldownManager();
+			if(gcdm.isUsable(this, GunCooldownManager.SECONDARY) && getNbt(stack, "magnets") < 3 - winged.getMagnets())
+			{
+				setNbt(stack, "magnets", getNbt(stack, "magnets") + 1);
+				gcdm.setCooldown(this, 10, GunCooldownManager.SECONDARY);
+			}
+		}
+		super.inventoryTick(stack, world, entity, slot, selected);
 	}
 	
 	@Override
