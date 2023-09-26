@@ -129,11 +129,19 @@ public abstract class AbstractWeaponItem extends Item
 		if(!(stack.getItem() instanceof AbstractWeaponItem weapon))
 			return null;
 		Item[] variants = weapon.getVariants();
+		int start = -1;
 		for (int i = 0; i < variants.length; i++)
 		{
 			if(!stack.getItem().equals(variants[i]))
 				continue;
-			Item item = variants[(i + 1) % variants.length];
+			start = i;
+		}
+		if(start == -1)
+			return null;
+		for (int i = 1; i < variants.length; i++)
+		{
+			System.out.println((start + i) % (variants.length));
+			Item item = variants[(start + i) % (variants.length)];
 			if(!item.equals(stack.getItem()) && progression.isOwned(Registries.ITEM.getId(item)))
 				return item;
 		}
