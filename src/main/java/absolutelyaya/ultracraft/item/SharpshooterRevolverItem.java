@@ -230,7 +230,7 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	}
 	
 	@Override
-	public String getCountString(ItemStack stack)
+	public String getTopOverlayString(ItemStack stack)
 	{
 		if(stack.hasNbt() && stack.getNbt().contains("charges"))
 			return Formatting.GOLD + String.valueOf(getNbt(stack, "charges"));

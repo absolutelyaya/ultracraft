@@ -5,10 +5,12 @@ import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.AttractorNailgunRenderer;
 import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.entity.projectile.MagnetEntity;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.world.World;
@@ -65,7 +67,8 @@ public class AttractorNailgunItem extends AbstractNailgunItem
 			if(gcdm.isUsable(this, GunCooldownManager.SECONDARY) && getNbt(stack, "magnets") < 3 - winged.getMagnets())
 			{
 				setNbt(stack, "magnets", getNbt(stack, "magnets") + 1);
-				gcdm.setCooldown(this, 10, GunCooldownManager.SECONDARY);
+				if(getNbt(stack, "magnets") < 3)
+					gcdm.setCooldown(this, 10, GunCooldownManager.SECONDARY);
 			}
 		}
 		super.inventoryTick(stack, world, entity, slot, selected);
@@ -109,5 +112,27 @@ public class AttractorNailgunItem extends AbstractNailgunItem
 	public AnimatableInstanceCache getAnimatableInstanceCache()
 	{
 		return cache;
+	}
+	
+	@Override
+	public String getCountString(ItemStack stack)
+	{
+		return Formatting.AQUA + String.valueOf(getNbt(stack, "magnets"));
+	}
+	
+	@Override
+	public boolean isItemBarVisible(ItemStack stack)
+	{
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
+		return !cdm.isUsable(getCooldownClass(stack), GunCooldownManager.SECONDARY);
+	}
+	
+	@Override
+	public int getItemBarStep(ItemStack stack)
+	{
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
+		if(!cdm.isUsable(this, GunCooldownManager.SECONDARY))
+			return (int)(cdm.getCooldownPercent(getCooldownClass(stack), GunCooldownManager.SECONDARY) * 14);
+		return 0;
 	}
 }

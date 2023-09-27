@@ -92,7 +92,7 @@ public abstract class AbstractNailgunItem extends AbstractWeaponItem implements 
 	}
 	
 	@Override
-	public String getCountString(ItemStack stack)
+	public String getTopOverlayString(ItemStack stack)
 	{
 		return Formatting.GOLD + String.valueOf(getNbt(stack, "nails"));
 	}

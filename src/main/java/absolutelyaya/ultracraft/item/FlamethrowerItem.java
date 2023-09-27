@@ -184,7 +184,7 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 	}
 	
 	@Override
-	public String getCountString(ItemStack stack)
+	public String getTopOverlayString(ItemStack stack)
 	{
 		int heat = getNbt(stack, "heat");
 		if(heat == 0)

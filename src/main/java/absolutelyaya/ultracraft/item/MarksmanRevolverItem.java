@@ -167,7 +167,7 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 	}
 	
 	@Override
-	public String getCountString(ItemStack stack)
+	public String getTopOverlayString(ItemStack stack)
 	{
 		return Formatting.GOLD + String.valueOf(getNbt(stack, "coins"));
 	}

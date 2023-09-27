@@ -71,7 +71,7 @@ public class NailEntity extends ProjectileEntity implements ProjectileEntityAcce
 			{
 				Vector3f dir = bHit.getSide().getUnitVector();
 				Vec3d vel = getVelocity();
-				setVelocity(vel.multiply(dir.x == 0 ? 0.35f : -0.35f, dir.y == 0 ? 0.4f : -0.4f, dir.z == 0 ? 0.35f : -0.35f));
+				setVelocity(vel.multiply(dir.x == 0 ? 0.15f : -0.15f, dir.y == 0 ? 0.2f : -0.2f, dir.z == 0 ? 0.15f : -0.15f));
 				return;
 			}
 			if(hitResult instanceof EntityHitResult eHit && isOwner(eHit.getEntity()))

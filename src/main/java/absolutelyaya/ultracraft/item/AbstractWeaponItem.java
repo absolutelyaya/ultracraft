@@ -109,6 +109,11 @@ public abstract class AbstractWeaponItem extends Item
 	
 	abstract String getControllerName();
 	
+	public String getTopOverlayString(ItemStack stack)
+	{
+		return null;
+	}
+	
 	public String getCountString(ItemStack stack)
 	{
 		return null;

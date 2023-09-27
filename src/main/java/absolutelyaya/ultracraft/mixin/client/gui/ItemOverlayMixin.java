@@ -38,7 +38,8 @@ public abstract class ItemOverlayMixin
 			RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 			int i = weapon.getHUDTexture().x;
-			drawTexture(new Identifier(Ultracraft.MOD_ID, "textures/gui/weapon_border.png"), x, y, 0, 16 * (i % 2), 16 * (int)Math.floor(i / 2f), 16, 16, 32, 32);
+			drawTexture(new Identifier(Ultracraft.MOD_ID, "textures/gui/weapon_border.png"), x, y, 0,
+					16 * (i % 2), 16 * (int)Math.floor(i / 2f), 16, 16, 32, 32);
 			matrices.pop();
 		}
 	}
@@ -46,15 +47,24 @@ public abstract class ItemOverlayMixin
 	@Inject(method = "drawItemInSlot(Lnet/minecraft/client/font/TextRenderer;Lnet/minecraft/item/ItemStack;IILjava/lang/String;)V", at = @At(value = "TAIL"))
 	void onAfterRenderOverlay(TextRenderer textRenderer, ItemStack stack, int x, int y, String countOverride, CallbackInfo ci)
 	{
+		String topText = null;
 		if (stack.getItem() instanceof AbstractWeaponItem weapon)
+		{
+			topText = weapon.getTopOverlayString(stack);
 			countOverride = weapon.getCountString(stack);
-		if(stack.getItem() instanceof AbstractWeaponItem && countOverride != null)
+		}
+		if(stack.getItem() instanceof AbstractWeaponItem)
 		{
 			RenderSystem.disableDepthTest();
 			matrices.push();
 			matrices.translate(0, 0, 200);
 			VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
-			textRenderer.draw(countOverride, x, y, 16777215, true, matrices.peek().getPositionMatrix(), immediate, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
+			if(topText != null)
+				textRenderer.draw(topText, x, y, 16777215, true, matrices.peek().getPositionMatrix(), immediate,
+						TextRenderer.TextLayerType.NORMAL, 0, 15728880);
+			if(countOverride != null)
+				textRenderer.draw(countOverride, x + 19 - 2 - textRenderer.getWidth(countOverride), y + 6 + 3,
+						16777215, true, matrices.peek().getPositionMatrix(), immediate, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
 			immediate.draw();
 			matrices.pop();
 			RenderSystem.enableDepthTest();
