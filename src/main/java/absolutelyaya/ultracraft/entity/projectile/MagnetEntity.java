@@ -32,15 +32,17 @@ import java.util.List;
 
 public class MagnetEntity extends PersistentProjectileEntity implements GeoEntity
 {
-	protected static final TrackedData<Integer> GROUND_TICKS = DataTracker.registerData(MagnetEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	protected static final TrackedData<Float> GROUND_TIME = DataTracker.registerData(MagnetEntity.class, TrackedDataHandlerRegistry.FLOAT);
 	protected static final TrackedData<Float> IMPACT_YAW = DataTracker.registerData(MagnetEntity.class, TrackedDataHandlerRegistry.FLOAT);
+	protected static final TrackedData<Float> IMPACT_PITCH = DataTracker.registerData(MagnetEntity.class, TrackedDataHandlerRegistry.FLOAT);
+	protected static final TrackedData<Float> STRAIN = DataTracker.registerData(MagnetEntity.class, TrackedDataHandlerRegistry.FLOAT);
 	protected static final TrackedData<Integer> NAILS = DataTracker.registerData(MagnetEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	
 	protected final AnimatableInstanceCache cache = new InstancedAnimatableInstanceCache(this);
 	
 	LivingEntity victim;
 	int unmovingTicks;
-	float flash;
+	float flash, flashTimer;
 	
 	public MagnetEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world)
 	{
@@ -51,8 +53,10 @@ public class MagnetEntity extends PersistentProjectileEntity implements GeoEntit
 	protected void initDataTracker()
 	{
 		super.initDataTracker();
-		dataTracker.startTracking(GROUND_TICKS, 0);
+		dataTracker.startTracking(GROUND_TIME, 0f);
 		dataTracker.startTracking(IMPACT_YAW, 0f);
+		dataTracker.startTracking(IMPACT_PITCH, 0f);
+		dataTracker.startTracking(STRAIN, 0f);
 		dataTracker.startTracking(NAILS, 0);
 	}
 	
@@ -75,12 +79,14 @@ public class MagnetEntity extends PersistentProjectileEntity implements GeoEntit
 	public void tick()
 	{
 		super.tick();
-		if(dataTracker.get(GROUND_TICKS) > 240)
+		if(dataTracker.get(GROUND_TIME) > 240)
 			despawn();
-		int groundTicks = dataTracker.get(GROUND_TICKS);
-		if(groundTicks > 0 && groundTicks % Math.max((20 / Math.max(groundTicks / 50, 1)), 1) == 0)
+		float groundTime = dataTracker.get(GROUND_TIME);
+		flashTimer += 0.05f * Math.max(groundTime / 50f + getStrain(), 1f);
+		if(groundTime > 0 && flashTimer > 0.5f)
 		{
 			flash = 1f;
+			flashTimer = 0f;
 			playSound(SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), 0.5f, 1.85f);
 		}
 		if(getVelocity().equals(Vec3d.ZERO) && !inGround && victim == null)
@@ -99,6 +105,7 @@ public class MagnetEntity extends PersistentProjectileEntity implements GeoEntit
 			setVelocity(Vec3d.ZERO);
 			setPosition(victim.getPos().add(0f, victim.getHeight() / 2, 0f));
 			setYaw(dataTracker.get(IMPACT_YAW));
+			setPitch(dataTracker.get(IMPACT_PITCH));
 		}
 		if(isRemoved() || !isInGround())
 			return;
@@ -112,7 +119,11 @@ public class MagnetEntity extends PersistentProjectileEntity implements GeoEntit
 			nail.setVelocity(nail.getVelocity().lerp(pos.add(0, 1, 0).subtract(nail.getPos()).normalize(),
 					Math.max(1f - nail.distanceTo(this) / 6f, 0)));
 		if(inGround || victim != null)
-			dataTracker.set(GROUND_TICKS, dataTracker.get(GROUND_TICKS) + 1 + (nails.size() / 42 / Math.max(magnets.size(), 1)));
+		{
+			float strain = nails.size() / 42f / Math.max(magnets.size(), 1f);
+			dataTracker.set(GROUND_TIME, dataTracker.get(GROUND_TIME) + 1f + strain);
+			dataTracker.set(STRAIN, strain);
+		}
 	}
 	
 	void despawn()
@@ -151,7 +162,8 @@ public class MagnetEntity extends PersistentProjectileEntity implements GeoEntit
 		{
 			victim = living;
 			dataTracker.set(IMPACT_YAW, getYaw());
-			living.damage(DamageSources.get(getWorld(), DamageSources.HARPOON, this, getOwner()), 3.5f);
+			dataTracker.set(IMPACT_PITCH, getPitch());
+			living.damage(DamageSources.get(getWorld(), DamageSources.MAGNET, this, getOwner()), 3.5f);
 		}
 	}
 	
@@ -160,12 +172,17 @@ public class MagnetEntity extends PersistentProjectileEntity implements GeoEntit
 	
 	public boolean isInGround()
 	{
-		return inGround;
+		return inGround || victim != null;
 	}
 	
 	public LivingEntity getVictim()
 	{
 		return victim;
+	}
+	
+	public float getStrain()
+	{
+		return dataTracker.get(STRAIN);
 	}
 	
 	@Override

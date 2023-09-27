@@ -33,6 +33,7 @@ public class HarpoonEntity extends PersistentProjectileEntity
 	protected static final TrackedData<Integer> GROUND_TICKS = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Boolean> RETURNING = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Float> IMPACT_YAW = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.FLOAT);
+	protected static final TrackedData<Float> IMPACT_PITCH = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.FLOAT);
 	
 	LivingEntity victim;
 	int unmovingTicks;
@@ -50,6 +51,7 @@ public class HarpoonEntity extends PersistentProjectileEntity
 		dataTracker.startTracking(GROUND_TICKS, 0);
 		dataTracker.startTracking(RETURNING, false);
 		dataTracker.startTracking(IMPACT_YAW, 0f);
+		dataTracker.startTracking(IMPACT_PITCH, 0f);
 	}
 	
 	public static HarpoonEntity spawn(LivingEntity owner, Vec3d pos, Vec3d vel)
@@ -114,6 +116,7 @@ public class HarpoonEntity extends PersistentProjectileEntity
 			setVelocity(Vec3d.ZERO);
 			setPosition(victim.getPos().add(0f, victim.getHeight() / 2, 0f));
 			setYaw(dataTracker.get(IMPACT_YAW));
+			setYaw(dataTracker.get(IMPACT_PITCH));
 			victim.addStatusEffect(new StatusEffectInstance(StatusEffectRegistry.IMPALED, 10, 1), this);
 		}
 	}
@@ -155,6 +158,7 @@ public class HarpoonEntity extends PersistentProjectileEntity
 		{
 			victim = living;
 			dataTracker.set(IMPACT_YAW, getYaw());
+			dataTracker.set(IMPACT_PITCH, getPitch());
 			living.damage(DamageSources.get(getWorld(), DamageSources.HARPOON, this, getOwner()), 3.5f);
 		}
 	}

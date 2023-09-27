@@ -6,6 +6,30 @@
     64
   ],
   "display": {
+    "thirdperson_righthand": {
+      "rotation": [
+        22.96,
+        -20.49,
+        -2.28
+      ],
+      "translation": [
+        -2.25,
+        -3.25,
+        -3.5
+      ]
+    },
+    "thirdperson_lefthand": {
+      "rotation": [
+        22.96,
+        -20.49,
+        -2.28
+      ],
+      "translation": [
+        -2.25,
+        -3.25,
+        -3.5
+      ]
+    },
     "firstperson_righthand": {
       "rotation": [
         7.5,

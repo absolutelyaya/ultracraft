@@ -185,6 +185,9 @@
   "death.attack.nail": "%1$s became %2$s's pin-cushion",
   "death.attack.nail.player": "%1$s became %2$s's pin-cushion",
   "death.attack.nail.item": "%1$s became %2$s's pin-cushion through the use of %3$s",
+  "death.attack.magnet": "%1$s was made a lot more attractive by %2$s",
+  "death.attack.magnet.player": "%1$s was made a lot more attractive by %2$s",
+  "death.attack.magnet.item": "%1$s was made a lot more attractive by %2$s using %3$s",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 

@@ -9,7 +9,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
-import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 public class MagnetEntityRenderer extends GeoEntityRenderer<MagnetEntity>
@@ -22,6 +21,11 @@ public class MagnetEntityRenderer extends GeoEntityRenderer<MagnetEntity>
 	@Override
 	public Identifier getTexture(MagnetEntity entity)
 	{
+		float strain = entity.getStrain();
+		if(strain > 1f)
+			return new Identifier(Ultracraft.MOD_ID, "textures/entity/magnet2.png");
+		else if(strain > 0.5f)
+			return new Identifier(Ultracraft.MOD_ID, "textures/entity/magnet1.png");
 		return new Identifier(Ultracraft.MOD_ID, "textures/entity/magnet.png");
 	}
 	

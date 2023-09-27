@@ -103,7 +103,7 @@ public class EntityRegistry
 	public static final EntityType<NailEntity> NAIL = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "nail"),
 			EntityType.Builder.create(NailEntity::new, SpawnGroup.MISC).setDimensions(0.125f, 0.125f)
-					.maxTrackingRange(5).trackingTickInterval(3).build("nail"));
+					.maxTrackingRange(5).trackingTickInterval(3).disableSaving().build("nail"));
 	
 	public static final EntityType<ShockwaveEntity> SHOCKWAVE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "shockwave"),

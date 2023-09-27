@@ -20,11 +20,12 @@ import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
-//TODO: fix third person Transform
+
 public abstract class AbstractNailgunItem extends AbstractWeaponItem implements GeoItem
 {
 	final RawAnimation AnimationFireLoop = RawAnimation.begin().thenPlay("fire_loop");
 	final RawAnimation AnimationFireStop = RawAnimation.begin().thenPlay("fire_stop");
+	final RawAnimation AnimationAltFire = RawAnimation.begin().thenPlay("alt_fire");
 	
 	public AbstractNailgunItem(Settings settings)
 	{
@@ -114,7 +115,8 @@ public abstract class AbstractNailgunItem extends AbstractWeaponItem implements 
 	{
 		controllerRegistrar.add(new AnimationController<>(this, getControllerName(), 1, state -> PlayState.STOP)
 										.triggerableAnim("fire_loop", AnimationFireLoop)
-										.triggerableAnim("fire_stop", AnimationFireStop));
+										.triggerableAnim("fire_stop", AnimationFireStop)
+										.triggerableAnim("alt_fire", AnimationAltFire));
 	}
 	
 	@Override
@@ -122,6 +124,14 @@ public abstract class AbstractNailgunItem extends AbstractWeaponItem implements 
 	{
 		if(nbt.equals("nails"))
 			return 100;
+		if(nbt.equals("magnets"))
+			return 3;
 		return 0;
+	}
+	
+	@Override
+	public boolean shouldAim()
+	{
+		return false;
 	}
 }
