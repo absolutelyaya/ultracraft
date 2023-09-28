@@ -160,6 +160,7 @@ public class UltracraftClient implements ClientModInitializer
 		particleRegistry.register(ParticleRegistry.RIPPLE, RippleParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.PARRY_INDICATOR, ParryIndicatorParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.TELEPORT, TeleportParticle.Factory::new);
+		particleRegistry.register(ParticleRegistry.EXPLOSION, ExplosionParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.GOOP_DROP, GoopDropParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.GOOP, GoopParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.GOOP_STRING, GoopStringParticle.Factory::new);

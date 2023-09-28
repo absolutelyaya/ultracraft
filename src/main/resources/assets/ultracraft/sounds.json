@@ -14,6 +14,11 @@
       "ultracraft:misc/wind_seemless"
     ]
   },
+  "misc.bad_explosion": {
+    "sounds": [
+      "ultracraft:misc/badexplosion"
+    ]
+  },
   "entity.machinesword_loop": {
     "sounds": [
         "ultracraft:misc/lawn_mower_seemless"

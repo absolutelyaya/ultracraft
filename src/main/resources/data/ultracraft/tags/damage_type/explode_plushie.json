@@ -1,0 +1,12 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:on_fire",
+    "minecraft:in_fire",
+    "minecraft:lava",
+    "minecraft:cactus",
+    "minecraft:out_of_world",
+    "minecraft:lightning_bolt",
+    "ultracraft:sharpshooter"
+  ]
+}

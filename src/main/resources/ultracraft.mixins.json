@@ -8,6 +8,7 @@
     "FishingBobberMixin",
     "FluidBlockMixin",
     "HungerManagerMixin",
+    "ItemEntityMixin",
     "LivingEntityMixin",
     "PlayerEntityMixin",
     "PlayerInteractEntityC2SPacketMixin",
