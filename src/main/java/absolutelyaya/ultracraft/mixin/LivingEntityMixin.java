@@ -67,11 +67,16 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	@Shadow public abstract boolean isAlive();
 	
 	@Shadow protected float lastDamageTaken;
+	
+	@Shadow public abstract float getHealth();
+	
+	@Shadow public abstract float getMaxHealth();
+	
 	final int punchDuration = 6;
 	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
 	int punchTicks, ricochetCooldown, fatique;
 	boolean punching, timeFrozen;
-	float punchProgress, prevPunchProgress, recoil;
+	float punchProgress, prevPunchProgress, recoil, lastHealth;
 	
 	public LivingEntityMixin(EntityType<?> type, World world)
 	{
@@ -98,6 +103,12 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		float amount = args.get(1);
 		if(source.isIn(DamageTypeTags.ULTRACRAFT) && !source.isIn(DamageTypeTags.UNBOOSTED) && !((Object)this instanceof AbstractUltraHostileEntity))
 			args.set(1, amount * 2.5f);
+	}
+	
+	@Inject(method = "damage", at = @At("HEAD"))
+	void beforeDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
+	{
+		lastHealth = getHealth();
 	}
 	
 	@Inject(method = "damage", at = @At("RETURN"))
@@ -149,6 +160,9 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 				if((healRule.equals(GameruleRegistry.RegenSetting.ONLY_HIVEL) && !UltraComponents.WING_DATA.get(player).isVisible()))
 					continue;
 				float healing = amount * (source.isOf(DamageSources.SHOTGUN) ? 1f : 2.5f);
+				healing = Math.min(healing, lastHealth + getMaxHealth() * 2f);
+				if(source.isIn(DamageTypeTags.MELEE))
+					healing /= 3.5f;
 				UltraComponents.WINGED_ENTITY.get(player).bloodHeal(healing);
 				player.getHungerManager().add((int)(healing / 1.5f), 5f);
 			}

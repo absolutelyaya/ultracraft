@@ -14,4 +14,5 @@ public class DamageTypeTags
 	public static final TagKey<DamageType> UNDODGEABLE = TagKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "undodgeable"));
 	public static final TagKey<DamageType> UNBOOSTED = TagKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "unboosted"));
 	public static final TagKey<DamageType> NO_BLEEDING = TagKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "no_bleeding"));
+	public static final TagKey<DamageType> MELEE = TagKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "melee"));
 }

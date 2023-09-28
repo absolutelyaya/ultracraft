@@ -202,7 +202,8 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 			}
 			else
 			{
-				dropStack(asItemStack());
+				if(getOwner() instanceof PlayerEntity)
+					dropStack(asItemStack());
 				discard();
 			}
 		}

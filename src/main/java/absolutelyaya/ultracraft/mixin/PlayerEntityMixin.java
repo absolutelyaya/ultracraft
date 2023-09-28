@@ -10,6 +10,7 @@ import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.entity.other.BackTank;
+import absolutelyaya.ultracraft.item.IOverrideMeleeDamageType;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
@@ -285,6 +286,14 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			progressionComponent.readFromNbt(progression);
 			progressionComponent.sync();
 		}
+	}
+	
+	@Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/damage/DamageSources;playerAttack(Lnet/minecraft/entity/player/PlayerEntity;)Lnet/minecraft/entity/damage/DamageSource;"))
+	DamageSource onGetDamageSource(net.minecraft.entity.damage.DamageSources instance, PlayerEntity attacker)
+	{
+		if(attacker.getMainHandStack().getItem() instanceof IOverrideMeleeDamageType weapon)
+			return weapon.getDamageSource(attacker.getWorld(), attacker);
+		return instance.playerAttack(attacker);
 	}
 	
 	@Override
