@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.util;
 
 import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
+import absolutelyaya.ultracraft.entity.projectile.IIgnoreSharpshooter;
 import absolutelyaya.ultracraft.entity.other.BackTank;
 import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
 import absolutelyaya.ultracraft.entity.projectile.EjectedCoreEntity;
@@ -76,6 +77,6 @@ public class AutoAimUtil
 		boolean isSourceCoin = source instanceof ThrownCoinEntity;
 		return world.getOtherEntities(attacker, source.getBoundingBox().expand(32f),
 						e -> !e.equals(source) && (isSourceCoin && isMarksmanHittable(e)) ||
-									 (!isSourceCoin && ((EntityAccessor)e).isTargettable()) && !e.isTeammate(attacker));
+									 (!isSourceCoin && !(e instanceof IIgnoreSharpshooter) && ((EntityAccessor)e).isTargettable()) && !e.isTeammate(attacker));
 	}
 }

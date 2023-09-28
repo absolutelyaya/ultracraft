@@ -1,7 +1,6 @@
 package absolutelyaya.ultracraft.entity.projectile;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.damage.DamageSources;
@@ -42,10 +41,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implements ProjectileEntityAccessor, EntityAccessor
+public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implements ProjectileEntityAccessor, IIgnoreSharpshooter
 {
 	protected static final TrackedData<ItemStack> SWORD = DataTracker.registerData(ThrownMachineSwordEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	protected static final TrackedData<Float> DISTANCE = DataTracker.registerData(ThrownMachineSwordEntity.class, TrackedDataHandlerRegistry.FLOAT);
@@ -363,42 +359,5 @@ public class 	ThrownMachineSwordEntity extends PersistentProjectileEntity implem
 			case AGONY -> new Vector4f(0.66f, 0.1f, 0.06f, 0.6f);
 			case TUNDRA -> new Vector4f(0.22f, 0.47f, 0.65f, 0.6f);
 		};
-	}
-	
-	//TODO: find a better way to make things untargettable because having to implement all of the following shit is kinda dumb
-	@Override
-	public int getTargetPriority(Entity source)
-	{
-		return 0;
-	}
-	
-	@Override
-	public void setTargetpriorityFunction(Function<Entity, Integer> function)
-	{
-	
-	}
-	
-	@Override
-	public boolean isTargettable()
-	{
-		return false;
-	}
-	
-	@Override
-	public void setTargettableSupplier(Supplier<Boolean> supplier)
-	{
-	
-	}
-	
-	@Override
-	public Vec3d getRelativeTargetPoint()
-	{
-		return null;
-	}
-	
-	@Override
-	public void setRelativeTargetPointSupplier(Supplier<Vec3d> supplier)
-	{
-	
 	}
 }

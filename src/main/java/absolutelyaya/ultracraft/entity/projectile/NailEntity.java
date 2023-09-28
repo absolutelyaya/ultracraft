@@ -15,7 +15,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.joml.Vector3f;
 
-public class NailEntity extends ProjectileEntity implements ProjectileEntityAccessor
+public class NailEntity extends ProjectileEntity implements ProjectileEntityAccessor, IIgnoreSharpshooter
 {
 	public NailEntity(EntityType<? extends ProjectileEntity> entityType, World world)
 	{

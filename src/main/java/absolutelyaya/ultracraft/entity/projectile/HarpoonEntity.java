@@ -27,7 +27,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.joml.Vector3f;
 
-public class HarpoonEntity extends PersistentProjectileEntity
+public class HarpoonEntity extends PersistentProjectileEntity implements IIgnoreSharpshooter
 {
 	protected static final TrackedData<Vector3f> START_POSITION = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.VECTOR3F);
 	protected static final TrackedData<Integer> GROUND_TICKS = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.INTEGER);

@@ -30,7 +30,7 @@ import software.bernie.geckolib.core.animation.AnimatableManager;
 
 import java.util.List;
 
-public class MagnetEntity extends PersistentProjectileEntity implements GeoEntity
+public class MagnetEntity extends PersistentProjectileEntity implements GeoEntity, IIgnoreSharpshooter
 {
 	protected static final TrackedData<Float> GROUND_TIME = DataTracker.registerData(MagnetEntity.class, TrackedDataHandlerRegistry.FLOAT);
 	protected static final TrackedData<Float> IMPACT_YAW = DataTracker.registerData(MagnetEntity.class, TrackedDataHandlerRegistry.FLOAT);
