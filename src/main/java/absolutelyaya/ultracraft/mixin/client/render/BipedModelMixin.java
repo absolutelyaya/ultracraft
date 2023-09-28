@@ -120,8 +120,9 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AnimalMode
 		Vector3f angles = new Vector3f(-65f - ((LivingEntityAccessor)livingEntity).getRecoil(), flipped ? 20f : -20f, 0f).mul(MathHelper.RADIANS_PER_DEGREE)
 								  .add(new Vector3f(head.pitch, head.yaw, 0f));
 		main.setAngles(angles.x, angles.y, angles.z);
-		angles = new Vector3f(-90f - ((LivingEntityAccessor)livingEntity).getRecoil(), flipped ? -25f : 25f, 0f).mul(MathHelper.RADIANS_PER_DEGREE)
+		angles = new Vector3f(-90f - ((LivingEntityAccessor)livingEntity).getRecoil(), flipped ? -30f : 30f, 0f).mul(MathHelper.RADIANS_PER_DEGREE)
 								  .add(new Vector3f(head.pitch, head.yaw, 0f));
 		off.setAngles(angles.x, angles.y, angles.z);
+		off.pivotY += 0.5;
 	}
 }

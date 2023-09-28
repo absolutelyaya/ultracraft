@@ -61,6 +61,7 @@
 - Added Custom Death Screen
 ## Resource Changes
 - Added new Texture State for fully Charged Pierce Revolver (`pierce_revolver4.png`)
+- To reduce filesize, model translations of weapons now use inheritance. Meaning, you only need to replace `models/item/revolver.json` instead of all three variants. It should be safe to remove those excess files from Resourcepacks completely.
 ## API Changes
 - Added Terminal API Tools
   - Allows adding fully Custom Coded Tabs and Global Button Actions to Terminals
@@ -70,4 +71,4 @@
     - Text Fields
     - Sprites
     - Lists (with Selectable Entries)
-  - Otherwise you can of course write your own rendering stuff
+  - Other than that you can of course write your own rendering stuff
