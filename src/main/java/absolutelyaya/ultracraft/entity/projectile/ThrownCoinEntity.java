@@ -54,7 +54,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	protected static final TrackedData<Integer> SPLITS = DataTracker.registerData(ThrownCoinEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	Entity lastTarget, chargebackCauser;
 	final float flashRotSpeed;
-	byte hitTicks, hitscanType = ServerHitscanHandler.RICOCHET;
+	byte hitTicks, hitscanType = ServerHitscanHandler.COIN_RICOCHET;
 	int damage = 1, punchCounter = 0, nextHitDelay = 5, realAge;
 	boolean splitting;
 	
@@ -365,7 +365,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			if(hit != null && hit.getType().equals(HitResult.Type.ENTITY))
 			{
 				coin = ThrownCoinEntity.spawn(parrier, getWorld(), hit.getPos(), damage + 1);
-				ServerHitscanHandler.sendPacket((ServerWorld)getWorld(), getPos(), hit.getPos(), ServerHitscanHandler.RICOCHET);
+				ServerHitscanHandler.sendPacket((ServerWorld)getWorld(), getPos(), hit.getPos(), ServerHitscanHandler.COIN_RICOCHET);
 				closest.damage(DamageSources.get(getWorld(), DamageSources.COIN_PUNCH, parrier), damage);
 			}
 		}
@@ -377,7 +377,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			Vec3d normal = new Vec3d(hit.getSide().getUnitVector());
 			
 			ServerHitscanHandler.sendPacket((ServerWorld)getWorld(), getPos(), getPos().add(parrier.getRotationVec(0f).multiply(64f)),
-					ServerHitscanHandler.RICOCHET);
+					ServerHitscanHandler.COIN_RICOCHET);
 			if(damage < 5)
 				damage++;
 			if(!hit.getType().equals(HitResult.Type.MISS))

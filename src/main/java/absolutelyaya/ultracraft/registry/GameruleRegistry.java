@@ -97,8 +97,8 @@ public class GameruleRegistry
 			GameRuleRegistry.register("ultra-tntPriming", ULTRACATEGORY,
 					GameRuleFactory.createBooleanRule(true,
 							(server, rule) -> OnChanged(server, (byte)15, rule.get() ? 1 : 0)));
-	public static final GameRules.Key<GameRules.IntRule> GUN_DAMAGE =
-			GameRuleRegistry.register("ultra-gunDamage", ULTRACATEGORY,
+	public static final GameRules.Key<GameRules.IntRule> REVOLVER_DAMAGE =
+			GameRuleRegistry.register("ultra-revolverDamage", ULTRACATEGORY,
 					GameRuleFactory.createIntRule(1, 1, 20,
 							(server, rule) -> OnChanged(server, (byte)16, rule.get())));
 	public static final GameRules.Key<GameRules.IntRule> INVINCIBILITY =
@@ -117,6 +117,14 @@ public class GameruleRegistry
 			GameRuleRegistry.register("ultra-flamethrowerGrief", ULTRACATEGORY,
 					GameRuleFactory.createBooleanRule(false,
 							(server, rule) -> OnChanged(server, (byte)20, rule.get() ? 1 : 0)));
+	public static final GameRules.Key<GameRules.IntRule> SHOTGUN_DAMAGE =
+			GameRuleRegistry.register("ultra-shotgunDamage", ULTRACATEGORY,
+					GameRuleFactory.createIntRule(1, 1, 20,
+							(server, rule) -> OnChanged(server, (byte)21, rule.get())));
+	public static final GameRules.Key<GameRules.IntRule> NAILGUN_DAMAGE =
+			GameRuleRegistry.register("ultra-nailgunDamage", ULTRACATEGORY,
+					GameRuleFactory.createIntRule(1, 1, 20,
+							(server, rule) -> OnChanged(server, (byte)22, rule.get())));
 	
 	public static void OnChanged(MinecraftServer server, byte b, int val)
 	{
@@ -153,11 +161,13 @@ public class GameruleRegistry
 		OnChanged(player, (byte)13, player.server.getGameRules().getBoolean(SM_SAFE_LEDGES) ? 1 : 0);
 		OnChanged(player, (byte)14, player.server.getGameRules().getBoolean(PARRY_CHAINING) ? 1 : 0);
 		OnChanged(player, (byte)15, player.server.getGameRules().getBoolean(TNT_PRIMING) ? 1 : 0);
-		OnChanged(player, (byte)16, player.server.getGameRules().getInt(GUN_DAMAGE));
+		OnChanged(player, (byte)16, player.server.getGameRules().getInt(REVOLVER_DAMAGE));
 		OnChanged(player, (byte)17, player.server.getGameRules().getInt(INVINCIBILITY));
 		OnChanged(player, (byte)18, player.server.getGameRules().getBoolean(TERMINAL_PROT) ? 1 : 0);
 		OnChanged(player, (byte)19, player.server.getGameRules().get(GRAFFITI).get().ordinal());
 		OnChanged(player, (byte)20, player.server.getGameRules().getBoolean(FLAMETHROWER_GRIEF) ? 1 : 0);
+		OnChanged(player, (byte)21, player.server.getGameRules().getInt(SHOTGUN_DAMAGE));
+		OnChanged(player, (byte)22, player.server.getGameRules().getInt(NAILGUN_DAMAGE));
 		OnChanged(player, (byte)127, 0); //sync finished indicator
 	}
 	

@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.entity.projectile;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
@@ -57,9 +58,8 @@ public class NailEntity extends ProjectileEntity implements ProjectileEntityAcce
 			return;
 		super.onEntityHit(entityHitResult);
 		float amount = 0.2f;
-		//if(entity instanceof AbstractUltraHostileEntity)
-		//	amount *= 0.6f;
-		entity.damage(DamageSources.get(getWorld(), DamageSources.NAIL, getOwner(), this), amount);
+		entity.damage(DamageSources.get(getWorld(), DamageSources.NAIL, getOwner(), this),
+				amount * getWorld().getGameRules().getInt(GameruleRegistry.NAILGUN_DAMAGE));
 	}
 	
 	@Override

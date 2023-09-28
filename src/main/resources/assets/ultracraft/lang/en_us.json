@@ -188,6 +188,8 @@
   "death.attack.magnet": "%1$s was made a lot more attractive by %2$s",
   "death.attack.magnet.player": "%1$s was made a lot more attractive by %2$s",
   "death.attack.magnet.item": "%1$s was made a lot more attractive by %2$s using %3$s",
+  "death.attack.sharpshooter": "%1$s fell victim to a sick trickshot by %2$s",
+  "death.attack.sharpshooter.item": "%1$s fell victim to a sick trickshot by %2$s using %3$s",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 
@@ -242,8 +244,12 @@
   "gamerule.ultra-parryChaining.description": "Allows Projectiles to be parried multiple times, increasing Damage, Explosion Radius and Speed on each Parry.",
   "gamerule.ultra-tntPriming": "TNT Priming",
   "gamerule.ultra-tntPriming.description": "Whether Ultracraft Explosions can set off TNT.",
-  "gamerule.ultra-gunDamage": "Gun Damage Multiplier",
-  "gamerule.ultra-gunDamage.description": "Multiplies all Hitscan Damage by the set Amount.",
+  "gamerule.ultra-revolverDamage": "Revolver Damage Multiplier",
+  "gamerule.ultra-revolverDamage.description": "Multiplies all Revolver Damage by the set Amount.",
+  "gamerule.ultra-shotgunDamage": "Shotgun Damage Multiplier",
+  "gamerule.ultra-shotgunDamage.description": "Multiplies all Shotgun Damage by the set Amount.",
+  "gamerule.ultra-nailgunDamage": "Nailgun Damage Multiplier",
+  "gamerule.ultra-nailgunDamage.description": "Multiplies all Nailgun Damage by the set Amount.",
   "gamerule.ultra-iFrames": "HiVel I-Ticks",
   "gamerule.ultra-iFrames.description": "How many Invincibility Ticks Players in High Velocity Mode should have.",
   "gamerule.ultra-terminalProtection": "Terminal Protection",

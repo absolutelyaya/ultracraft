@@ -57,11 +57,13 @@ public class ServerConfigScreen extends Screen
 		addRule(GameruleRegistry.SM_SAFE_LEDGES, pos, GameRuleWidget.ValueType.BOOL);
 		addRule(GameruleRegistry.PARRY_CHAINING, pos, GameRuleWidget.ValueType.BOOL);
 		addRule(GameruleRegistry.TNT_PRIMING, pos, GameRuleWidget.ValueType.BOOL);
-		addRule(GameruleRegistry.GUN_DAMAGE, pos, GameRuleWidget.ValueType.INT);
+		addRule(GameruleRegistry.REVOLVER_DAMAGE, pos, GameRuleWidget.ValueType.INT);
 		addRule(GameruleRegistry.INVINCIBILITY, pos, GameRuleWidget.ValueType.INT);
 		addRule(GameruleRegistry.TERMINAL_PROT, pos, GameRuleWidget.ValueType.BOOL);
 		addRule(GameruleRegistry.GRAFFITI, pos, GameruleRegistry.GraffitiSetting.values());
 		addRule(GameruleRegistry.FLAMETHROWER_GRIEF, pos, GameRuleWidget.ValueType.BOOL);
+		addRule(GameruleRegistry.SHOTGUN_DAMAGE, pos, GameRuleWidget.ValueType.INT);
+		addRule(GameruleRegistry.NAILGUN_DAMAGE, pos, GameRuleWidget.ValueType.INT);
 		
 		boolean b = false;
 		if(simplistic != null)

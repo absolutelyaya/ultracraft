@@ -49,7 +49,7 @@ public class ServerHitscanHandler
 	public static final byte RAILGUN_DRILL = 3;
 	public static final byte RAILGUN_MALICIOUS = 4;
 	public static final byte MALICIOUS = 5;
-	public static final byte RICOCHET = 6;
+	public static final byte COIN_RICOCHET = 6;
 	public static final byte SHARPSHOOTER = 7;
 	
 	static final Queue<IScheduledHitscan> scheduleAdditions = new ArrayDeque<>();
@@ -195,22 +195,24 @@ public class ServerHitscanHandler
 	
 	static float getDamageMultipier(World world, byte type)
 	{
-		return world.getGameRules().getInt(GameruleRegistry.GUN_DAMAGE); //TODO: check if type is revolver
+		if(type == NORMAL || type == REVOLVER_PIERCE || type == COIN_RICOCHET || type == SHARPSHOOTER)
+			return world.getGameRules().getInt(GameruleRegistry.REVOLVER_DAMAGE);
+		return 1f;
 	}
 	
 	public static void performBouncingHitscan(LivingEntity user, byte type, float damage, int maxHits, int bounces, float autoAim)
 	{
-		performBouncingHitscan(user, type, damage, maxHits, bounces, null, autoAim);
+		performBouncingHitscan(user, type, damage, DamageSources.get(user.getWorld(), DamageSources.GUN, user), maxHits, bounces, null, autoAim);
 	}
 	
-	public static void performBouncingHitscan(LivingEntity user, byte type, float damage, int maxHits, int bounces, HitscanExplosionData explosion, float autoAim)
+	public static void performBouncingHitscan(LivingEntity user, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, float autoAim)
 	{
 		Vec3d origin = user.getEyePos();
 		Vec3d visualOrigin = origin.add(
 				new Vec3d(-0.5f * (user instanceof PlayerEntity player && player.getMainArm().equals(Arm.LEFT) ? -1 : 1), -0.2f, 0.4f)
 						.rotateX(-(float)Math.toRadians(user.getPitch())).rotateY(-(float) Math.toRadians(user.getYaw())));
 		Vec3d dest = origin.add(user.getRotationVec(0.5f).normalize().multiply(64));
-		performBouncingHitscan(user, origin, visualOrigin, dest, type, damage, DamageSources.get(user.getWorld(), DamageSources.GUN, user), maxHits, bounces, explosion, autoAim);
+		performBouncingHitscan(user, origin, visualOrigin, dest, type, damage, source, maxHits, bounces, explosion, autoAim);
 	}
 	
 	public static void performBouncingHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, float autoAimThreshold)
@@ -236,7 +238,7 @@ public class ServerHitscanHandler
 			Vec3d lastDir = lastResult.dir;
 			Vec3d hitNormal = new Vec3d(((BlockHitResult)lastResult.finalHit).getSide().getUnitVector());
 			Vec3d dest = hitPos.add(lastDir.subtract(hitNormal.multiply(2 * lastDir.dotProduct(hitNormal))).normalize().multiply(64));
-			scheduleHitscan(user, hitPos, hitPos, dest, type, damage + (type == SHARPSHOOTER && damage < 6 ? 2 : 0), DamageSources.get(user.getWorld(), DamageSources.GUN, user), maxHits, bounces, explosion, 1, autoAimThreshold);
+			scheduleHitscan(user, hitPos, hitPos, dest, type, damage + (type == SHARPSHOOTER && damage < 6 ? 2 : 0), source, maxHits, bounces, explosion, 1, autoAimThreshold);
 		}
 	}
 	

@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.SharpshooterRevolverRenderer;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
@@ -141,7 +142,8 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 				onAltFire(world, player);
 			}
 			if(!world.isClient)
-				ServerHitscanHandler.performBouncingHitscan(user, ServerHitscanHandler.SHARPSHOOTER, 3, Integer.MAX_VALUE,
+				ServerHitscanHandler.performBouncingHitscan(user, ServerHitscanHandler.SHARPSHOOTER, 3,
+						DamageSources.get(world, DamageSources.SHARPSHOOTER, user), Integer.MAX_VALUE,
 						(int)Math.ceil(Math.min(Math.abs(remainingUseTicks) / 20f, 1f) * 3),
 						new ServerHitscanHandler.HitscanExplosionData(1.5f, 0f, 0f, true), 45f);
 		}
