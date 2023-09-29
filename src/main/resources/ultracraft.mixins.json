@@ -42,10 +42,7 @@
     "client.render.LivingEntityRendererMixin",
     "client.render.ModelLoaderMixin",
     "client.render.RenderLayerMixin",
-    "client.render.WorldRendererMixin",
-    "compat.sodium.DefaultMaterialsMixin",
-    "compat.sodium.DefaultTerrainRenderPassesMixin",
-    "compat.sodium.SodiumWorldRendererMixin"
+    "client.render.WorldRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

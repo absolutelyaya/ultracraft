@@ -323,7 +323,8 @@ public class UltracraftClient implements ClientModInitializer
 		FluidRenderHandlerRegistry.INSTANCE.register(FluidRegistry.STILL_BLOOD, FluidRegistry.Flowing_BLOOD,
 				new SimpleFluidRenderHandler(new Identifier(Ultracraft.MOD_ID, "block/blood_still"), new Identifier(Ultracraft.MOD_ID, "block/blood_flow")));
 		BlockRenderLayerMap.INSTANCE.putFluids(RenderLayer.getSolid(), FluidRegistry.STILL_BLOOD, FluidRegistry.Flowing_BLOOD);
-		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.FLESH, RenderLayers.getFlesh());
+		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.FLESH, //prevent Sodium from crashing when trying to render Flesh Blocks
+				FabricLoader.getInstance().getModContainer("sodium").isPresent() ? RenderLayers.getSolid() : RenderLayers.getFlesh());
 		
 		TerminalCodeRegistry.registerCode("saiai", t -> t.setTab(new PetTab()));
 		TerminalCodeRegistry.registerCode("somethingwicked", new TerminalCodeRegistry.Result(t -> {
