@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.mixin;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.item.PlushieItem;
 import absolutelyaya.ultracraft.particle.ExplosionParticleEffect;
@@ -9,9 +10,11 @@ import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,6 +33,8 @@ public abstract class ItemEntityMixin extends Entity
 	
 	@Shadow public abstract ItemStack getStack();
 	
+	@Shadow public abstract @Nullable Entity getOwner();
+	
 	@Inject(method = "damage", at = @At("HEAD"))
 	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
 	{
@@ -37,6 +42,11 @@ public abstract class ItemEntityMixin extends Entity
 		{
 			playSound(SoundRegistry.BAD_EXPLOSION.value(), 0.75f, 1f);
 			getWorld().sendEntityStatus(this, EntityStatuses.ADD_DEATH_PARTICLES);
+			if(getOwner() instanceof PlayerEntity player)
+			{
+				for (int i = 0; i < getStack().getCount(); i++)
+					UltraComponents.EASTER.get(player).addPlushie();
+			}
 		}
 	}
 	

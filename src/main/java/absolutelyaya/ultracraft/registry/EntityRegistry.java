@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.entity.demon.CerberusEntity;
 import absolutelyaya.ultracraft.entity.demon.HideousMassEntity;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
+import absolutelyaya.ultracraft.entity.demon.RetaliationEntity;
 import absolutelyaya.ultracraft.entity.husk.FilthEntity;
 import absolutelyaya.ultracraft.entity.husk.SchismEntity;
 import absolutelyaya.ultracraft.entity.husk.StrayEntity;
@@ -42,6 +43,9 @@ public class EntityRegistry
 	public static final EntityType<HideousMassEntity> HIDEOUS_MASS = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "hideous_mass"),
 			EntityType.Builder.create(HideousMassEntity::new, SpawnGroup.MONSTER).setDimensions(8F, 7F).maxTrackingRange(8).build("hideous_mass"));
+	public static final EntityType<RetaliationEntity> RETALIATION = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "retaliation"),
+			EntityType.Builder.create(RetaliationEntity::new, SpawnGroup.MONSTER).setDimensions(1F, 2F).maxTrackingRange(8).build("retaliation"));
 	public static final EntityType<SwordsmachineEntity> SWORDSMACHINE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "swordsmachine"),
 			EntityType.Builder.create(SwordsmachineEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2.5F).maxTrackingRange(8).build("swordsmachine"));
@@ -53,7 +57,7 @@ public class EntityRegistry
 			EntityType.Builder.create(DroneEntity::new, SpawnGroup.MONSTER).setDimensions(0.7F, 0.8F).maxTrackingRange(8).build("drone"));
 	public static final EntityType<StreetCleanerEntity> STREET_CLEANER = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "streetcleaner"),
-			EntityType.Builder.create(StreetCleanerEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2F).maxTrackingRange(8).build("drone"));
+			EntityType.Builder.create(StreetCleanerEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2F).maxTrackingRange(8).build("streetcleaner"));
 	
 	public static final EntityType<HellBulletEntity> HELL_BULLET = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "hell_bullet"),
@@ -138,6 +142,7 @@ public class EntityRegistry
 		FabricDefaultAttributeRegistry.register(MALICIOUS_FACE, MaliciousFaceEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(CERBERUS, CerberusEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(HIDEOUS_MASS, HideousMassEntity.getDefaultAttributes());
+		FabricDefaultAttributeRegistry.register(RETALIATION, RetaliationEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(SWORDSMACHINE, SwordsmachineEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(DESTINY_SWORDSMACHINE, DestinyBondSwordsmachineEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(DRONE, DroneEntity.getDefaultAttributes());

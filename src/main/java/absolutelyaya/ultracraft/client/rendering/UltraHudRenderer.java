@@ -44,7 +44,7 @@ public class UltraHudRenderer
 	float healthPercent, staminaPercent, absorptionPercent, yOffset;
 	static float fishTimer, coinTimer, coinRot = 0, coinRotDest = 0, wingHintDisplayTimer;
 	static ItemStack lastCatch;
-	static int fishCaught, coinCombo;
+	static int coinCombo;
 	final String[] fishMania = new String[] {"message.ultracraft.fish.mania1", "message.ultracraft.fish.mania2", "message.ultracraft.fish.mania3", "message.ultracraft.fish.mania4"};
 	final Random rand = new Random();
 	
@@ -83,6 +83,7 @@ public class UltraHudRenderer
 		//Fishing Joke
 		if(fishTimer > 0f && lastCatch != null && config.fishingJoke)
 		{
+			int fishCaught = UltraComponents.EASTER.get(player).getFishes();
 			matrices.push();
 			matrices.scale(aspect, 1f, 1f);
 			matrices.push();
@@ -377,7 +378,7 @@ public class UltraHudRenderer
 		{
 			lastCatch = stack;
 			fishTimer = 10f;
-			fishCaught++;
+			UltraComponents.EASTER.get(MinecraftClient.getInstance().player).addFish();
 		}
 	}
 	

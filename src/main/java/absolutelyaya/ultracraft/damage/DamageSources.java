@@ -35,6 +35,7 @@ public class DamageSources
 	public static final RegistryKey<DamageType> NAIL = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "nail"));
 	public static final RegistryKey<DamageType> MAGNET = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "magnet"));
 	public static final RegistryKey<DamageType> SHARPSHOOTER = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "sharpshooter"));
+	public static final RegistryKey<DamageType> RETALIATION = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "retaliation"));
 	
 	public static DamageSource get(World world, RegistryKey<DamageType> type)
 	{

@@ -110,6 +110,7 @@
   "entity.ultracraft.cerberus": "Cerberus",
   "entity.ultracraft.hideous_mass": "Hideous Mass",
   "entity.ultracraft.hideous_part": "Hideous Part [%s]",
+  "entity.ultracraft.retaliation": "§4Retaliation",
   "entity.ultracraft.swordsmachine": "Swordsmachine",
   "entity.ultracraft.destiny_swordsmachine": "Tundra//Agony",
   "entity.ultracraft.swordsmachine-named": "Swordsmachine [%s]",
@@ -136,6 +137,7 @@
   "effect.ultracraft.chilled": "Chilled",
   "effect.ultracraft.instant_energy": "Instant Energy",
   "effect.ultracraft.impaled": "Impaled",
+  "effect.ultracraft.retaliation": "§4Retaliation",
 
   "death.attack.shockwave": "%s got crushed by a shockwave",
   "death.attack.shockwave.player": "%1$s got crushed by a shockwave caused by %2$s",
@@ -190,6 +192,9 @@
   "death.attack.magnet.item": "%1$s was made a lot more attractive by %2$s using %3$s",
   "death.attack.sharpshooter": "%1$s fell victim to a sick trickshot by %2$s",
   "death.attack.sharpshooter.item": "%1$s fell victim to a sick trickshot by %2$s using %3$s",
+  "death.attack.retaliation": "%1$s was made to atone for their sins",
+  "death.attack.retaliation.player": "%1$s was made to atone for their sins",
+  "death.attack.retaliation.item": "%1$s was made to atone for their sins",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 
