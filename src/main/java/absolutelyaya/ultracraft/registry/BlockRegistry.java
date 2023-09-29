@@ -55,6 +55,8 @@ public class BlockRegistry
 	public static final Block VENT_COVER = register("vent_cover",
 			new VentCoverBlock(AbstractBlock.Settings.copy(Blocks.IRON_BARS).mapColor(MapColor.DEEPSLATE_GRAY).requiresTool().strength(3f, 4f).nonOpaque()),
 			true);
+	public static final Block HELL_OBSERVER = register("hell_observer",
+			new HellObserverBlock(AbstractBlock.Settings.copy(Blocks.NETHERRACK).sounds(BlockSoundGroup.MUD).mapColor(MapColor.DARK_CRIMSON).nonOpaque()), true);
 	
 	@SuppressWarnings("SameParameterValue")
 	private static Block register(String name, Block block, boolean item, int burn, int spread)
