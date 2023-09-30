@@ -7,7 +7,6 @@ import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
@@ -21,6 +20,7 @@ import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
+import java.util.function.Consumer;
 
 public class HellObserverScreen extends Screen
 {
@@ -33,6 +33,7 @@ public class HellObserverScreen extends Screen
 	Random random;
 	HellOperator initialPlayerOperator, initialEnemyOperator;
 	OperatorButton playerOpButton, enemyOpButton;
+	Slider playerSlider, enemySlider;
 	
 	public HellObserverScreen(BlockPos pos)
 	{
@@ -63,6 +64,10 @@ public class HellObserverScreen extends Screen
 		playerOpButton.operator = initialPlayerOperator;
 		enemyOpButton = addDrawableChild(new OperatorButton(x + 140, y + 80, b -> {}));
 		enemyOpButton.operator = initialEnemyOperator;
+		playerSlider = addDrawableChild(new Slider(x + 12, x + 126, y + 37, s -> playerCount = (int)(s.percent * 64)));
+		playerSlider.setPercent(playerCount / 64f);
+		enemySlider = addDrawableChild(new Slider(x + 12, x + 126, y + 82, s -> enemyCount = (int)(s.percent * 64)));
+		enemySlider.setPercent(enemyCount / 64f);
 		eye.setAlpha(0f);
 	}
 	
@@ -90,6 +95,9 @@ public class HellObserverScreen extends Screen
 		context.drawText(textRenderer, title, 12, 5, 0, false);
 		context.drawText(textRenderer, Text.translatable("screen.ultracraft.hell_observer.players"), 21, 21, 0, false);
 		context.drawText(textRenderer, Text.translatable("screen.ultracraft.hell_observer.enemies"), 21, 66, 0, false);
+		
+		context.drawText(textRenderer, Text.of(String.valueOf(playerCount)), 156, 37, 0xffffffff, false);
+		context.drawText(textRenderer, Text.of(String.valueOf(enemyCount)), 156, 82, 0xffffffff, false);
 		context.getMatrices().pop();
 		super.render(context, mouseX, mouseY, delta);
 	}
@@ -156,6 +164,42 @@ public class HellObserverScreen extends Screen
 		public Tooltip getTooltip()
 		{
 			return Tooltip.of(getNarrationMessage());
+		}
+	}
+	
+	static class Slider extends ButtonWidget
+	{
+		final Consumer<Slider> onValueChanged;
+		final int minX, maxX;
+		float x, percent;
+		
+		protected Slider(int minX, int maxX, int y, Consumer<Slider> onValueChanged)
+		{
+			super(minX, y, 6, 16, Text.empty(), b -> {}, DEFAULT_NARRATION_SUPPLIER);
+			this.minX = minX;
+			this.maxX = maxX;
+			this.onValueChanged = onValueChanged;
+		}
+		
+		@Override
+		protected void onDrag(double mouseX, double mouseY, double deltaX, double deltaY)
+		{
+			if(isSelected())
+			{
+				x = (float)MathHelper.clamp(x + deltaX, minX, maxX);
+				setX((int)x);
+				percent = (x - minX) / (maxX - minX);
+				onValueChanged.accept(this);
+			}
+			super.onDrag(mouseX, mouseY, deltaX, deltaY);
+		}
+		
+		public void setPercent(float f)
+		{
+			percent = f;
+			x = MathHelper.lerp(f, minX, maxX);
+			setX((int)x);
+			onValueChanged.accept(this);
 		}
 	}
 }
