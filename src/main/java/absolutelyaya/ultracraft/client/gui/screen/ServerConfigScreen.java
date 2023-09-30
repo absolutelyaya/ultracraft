@@ -64,6 +64,7 @@ public class ServerConfigScreen extends Screen
 		addRule(GameruleRegistry.FLAMETHROWER_GRIEF, pos, GameRuleWidget.ValueType.BOOL);
 		addRule(GameruleRegistry.SHOTGUN_DAMAGE, pos, GameRuleWidget.ValueType.INT);
 		addRule(GameruleRegistry.NAILGUN_DAMAGE, pos, GameRuleWidget.ValueType.INT);
+		addRule(GameruleRegistry.HELL_OBSERVER_INTERVAL, pos, GameRuleWidget.ValueType.INT);
 		
 		boolean b = false;
 		if(simplistic != null)

@@ -267,6 +267,8 @@
   "gamerule.ultra-graffiti.description": "Restricts who can put Graffitis on their Terminals.",
   "gamerule.ultra-flamethrowerGrief": "Flamethrower Griefing",
   "gamerule.ultra-flamethrowerGrief.description": "Whether Flamethrowers used by players place fire.",
+  "gamerule.ultra-hellObserverInterval": "Hell Observer Interval",
+  "gamerule.ultra-hellObserverInterval.description": "Hell Observers will only perform checks every X ticks. Higher values improve performance, but decrease check accuracy.",
 
   "message.ultracraft.join-info-header": "===============[§4Ultracraft§r]===============",
   "message.ultracraft.hi-vel-forced": "This World is forcing §bHigh Velocity Mode§r to be %s",
@@ -368,6 +370,13 @@
   "screen.ultracraft.terminal.graffiti.export_fail": "Export Failed.",
   "screen.ultracraft.death.title": "[YOU ARE DEAD]",
   "screen.ultracraft.death.respawn": "PRESS [R] TO RESPAWN",
+  "screen.ultracraft.hell_observer.title": "Hell Observer",
+  "screen.ultracraft.hell_observer.players": "Players",
+  "screen.ultracraft.hell_observer.enemies": "Enemies",
+  "screen.ultracraft.hell_observer.ignore": "ignore",
+  "screen.ultracraft.hell_observer.more": "more than",
+  "screen.ultracraft.hell_observer.less": "less than",
+  "screen.ultracraft.hell_observer.equals": "equals",
 
   "terminal.coming-soon": "Coming Soon",
   "terminal.button": "Button",

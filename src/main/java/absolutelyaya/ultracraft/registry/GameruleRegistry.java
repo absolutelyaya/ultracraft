@@ -125,6 +125,10 @@ public class GameruleRegistry
 			GameRuleRegistry.register("ultra-nailgunDamage", ULTRACATEGORY,
 					GameRuleFactory.createIntRule(1, 1, 20,
 							(server, rule) -> OnChanged(server, (byte)22, rule.get())));
+	public static final GameRules.Key<GameRules.IntRule> HELL_OBSERVER_INTERVAL =
+			GameRuleRegistry.register("ultra-hellObserverInterval", ULTRACATEGORY,
+					GameRuleFactory.createIntRule(5, 1, 10,
+							(server, rule) -> OnChanged(server, (byte)23, rule.get())));
 	
 	public static void OnChanged(MinecraftServer server, byte b, int val)
 	{
