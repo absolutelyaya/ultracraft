@@ -28,12 +28,13 @@ public class HellObserverScreen extends Screen
 	
 	final BlockPos pos;
 	int bgWidth = 179, bgHeight = 155, playerCount = 0, enemyCount = 0;
-	boolean eyeOpen = true;
+	boolean eyeOpen = true, requireBoth = false;
 	float shake = 0f;
 	Random random;
 	HellOperator initialPlayerOperator, initialEnemyOperator;
 	OperatorButton playerOpButton, enemyOpButton;
 	Slider playerSlider, enemySlider;
+	ButtonWidget interactionButton;
 	
 	public HellObserverScreen(BlockPos pos)
 	{
@@ -46,6 +47,7 @@ public class HellObserverScreen extends Screen
 		initialPlayerOperator = observer.getPlayerOperator();
 		enemyCount = observer.getEnemyCount();
 		initialEnemyOperator = observer.getEnemyOperator();
+		requireBoth = observer.getRequireBoth();
 	}
 	
 	@Override
@@ -68,6 +70,9 @@ public class HellObserverScreen extends Screen
 		playerSlider.setPercent(playerCount / 64f);
 		enemySlider = addDrawableChild(new Slider(x + 12, x + 126, y + 82, s -> enemyCount = (int)(s.percent * 64)));
 		enemySlider.setPercent(enemyCount / 64f);
+		interactionButton = addDrawableChild(ButtonWidget.builder(Text.empty(), b -> requireBoth = !requireBoth)
+													 .dimensions(x + 132, y + 58, 29, 11).build());
+		interactionButton.setAlpha(0f);
 		eye.setAlpha(0f);
 	}
 	
@@ -95,6 +100,8 @@ public class HellObserverScreen extends Screen
 		context.drawText(textRenderer, title, 12, 5, 0, false);
 		context.drawText(textRenderer, Text.translatable("screen.ultracraft.hell_observer.players"), 21, 21, 0, false);
 		context.drawText(textRenderer, Text.translatable("screen.ultracraft.hell_observer.enemies"), 21, 66, 0, false);
+		String s = Text.translatable("screen.ultracraft.hell_observer." + (requireBoth ? "both" : "either")).getString();
+		context.drawText(textRenderer, s, 147 - textRenderer.getWidth(s) / 2, 60, interactionButton.isHovered() ? 0xffffffff : 0, false);
 		
 		context.drawText(textRenderer, Text.of(String.valueOf(playerCount)), 156, 37, 0xffffffff, false);
 		context.drawText(textRenderer, Text.of(String.valueOf(enemyCount)), 156, 82, 0xffffffff, false);
@@ -112,10 +119,11 @@ public class HellObserverScreen extends Screen
 		buf.writeInt(playerOpButton.operator.ordinal());
 		buf.writeInt(enemyCount);
 		buf.writeInt(enemyOpButton.operator.ordinal());
+		buf.writeBoolean(requireBoth);
 		ClientPlayNetworking.send(PacketRegistry.HELL_OBSERVER_C2S_PACKET_ID, buf);
 		if(!(MinecraftClient.getInstance().player.getWorld().getBlockEntity(pos) instanceof HellObserverBlockEntity observer))
 			return;
-		observer.sync(playerCount, playerOpButton.operator.ordinal(), enemyCount, enemyOpButton.operator.ordinal());
+		observer.sync(playerCount, playerOpButton.operator.ordinal(), enemyCount, enemyOpButton.operator.ordinal(), requireBoth);
 	}
 	
 	static class OperatorButton extends ButtonWidget

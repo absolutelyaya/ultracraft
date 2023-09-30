@@ -377,6 +377,8 @@
   "screen.ultracraft.hell_observer.more": "more than",
   "screen.ultracraft.hell_observer.less": "less than",
   "screen.ultracraft.hell_observer.equals": "equals",
+  "screen.ultracraft.hell_observer.both": "AND",
+  "screen.ultracraft.hell_observer.either": "OR",
 
   "terminal.coming-soon": "Coming Soon",
   "terminal.button": "Button",

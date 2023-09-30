@@ -431,10 +431,11 @@ public class PacketRegistry
 			int playerOperator = buf.readInt();
 			int enemyCount = buf.readInt();
 			int enemyOperator = buf.readInt();
+			boolean requireBoth = buf.readBoolean();
 			server.execute(() -> {
 				if(!(player.getWorld().getBlockEntity(pos) instanceof HellObserverBlockEntity observer))
 					return;
-				observer.sync(playerCount, playerOperator, enemyCount, enemyOperator);
+				observer.sync(playerCount, playerOperator, enemyCount, enemyOperator, requireBoth);
 			});
 		});
 	}

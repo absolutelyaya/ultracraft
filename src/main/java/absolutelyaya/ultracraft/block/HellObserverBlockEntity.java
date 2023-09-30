@@ -23,7 +23,7 @@ public class HellObserverBlockEntity extends BlockEntity
 {
 	HellOperator playerOperator = HellOperator.IGNORE, enemyOperator = HellOperator.IGNORE;
 	int tick, playerCount, enemyCount;
-	boolean lastCheck, halfClosed;
+	boolean lastCheck, halfClosed, requireBoth;
 	Vec3i checkDimensions = new Vec3i(3, 3, 3), checkOffset = new Vec3i(0, 0, 0);
 	
 	public HellObserverBlockEntity(BlockPos pos, BlockState state)
@@ -76,7 +76,10 @@ public class HellObserverBlockEntity extends BlockEntity
 	{
 		boolean pCheck = observer.playerOperator.check(players, observer.playerCount);
 		boolean eCheck = observer.enemyOperator.check(enemies, observer.enemyCount);
-		return pCheck || eCheck;
+		if(observer.requireBoth && !observer.playerOperator.equals(HellOperator.IGNORE) && !observer.enemyOperator.equals(HellOperator.IGNORE))
+			return pCheck && eCheck;
+		else
+			return pCheck || eCheck;
 	}
 	
 	@Override
@@ -91,6 +94,7 @@ public class HellObserverBlockEntity extends BlockEntity
 		nbt.putInt("enemyCount", enemyCount);
 		nbt.putByte("playerOperator", (byte)playerOperator.ordinal());
 		nbt.putByte("enemyOperator", (byte)enemyOperator.ordinal());
+		nbt.putBoolean("requireBoth", requireBoth);
 	}
 	
 	@Override
@@ -113,6 +117,8 @@ public class HellObserverBlockEntity extends BlockEntity
 			playerOperator = HellOperator.values()[nbt.getByte("playerOperator")];
 		if(nbt.contains("enemyOperator", NbtElement.BYTE_TYPE))
 			enemyOperator = HellOperator.values()[nbt.getByte("enemyOperator")];
+		if(nbt.contains("requireBoth", NbtElement.BYTE_TYPE))
+			requireBoth = nbt.getBoolean("requireBoth");
 	}
 	
 	Vec3i intArrayToVector(int[] array)
@@ -122,13 +128,26 @@ public class HellObserverBlockEntity extends BlockEntity
 		return new Vec3i(array[0], array[1], array[2]);
 	}
 	
-	public void sync(int playerCount, int playerOperator, int enemyCount, int enemyOperator)
+	public void sync(int playerCount, int playerOperator, int enemyCount, int enemyOperator, boolean requireBoth)
 	{
 		this.playerCount = playerCount;
 		this.playerOperator = HellOperator.values()[playerOperator];
 		this.enemyCount = enemyCount;
 		this.enemyOperator = HellOperator.values()[enemyOperator];
+		this.requireBoth = requireBoth;
 		markDirty();
+	}
+	
+	@Override
+	public Packet<ClientPlayPacketListener> toUpdatePacket()
+	{
+		return BlockEntityUpdateS2CPacket.create(this);
+	}
+	
+	@Override
+	public NbtCompound toInitialChunkDataNbt()
+	{
+		return createNbt();
 	}
 	
 	public int getPlayerCount()
@@ -151,15 +170,8 @@ public class HellObserverBlockEntity extends BlockEntity
 		return enemyOperator;
 	}
 	
-	@Override
-	public Packet<ClientPlayPacketListener> toUpdatePacket()
+	public boolean getRequireBoth()
 	{
-		return BlockEntityUpdateS2CPacket.create(this);
-	}
-	
-	@Override
-	public NbtCompound toInitialChunkDataNbt()
-	{
-		return createNbt();
+		return requireBoth;
 	}
 }
