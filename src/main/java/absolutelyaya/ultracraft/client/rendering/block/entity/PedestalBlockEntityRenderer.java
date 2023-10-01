@@ -2,10 +2,7 @@ package absolutelyaya.ultracraft.client.rendering.block.entity;
 
 import absolutelyaya.ultracraft.block.PedestalBlock;
 import absolutelyaya.ultracraft.block.PedestalBlockEntity;
-import absolutelyaya.ultracraft.item.AbstractRevolverItem;
-import absolutelyaya.ultracraft.item.AbstractShotgunItem;
-import absolutelyaya.ultracraft.item.AbstractWeaponItem;
-import absolutelyaya.ultracraft.item.PlushieItem;
+import absolutelyaya.ultracraft.item.*;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -68,6 +65,12 @@ public class PedestalBlockEntityRenderer implements BlockEntityRenderer<Pedestal
 			{
 				matrices.translate(-0.075f, -0.055f, 0f);
 				matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(15), 0f, 0f, 1f)));
+			}
+			if(item instanceof AbstractNailgunItem)
+			{
+				matrices.translate(0.15f, -0.1f, 0f);
+				matrices.scale(1.1f, 1.1f, 1.1f);
+				matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(5), 0f, 0f, 1f)));
 			}
 		}
 		else if (item.equals(ItemRegistry.MACHINE_SWORD))
