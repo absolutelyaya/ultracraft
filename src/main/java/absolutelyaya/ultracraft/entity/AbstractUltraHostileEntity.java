@@ -19,6 +19,7 @@ import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.LocalDifficulty;
@@ -79,6 +80,7 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	{
 		super.onSpawnPacket(packet);
 		getWorld().addParticle(new TeleportParticleEffect(getTeleportParticleSize()), packet.getX(), packet.getY(), packet.getZ(), 0f, 0f, 0f);
+		playSound(SoundEvents.BLOCK_END_PORTAL_FRAME_FILL, 1f, 1.3f + random.nextFloat() * 0.15f);
 	}
 	
 	@Override
