@@ -24,6 +24,7 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.sound.MusicType;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.Packet;
@@ -45,6 +46,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(MinecraftClient.class)
 public abstract class MinecraftClientMixin
@@ -69,6 +71,13 @@ public abstract class MinecraftClientMixin
 			networkHandler.sendPacket(packet);
 		else if(player != null)
 			player.sendMessage(Text.translatable("message.ultracraft.handswap-disabled"), true);
+	}
+	
+	@Inject(method = "handleInputEvents()V", at = @At(value = "FIELD", target = "Lnet/minecraft/entity/player/PlayerInventory;selectedSlot:I"), locals = LocalCapture.CAPTURE_FAILHARD)
+	void OnHotbarKeyPress(CallbackInfo ci, int i)
+	{
+		if(player.getInventory().selectedSlot == i && player.getInventory().getStack(i).getItem() instanceof AbstractWeaponItem)
+			AbstractWeaponItem.cycleVariant(player);
 	}
 	
 	@Inject(method = "getMusicType", at = @At("RETURN"), cancellable = true)
