@@ -3,7 +3,6 @@ package absolutelyaya.ultracraft.item;
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
@@ -29,10 +28,13 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 
 public abstract class AbstractShotgunItem extends AbstractWeaponItem implements GeoItem
 {
+	boolean b; //toggled on every shot; decides purely which shot animation should be used to allow for rapid firing
 	public AbstractShotgunItem(Settings settings, float recoil, float altRecoil)
 	{
 		super(settings, recoil, altRecoil);
 	}
+	protected final RawAnimation AnimationSwitch = RawAnimation.begin().thenPlay("switch");
+	protected final RawAnimation AnimationSwitch2 = RawAnimation.begin().thenPlay("switch2");
 	
 	@Override
 	public boolean onPrimaryFire(World world, PlayerEntity user, Vec3d userVelocity)
@@ -60,8 +62,10 @@ public abstract class AbstractShotgunItem extends AbstractWeaponItem implements 
 				}
 				parry = true;
 			}
-			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), getShotAnimationName());
-			cdm.setCooldown(this, 35, GunCooldownManager.PRIMARY);
+			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(),
+					getShotAnimationName() + (b ? "2" : ""));
+			cdm.setCooldown(this, getPrimaryCooldown(), GunCooldownManager.PRIMARY);
+			b = !b;
 			for (int i = 0; i < getPelletCount(user.getMainHandStack()); i++)
 			{
 				//guarantees that the first bullet goes straight and only that one is actually boostable (if this isn't a shotgun parry)
@@ -110,16 +114,31 @@ public abstract class AbstractShotgunItem extends AbstractWeaponItem implements 
 	@Override
 	int getSwitchCooldown()
 	{
-		return 6;
+		return 8;
 	}
 	
 	public String getShotAnimationName()
 	{
-		return "shot";
+		return "shot_core";
 	}
 	
 	public int getPelletCount(ItemStack stack)
 	{
 		return 0;
+	}
+	
+	public int getPrimaryCooldown()
+	{
+		return 27;
+	}
+	
+	@Override
+	protected void onSwitch(PlayerEntity user, World world)
+	{
+		if(!world.isClient)
+		{
+			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), "switch" + (b ? "2" : ""));
+			b = !b;
+		}
 	}
 }

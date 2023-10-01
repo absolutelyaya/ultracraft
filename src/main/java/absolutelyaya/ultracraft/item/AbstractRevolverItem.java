@@ -8,7 +8,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -48,7 +47,7 @@ public abstract class AbstractRevolverItem extends AbstractWeaponItem implements
 					0.9f + (user.getRandom().nextFloat() - 0.5f) * 0.2f);
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), b ? "shot" : "shot2");
 			ServerHitscanHandler.performHitscan(user, ServerHitscanHandler.NORMAL, 1f);
-			cdm.setCooldown(this, 6, GunCooldownManager.PRIMARY);
+			cdm.setCooldown(this, 9, GunCooldownManager.PRIMARY);
 			b = !b;
 			return true;
 		}

@@ -40,6 +40,7 @@ public class CoreEjectShotgunItem extends AbstractShotgunItem
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 	final RawAnimation AnimationShot = RawAnimation.begin().thenPlay("shot_core");
+	final RawAnimation AnimationShot2 = RawAnimation.begin().thenPlay("shot_core2");
 	final RawAnimation AnimationAltShot = RawAnimation.begin().thenPlay("altShot");
 	
 	public CoreEjectShotgunItem(Settings settings)
@@ -131,7 +132,10 @@ public class CoreEjectShotgunItem extends AbstractShotgunItem
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
 	{
 		controllerRegistrar.add(new AnimationController<>(this, getControllerName(), 1, state -> PlayState.STOP)
+										.triggerableAnim("switch", AnimationSwitch)
+										.triggerableAnim("switch2", AnimationSwitch2)
 										.triggerableAnim("shot_core", AnimationShot)
+										.triggerableAnim("shot_core2", AnimationShot2)
 										.triggerableAnim("altShot", AnimationAltShot));
 	}
 	
@@ -163,15 +167,15 @@ public class CoreEjectShotgunItem extends AbstractShotgunItem
 	}
 	
 	@Override
-	public Supplier<Object> getRenderProvider()
+	public int getPrimaryCooldown()
 	{
-		return renderProvider;
+		return 24;
 	}
 	
 	@Override
-	public String getShotAnimationName()
+	public Supplier<Object> getRenderProvider()
 	{
-		return "shot_core";
+		return renderProvider;
 	}
 	
 	@Override

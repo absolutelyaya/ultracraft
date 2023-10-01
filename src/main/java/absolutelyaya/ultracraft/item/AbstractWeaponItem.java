@@ -180,10 +180,8 @@ public abstract class AbstractWeaponItem extends Item
 		player.getInventory().main.set(player.getInventory().selectedSlot, nextStack);
 		if(nextItem instanceof AbstractWeaponItem weapon)
 		{
-			GunCooldownManager gcdm = UltraComponents.WINGED_ENTITY.get(player).getGunCooldownManager();
-			int cd = weapon.getSwitchCooldown();
-			if(gcdm.getCooldown(weapon, GunCooldownManager.PRIMARY) < cd)
-				UltraComponents.WINGED_ENTITY.get(player).getGunCooldownManager().setCooldown(weapon, cd, GunCooldownManager.PRIMARY);
+			UltraComponents.WINGED_ENTITY.get(player).getGunCooldownManager().setCooldown(weapon, weapon.getSwitchCooldown(), GunCooldownManager.PRIMARY);
+			weapon.onSwitch(player, player.getWorld());
 		}
 	}
 	
@@ -215,4 +213,6 @@ public abstract class AbstractWeaponItem extends Item
 	{
 		return 0;
 	}
+	
+	protected void onSwitch(PlayerEntity user, World world) {}
 }

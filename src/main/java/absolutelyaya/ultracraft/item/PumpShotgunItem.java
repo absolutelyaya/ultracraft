@@ -37,6 +37,7 @@ public class PumpShotgunItem extends AbstractShotgunItem
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 	final RawAnimation AnimationShot = RawAnimation.begin().thenPlay("shot_pump");
+	final RawAnimation AnimationShot2 = RawAnimation.begin().thenPlay("shot_pump2");
 	final RawAnimation AnimationPump = RawAnimation.begin().thenPlay("pump");
 	final RawAnimation AnimationPump2 = RawAnimation.begin().thenPlay("pump2");
 	boolean b; //toggled on every pump; decides purely which pump animation should be used to allow for rapid... pumping
@@ -117,10 +118,8 @@ public class PumpShotgunItem extends AbstractShotgunItem
 		boolean overcharge = getPelletCount(itemStack) == 0;
 		boolean b = super.onPrimaryFire(world, user, userVelocity);
 		IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(user);
-		GunCooldownManager cdm = winged.getGunCooldownManager();
 		if(!b)
 			return false;
-		cdm.setCooldown(this, 30, GunCooldownManager.PRIMARY);
 		if(itemStack.hasNbt() && itemStack.getNbt().contains("charge"))
 			itemStack.getNbt().putInt("charge", 0);
 		if(overcharge && !world.isClient)
@@ -153,7 +152,10 @@ public class PumpShotgunItem extends AbstractShotgunItem
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
 	{
 		controllerRegistrar.add(new AnimationController<>(this, getControllerName(), 1, state -> PlayState.STOP)
+										.triggerableAnim("switch", AnimationSwitch)
+										.triggerableAnim("switch2", AnimationSwitch2)
 										.triggerableAnim("shot_pump", AnimationShot)
+										.triggerableAnim("shot_pump2", AnimationShot2)
 										.triggerableAnim("pump", AnimationPump)
 										.triggerableAnim("pump2", AnimationPump2));
 	}
@@ -212,5 +214,10 @@ public class PumpShotgunItem extends AbstractShotgunItem
 	public int getItemBarColor(ItemStack stack)
 	{
 		return 0x28df53;
+	}
+	
+	public int getPrimaryCooldown()
+	{
+		return 16;
 	}
 }
