@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.components;
 
+import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
@@ -275,7 +276,8 @@ public class WingedPlayerComponent implements IWingedPlayerComponent, AutoSynced
 	@Override
 	public void tick()
 	{
-		gunCDM.tickCooldowns();
+		if(!Ultracraft.isTimeFrozen())
+			gunCDM.tickCooldowns();
 		if(dashingTicks > -60)
 			dashingTicks--;
 		if(slamDamageCooldown > 0)
