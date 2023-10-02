@@ -2,12 +2,13 @@ package absolutelyaya.ultracraft.mixin.client;
 
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.block.HellObserverBlockEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.client.gui.screen.HellObserverScreen;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import absolutelyaya.ultracraft.components.IWingDataComponent;
-import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
-import dev.architectury.event.events.common.TickEvent;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -86,6 +87,20 @@ public abstract class CameraMixin
 			terminalFocusUpdate(terminal, tickDelta);
 			ci.cancel();
 		}
+		else if (MinecraftClient.getInstance().currentScreen instanceof HellObserverScreen screen && screen.isEditingArea())
+		{
+			this.ready = true;
+			this.area = area;
+			this.focusedEntity = focusedEntity;
+			this.thirdPerson = false;
+			setRotation(focusedEntity.getYaw(tickDelta), focusedEntity.getPitch(tickDelta));
+			setPos(new Vec3d(MathHelper.lerp(tickDelta, focusedEntity.prevX, focusedEntity.getX()),
+					MathHelper.lerp(tickDelta, focusedEntity.prevY, focusedEntity.getY()) + (double)MathHelper.lerp(tickDelta, lastCameraY, cameraY),
+					MathHelper.lerp(tickDelta, focusedEntity.prevZ, focusedEntity.getZ())));
+			if(area.getBlockEntity(screen.getObserverPos()) instanceof HellObserverBlockEntity observer)
+				hellObserverAreaEditorUpdate(observer, screen, tickDelta);
+			ci.cancel();
+		}
 		else
 		{
 			curOffset = getPos();
@@ -162,6 +177,31 @@ public abstract class CameraMixin
 		{
 			float f = MathHelper.DEGREES_PER_RADIAN;
 			Vec3d dir = pos.subtract(offset);
+			
+			double horizontalLength = Math.sqrt(dir.x * dir.x + dir.z * dir.z);
+			curPitch = MathHelper.lerpAngleDegrees(tickDelta / 4f, curPitch, (float)(-(MathHelper.atan2(dir.y, horizontalLength) * f)));
+			setRotation(curYaw = MathHelper.lerpAngleDegrees(tickDelta / 4f, curYaw,
+					(float)(MathHelper.atan2(dir.z, dir.x) * f) - 90.0f), curPitch);
+			curOffset = curOffset.lerp(offset, tickDelta / 4f);
+			setPos(curOffset);
+		}
+	}
+	
+	void hellObserverAreaEditorUpdate(HellObserverBlockEntity observer, HellObserverScreen screen, float tickDelta)
+	{
+		Vec3d pos = observer.getPos().toCenterPos();
+		Vec3d offset = pos.add(observer.getCamOffset(screen.getCamRot()));
+		
+		if(!wasFocusedOnTerminal) //set initial transform when opening Menu
+		{
+			curYaw = yaw;
+			curOffset = getPos();
+			wasFocusedOnTerminal = true;
+		}
+		else //lerp towards target transform
+		{
+			float f = MathHelper.DEGREES_PER_RADIAN;
+			Vec3d dir = screen.getObserverPos().add(observer.getCheckOffset()).toCenterPos().subtract(offset);
 			
 			double horizontalLength = Math.sqrt(dir.x * dir.x + dir.z * dir.z);
 			curPitch = MathHelper.lerpAngleDegrees(tickDelta / 4f, curPitch, (float)(-(MathHelper.atan2(dir.y, horizontalLength) * f)));

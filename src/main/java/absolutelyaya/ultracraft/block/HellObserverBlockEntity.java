@@ -12,9 +12,7 @@ import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.util.TypeFilter;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 
 import java.util.List;
@@ -36,9 +34,19 @@ public class HellObserverBlockEntity extends BlockEntity
 		return checkDimensions;
 	}
 	
+	public void setCheckDimensions(Vec3i v)
+	{
+		checkDimensions = v;
+	}
+	
 	public Vec3i getCheckOffset()
 	{
 		return checkOffset;
+	}
+	
+	public void setCheckOffset(Vec3i v)
+	{
+		checkOffset = v;
 	}
 	
 	public int getRedstoneStrength()
@@ -173,5 +181,12 @@ public class HellObserverBlockEntity extends BlockEntity
 	public boolean getRequireBoth()
 	{
 		return requireBoth;
+	}
+	
+	public Vec3d getCamOffset(float rot)
+	{
+		float f = checkDimensions.getX() + checkDimensions.getY() + checkDimensions.getZ();
+		return new Vec3d(checkOffset.getX(), checkOffset.getY(), checkOffset.getZ()).add(new Vec3d(0f, f / 3f, f / 3f)
+					   .rotateY((getCachedState().get(HellObserverBlock.FACING).asRotation() + rot) * -MathHelper.RADIANS_PER_DEGREE));
 	}
 }

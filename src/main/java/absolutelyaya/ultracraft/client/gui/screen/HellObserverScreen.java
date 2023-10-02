@@ -7,16 +7,21 @@ import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3i;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
@@ -27,14 +32,16 @@ public class HellObserverScreen extends Screen
 	static final Identifier TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/container/hell_observer.png");
 	
 	final BlockPos pos;
-	int bgWidth = 179, bgHeight = 155, playerCount = 0, enemyCount = 0;
-	boolean eyeOpen = true, requireBoth = false;
-	float shake = 0f;
+	int bgWidth = 179, bgHeight = 150, playerCount = 0, enemyCount = 0;
+	int areaSizeX, areaSizeY, areaSizeZ, areaOffsetX, areaOffsetY, areaOffsetZ;
+	boolean eyeOpen = true, requireBoth = false, editArea;
+	float shake = 0f, mainScreenOffset = 0f, darken = 1f, cameraRot = 0f;
 	Random random;
 	HellOperator initialPlayerOperator, initialEnemyOperator;
 	OperatorButton playerOpButton, enemyOpButton;
 	Slider playerSlider, enemySlider;
-	ButtonWidget interactionButton;
+	ButtonWidget interactionButton, editAreaButton;
+	NumberField sizeFieldX, sizeFieldY, sizeFieldZ, offsetFieldX, offsetFieldY, offsetFieldZ;
 	
 	public HellObserverScreen(BlockPos pos)
 	{
@@ -48,6 +55,14 @@ public class HellObserverScreen extends Screen
 		enemyCount = observer.getEnemyCount();
 		initialEnemyOperator = observer.getEnemyOperator();
 		requireBoth = observer.getRequireBoth();
+		Vec3i offset = observer.getCheckOffset();
+		areaOffsetX = offset.getX();
+		areaOffsetY = offset.getY();
+		areaOffsetZ = offset.getZ();
+		Vec3i size = observer.getCheckDimensions();
+		areaSizeX = size.getX();
+		areaSizeY = size.getY();
+		areaSizeZ = size.getZ();
 	}
 	
 	@Override
@@ -73,21 +88,85 @@ public class HellObserverScreen extends Screen
 		interactionButton = addDrawableChild(ButtonWidget.builder(Text.empty(), b -> requireBoth = !requireBoth)
 													 .dimensions(x + 132, y + 58, 29, 11).build());
 		interactionButton.setAlpha(0f);
+		editAreaButton = addDrawableChild(ButtonWidget.builder(Text.of("Edit Area"), b -> setEditingArea(true))
+													 .dimensions(x + 34, y + 99, 100, 20).build());
 		eye.setAlpha(0f);
+		setEditingArea(editArea);
+		//areaPanel
+		if(!(MinecraftClient.getInstance().player.getWorld().getBlockEntity(pos) instanceof HellObserverBlockEntity observer))
+			return;
+		x = width - 115; y = (int)(height * 0.666f) - 50;
+		sizeFieldX = addDrawableChild(new NumberField(textRenderer, x + 5, y + 16, 36, 20, Text.empty()));
+		sizeFieldX.setText(String.valueOf(areaSizeX));
+		sizeFieldX.setChangedListener(s -> {
+			areaSizeX = stringToInt(s);
+			observer.setCheckDimensions(new Vec3i(areaSizeX, areaSizeY, areaSizeZ));
+		});
+		sizeFieldY = addDrawableChild(new NumberField(textRenderer, x + 41, y + 16, 36, 20, Text.empty()));
+		sizeFieldY.setText(String.valueOf(areaSizeY));
+		sizeFieldY.setChangedListener(s -> {
+			areaSizeY = stringToInt(s);
+			observer.setCheckDimensions(new Vec3i(areaSizeX, areaSizeY, areaSizeZ));
+		});
+		sizeFieldZ = addDrawableChild(new NumberField(textRenderer, x + 77, y + 16, 36, 20, Text.empty()));
+		sizeFieldZ.setText(String.valueOf(areaSizeZ));
+		sizeFieldZ.setChangedListener(s -> {
+			areaSizeZ = stringToInt(s);
+			observer.setCheckDimensions(new Vec3i(areaSizeX, areaSizeY, areaSizeZ));
+		});
+		offsetFieldX = addDrawableChild(new NumberField(textRenderer, x + 5, y + 52, 36, 20, Text.empty()));
+		offsetFieldX.setText(String.valueOf(areaOffsetX));
+		offsetFieldX.setChangedListener(s -> {
+			areaOffsetX = stringToInt(s);
+			observer.setCheckOffset(new Vec3i(areaOffsetX, areaOffsetY, areaOffsetZ));
+		});
+		offsetFieldY = addDrawableChild(new NumberField(textRenderer, x + 41, y + 52, 36, 20, Text.empty()));
+		offsetFieldY.setText(String.valueOf(areaOffsetY));
+		offsetFieldY.setChangedListener(s -> {
+			areaOffsetY = stringToInt(s);
+			observer.setCheckOffset(new Vec3i(areaOffsetX, areaOffsetY, areaOffsetZ));
+		});
+		offsetFieldZ = addDrawableChild(new NumberField(textRenderer, x + 77, y + 52, 36, 20, Text.empty()));
+		offsetFieldZ.setText(String.valueOf(areaOffsetZ));
+		offsetFieldZ.setChangedListener(s -> {
+			areaOffsetZ = stringToInt(s);
+			observer.setCheckOffset(new Vec3i(areaOffsetX, areaOffsetY, areaOffsetZ));
+		});
+		offsetFieldX.setAllowNegative(true);
+		offsetFieldY.setAllowNegative(true);
+		offsetFieldZ.setAllowNegative(true);
+		//TODO: sync area with server
+		//TODO: reduce max distance/size
 	}
 	
 	@Override
 	public void render(DrawContext context, int mouseX, int mouseY, float delta)
 	{
-		renderBackground(context);
+		if(isEditingArea())
+		{
+			if(mainScreenOffset < height)
+				mainScreenOffset += delta * 10;
+			if(darken > 0f)
+				darken = Math.max(darken - delta / 10f, 0f);
+		}
+		else
+		{
+			if(mainScreenOffset > 0)
+				mainScreenOffset -= delta * 10;
+			if(darken < 1f)
+				darken = Math.min(darken + delta / 10f, 1f);
+		}
+		
+		MatrixStack matrices = context.getMatrices();
+		context.fill(0, 0, width, height, ColorHelper.Argb.getArgb((int)(darken * 127), 0, 0, 0));
 		if(shake > 0)
 		{
-			context.getMatrices().translate((random.nextFloat() - 0.5f) * 2f * shake, 0, 0);
+			matrices.translate((random.nextFloat() - 0.5f) * 2f * shake, 0, 0);
 			shake -= delta;
 		}
 		int x = (width - bgWidth) / 2, y = (height - bgHeight) / 2;
-		context.getMatrices().push();
-		context.getMatrices().translate(x, y, 0);
+		matrices.push();
+		matrices.translate(x, y - mainScreenOffset, 0);
 		if(eyeOpen)
 		{
 			int eyeOffsetX = MathHelper.clamp((mouseX - x - 125 * 2) / 30, -7, -1),
@@ -105,8 +184,84 @@ public class HellObserverScreen extends Screen
 		
 		context.drawText(textRenderer, Text.of(String.valueOf(playerCount)), 156, 37, 0xffffffff, false);
 		context.drawText(textRenderer, Text.of(String.valueOf(enemyCount)), 156, 82, 0xffffffff, false);
-		context.getMatrices().pop();
+		matrices.pop();
+		
+		matrices.push();
+		matrices.translate(width / 2f, 0, 0);
+		matrices.push();
+		context.drawTexture(TEXTURE, -83 / 2 + 2, -3, 2, 150, 12, 33);
+		matrices.pop();
+		matrices.push();
+		context.drawTexture(TEXTURE, 83 / 2 - 14, -3, 67, 150, 12, 34);
+		matrices.pop();
+		//sign
+		matrices.push();
+		context.drawTexture(TEXTURE, -83 / 2, 29, 0, 183, 83, 17);
+		Text t = Text.of("Finish Editing");
+		context.drawText(textRenderer, t, -textRenderer.getWidth(t) / 2, 32, 0, false);
+		matrices.pop();
+		matrices.pop();
+		//Area Panel
+		matrices.push();
+		context.drawTexture(TEXTURE, width - 115, (int)(height * 0.666f) - 50, 84, 153, 116, 100);
+		matrices.pop();
+		
 		super.render(context, mouseX, mouseY, delta);
+	}
+	
+	public BlockPos getObserverPos()
+	{
+		return pos;
+	}
+	
+	void setEditingArea(boolean b)
+	{
+		editArea = b;
+		interactionButton.visible = editAreaButton.visible = playerOpButton.visible = enemyOpButton.visible = playerSlider.visible = enemySlider.visible = !editArea;
+	}
+	
+	public boolean isEditingArea()
+	{
+		return editArea;
+	}
+	
+	public float getCamRot()
+	{
+		return cameraRot;
+	}
+	
+	public int stringToInt(String s)
+	{
+		try
+		{
+			return Integer.parseInt(s);
+		}
+		catch (NumberFormatException ignored)
+		{
+			return 0;
+		}
+	}
+	
+	@Override
+	public boolean keyPressed(int keyCode, int scanCode, int modifiers)
+	{
+		if(editArea && (keyCode == 68 || keyCode == 65 || keyCode == 256))
+		{
+			switch (keyCode)
+			{
+				case 68 -> cameraRot += (modifiers == 2 ? -15 : -7.5f); //right
+				case 65 -> cameraRot += (modifiers == 2 ? 15 : 7.5f); //left
+				case 256 -> close(); // ESC
+			}
+			return true;
+		}
+		return super.keyPressed(keyCode, scanCode, modifiers);
+	}
+	
+	@Override
+	public boolean shouldPause()
+	{
+		return false;
 	}
 	
 	@Override
@@ -208,6 +363,56 @@ public class HellObserverScreen extends Screen
 			x = MathHelper.lerp(f, minX, maxX);
 			setX((int)x);
 			onValueChanged.accept(this);
+		}
+	}
+	
+	static class NumberField extends TextFieldWidget
+	{
+		boolean allowNegative = false;
+		
+		public NumberField(TextRenderer textRenderer, int x, int y, int width, int height, Text text)
+		{
+			super(textRenderer, x, y, width, height, text);
+		}
+		
+		@Override
+		public boolean charTyped(char chr, int modifiers)
+		{
+			if(!isValidChar(chr))
+				return false;
+			return super.charTyped(chr, modifiers);
+		}
+		
+		boolean isValidChar(char c)
+		{
+			if(c == '-' && allowNegative)
+				return true;
+			return Character.isDigit(c);
+		}
+		
+		public void setAllowNegative(boolean b)
+		{
+			allowNegative = b;
+		}
+		
+		@Override
+		public void write(String text)
+		{
+			super.write(text);
+			try
+			{
+				int v = Integer.parseInt(getText());
+				if(v > 128)
+					setText("128");
+				else if(!allowNegative && v < 0)
+					setText("0");
+				else if(v < -128)
+					setText("-128");
+			}
+			catch (NumberFormatException ignored)
+			{
+			
+			}
 		}
 	}
 }
