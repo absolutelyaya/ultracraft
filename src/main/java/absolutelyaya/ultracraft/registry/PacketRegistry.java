@@ -38,6 +38,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.ArrayUtils;
 import org.joml.Vector3f;
@@ -432,10 +433,14 @@ public class PacketRegistry
 			int enemyCount = buf.readInt();
 			int enemyOperator = buf.readInt();
 			boolean requireBoth = buf.readBoolean();
+			Vector3f offset = buf.readVector3f();
+			Vector3f size = buf.readVector3f();
+			boolean previewArea = buf.readBoolean();
 			server.execute(() -> {
 				if(!(player.getWorld().getBlockEntity(pos) instanceof HellObserverBlockEntity observer))
 					return;
-				observer.sync(playerCount, playerOperator, enemyCount, enemyOperator, requireBoth);
+				observer.sync(playerCount, playerOperator, enemyCount, enemyOperator, requireBoth,
+						new Vec3i((int)offset.x, (int)offset.y, (int)offset.z), new Vec3i((int)size.x, (int)size.y, (int)size.z), previewArea);
 			});
 		});
 	}

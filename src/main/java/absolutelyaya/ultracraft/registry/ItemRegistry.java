@@ -202,6 +202,7 @@ public class ItemRegistry
 			content.add(DRONE_MASK);
 			for (TerminalBlockEntity.Base b : TerminalBlockEntity.Base.values())
 				content.add(TerminalItem.getStack(b));
+			content.add(BlockRegistry.HELL_OBSERVER.asItem());
 		});
 	}
 }

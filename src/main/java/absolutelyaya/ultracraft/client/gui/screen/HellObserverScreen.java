@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.tooltip.Tooltip;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -23,7 +24,10 @@ import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3i;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
@@ -40,8 +44,10 @@ public class HellObserverScreen extends Screen
 	HellOperator initialPlayerOperator, initialEnemyOperator;
 	OperatorButton playerOpButton, enemyOpButton;
 	Slider playerSlider, enemySlider;
-	ButtonWidget interactionButton, editAreaButton;
+	ButtonWidget interactionButton, editAreaButton, finishEditingButton;
 	NumberField sizeFieldX, sizeFieldY, sizeFieldZ, offsetFieldX, offsetFieldY, offsetFieldZ;
+	float signSpeed, signOffset = 50, areaPanelOffset = 120;
+	List<Drawable> mainWidgets = new ArrayList<>(), areaPanelWidgets = new ArrayList<>();
 	
 	public HellObserverScreen(BlockPos pos)
 	{
@@ -63,6 +69,7 @@ public class HellObserverScreen extends Screen
 		areaSizeX = size.getX();
 		areaSizeY = size.getY();
 		areaSizeZ = size.getZ();
+		eyeOpen = observer.shouldPreviewArea();
 	}
 	
 	@Override
@@ -72,10 +79,8 @@ public class HellObserverScreen extends Screen
 		int x = (width - bgWidth) / 2, y = (height - bgHeight) / 2;
 		ButtonWidget eye = addDrawableChild(ButtonWidget.builder(Text.empty(), b -> {
 			if(eyeOpen)
-			{
 				shake = 5f;
-				eyeOpen = false;
-			}
+			eyeOpen = !eyeOpen;
 		}).dimensions(x + 124, y + 8, 14, 10).build());
 		playerOpButton = addDrawableChild(new OperatorButton(x + 140, y + 35, b -> {}));
 		playerOpButton.operator = initialPlayerOperator;
@@ -88,45 +93,44 @@ public class HellObserverScreen extends Screen
 		interactionButton = addDrawableChild(ButtonWidget.builder(Text.empty(), b -> requireBoth = !requireBoth)
 													 .dimensions(x + 132, y + 58, 29, 11).build());
 		interactionButton.setAlpha(0f);
-		editAreaButton = addDrawableChild(ButtonWidget.builder(Text.of("Edit Area"), b -> setEditingArea(true))
+		editAreaButton = addDrawableChild(ButtonWidget.builder(Text.translatable("screen.ultracraft.hell_observer.edit_area"), b -> setEditingArea(true))
 													 .dimensions(x + 34, y + 99, 100, 20).build());
 		eye.setAlpha(0f);
-		setEditingArea(editArea);
 		//areaPanel
 		if(!(MinecraftClient.getInstance().player.getWorld().getBlockEntity(pos) instanceof HellObserverBlockEntity observer))
 			return;
 		x = width - 115; y = (int)(height * 0.666f) - 50;
-		sizeFieldX = addDrawableChild(new NumberField(textRenderer, x + 5, y + 16, 36, 20, Text.empty()));
+		sizeFieldX = addDrawableChild(new NumberField(textRenderer, x + 5, y + 16, 36, 14, Text.empty(), 32));
 		sizeFieldX.setText(String.valueOf(areaSizeX));
 		sizeFieldX.setChangedListener(s -> {
 			areaSizeX = stringToInt(s);
 			observer.setCheckDimensions(new Vec3i(areaSizeX, areaSizeY, areaSizeZ));
 		});
-		sizeFieldY = addDrawableChild(new NumberField(textRenderer, x + 41, y + 16, 36, 20, Text.empty()));
+		sizeFieldY = addDrawableChild(new NumberField(textRenderer, x + 41, y + 16, 36, 14, Text.empty(), 32));
 		sizeFieldY.setText(String.valueOf(areaSizeY));
 		sizeFieldY.setChangedListener(s -> {
 			areaSizeY = stringToInt(s);
 			observer.setCheckDimensions(new Vec3i(areaSizeX, areaSizeY, areaSizeZ));
 		});
-		sizeFieldZ = addDrawableChild(new NumberField(textRenderer, x + 77, y + 16, 36, 20, Text.empty()));
+		sizeFieldZ = addDrawableChild(new NumberField(textRenderer, x + 77, y + 16, 36, 14, Text.empty(), 32));
 		sizeFieldZ.setText(String.valueOf(areaSizeZ));
 		sizeFieldZ.setChangedListener(s -> {
 			areaSizeZ = stringToInt(s);
 			observer.setCheckDimensions(new Vec3i(areaSizeX, areaSizeY, areaSizeZ));
 		});
-		offsetFieldX = addDrawableChild(new NumberField(textRenderer, x + 5, y + 52, 36, 20, Text.empty()));
+		offsetFieldX = addDrawableChild(new NumberField(textRenderer, x + 5, y + 45, 36, 14, Text.empty(), 16));
 		offsetFieldX.setText(String.valueOf(areaOffsetX));
 		offsetFieldX.setChangedListener(s -> {
 			areaOffsetX = stringToInt(s);
 			observer.setCheckOffset(new Vec3i(areaOffsetX, areaOffsetY, areaOffsetZ));
 		});
-		offsetFieldY = addDrawableChild(new NumberField(textRenderer, x + 41, y + 52, 36, 20, Text.empty()));
+		offsetFieldY = addDrawableChild(new NumberField(textRenderer, x + 41, y + 45, 36, 14, Text.empty(), 16));
 		offsetFieldY.setText(String.valueOf(areaOffsetY));
 		offsetFieldY.setChangedListener(s -> {
 			areaOffsetY = stringToInt(s);
 			observer.setCheckOffset(new Vec3i(areaOffsetX, areaOffsetY, areaOffsetZ));
 		});
-		offsetFieldZ = addDrawableChild(new NumberField(textRenderer, x + 77, y + 52, 36, 20, Text.empty()));
+		offsetFieldZ = addDrawableChild(new NumberField(textRenderer, x + 77, y + 45, 36, 14, Text.empty(), 16));
 		offsetFieldZ.setText(String.valueOf(areaOffsetZ));
 		offsetFieldZ.setChangedListener(s -> {
 			areaOffsetZ = stringToInt(s);
@@ -135,30 +139,35 @@ public class HellObserverScreen extends Screen
 		offsetFieldX.setAllowNegative(true);
 		offsetFieldY.setAllowNegative(true);
 		offsetFieldZ.setAllowNegative(true);
-		//TODO: sync area with server
-		//TODO: reduce max distance/size
+		finishEditingButton = addDrawableChild(ButtonWidget.builder(Text.empty(), b -> setEditingArea(false))
+													   .dimensions(width / 2 - 83 / 2, 29, 83, 17).build());
+		finishEditingButton.setAlpha(0f);
+		setEditingArea(editArea);
+		mainWidgets.clear();
+		mainWidgets.addAll(List.of(interactionButton, editAreaButton, playerOpButton, enemyOpButton, playerSlider, enemySlider));
+		areaPanelWidgets.clear();
+		areaPanelWidgets.addAll(List.of(offsetFieldX, offsetFieldY, offsetFieldZ, sizeFieldX, sizeFieldY, sizeFieldZ, finishEditingButton));
 	}
 	
 	@Override
 	public void render(DrawContext context, int mouseX, int mouseY, float delta)
 	{
+		MatrixStack matrices = context.getMatrices();
+		context.fill(0, 0, width, height, ColorHelper.Argb.getArgb((int)(darken * 127), 0, 0, 0));
 		if(isEditingArea())
 		{
 			if(mainScreenOffset < height)
-				mainScreenOffset += delta * 10;
+				mainScreenOffset = Math.min(mainScreenOffset + delta * 30, height);
 			if(darken > 0f)
 				darken = Math.max(darken - delta / 10f, 0f);
 		}
 		else
 		{
 			if(mainScreenOffset > 0)
-				mainScreenOffset -= delta * 10;
+				mainScreenOffset = Math.max(mainScreenOffset - delta * 30, 0);
 			if(darken < 1f)
 				darken = Math.min(darken + delta / 10f, 1f);
 		}
-		
-		MatrixStack matrices = context.getMatrices();
-		context.fill(0, 0, width, height, ColorHelper.Argb.getArgb((int)(darken * 127), 0, 0, 0));
 		if(shake > 0)
 		{
 			matrices.translate((random.nextFloat() - 0.5f) * 2f * shake, 0, 0);
@@ -185,9 +194,33 @@ public class HellObserverScreen extends Screen
 		context.drawText(textRenderer, Text.of(String.valueOf(playerCount)), 156, 37, 0xffffffff, false);
 		context.drawText(textRenderer, Text.of(String.valueOf(enemyCount)), 156, 82, 0xffffffff, false);
 		matrices.pop();
+		if(mainScreenOffset == 0)
+			for (Drawable w : mainWidgets)
+				w.render(context, mouseX, mouseY, delta);
+		
+		if(isEditingArea())
+		{
+			if(areaPanelOffset > 0)
+				areaPanelOffset = Math.max(areaPanelOffset - delta * 10, 0);
+			if(Math.abs(signSpeed) > 0f)
+			{
+				signOffset -= signSpeed * delta;
+				if(signOffset <= 0)
+					signSpeed = -signSpeed * 0.33f;
+				signSpeed += 0.5f;
+				signOffset = Math.max(signOffset, 0);
+			}
+		}
+		else
+		{
+			if(areaPanelOffset < 120)
+				areaPanelOffset = Math.min(areaPanelOffset + delta * 10, 120);
+			if(signOffset < 50)
+				signOffset = Math.min(signOffset + delta * 15, 50);
+		}
 		
 		matrices.push();
-		matrices.translate(width / 2f, 0, 0);
+		matrices.translate(width / 2f, -signOffset, 0);
 		matrices.push();
 		context.drawTexture(TEXTURE, -83 / 2 + 2, -3, 2, 150, 12, 33);
 		matrices.pop();
@@ -197,16 +230,24 @@ public class HellObserverScreen extends Screen
 		//sign
 		matrices.push();
 		context.drawTexture(TEXTURE, -83 / 2, 29, 0, 183, 83, 17);
-		Text t = Text.of("Finish Editing");
-		context.drawText(textRenderer, t, -textRenderer.getWidth(t) / 2, 32, 0, false);
+		Text t = Text.translatable("screen.ultracraft.hell_observer.finish_editing");
+		context.drawText(textRenderer, t, -textRenderer.getWidth(t) / 2, 32, finishEditingButton.isHovered() ? 0xffffffff : 0, false);
 		matrices.pop();
 		matrices.pop();
 		//Area Panel
 		matrices.push();
-		context.drawTexture(TEXTURE, width - 115, (int)(height * 0.666f) - 50, 84, 153, 116, 100);
+		matrices.translate(width - 115 + areaPanelOffset, height * 0.666f - 50, 0);
+		context.drawTexture(TEXTURE, 0, -2, 84, 151, 116, 102);
+		context.drawText(textRenderer, Text.translatable("screen.ultracraft.hell_observer.size"), 7, 6, 0, false);
+		context.drawText(textRenderer, Text.translatable("screen.ultracraft.hell_observer.offset"), 7, 35, 0, false);
+		context.drawText(textRenderer, Text.translatable("screen.ultracraft.hell_observer.move_hint"), 5, 64, 0, false);
 		matrices.pop();
-		
-		super.render(context, mouseX, mouseY, delta);
+		matrices.push();
+		matrices.translate(0f, 0.5f, 0f);
+		if(areaPanelOffset == 0)
+			for (Drawable w : areaPanelWidgets)
+				w.render(context, mouseX, mouseY, delta);
+		matrices.pop();
 	}
 	
 	public BlockPos getObserverPos()
@@ -218,6 +259,10 @@ public class HellObserverScreen extends Screen
 	{
 		editArea = b;
 		interactionButton.visible = editAreaButton.visible = playerOpButton.visible = enemyOpButton.visible = playerSlider.visible = enemySlider.visible = !editArea;
+		offsetFieldX.visible = offsetFieldY.visible = offsetFieldZ.visible = sizeFieldX.visible = sizeFieldY.visible = sizeFieldZ.visible =
+																															   finishEditingButton.visible = editArea;
+		signSpeed = 2f;
+		MinecraftClient.getInstance().options.hudHidden = b;
 	}
 	
 	public boolean isEditingArea()
@@ -267,6 +312,7 @@ public class HellObserverScreen extends Screen
 	@Override
 	public void close()
 	{
+		setEditingArea(false);
 		super.close();
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeBlockPos(pos);
@@ -275,10 +321,14 @@ public class HellObserverScreen extends Screen
 		buf.writeInt(enemyCount);
 		buf.writeInt(enemyOpButton.operator.ordinal());
 		buf.writeBoolean(requireBoth);
+		buf.writeVector3f(new Vector3f(areaOffsetX, areaOffsetY, areaOffsetZ));
+		buf.writeVector3f(new Vector3f(areaSizeX, areaSizeY, areaSizeZ));
+		buf.writeBoolean(eyeOpen);
 		ClientPlayNetworking.send(PacketRegistry.HELL_OBSERVER_C2S_PACKET_ID, buf);
 		if(!(MinecraftClient.getInstance().player.getWorld().getBlockEntity(pos) instanceof HellObserverBlockEntity observer))
 			return;
-		observer.sync(playerCount, playerOpButton.operator.ordinal(), enemyCount, enemyOpButton.operator.ordinal(), requireBoth);
+		observer.sync(playerCount, playerOpButton.operator.ordinal(), enemyCount, enemyOpButton.operator.ordinal(), requireBoth,
+				new Vec3i(areaOffsetX, areaOffsetY, areaOffsetZ), new Vec3i(areaSizeX, areaSizeY, areaSizeZ), eyeOpen);
 	}
 	
 	static class OperatorButton extends ButtonWidget
@@ -369,10 +419,12 @@ public class HellObserverScreen extends Screen
 	static class NumberField extends TextFieldWidget
 	{
 		boolean allowNegative = false;
+		int max;
 		
-		public NumberField(TextRenderer textRenderer, int x, int y, int width, int height, Text text)
+		public NumberField(TextRenderer textRenderer, int x, int y, int width, int height, Text text, int max)
 		{
 			super(textRenderer, x, y, width, height, text);
+			this.max = max;
 		}
 		
 		@Override
@@ -402,12 +454,12 @@ public class HellObserverScreen extends Screen
 			try
 			{
 				int v = Integer.parseInt(getText());
-				if(v > 128)
-					setText("128");
+				if(v > max)
+					setText(String.valueOf(max));
 				else if(!allowNegative && v < 0)
 					setText("0");
-				else if(v < -128)
-					setText("-128");
+				else if(v < -max)
+					setText(String.valueOf(-max));
 			}
 			catch (NumberFormatException ignored)
 			{

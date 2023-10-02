@@ -379,6 +379,11 @@
   "screen.ultracraft.hell_observer.equals": "equals",
   "screen.ultracraft.hell_observer.both": "AND",
   "screen.ultracraft.hell_observer.either": "OR",
+  "screen.ultracraft.hell_observer.finish_editing": "Finish Editing",
+  "screen.ultracraft.hell_observer.offset": "Offset",
+  "screen.ultracraft.hell_observer.size": "Size",
+  "screen.ultracraft.hell_observer.move_hint": "Press A or D to move",
+  "screen.ultracraft.hell_observer.edit_area": "Edit Area",
 
   "terminal.coming-soon": "Coming Soon",
   "terminal.button": "Button",

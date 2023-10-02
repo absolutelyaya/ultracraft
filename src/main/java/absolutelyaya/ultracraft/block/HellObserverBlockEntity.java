@@ -21,7 +21,7 @@ public class HellObserverBlockEntity extends BlockEntity
 {
 	HellOperator playerOperator = HellOperator.IGNORE, enemyOperator = HellOperator.IGNORE;
 	int tick, playerCount, enemyCount;
-	boolean lastCheck, halfClosed, requireBoth;
+	boolean lastCheck, halfClosed, requireBoth, previewArea = true;
 	Vec3i checkDimensions = new Vec3i(3, 3, 3), checkOffset = new Vec3i(0, 0, 0);
 	
 	public HellObserverBlockEntity(BlockPos pos, BlockState state)
@@ -103,6 +103,7 @@ public class HellObserverBlockEntity extends BlockEntity
 		nbt.putByte("playerOperator", (byte)playerOperator.ordinal());
 		nbt.putByte("enemyOperator", (byte)enemyOperator.ordinal());
 		nbt.putBoolean("requireBoth", requireBoth);
+		nbt.putBoolean("previewArea", previewArea);
 	}
 	
 	@Override
@@ -127,6 +128,8 @@ public class HellObserverBlockEntity extends BlockEntity
 			enemyOperator = HellOperator.values()[nbt.getByte("enemyOperator")];
 		if(nbt.contains("requireBoth", NbtElement.BYTE_TYPE))
 			requireBoth = nbt.getBoolean("requireBoth");
+		if(nbt.contains("previewArea", NbtElement.BYTE_TYPE))
+			previewArea = nbt.getBoolean("previewArea");
 	}
 	
 	Vec3i intArrayToVector(int[] array)
@@ -136,13 +139,16 @@ public class HellObserverBlockEntity extends BlockEntity
 		return new Vec3i(array[0], array[1], array[2]);
 	}
 	
-	public void sync(int playerCount, int playerOperator, int enemyCount, int enemyOperator, boolean requireBoth)
+	public void sync(int playerCount, int playerOperator, int enemyCount, int enemyOperator, boolean requireBoth, Vec3i offset, Vec3i size, boolean previewArea)
 	{
 		this.playerCount = playerCount;
 		this.playerOperator = HellOperator.values()[playerOperator];
 		this.enemyCount = enemyCount;
 		this.enemyOperator = HellOperator.values()[enemyOperator];
 		this.requireBoth = requireBoth;
+		this.checkOffset = offset;
+		this.checkDimensions = size;
+		this.previewArea = previewArea;
 		markDirty();
 	}
 	
@@ -186,7 +192,12 @@ public class HellObserverBlockEntity extends BlockEntity
 	public Vec3d getCamOffset(float rot)
 	{
 		float f = checkDimensions.getX() + checkDimensions.getY() + checkDimensions.getZ();
-		return new Vec3d(checkOffset.getX(), checkOffset.getY(), checkOffset.getZ()).add(new Vec3d(0f, f / 3f, f / 3f)
+		return new Vec3d(checkOffset.getX(), checkOffset.getY(), checkOffset.getZ()).add(new Vec3d(0f, f / 4f, f / 5f)
 					   .rotateY((getCachedState().get(HellObserverBlock.FACING).asRotation() + rot) * -MathHelper.RADIANS_PER_DEGREE));
+	}
+	
+	public boolean shouldPreviewArea()
+	{
+		return previewArea;
 	}
 }

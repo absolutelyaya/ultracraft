@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.client.rendering.block.entity;
 
 import absolutelyaya.ultracraft.block.HellObserverBlockEntity;
+import absolutelyaya.ultracraft.client.gui.screen.HellObserverScreen;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
@@ -18,10 +19,21 @@ public class HellObserverRenderer implements BlockEntityRenderer<HellObserverBlo
 	public void render(HellObserverBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay)
 	{
 		MinecraftClient client = MinecraftClient.getInstance();
-		if(!(client.crosshairTarget instanceof BlockHitResult bHit && client.world.getBlockState(bHit.getBlockPos()).isOf(BlockRegistry.HELL_OBSERVER)))
-			return;
-		boolean focused = entity.getPos().equals(bHit.getBlockPos());
-		float distance = bHit.getBlockPos().getManhattanDistance(entity.getPos());
+		boolean focused;
+		float distance;
+		if(client.currentScreen instanceof HellObserverScreen screen && screen.isEditingArea())
+		{
+			focused = entity.getPos().equals(screen.getObserverPos());
+			distance = screen.getObserverPos().getManhattanDistance(entity.getPos());
+		}
+		else if(client.crosshairTarget instanceof BlockHitResult bHit && client.world.getBlockState(bHit.getBlockPos()).isOf(BlockRegistry.HELL_OBSERVER))
+		{
+			if(!entity.shouldPreviewArea())
+				return;
+			focused = entity.getPos().equals(bHit.getBlockPos());
+			distance = bHit.getBlockPos().getManhattanDistance(entity.getPos());
+		}
+		else return;
 		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.LINES); //POSITION COLOR NORMAL PADDING
 		Vec3i size = entity.getCheckDimensions();
 		Vec3i offset = entity.getCheckOffset();
