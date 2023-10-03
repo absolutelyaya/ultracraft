@@ -49,6 +49,8 @@ public class IntroScreen extends Screen
 		}).dimensions(width / 2 - 49, 32 + textRenderer.fontHeight * 5, 98, 20)
 											   .tooltip(Tooltip.of(Text.translatable("message.ultracraft.fixer-button.tooltip"))).build());
 		closeButton = addDrawableChild(new ButtonWidget.Builder(Text.translatable("message.ultracraft.consent"), (button) -> {
+			if(config.lastVersion.equals("ultracraft-1.20.1-1.1.5"))
+				config.BGID = "limbo";
 			config.lastVersion = Ultracraft.VERSION;
 			waitingForButton = false;
 			button.active = false;

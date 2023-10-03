@@ -132,7 +132,7 @@ public class PlayerAnimator
 		else if(anim != null)
 		{
 			animationLayer.replaceAnimationWithFade(AbstractFadeModifier.functionalFadeIn(fade, (modelName, type, value) -> value),
-					new KeyframeAnimationPlayer(anim).setFirstPersonMode(FirstPersonMode.VANILLA)
+					new KeyframeAnimationPlayer(anim).setFirstPersonMode(FirstPersonMode.NONE)
 							.setFirstPersonConfiguration(new FirstPersonConfiguration())
 			);
 		}
