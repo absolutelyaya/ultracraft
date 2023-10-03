@@ -4,6 +4,11 @@
       "ultracraft:music/the_fire_is_gone"
     ]
   },
+  "music.clair_de_lune": {
+    "sounds": [
+      "ultracraft:music/clair_de_lune"
+    ]
+  },
   "misc.elevator_fall": {
     "sounds": [
       "ultracraft:misc/elevator_fall"

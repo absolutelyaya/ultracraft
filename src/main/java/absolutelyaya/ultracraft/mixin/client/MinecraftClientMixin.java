@@ -28,8 +28,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.Packet;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.resource.ResourceReload;
 import net.minecraft.sound.MusicSound;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -84,7 +86,17 @@ public abstract class MinecraftClientMixin
 	void onGetMusicType(CallbackInfoReturnable<MusicSound> cir)
 	{
 		if (cir.getReturnValue().equals(MusicType.MENU) && UltracraftClient.REPLACE_MENU_MUSIC)
-			cir.setReturnValue(new MusicSound(SoundRegistry.THE_FIRE_IS_GONE, 20, 600, true));
+		{
+			RegistryEntry.Reference<SoundEvent> music = switch(UltracraftClient.getConfigHolder().get().BGID)
+			{
+				case "ultracraft" -> SoundRegistry.THE_FIRE_IS_GONE;
+				case "limbo" -> SoundRegistry.CLAIR_DE_LUNE;
+				default -> null;
+			};
+			if(music == null)
+				return;
+			cir.setReturnValue(new MusicSound(music, 20, 600, true));
+		}
 	}
 	
 	@Inject(method = "handleInputEvents", at = @At("TAIL"))

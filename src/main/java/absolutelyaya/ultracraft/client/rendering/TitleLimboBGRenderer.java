@@ -2,7 +2,6 @@ package absolutelyaya.ultracraft.client.rendering;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import com.mojang.blaze3d.systems.RenderSystem;
-import dev.architectury.event.events.client.ClientTooltipEvent;
 import net.bettercombat.utils.MathHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.CubeMapRenderer;
@@ -11,7 +10,6 @@ import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import org.joml.Matrix4f;
-import org.w3c.dom.Text;
 
 public class TitleLimboBGRenderer extends RotatingCubeMapRenderer
 {
@@ -31,10 +29,10 @@ public class TitleLimboBGRenderer extends RotatingCubeMapRenderer
 	{
 		time += delta;
 		RenderSystem.clearDepth(1);
-		drawBG(this.client, alpha, time / - (5 * 6));
+		drawBG(this.client, time / - (5 * 6));
 	}
 	
-	void drawBG(MinecraftClient client, float alpha, float v)
+	void drawBG(MinecraftClient client, float v)
 	{
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferBuilder = tessellator.getBuffer();
@@ -44,7 +42,7 @@ public class TitleLimboBGRenderer extends RotatingCubeMapRenderer
 		MatrixStack matrixStack = RenderSystem.getModelViewStack();
 		matrixStack.push();
 		matrixStack.loadIdentity();
-		matrixStack.translate(0f, 0f, -1f);
+		matrixStack.translate(0f, 0.05f, -1f);
 		RenderSystem.applyModelViewMatrix();
 		RenderSystem.setShader(GameRenderer::getPositionTexColorProgram);
 		RenderSystem.enableBlend();
@@ -125,7 +123,6 @@ public class TitleLimboBGRenderer extends RotatingCubeMapRenderer
 			matrixStack.translate(0, 0.5, z);
 			RenderSystem.applyModelViewMatrix();
 			int l = Math.round(255.0F * MathHelper.clamp(4f + z / 2f, 0f, 1f));
-			float s = 1f / 8f;
 			bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
 			bufferBuilder.vertex(6f, 1.5f, 1f).texture(0.5f, 0.125f).color(l, l, l, 255).light(0xffffffff).next();
 			bufferBuilder.vertex(6f, -1.5f, 1f).texture(0.5f, 0.5f).color(l, l, l, 255).light(0xffffffff).next();
@@ -137,6 +134,56 @@ public class TitleLimboBGRenderer extends RotatingCubeMapRenderer
 			bufferBuilder.vertex(-6f, -1.5f, -1f).texture(0.25f, 0.5f).color(l, l, l, 255).light(0xffffffff).next();
 			bufferBuilder.vertex(-6f, 1.5f, -1f).texture(0.25f, 0.125f).color(l, l, l, 255).light(0xffffffff).next();
 			tessellator.draw();
+			matrixStack.pop();
+		}
+		//Smoke
+		for (int i = 0; i < 12; i++)
+		{
+			matrixStack.push();
+			float z = - v % 1f - (i);
+			matrixStack.translate(0, 0, z - 0.5);
+			RenderSystem.applyModelViewMatrix();
+			int l = Math.round(100f * MathHelper.clamp(1.5f + z / 8f, 0f, 1f));
+			for (int ii = 0; ii < 3; ii++)
+			{
+				float f = ii * 0.66f;
+				bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+				bufferBuilder.vertex(2f + f, 4f, 0.5f).texture(0.625f, 0f + v * -0.1f + f).color(255, 255, 255, l).light(0xffffffff).next();
+				bufferBuilder.vertex(2f + f, -4f, 0.5f).texture(0.625f, 1f + v * -0.1f + f).color(255, 255, 255, l).light(0xffffffff).next();
+				bufferBuilder.vertex(2f + f, -4f, -0.5f).texture(0.75f, 1f + v * -0.1f + f).color(255, 255, 255, l).light(0xffffffff).next();
+				bufferBuilder.vertex(2f + f, 4f, -0.5f).texture(0.75f, 0f + v * -0.1f + f).color(255, 255, 255, l).light(0xffffffff).next();
+				
+				bufferBuilder.vertex(-2f - f, 4f, 0.5f).texture(0.75f, 0f + v * -0.1f + f).color(255, 255, 255, l).light(0xffffffff).next();
+				bufferBuilder.vertex(-2f - f, -4f, 0.5f).texture(0.75f, 1f + v * -0.1f + f).color(255, 255, 255, l).light(0xffffffff).next();
+				bufferBuilder.vertex(-2f - f, -4f, -0.5f).texture(0.625f, 1f + v * -0.1f + f).color(255, 255, 255, l).light(0xffffffff).next();
+				bufferBuilder.vertex(-2f - f, 4f, -0.5f).texture(0.625f, 0f + v * -0.1f + f).color(255, 255, 255, l).light(0xffffffff).next();
+				tessellator.draw();
+			}
+			matrixStack.pop();
+		}
+		//Sparks
+		for (int i = 0; i < 3; i++)
+		{
+			matrixStack.push();
+			float z = - v % 4f - (i * 4f);
+			matrixStack.translate(0, 0, z - 0.5);
+			for (int ii = 0; ii < 4; ii++)
+			{
+				float b = ii % 2 == 0 ? 0.33f : 0f;
+				RenderSystem.applyModelViewMatrix();
+				bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
+				bufferBuilder.vertex(2.5f + b, 4f, 0.5f).texture(0.75f, 0f + v * -0.1f + ii * 0.25f).color(255, 255, 255, 255).light(0xffffffff).next();
+				bufferBuilder.vertex(2.5f + b, -4f, 0.5f).texture(0.75f, 1f + v * -0.1f + ii * 0.25f).color(255, 255, 255, 255).light(0xffffffff).next();
+				bufferBuilder.vertex(2.5f + b, -4f, -0.5f).texture(0.875f, 1f + v * -0.1f + ii * 0.25f).color(255, 255, 255, 255).light(0xffffffff).next();
+				bufferBuilder.vertex(2.5f + b, 4f, -0.5f).texture(0.875f, 0f + v * -0.1f + ii * 0.25f).color(255, 255, 255, 255).light(0xffffffff).next();
+				
+				bufferBuilder.vertex(-2.5f - b, 4f, 0.5f).texture(0.875f, 0f + v * -0.1f + ii * 0.25f).color(255, 255, 255, 255).light(0xffffffff).next();
+				bufferBuilder.vertex(-2.5f - b, -4f, 0.5f).texture(0.875f, 1f + v * -0.1f + ii * 0.25f).color(255, 255, 255, 255).light(0xffffffff).next();
+				bufferBuilder.vertex(-2.5f - b, -4f, -0.5f).texture(0.75f, 1f + v * -0.1f + ii * 0.25f).color(255, 255, 255, 255).light(0xffffffff).next();
+				bufferBuilder.vertex(-2.5f - b, 4f, -0.5f).texture(0.75f, 0f + v * -0.1f + ii * 0.25f).color(255, 255, 255, 255).light(0xffffffff).next();
+				tessellator.draw();
+				matrixStack.translate(0, 0, -1f);
+			}
 			matrixStack.pop();
 		}
 		//Walkway
