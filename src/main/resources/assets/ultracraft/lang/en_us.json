@@ -270,6 +270,14 @@
   "gamerule.ultra-hellObserverInterval": "Hell Observer Interval",
   "gamerule.ultra-hellObserverInterval.description": "Hell Observers will only perform checks every X ticks. Higher values improve performance, but decrease check accuracy.",
 
+  "stat.ultracraft.collect_soul_orb": "Collected Soul Orbs",
+  "stat.ultracraft.collect_blood_orb": "Collected Blood Orbs",
+  "stat.ultracraft.dash": "Times Dashed",
+  "stat.ultracraft.slide": "Slide cm",
+  "stat.ultracraft.slam": "Times Slammed",
+  "stat.ultracraft.coin_punch": "Coins Punched",
+  "stat.ultracraft.parry": "Projectiles Parried",
+
   "message.ultracraft.join-info-header": "===============[§4Ultracraft§r]===============",
   "message.ultracraft.hi-vel-forced": "This World is forcing §bHigh Velocity Mode§r to be %s",
   "message.ultracraft.hi-vel-free": "This World allows toggling §bHigh Velocity Mode§r freely",

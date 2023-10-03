@@ -14,6 +14,7 @@ import absolutelyaya.ultracraft.item.IOverrideMeleeDamageType;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
+import absolutelyaya.ultracraft.registry.StatisticRegistry;
 import com.chocohead.mm.api.ClassTinkerers;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -31,6 +32,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
@@ -59,6 +61,8 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Shadow public abstract void playSound(SoundEvent event, SoundCategory category, float volume, float pitch);
 	
 	@Shadow public abstract boolean isSpectator();
+	
+	@Shadow public abstract void incrementStat(Identifier stat);
 	
 	Multimap<EntityAttribute, EntityAttributeModifier> curSpeedMod;
 	BackTank backtank;
@@ -230,6 +234,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			Vec3d particleVel = new Vec3d(-dir.x, -dir.y, -dir.z).multiply(random.nextDouble() * 0.1 + 0.025);
 			Vec3d pos = getPos().add(dir.multiply(1.5));
 			getWorld().addParticle(ParticleRegistry.SLIDE, true, pos.x, pos.y + 0.1, pos.z, particleVel.x, particleVel.y, particleVel.z);
+			incrementStat(StatisticRegistry.SLIDE);
 		}
 		if(UltraComponents.WINGED_ENTITY.get(this).isSlamming())
 		{

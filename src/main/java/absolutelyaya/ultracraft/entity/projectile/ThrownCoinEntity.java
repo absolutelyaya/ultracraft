@@ -11,6 +11,7 @@ import absolutelyaya.ultracraft.item.CoinItem;
 import absolutelyaya.ultracraft.registry.CriteriaRegistry;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
+import absolutelyaya.ultracraft.registry.StatisticRegistry;
 import absolutelyaya.ultracraft.util.AutoAimUtil;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -342,6 +343,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	@Override
 	public void setParried(boolean val, PlayerEntity parrier)
 	{
+		parrier.incrementStat(StatisticRegistry.COIN_PUNCH);
 		if(damage == 0)
 			damage = 1;
 		ThrownCoinEntity coin = null;

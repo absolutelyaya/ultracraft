@@ -211,6 +211,7 @@ public class PacketRegistry
 				parried.setVelocity(forward.multiply(chainingAllowed ? 2f + 0.2f * ((ChainParryAccessor)pa).getParryCount() : 2.5f));
 				if(heal && !(parried instanceof ThrownCoinEntity))
 					player.heal(6f);
+				player.incrementStat(StatisticRegistry.PARRY);
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(PUNCH_BLOCK_PACKET_ID, (server, player, handler, buf, sender) -> {
@@ -286,7 +287,10 @@ public class PacketRegistry
 			buf.writeDouble(dir.z);
 			for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers())
 				ServerPlayNetworking.send(p, DASH_S2C_PACKET_ID, buf);
-			server.execute(() -> UltraComponents.WINGED_ENTITY.get(player).onDash());
+			server.execute(() -> {
+				UltraComponents.WINGED_ENTITY.get(player).onDash();
+				player.incrementStat(StatisticRegistry.DASH);
+			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(GROUND_POUND_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			boolean start = buf.readBoolean();
@@ -296,7 +300,10 @@ public class PacketRegistry
 				if(start)
 					winged.startSlam();
 				else
+				{
 					winged.endSlam(strong);
+					player.incrementStat(StatisticRegistry.SLAM);
+				}
 				if(start)
 					return;
 				PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());

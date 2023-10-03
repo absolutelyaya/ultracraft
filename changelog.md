@@ -31,16 +31,34 @@
     - Write your own Text Screensaver (Basically a fancy 11-Line Sign for Map-Makers)
     - Customize the Main Menu
     - Add your Own Tabs and Button Actions using the new Termianl GUI API
+- Added Attractor Nailgun Weapon
+  - Hold primary fire to fire a quick stream of Nails.
+  - You have a maximum of 100 Nails; Nails recharge over time.
+  - Press Alt-Fire to fire a Magnet.
+    - Nails are Attracted towards Magnets.
+    - Magnets can get stuck in Blocks and Entities.
+    - Magnets Degrade and Break after a while. The more Nails it's attracting, the more quickly it breaks.
+    - You can have 3 Magnets at a time. They only recharge after breaking.
 - Shockwaves are now actually Round (cursed, I know)
 - Added Soap
 - Fully moved Wing Customization and Player Data to Cardinal Components
 - Added Progression System (Which weapons have been crafted and which are unlocked)
 - Added Weapon Variant Switching Keybind (Default: `R`)
+- Added Limbo Themed BG to Title Menu
+  - Added Clair de Lune Noteblock Cover
+- Added Hell Observer Block
+  - Detects Players and Entities in a specified area.
+  - Emits a redstone Signal when user-defined threshholds of either or both are met.
+    - This is difficult to explain well in text, just play around with them ¯\\\_(ツ)_/¯
 ## Settings & Gamerules
 - Added ultra-flamethrowerGrief Gamerule
 - Added ultra-graffiti Gamerule
 - Added ultra-terminalProtection Gamerule
 - ultra-iFrames actually works now
+- Renamed ultra-gunDamage to ultra-revolverDamage
+- Added ultra-shotgunDamage Gamerule
+- Added ultra-nailgunDamage Gamerule
+- Added ultra-hellObserverInterval Gamerule
 ## Commands
 - Added `/ultracraft progression` subcommand (mainly for Debug)
   - Lets you list, grant or revoke Progression Entries
@@ -59,9 +77,20 @@
 - Improved Hell Bullets
 - Added Scrap Item (Replaces Weapons crafted before the new System was added)
 - Added Custom Death Screen
+- Added Statistics
+  - Times Dashed
+  - Slide cm
+  - Projectiles Parried
+  - Coins Punched
+  - Soul Orbs Collected
+  - Blood Orbs Collected
 ## Resource Changes
 - Added new Texture State for fully Charged Pierce Revolver (`pierce_revolver4.png`)
 - To reduce filesize, model translations of weapons now use inheritance. Meaning, you only need to replace `models/item/revolver.json` instead of all three variants. It should be safe to remove those excess files from Resourcepacks completely.
+- Changed almost all Shotgun animations
+  - Most Animations are now shorter. (It's fine if your animations are longer due to the next bullet point)
+  - Shot Animations now have Duplicates to cancel each other while rapid firing / shotgun swapping
+  - Added `switch` animation (+duplicate)
 ## API Changes
 - Added Terminal API Tools
   - Allows adding fully Custom Coded Tabs and Global Button Actions to Terminals

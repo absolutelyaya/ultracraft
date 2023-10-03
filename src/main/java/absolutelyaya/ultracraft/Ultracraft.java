@@ -2,7 +2,6 @@ package absolutelyaya.ultracraft;
 
 import absolutelyaya.ultracraft.command.UltracraftCommand;
 import absolutelyaya.ultracraft.item.AbstractNailgunItem;
-import absolutelyaya.ultracraft.item.AttractorNailgunItem;
 import absolutelyaya.ultracraft.item.MarksmanRevolverItem;
 import absolutelyaya.ultracraft.item.SharpshooterRevolverItem;
 import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
@@ -61,6 +60,7 @@ public class Ultracraft implements ModInitializer
         CriteriaRegistry.register();
         StatusEffectRegistry.register();
         ScreenHandlerRegistry.registerServer();
+        StatisticRegistry.register();
         
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
         
