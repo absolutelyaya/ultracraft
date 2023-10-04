@@ -158,6 +158,10 @@ public class ItemRegistry
 			content.add(BlockRegistry.RUSTY_MESH.asItem());
 			content.add(BlockRegistry.CRACKED_STONE.asItem());
 			content.add(BlockRegistry.VENT_COVER.asItem());
+			content.add(BlockRegistry.MAUERWERK1.asItem());
+			content.add(BlockRegistry.MAUERWERK2.asItem());
+			content.add(BlockRegistry.ORNATE_WAINSCOT.asItem());
+			content.add(BlockRegistry.ADORNED_RAILING.asItem());
 			content.add(BLOOD_BUCKET);
 			content.add(PIERCE_REVOLVER);
 			content.add(MARKSMAN_REVOLVER);

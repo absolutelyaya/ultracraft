@@ -106,6 +106,10 @@
   "block.ultracraft.terminal_display": "Terminal Display",
   "block.ultracraft.vent_cover": "Vent Cover",
   "block.ultracraft.hell_observer": "Hell Observer",
+  "block.ultracraft.mauerwerk1": "Mauerwerk",
+  "block.ultracraft.mauerwerk2": "Mauerwerk",
+  "block.ultracraft.ornate_wainscot": "Ornate Wainscot",
+  "block.ultracraft.adorned_railing": "Adorned Railing",
 
   "entity.ultracraft.filth": "Filth",
   "entity.ultracraft.stray": "Stray",

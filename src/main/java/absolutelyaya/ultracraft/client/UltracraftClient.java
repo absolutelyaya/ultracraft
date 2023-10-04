@@ -56,6 +56,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.particle.WaterBubbleParticle;
@@ -327,6 +328,7 @@ public class UltracraftClient implements ClientModInitializer
 		BlockRenderLayerMap.INSTANCE.putFluids(RenderLayer.getSolid(), FluidRegistry.STILL_BLOOD, FluidRegistry.Flowing_BLOOD);
 		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.FLESH, //prevent Sodium from crashing when trying to render Flesh Blocks
 				FabricLoader.getInstance().getModContainer("sodium").isPresent() ? RenderLayers.getSolid() : RenderLayers.getFlesh());
+		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.ADORNED_RAILING, RenderLayer.getCutout());
 		
 		TerminalCodeRegistry.registerCode("saiai", t -> t.setTab(new PetTab()));
 		TerminalCodeRegistry.registerCode("somethingwicked", new TerminalCodeRegistry.Result(t -> {

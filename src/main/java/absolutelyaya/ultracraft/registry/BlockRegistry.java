@@ -57,6 +57,14 @@ public class BlockRegistry
 			true);
 	public static final Block HELL_OBSERVER = register("hell_observer",
 			new HellObserverBlock(AbstractBlock.Settings.copy(Blocks.NETHERRACK).sounds(BlockSoundGroup.MUD).mapColor(MapColor.DARK_CRIMSON).nonOpaque()), true);
+	public static final Block MAUERWERK1 = register("mauerwerk1",
+			new Block(AbstractBlock.Settings.copy(Blocks.STONE).sounds(BlockSoundGroup.STONE).mapColor(MapColor.GRAY).requiresTool()), true);
+	public static final Block MAUERWERK2 = register("mauerwerk2",
+			new Block(AbstractBlock.Settings.copy(Blocks.STONE).sounds(BlockSoundGroup.STONE).mapColor(MapColor.GRAY).requiresTool()), true);
+	public static final Block ORNATE_WAINSCOT = register("ornate_wainscot",
+			new Block(AbstractBlock.Settings.copy(Blocks.CALCITE).sounds(BlockSoundGroup.CALCITE).mapColor(MapColor.GRAY).requiresTool()), true);
+	public static final Block ADORNED_RAILING = register("adorned_railing",
+			new AdornedRailingBlock(AbstractBlock.Settings.copy(Blocks.IRON_BARS).sounds(BlockSoundGroup.METAL).mapColor(MapColor.GRAY).requiresTool()), true);
 	
 	@SuppressWarnings("SameParameterValue")
 	private static Block register(String name, Block block, boolean item, int burn, int spread)

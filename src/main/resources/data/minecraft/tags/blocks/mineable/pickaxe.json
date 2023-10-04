@@ -11,6 +11,10 @@
     "ultracraft:cerberus_block",
     "ultracraft:terminal",
     "ultracraft:terminal_display",
-    "ultracraft:vent_cover"
+    "ultracraft:vent_cover",
+    "ultracraft:mauerwerk1",
+    "ultracraft:mauerwerk2",
+    "ultracraft:ornate_wainscot",
+    "ultracraft:adorned_railing"
   ]
 }
