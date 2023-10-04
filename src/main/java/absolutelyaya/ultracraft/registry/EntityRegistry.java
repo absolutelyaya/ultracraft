@@ -131,6 +131,10 @@ public class EntityRegistry
 			new Identifier(Ultracraft.MOD_ID, "blood_orb"),
 			EntityType.Builder.create(BloodOrbEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
 					.maxTrackingRange(5).build("blood_orb"));
+	public static final EntityType<StainedGlassWindow> STAINED_GLASS_WINDOW = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "stained_glass_window"),
+			EntityType.Builder.create(StainedGlassWindow::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
+					.maxTrackingRange(5).build("stained_glass_window"));
 	
 	public static final TagKey<EntityType<?>> PROJBOOSTABLE = TagKey.of(RegistryKeys.ENTITY_TYPE, new Identifier(Ultracraft.MOD_ID, "projboostable"));
 	

@@ -34,8 +34,6 @@ public class RetaliationRenderer extends EntityRenderer<RetaliationEntity>
 	{
 		super.render(entity, yaw, tickDelta, matrices, vertexConsumers, light);
 		matrices.push();
-		RenderSystem.setShaderTexture(0, getTexture(entity));
-		RenderSystem.setShader(GameRenderer::getPositionTexProgram);
 		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(getTexture(entity)));
 		float camRot = MinecraftClient.getInstance().gameRenderer.getCamera().getYaw();
 		matrices.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(-camRot + 180), 0, 1, 0)));

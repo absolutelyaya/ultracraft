@@ -127,6 +127,8 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "soul_orb"), new OrbItem(new FabricItemSettings(), EntityRegistry.SOUL_ORB));
 	public static final OrbItem BLOOD_ORB = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "blood_orb"), new OrbItem(new FabricItemSettings(), EntityRegistry.BLOOD_ORB));
+	public static final StainedGlassWindowItem STAINED_GLASS_WINDOW = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "stained_glass_window"), new StainedGlassWindowItem(EntityRegistry.STAINED_GLASS_WINDOW, new FabricItemSettings()));
 	
 	//Special
 	public static final TerminalItem TERMINAL = Registry.register(Registries.ITEM,
@@ -162,6 +164,8 @@ public class ItemRegistry
 			content.add(BlockRegistry.MAUERWERK2.asItem());
 			content.add(BlockRegistry.ORNATE_WAINSCOT.asItem());
 			content.add(BlockRegistry.ADORNED_RAILING.asItem());
+			content.add(StainedGlassWindowItem.getStack(false));
+			content.add(StainedGlassWindowItem.getStack(true));
 			content.add(BLOOD_BUCKET);
 			content.add(PIERCE_REVOLVER);
 			content.add(MARKSMAN_REVOLVER);

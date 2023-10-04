@@ -82,6 +82,7 @@
   "item.ultracraft.harpoon": "Harpoon",
   "item.ultracraft.harpoon_gun": "Repulsive Skewer",
   "item.ultracraft.soap": "Soap",
+  "item.ultracraft.stained_glass_window": "Stained Glass Window",
 
   "rei-group.ultracraft.terminals": "Terminal Variants",
 
@@ -141,6 +142,8 @@
   "entity.ultracraft.soap": "Soap",
   "entity.ultracraft.magnet": "Magnet",
   "entity.ultracraft.nail": "Nail",
+  "entity.ultracraft.stained_glass_window": "Stained Glass Window",
+  "entity.ultracraft.reinforce_stained_glass_window": "Reinforced Stained Glass Window",
 
   "effect.ultracraft.chilled": "Chilled",
   "effect.ultracraft.instant_energy": "Instant Energy",
