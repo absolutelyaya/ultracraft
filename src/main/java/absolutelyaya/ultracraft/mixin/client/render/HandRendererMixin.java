@@ -60,8 +60,10 @@ public abstract class HandRendererMixin
 			int o = right ? 1 : -1;
 			if(item.isOf(ItemRegistry.BLUE_SKULL) || item.isOf(ItemRegistry.RED_SKULL))
 			{
-				matrices.translate(((float)o * x) - 0.1 * (right ? 1 : -1), y + 0.4f, z - 0.4f);
-				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(35f), new Vector3f(1, 0, 0))));
+				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(35f), new Vector3f(0, 1, 0))));
+				matrices.multiply(new Quaternionf(new AxisAngle4f().set((float)Math.toRadians(-15f), new Vector3f(1, 0, 0))));
+				matrices.scale(0.8f, 0.8f, 0.8f);
+				matrices.translate(((float)o * x) + 0.6 * (right ? 1 : -1), y + 0.75f, z - 0.7f);
 			}
 			else if(item.getItem() instanceof AbstractWeaponItem)
 			{
