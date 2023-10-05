@@ -270,7 +270,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 						ServerHitscanHandler.scheduleDelayedAimingHitscan((LivingEntity) getOwner(), getPos(), getPos(), player, hitscanType,
 								(isDamageRicochet ? Math.max(amount, 1) : 1), DamageSources.get(getWorld(), DamageSources.RICOCHET,
 										this, getOwner()), 1, 0, null,
-								15 + 10 * (dataTracker.get(SPLITS) + 1), 20 + 10 * (dataTracker.get(SPLITS) + 1), true);
+								10 + 5 * (dataTracker.get(SPLITS) + 1), 15 + 5 * (dataTracker.get(SPLITS) + 1), true);
 						if (getOwner() instanceof ServerPlayerEntity attackingPlayer)
 						{
 							CriteriaRegistry.RICOCHET.trigger(attackingPlayer, damage);
