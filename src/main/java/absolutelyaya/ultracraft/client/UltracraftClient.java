@@ -1,5 +1,7 @@
 package absolutelyaya.ultracraft.client;
 
+import absolutelyaya.goop.client.GoopClient;
+import absolutelyaya.goop.client.GoopConfig;
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
@@ -32,9 +34,6 @@ import absolutelyaya.ultracraft.components.IWingDataComponent;
 import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import absolutelyaya.ultracraft.particle.*;
-import absolutelyaya.ultracraft.particle.goop.GoopDropParticle;
-import absolutelyaya.ultracraft.particle.goop.GoopParticle;
-import absolutelyaya.ultracraft.particle.goop.GoopStringParticle;
 import absolutelyaya.ultracraft.registry.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import io.netty.buffer.Unpooled;
@@ -56,7 +55,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.*;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.particle.WaterBubbleParticle;
@@ -162,9 +160,6 @@ public class UltracraftClient implements ClientModInitializer
 		particleRegistry.register(ParticleRegistry.PARRY_INDICATOR, ParryIndicatorParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.TELEPORT, TeleportParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.EXPLOSION, ExplosionParticle.Factory::new);
-		particleRegistry.register(ParticleRegistry.GOOP_DROP, GoopDropParticle.Factory::new);
-		particleRegistry.register(ParticleRegistry.GOOP, GoopParticle.Factory::new);
-		particleRegistry.register(ParticleRegistry.GOOP_STRING, GoopStringParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.RICOCHET_WARNING, RicochetWarningParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.BIG_CIRCLE, BigCircleParticle.Factory::new);
 		particleRegistry.register(ParticleRegistry.DRONE_CHARGE, DroneChargeParticle.Factory::new);
@@ -268,7 +263,7 @@ public class UltracraftClient implements ClientModInitializer
 			if(config.get().bloodOverlay)
 			{
 				RenderSystem.enableBlend();
-				String bloodName = config.get().danganronpa ? "textures/misc/blood_overlay_c" : "textures/misc/blood_overlay";
+				String bloodName = GoopClient.getConfig().censorMature ? "textures/misc/blood_overlay_c" : "textures/misc/blood_overlay";
 				MinecraftClient.getInstance().inGameHud.renderOverlay(matrices, new Identifier(Ultracraft.MOD_ID, bloodName + "3.png"),
 						Math.min(screenblood - 1.25f, 0.75f));
 				MinecraftClient.getInstance().inGameHud.renderOverlay(matrices, new Identifier(Ultracraft.MOD_ID, bloodName + "2.png"),

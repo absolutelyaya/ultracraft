@@ -60,24 +60,12 @@ public class Ultraconfig implements ConfigData
 	public boolean movementSounds = true;
 	@ConfigEntry.Category("blood")
 	@ConfigEntry.Gui.Tooltip
-	public boolean fancyGoop = false;
-	@ConfigEntry.Category("blood")
-	@ConfigEntry.Gui.Tooltip
-	public boolean wrapToEdges = false;
-	@ConfigEntry.Category("blood")
-	@ConfigEntry.Gui.Tooltip
 	public boolean bloodOverlay = true;
-	@ConfigEntry.Category("blood")
-	@ConfigEntry.Gui.Tooltip
-	public boolean danganronpa = false;
 	@ConfigEntry.Gui.Excluded
 	public String BGID = "ultracraft";
 	@ConfigEntry.Category("debug")
 	@ConfigEntry.Gui.Tooltip
 	public boolean trailLines = false;
-	@ConfigEntry.Category("debug")
-	@ConfigEntry.Gui.Tooltip
-	public boolean goopDebug = false;
 	@ConfigEntry.Category("debug")
 	@ConfigEntry.Gui.Tooltip
 	public boolean showPunchArea = false;

@@ -1,5 +1,8 @@
 package absolutelyaya.ultracraft.registry;
 
+import absolutelyaya.goop.api.WaterHandling;
+import absolutelyaya.goop.client.GoopClient;
+import absolutelyaya.goop.particles.GoopDropParticleEffect;
 import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
@@ -10,7 +13,6 @@ import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.compat.PlayerAnimator;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
-import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
 import absolutelyaya.ultracraft.recipe.UltraRecipe;
 import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
 import com.google.common.collect.ImmutableMap;
@@ -100,12 +102,12 @@ public class ClientPacketRegistry
 				{
 					if(!water)
 						client.player.getWorld().addParticle(new GoopDropParticleEffect(
-										UltracraftClient.getConfigHolder().get().danganronpa ? new Vec3d(1.0, 0.32, 0.83) : new Vec3d(0.56, 0.09, 0.01),
-										0.6f + rand.nextFloat() * 0.4f * (amount / 10f)), pos.x, pos.y + halfheight, pos.z,
+										new Vec3d(0.56, 0.09, 0.01), 0.6f + rand.nextFloat() * 0.4f * (amount / 10f), true,
+										WaterHandling.REPLACE_WITH_CLOUD_PARTICLE), pos.x, pos.y + halfheight, pos.z,
 								rand.nextDouble() - 0.5, rand.nextDouble() - 0.5, rand.nextDouble() - 0.5);
 					else
 						client.player.getWorld().addParticle(new DustParticleEffect(
-										UltracraftClient.getConfigHolder().get().danganronpa ? new Vector3f(1.0f, 0.32f, 0.83f) : new Vector3f(0.56f, 0.09f, 0.01f),
+										GoopClient.getConfig().censorMature ? Vec3d.unpackRgb(GoopClient.getConfig().censorColor).toVector3f() : new Vector3f(0.56f, 0.09f, 0.01f),
 										3.6f + rand.nextFloat() * 0.4f * (amount / 10f)),
 								pos.x + (rand.nextDouble() - 0.5) * 0.5, pos.y + halfheight + (rand.nextDouble() - 0.5) * halfheight * 1.5, pos.z + (rand.nextDouble() - 0.5) * 0.5,
 								(rand.nextDouble() - 0.5) * 0.05, (rand.nextDouble() - 0.5) * 0.05, (rand.nextDouble() - 0.5) * 0.05);

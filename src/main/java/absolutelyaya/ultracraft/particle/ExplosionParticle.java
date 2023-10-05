@@ -1,6 +1,6 @@
 package absolutelyaya.ultracraft.particle;
 
-import absolutelyaya.ultracraft.particle.goop.SpriteAAParticle;
+import absolutelyaya.goop.particles.SpriteAAParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleFactory;
 import net.minecraft.client.particle.ParticleTextureSheet;

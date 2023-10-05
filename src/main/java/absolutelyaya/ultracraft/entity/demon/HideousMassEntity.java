@@ -1,5 +1,7 @@
 package absolutelyaya.ultracraft.entity.demon;
 
+import absolutelyaya.goop.api.WaterHandling;
+import absolutelyaya.goop.particles.GoopDropParticleEffect;
 import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.IAnimatedEnemy;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
@@ -10,7 +12,6 @@ import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.other.VerticalShockwaveEntity;
 import absolutelyaya.ultracraft.entity.projectile.HarpoonEntity;
 import absolutelyaya.ultracraft.entity.projectile.HideousMortarEntity;
-import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -192,7 +193,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 				{
 					Vec3d pos = getBoundingBox().getCenter().addRandom(random, 4);
 					Vec3d vel = Vec3d.ZERO.addRandom(random, 1.3f);
-					getWorld().addParticle(new GoopDropParticleEffect(new Vec3d(0.56, 0.09, 0.01), 0.75f),
+					getWorld().addParticle(new GoopDropParticleEffect(new Vec3d(0.56, 0.09, 0.01), 0.75f, true, WaterHandling.REPLACE_WITH_CLOUD_PARTICLE),
 							pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
 				}
 			}
@@ -337,7 +338,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 				for (int i = 0; i < 8; i++)
 				{
 					Vec3d vel = Vec3d.ZERO.addRandom(random, 1.3f);
-					getWorld().addParticle(new GoopDropParticleEffect(new Vec3d(0.56, 0.09, 0.01), 1f),
+					getWorld().addParticle(new GoopDropParticleEffect(new Vec3d(0.56, 0.09, 0.01), 1f, true, WaterHandling.REPLACE_WITH_CLOUD_PARTICLE),
 							pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
 				}
 			}

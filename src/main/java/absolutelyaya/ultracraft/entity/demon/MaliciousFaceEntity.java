@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.entity.demon;
 
+import absolutelyaya.goop.particles.GoopStringParticleEffect;
 import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.accessor.Enrageable;
@@ -10,7 +11,6 @@ import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraFlyingEntity;
 import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
-import absolutelyaya.ultracraft.particle.goop.GoopStringParticleEffect;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
@@ -234,7 +234,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 			double z = random.nextDouble() * dimensions.width - dimensions.width / 2 + getZ();
 			if(rand.nextFloat() > 0.5f + getHealth() / getMaxHealth())
 				getWorld().addParticle(new GoopStringParticleEffect(new Vec3d(0.56, 0.09, 0.01),
-								0.4f + rand.nextFloat() * 0.2f), x, y, z,
+								0.4f + rand.nextFloat() * 0.2f, true), x, y, z,
 						0f, 0f, 0f);
 		}
 		//TODO: add tendrils

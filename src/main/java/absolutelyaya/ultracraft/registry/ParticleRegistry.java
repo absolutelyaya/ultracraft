@@ -4,9 +4,6 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.particle.ExplosionParticleEffect;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.particle.TeleportParticleEffect;
-import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
-import absolutelyaya.ultracraft.particle.goop.GoopParticleEffect;
-import absolutelyaya.ultracraft.particle.goop.GoopStringParticleEffect;
 import net.fabricmc.fabric.api.particle.v1.FabricParticleTypes;
 import net.minecraft.particle.DefaultParticleType;
 import net.minecraft.particle.ParticleType;
@@ -50,16 +47,6 @@ public class ParticleRegistry
 			new Identifier(Ultracraft.MOD_ID, "teleport"), FabricParticleTypes.complex(new TeleportParticleEffect.Factory()));
 	public static final ParticleType<ExplosionParticleEffect> EXPLOSION = Registry.register(Registries.PARTICLE_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "explosion"), FabricParticleTypes.complex(new ExplosionParticleEffect.Factory()));
-	//goop
-	public static final ParticleType<GoopDropParticleEffect> GOOP_DROP =
-			Registry.register(Registries.PARTICLE_TYPE, new Identifier(Ultracraft.MOD_ID, "goop_drop"),
-					FabricParticleTypes.complex(new GoopDropParticleEffect.Factory()));
-	public static final ParticleType<GoopParticleEffect> GOOP =
-			Registry.register(Registries.PARTICLE_TYPE, new Identifier(Ultracraft.MOD_ID, "goop"),
-					FabricParticleTypes.complex(new GoopParticleEffect.Factory()));
-	public static final ParticleType<GoopStringParticleEffect> GOOP_STRING =
-			Registry.register(Registries.PARTICLE_TYPE, new Identifier(Ultracraft.MOD_ID, "goop_string"),
-					FabricParticleTypes.complex(new GoopStringParticleEffect.Factory()));
 	
 	public static void init()
 	{
