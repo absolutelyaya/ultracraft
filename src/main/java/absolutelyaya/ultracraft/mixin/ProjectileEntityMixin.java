@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ChainParryAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.entity.other.StainedGlassWindow;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
@@ -63,9 +64,11 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 		collide(blockHitResult);
 	}
 	
-	@Inject(method = "onEntityHit", at = @At("HEAD"))
+	@Inject(method = "onEntityHit", at = @At("HEAD"), cancellable = true)
 	void onEntityHit(EntityHitResult entityHitResult, CallbackInfo ci)
 	{
+		if(entityHitResult.getEntity() instanceof StainedGlassWindow)
+			ci.cancel();
 		collide(entityHitResult);
 	}
 	

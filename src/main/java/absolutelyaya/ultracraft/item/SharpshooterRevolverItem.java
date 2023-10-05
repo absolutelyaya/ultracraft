@@ -142,10 +142,14 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 				onAltFire(world, player);
 			}
 			if(!world.isClient)
-				ServerHitscanHandler.performBouncingHitscan(user, ServerHitscanHandler.SHARPSHOOTER, 3,
-						DamageSources.get(world, DamageSources.SHARPSHOOTER, user), Integer.MAX_VALUE,
-						(int)Math.ceil(Math.min(Math.abs(remainingUseTicks) / 20f, 1f) * 3),
-						new ServerHitscanHandler.HitscanExplosionData(1.5f, 0f, 0f, true), 45f);
+			{
+				byte type = ServerHitscanHandler.SHARPSHOOTER;
+				int bounces = (int)Math.ceil(Math.min(Math.abs(remainingUseTicks) / 20f, 1f) * 3), maxHits = Integer.MAX_VALUE;
+				float autoAim = 45f;
+				ServerHitscanHandler.performBouncingHitscan(user, type, 3,
+						DamageSources.getHitscan(world, DamageSources.SHARPSHOOTER, user, type, bounces, maxHits, autoAim), maxHits,
+						bounces, new ServerHitscanHandler.HitscanExplosionData(1.5f, 0f, 0f, true), autoAim);
+			}
 		}
 		else if(!world.isClient && user instanceof PlayerEntity)
 			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "stop");

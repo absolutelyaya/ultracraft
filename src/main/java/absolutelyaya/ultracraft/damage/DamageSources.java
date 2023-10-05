@@ -47,8 +47,18 @@ public class DamageSources
 		return new DamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type), attacker);
 	}
 	
+	public static HitscanDamageSource getHitscan(World world, RegistryKey<DamageType> type, Entity attacker, byte hitscanType, int maxHits, int bounces, float autoAim)
+	{
+		return new HitscanDamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type), attacker, hitscanType, maxHits, bounces, autoAim);
+	}
+	
 	public static DamageSource get(World world, RegistryKey<DamageType> type, Entity source, Entity attacker)
 	{
 		return new DamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type), source, attacker);
+	}
+	
+	public static HitscanDamageSource getHitscan(World world, RegistryKey<DamageType> type, Entity source, Entity attacker, byte hitscanType, int maxHits, int bounces, float autoAim)
+	{
+		return new HitscanDamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type), source, attacker, hitscanType, maxHits, bounces, autoAim);
 	}
 }

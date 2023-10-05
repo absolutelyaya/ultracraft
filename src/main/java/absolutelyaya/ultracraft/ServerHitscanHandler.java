@@ -5,8 +5,10 @@ import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.damage.HitscanDamageSource;
 import absolutelyaya.ultracraft.entity.other.AbstractOrbEntity;
 import absolutelyaya.ultracraft.entity.other.BackTank;
+import absolutelyaya.ultracraft.entity.projectile.IIgnoreSharpshooter;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
@@ -17,7 +19,6 @@ import net.minecraft.block.BellBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -111,10 +112,10 @@ public class ServerHitscanHandler
 				new Vec3d(-0.5f * (user instanceof PlayerEntity player && player.getMainArm().equals(Arm.LEFT) ? -1 : 1), -0.2f, 0.4f)
 						.rotateX(-(float)Math.toRadians(user.getPitch())).rotateY(-(float) Math.toRadians(user.getYaw())));
 		Vec3d dest = user.getEyePos().add(user.getRotationVec(0.5f).multiply(64.0));
-		performHitscan(user, origin, visualOrigin, dest, type, damage, DamageSources.get(user.getWorld(), DamageSources.GUN, user), maxHits, explosion);
+		performHitscan(user, origin, visualOrigin, dest, type, damage, DamageSources.getHitscan(user.getWorld(), DamageSources.GUN, user, type, maxHits, 0, 0), maxHits, explosion);
 	}
 	
-	public static HitscanResult performHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, DamageSource source, int maxHits, @Nullable HitscanExplosionData explosion)
+	public static HitscanResult performHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, HitscanDamageSource source, int maxHits, @Nullable HitscanExplosionData explosion)
 	{
 		World world = user.getWorld();
 		BlockHitResult bHit = world.raycast(new RaycastContext(from, to, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, user));
@@ -155,7 +156,7 @@ public class ServerHitscanHandler
 			//hit the last pierced enemy with up to 10 of the remaining pierce shots. A Pierce revolver shot that hits just one enemy, will damage it 3 times.
 			for (int j = 0; j < Math.min(10, i == entities.size() - 1 && maxHits < 16 ? maxHits + 1 : 1); j++)
 				e.damage(source, damage * getDamageMultipier(world, type));
-			if(explodeProjectile && e instanceof ProjectileEntity proj && !(e instanceof ThrownCoinEntity))
+			if(explodeProjectile && e instanceof ProjectileEntity proj && !(e instanceof IIgnoreSharpshooter))
 			{
 				ExplosionHandler.explosion(user, world, proj.getPos(), DamageSources.get(world, DamageTypes.EXPLOSION, user), 5f, 1f, 5f, true);
 				proj.kill();
@@ -202,10 +203,10 @@ public class ServerHitscanHandler
 	
 	public static void performBouncingHitscan(LivingEntity user, byte type, float damage, int maxHits, int bounces, float autoAim)
 	{
-		performBouncingHitscan(user, type, damage, DamageSources.get(user.getWorld(), DamageSources.GUN, user), maxHits, bounces, null, autoAim);
+		performBouncingHitscan(user, type, damage, DamageSources.getHitscan(user.getWorld(), DamageSources.GUN, user, type, maxHits, bounces, autoAim), maxHits, bounces, null, autoAim);
 	}
 	
-	public static void performBouncingHitscan(LivingEntity user, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, float autoAim)
+	public static void performBouncingHitscan(LivingEntity user, byte type, float damage, HitscanDamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, float autoAim)
 	{
 		Vec3d origin = user.getEyePos();
 		Vec3d visualOrigin = origin.add(
@@ -215,7 +216,7 @@ public class ServerHitscanHandler
 		performBouncingHitscan(user, origin, visualOrigin, dest, type, damage, source, maxHits, bounces, explosion, autoAim);
 	}
 	
-	public static void performBouncingHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, float autoAimThreshold)
+	public static void performBouncingHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, HitscanDamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, float autoAimThreshold)
 	{
 		HitscanResult lastResult = performHitscan(user, from, visualFrom, to, type, damage * getDamageMultipier(user.getWorld(), type), source, maxHits, explosion);
 		if(bounces > 0)
@@ -238,16 +239,16 @@ public class ServerHitscanHandler
 			Vec3d lastDir = lastResult.dir;
 			Vec3d hitNormal = new Vec3d(((BlockHitResult)lastResult.finalHit).getSide().getUnitVector());
 			Vec3d dest = hitPos.add(lastDir.subtract(hitNormal.multiply(2 * lastDir.dotProduct(hitNormal))).normalize().multiply(64));
-			scheduleHitscan(user, hitPos, hitPos, dest, type, damage + (type == SHARPSHOOTER && damage < 6 ? 2 : 0), source, maxHits, bounces, explosion, 1, autoAimThreshold);
+			scheduleHitscan(user, hitPos, hitPos, dest, type, damage + (type == SHARPSHOOTER && damage < 6 ? 2 : 0), new HitscanDamageSource(source.getTypeRegistryEntry(), user, type, maxHits, bounces, autoAimThreshold), maxHits, bounces, explosion, 1, autoAimThreshold);
 		}
 	}
 	
-	public static void scheduleHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, int delay, float autoAimThreshold)
+	public static void scheduleHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, Vec3d to, byte type, float damage, HitscanDamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, int delay, float autoAimThreshold)
 	{
 		scheduleAdditions.add(new ScheduledHitscan(user, from, visualFrom, to, type, damage, source, maxHits, bounces, explosion, time, delay, autoAimThreshold));
 	}
 	
-	public static void scheduleDelayedAimingHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, LivingEntity target, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, int reAimTime, int delay, boolean warn)
+	public static void scheduleDelayedAimingHitscan(LivingEntity user, Vec3d from, Vec3d visualFrom, LivingEntity target, byte type, float damage, HitscanDamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, int reAimTime, int delay, boolean warn)
 	{
 		scheduleAdditions.add(new DelayedAimingHitscan(user, from, visualFrom, target, type, damage, source, maxHits, bounces, explosion, time, reAimTime, delay, warn));
 	}
@@ -256,7 +257,7 @@ public class ServerHitscanHandler
 	
 	public record HitscanResult(HitResult finalHit, Vec3d dir, int entitiesHit) {}
 	
-	public record ScheduledHitscan(LivingEntity owner, Vec3d from, Vec3d visualFrom, Vec3d dest, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, long scheduleTime, int delay, float autoAimThreshold) implements IScheduledHitscan {
+	public record ScheduledHitscan(LivingEntity owner, Vec3d from, Vec3d visualFrom, Vec3d dest, byte type, float damage, HitscanDamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, long scheduleTime, int delay, float autoAimThreshold) implements IScheduledHitscan {
 		@Override
 		public boolean isReady(int time)
 		{
@@ -288,7 +289,7 @@ public class ServerHitscanHandler
 		}
 	}
 	
-	public record DelayedAimingHitscan(LivingEntity owner, Vec3d from, Vec3d visualFrom, LivingEntity target, byte type, float damage, DamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, long scheduleTime, int reAimTime, int delay, boolean warn) implements IScheduledHitscan
+	public record DelayedAimingHitscan(LivingEntity owner, Vec3d from, Vec3d visualFrom, LivingEntity target, byte type, float damage, HitscanDamageSource source, int maxHits, int bounces, HitscanExplosionData explosion, long scheduleTime, int reAimTime, int delay, boolean warn) implements IScheduledHitscan
 	{
 		static Vec3d dest;
 		static boolean warned;

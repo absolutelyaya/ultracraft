@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.entity.other;
 
+import absolutelyaya.ultracraft.entity.projectile.IIgnoreSharpshooter;
 import absolutelyaya.ultracraft.item.StainedGlassWindowItem;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
@@ -24,7 +25,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-public class StainedGlassWindow extends AbstractDecorationEntity
+public class StainedGlassWindow extends AbstractDecorationEntity implements IIgnoreSharpshooter
 {
 	protected static final TrackedData<Boolean> REINFORCED = DataTracker.registerData(StainedGlassWindow.class, TrackedDataHandlerRegistry.BOOLEAN);
 	
