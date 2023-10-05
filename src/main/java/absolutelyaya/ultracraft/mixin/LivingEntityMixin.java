@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
@@ -74,7 +75,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	
 	final int punchDuration = 6;
 	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
-	int punchTicks, ricochetCooldown, fatique;
+	int punchTicks, ricochetCooldown, fatique, firecooldown;
 	boolean punching, timeFrozen;
 	float punchProgress, prevPunchProgress, recoil, lastHealth;
 	
@@ -94,6 +95,8 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			ricochetCooldown--;
 		if(fatique > 0 && !punching)
 			fatique--;
+		if(firecooldown > 0)
+			firecooldown--;
 	}
 	
 	@ModifyArgs(method = "damage", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/LivingEntity;applyDamage(Lnet/minecraft/entity/damage/DamageSource;F)V"))
@@ -111,7 +114,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		lastHealth = getHealth();
 	}
 	
-	@Inject(method = "damage", at = @At("RETURN"))
+	@Inject(method = "damage", at = @At("RETURN"), cancellable = true)
 	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
 	{
 		if(!cir.getReturnValue() || getWorld().isClient)
@@ -120,6 +123,17 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			ricochetCooldown = 5; //after ricochet hit, cant ricochet to this enemy again for 5 ticks
 		if(IsCanBleed() && !source.isIn(DamageTypeTags.NO_BLEEDING))
 			bleed(getPos(), getHeight() / 2f, source, amount);
+		if(source.isOf(DamageTypes.IN_FIRE) || source.isOf(DamageTypes.ON_FIRE))
+		{
+			if(firecooldown > 0)
+			{
+				cir.setReturnValue(false);
+				return;
+			}
+			timeUntilRegen = 9;
+			lastDamageTaken = 0f;
+			firecooldown = 20;
+		}
 		if(source.isIn(DamageTypeTags.IS_PER_TICK))
 			return;
 		if(source.isOf(DamageSources.GUN) || source.isOf(DamageSources.SHOTGUN))
