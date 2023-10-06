@@ -110,7 +110,8 @@ public abstract class MinecraftClientMixin
 		}
 		if(currentScreen == null && mouse.isCursorLocked())
 		{
-			if(options.attackKey.isPressed() != isShooting && player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w)
+			if(options.attackKey.isPressed() != isShooting && player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w &&
+					   !(crosshairTarget instanceof BlockHitResult bHit && world.getBlockState(bHit.getBlockPos()).isOf(BlockRegistry.PEDESTAL) && !isShooting))
 			{
 				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 				buf.writeByte(options.attackKey.isPressed() ? 1 : 0);
