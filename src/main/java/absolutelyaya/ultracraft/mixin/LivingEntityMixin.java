@@ -138,7 +138,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			return;
 		if(source.isOf(DamageSources.GUN) || source.isOf(DamageSources.SHOTGUN))
 			timeUntilRegen = 9;
-		if(source.isOf(DamageSources.NAIL))
+		if(source.isOf(DamageSources.NAIL) || (source.isOf(DamageSources.SHARPSHOOTER) && !((Object)this instanceof PlayerEntity)))
 		{
 			timeUntilRegen = 9;
 			lastDamageTaken = 0f;

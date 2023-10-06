@@ -8,7 +8,7 @@ import net.minecraft.util.Identifier;
 
 public class DamageTypeTags
 {
-	public static final TagKey<DamageType> HITSCAN = TagKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "hitscan"));
+	public static final TagKey<DamageType> HITSCAN = TagKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "scan"));
 	public static final TagKey<DamageType> ULTRACRAFT = TagKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "all"));
 	public static final TagKey<DamageType> IS_PER_TICK = TagKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "is_per_tick"));
 	public static final TagKey<DamageType> UNDODGEABLE = TagKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "undodgeable"));

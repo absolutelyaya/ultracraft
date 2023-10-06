@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.damage;
 
+import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.Ultracraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
@@ -47,9 +48,9 @@ public class DamageSources
 		return new DamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type), attacker);
 	}
 	
-	public static HitscanDamageSource getHitscan(World world, RegistryKey<DamageType> type, Entity attacker, byte hitscanType, int maxHits, int bounces, float autoAim)
+	public static HitscanDamageSource getHitscan(World world, RegistryKey<DamageType> type, Entity attacker, ServerHitscanHandler.Hitscan hitscan)
 	{
-		return new HitscanDamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type), attacker, hitscanType, maxHits, bounces, autoAim);
+		return new HitscanDamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type), attacker, hitscan);
 	}
 	
 	public static DamageSource get(World world, RegistryKey<DamageType> type, Entity source, Entity attacker)
@@ -57,8 +58,8 @@ public class DamageSources
 		return new DamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type), source, attacker);
 	}
 	
-	public static HitscanDamageSource getHitscan(World world, RegistryKey<DamageType> type, Entity source, Entity attacker, byte hitscanType, int maxHits, int bounces, float autoAim)
+	public static HitscanDamageSource getHitscan(World world, RegistryKey<DamageType> type, Entity source, Entity attacker, ServerHitscanHandler.Hitscan hitscan)
 	{
-		return new HitscanDamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type), source, attacker, hitscanType, maxHits, bounces, autoAim);
+		return new HitscanDamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type), source, attacker, hitscan);
 	}
 }

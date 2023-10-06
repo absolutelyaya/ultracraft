@@ -146,8 +146,7 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 				byte type = ServerHitscanHandler.SHARPSHOOTER;
 				int bounces = (int)Math.ceil(Math.min(Math.abs(remainingUseTicks) / 20f, 1f) * 3), maxHits = Integer.MAX_VALUE;
 				float autoAim = 45f;
-				ServerHitscanHandler.performBouncingHitscan(user, type, 3,
-						DamageSources.getHitscan(world, DamageSources.SHARPSHOOTER, user, type, bounces, maxHits, autoAim), maxHits,
+				ServerHitscanHandler.performBouncingHitscan(user, type, 3, DamageSources.SHARPSHOOTER, maxHits,
 						bounces, new ServerHitscanHandler.HitscanExplosionData(1.5f, 0f, 0f, true), autoAim);
 			}
 		}

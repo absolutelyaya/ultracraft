@@ -5,7 +5,6 @@ import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.damage.DamageSources;
-import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.damage.HitscanDamageSource;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.item.CoinItem;
@@ -180,21 +179,16 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			}
 			return false;
 		}
-		if((source.isIn(DamageTypeTags.HITSCAN) || source.isOf(DamageSources.RICOCHET)))
-		{
-			if(isSplittable() && !splitting)
-				dataTracker.set(SPLITS, dataTracker.get(SPLITS) + 1);
-			return hitNext(hitscanSource, amount, attacker);
-		}
-		return super.damage(source, amount);
+		if(isSplittable() && !splitting)
+			dataTracker.set(SPLITS, dataTracker.get(SPLITS) + 1);
+		return hitNext(hitscanSource, amount, attacker);
 	}
 	
 	boolean hitNext(HitscanDamageSource source, float amount, LivingEntity attacker)
 	{
 		boolean isDamageChargeback = source.isOf(DamageSources.CHARGEBACK);
 		boolean isDamageRicochet = source.isOf(DamageSources.RICOCHET) || isDamageChargeback;
-		byte hitscanType = source.hitscanType;
-		HitscanDamageSource ricochetSource = source.asRicochet(getWorld());
+		byte hitscanType = source.hitscan.type;
 		if(hitscanType == ServerHitscanHandler.NORMAL)
 			hitscanType = ServerHitscanHandler.COIN_RICOCHET;
 		if (realAge <= 2 && !isDamageChargeback) //deadcoin period
@@ -273,7 +267,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 					if (closest instanceof ServerPlayerEntity player)
 					{
 						ServerHitscanHandler.scheduleDelayedAimingHitscan((LivingEntity) getOwner(), getPos(), getPos(), player, hitscanType,
-								(isDamageRicochet ? Math.max(amount, 1) : 1), ricochetSource, source.maxHits, source.bounces, null,
+								(isDamageRicochet ? Math.max(amount, 1) : 1), DamageSources.RICOCHET, source.hitscan.maxHits, source.hitscan.maxBounces, null,
 								10 + 5 * (dataTracker.get(SPLITS) + 1), 15 + 5 * (dataTracker.get(SPLITS) + 1), true);
 						if (getOwner() instanceof ServerPlayerEntity attackingPlayer)
 						{
@@ -285,8 +279,8 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 					{
 						Vec3d target = closest.getBoundingBox().getCenter();
 						Vec3d dir = target.subtract(getPos()).normalize();
-						ServerHitscanHandler.performBouncingHitscan(attacker, getPos(), getPos(), getPos().add(dir.multiply(64f)), hitscanType,
-								isDamageRicochet ? 5 * amount : 5, source.asRicochet(getWorld()), source.maxHits, source.bounces, null, source.autoAim);
+						ServerHitscanHandler.performBouncingHitscan(new ServerHitscanHandler.Hitscan(attacker, getPos(), getPos(), getPos().add(dir.multiply(64f)), hitscanType,
+								isDamageRicochet ? 5 * amount : 5, DamageSources.RICOCHET).maxHits(source.hitscan.maxHits).bounces(source.hitscan.maxBounces).autoAim(source.hitscan.autoAim));
 						Ultracraft.freeze((ServerWorld) getWorld(), 3);
 						if (getOwner() instanceof ServerPlayerEntity player)
 							CriteriaRegistry.RICOCHET.trigger(player, damage);
@@ -299,9 +293,9 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 			else
 			{
 				Vec3d dest = getPos().add(Vec3d.fromPolar(random.nextFloat() * 360, random.nextFloat() * 360 - 180).multiply(64));
-				if(source.bounces > 0)
-					ServerHitscanHandler.performBouncingHitscan(attacker, getPos(), getPos(), dest, hitscanType,
-							isDamageRicochet ? 5 * amount : 5, source.asRicochet(getWorld()), source.maxHits, source.bounces, null, source.autoAim);
+				if(source.hitscan.maxBounces > 0)
+					ServerHitscanHandler.performBouncingHitscan(new ServerHitscanHandler.Hitscan(attacker, getPos(), getPos(), dest, hitscanType,
+							isDamageRicochet ? 5 * amount : 5, DamageSources.RICOCHET).maxHits(source.hitscan.maxHits).bounces(source.hitscan.maxBounces).autoAim(source.hitscan.autoAim));
 				else
 					ServerHitscanHandler.sendPacket((ServerWorld)getWorld(), getPos(), dest, hitscanType);
 				if (dataTracker.get(SPLITS) > 0)
