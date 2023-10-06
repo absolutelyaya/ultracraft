@@ -143,7 +143,7 @@ public class TitleLimboBGRenderer extends RotatingCubeMapRenderer
 			float z = - v % 1f - (i);
 			matrixStack.translate(0, 0, z - 0.5);
 			RenderSystem.applyModelViewMatrix();
-			int l = Math.round(100f * MathHelper.clamp(1.5f + z / 8f, 0f, 1f));
+			int l = Math.round(80f * MathHelper.clamp(1.5f + z / 8f, 0f, 1f));
 			for (int ii = 0; ii < 3; ii++)
 			{
 				float f = ii * 0.66f;
@@ -161,26 +161,28 @@ public class TitleLimboBGRenderer extends RotatingCubeMapRenderer
 			}
 			matrixStack.pop();
 		}
-		//Sparks
+		//Embers
 		for (int i = 0; i < 3; i++)
 		{
 			matrixStack.push();
-			float z = - v % 4f - (i * 4f);
+			float z = - v % 5f - (i * 5f);
 			matrixStack.translate(0, 0, z - 0.5);
 			for (int ii = 0; ii < 4; ii++)
 			{
-				float b = ii % 2 == 0 ? 0.33f : 0f;
+				boolean alt = ii % 2 == 0;
+				float b = alt ? 0.33f + (float)Math.sin(v * 3f) * 0.05f : 0f + (float)Math.cos(v * 3f) * 0.05f;
+				float uvOffset = v * (alt ? -0.23f : -0.146f) + ii * 0.25f;
 				RenderSystem.applyModelViewMatrix();
 				bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-				bufferBuilder.vertex(2.5f + b, 4f, 0.5f).texture(0.75f, 0f + v * -0.1f + ii * 0.25f).color(255, 255, 255, 255).light(0xffffffff).next();
-				bufferBuilder.vertex(2.5f + b, -4f, 0.5f).texture(0.75f, 1f + v * -0.1f + ii * 0.25f).color(255, 255, 255, 255).light(0xffffffff).next();
-				bufferBuilder.vertex(2.5f + b, -4f, -0.5f).texture(0.875f, 1f + v * -0.1f + ii * 0.25f).color(255, 255, 255, 255).light(0xffffffff).next();
-				bufferBuilder.vertex(2.5f + b, 4f, -0.5f).texture(0.875f, 0f + v * -0.1f + ii * 0.25f).color(255, 255, 255, 255).light(0xffffffff).next();
+				bufferBuilder.vertex(2.5f + b, 4f, 0.5f).texture(0.75f, 0f + uvOffset).color(255, 255, 255, 255).light(0xffffffff).next();
+				bufferBuilder.vertex(2.5f + b, -4f, 0.5f).texture(0.75f, 1f + uvOffset).color(255, 255, 255, 255).light(0xffffffff).next();
+				bufferBuilder.vertex(2.5f + b, -4f, -0.5f).texture(0.875f, 1f + uvOffset).color(255, 255, 255, 255).light(0xffffffff).next();
+				bufferBuilder.vertex(2.5f + b, 4f, -0.5f).texture(0.875f, 0f + uvOffset).color(255, 255, 255, 255).light(0xffffffff).next();
 				
-				bufferBuilder.vertex(-2.5f - b, 4f, 0.5f).texture(0.875f, 0f + v * -0.1f + ii * 0.25f).color(255, 255, 255, 255).light(0xffffffff).next();
-				bufferBuilder.vertex(-2.5f - b, -4f, 0.5f).texture(0.875f, 1f + v * -0.1f + ii * 0.25f).color(255, 255, 255, 255).light(0xffffffff).next();
-				bufferBuilder.vertex(-2.5f - b, -4f, -0.5f).texture(0.75f, 1f + v * -0.1f + ii * 0.25f).color(255, 255, 255, 255).light(0xffffffff).next();
-				bufferBuilder.vertex(-2.5f - b, 4f, -0.5f).texture(0.75f, 0f + v * -0.1f + ii * 0.25f).color(255, 255, 255, 255).light(0xffffffff).next();
+				bufferBuilder.vertex(-2.5f - b, 4f, 0.5f).texture(0.875f, 0f + uvOffset).color(255, 255, 255, 255).light(0xffffffff).next();
+				bufferBuilder.vertex(-2.5f - b, -4f, 0.5f).texture(0.875f, 1f + uvOffset).color(255, 255, 255, 255).light(0xffffffff).next();
+				bufferBuilder.vertex(-2.5f - b, -4f, -0.5f).texture(0.75f, 1f + uvOffset).color(255, 255, 255, 255).light(0xffffffff).next();
+				bufferBuilder.vertex(-2.5f - b, 4f, -0.5f).texture(0.75f, 0f + uvOffset).color(255, 255, 255, 255).light(0xffffffff).next();
 				tessellator.draw();
 				matrixStack.translate(0, 0, -1f);
 			}
