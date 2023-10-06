@@ -40,7 +40,7 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	
 	@Shadow private boolean leftOwner;
 	
-	@Shadow protected abstract void onEntityHit(EntityHitResult entityHitResult);
+	@Shadow protected abstract void onCollision(HitResult hitResult);
 	
 	private static final TrackedData<Integer> PARRIES = DataTracker.registerData(ProjectileEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected PlayerEntity parrier;
@@ -58,6 +58,13 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 		dataTracker.startTracking(PARRIES, 0);
 	}
 	
+	@Inject(method = "onCollision", at = @At("HEAD"), cancellable = true)
+	void onCollision(HitResult hitResult, CallbackInfo ci)
+	{
+		if(hitResult instanceof EntityHitResult eHit && eHit.getEntity() instanceof StainedGlassWindow window && window.isReinforced())
+			ci.cancel(); //don't collide with reinforced Stained Glass Windows
+	}
+	
 	@Inject(method = "onBlockHit", at = @At("HEAD"))
 	void onBlockHit(BlockHitResult blockHitResult, CallbackInfo ci)
 	{
@@ -67,7 +74,7 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	@Inject(method = "onEntityHit", at = @At("HEAD"), cancellable = true)
 	void onEntityHit(EntityHitResult entityHitResult, CallbackInfo ci)
 	{
-		if(entityHitResult.getEntity() instanceof StainedGlassWindow)
+		if(entityHitResult.getEntity() instanceof StainedGlassWindow window && window.isReinforced())
 			ci.cancel();
 		collide(entityHitResult);
 	}
@@ -95,7 +102,7 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 		{
 			List<Entity> entities = getWorld().getOtherEntities(owner, getBoundingBox().stretch(this.getVelocity()), this::canHit);
 			if(entities.size() > 0)
-				onEntityHit(new EntityHitResult(entities.get(0)));
+				onCollision(new EntityHitResult(entities.get(0)));
 		}
 	}
 	

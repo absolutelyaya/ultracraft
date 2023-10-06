@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.entity.projectile;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.entity.other.StainedGlassWindow;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -57,7 +58,7 @@ public class NailEntity extends ProjectileEntity implements ProjectileEntityAcce
 		if(isOwner(entity))
 			return;
 		super.onEntityHit(entityHitResult);
-		float amount = 0.2f;
+		float amount = 0.3f;
 		entity.damage(DamageSources.get(getWorld(), DamageSources.NAIL, getOwner(), this),
 				amount * getWorld().getGameRules().getInt(GameruleRegistry.NAILGUN_DAMAGE));
 	}
@@ -65,16 +66,17 @@ public class NailEntity extends ProjectileEntity implements ProjectileEntityAcce
 	@Override
 	protected void onCollision(HitResult hitResult)
 	{
-		if (!getWorld().isClient && !isRemoved())
+		if (!isRemoved())
 		{
-			if(hitResult instanceof BlockHitResult bHit && getVelocity().length() > 0.5f)
+			if(hitResult instanceof BlockHitResult bHit && getVelocity().length() > 0.33f)
 			{
 				Vector3f dir = bHit.getSide().getUnitVector();
 				Vec3d vel = getVelocity();
 				setVelocity(vel.multiply(dir.x == 0 ? 0.15f : -0.15f, dir.y == 0 ? 0.2f : -0.2f, dir.z == 0 ? 0.15f : -0.15f));
 				return;
 			}
-			if(hitResult instanceof EntityHitResult eHit && isOwner(eHit.getEntity()))
+			if(hitResult instanceof EntityHitResult eHit &&
+					   (isOwner(eHit.getEntity()) || (eHit.getEntity() instanceof StainedGlassWindow window && window.isReinforced())))
 				return;
 			getWorld().sendEntityStatus(this, (byte)3);
 			discard();

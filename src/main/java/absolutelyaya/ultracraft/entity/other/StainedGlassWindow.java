@@ -148,4 +148,9 @@ public class StainedGlassWindow extends AbstractDecorationEntity implements IIgn
 	{
 		dataTracker.set(REINFORCED, b);
 	}
+	
+	public boolean isReinforced()
+	{
+		return dataTracker.get(REINFORCED);
+	}
 }
