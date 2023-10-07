@@ -22,6 +22,7 @@ import net.minecraft.item.Item;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.stat.Stats;
 import net.minecraft.util.JsonHelper;
 import org.slf4j.Logger;
 
@@ -92,9 +93,17 @@ public class Ultracraft implements ModInitializer
         
         ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((serverPlayer, lastWorld, newWorld) -> GameruleRegistry.syncAll(serverPlayer));
         ServerPlayConnectionEvents.JOIN.register((networkHandler, sender, server) -> {
-            GameruleRegistry.syncAll(networkHandler.player);
-            UltraRecipeManager.sync(networkHandler.player);
+            ServerPlayerEntity player = networkHandler.player;
+            GameruleRegistry.syncAll(player);
+            UltraRecipeManager.sync(player);
         });
+        ServerPlayConnectionEvents.INIT.register(((handler, server) -> {
+            ServerPlayerEntity player = handler.player;
+            //detect first spawn; probably a scuffed way to do this, but hey, it works :3
+            if(player.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(Stats.PLAY_TIME)) == 0)
+                if(player.getWorld().getGameRules().getBoolean(GameruleRegistry.START_WITH_PIERCER))
+                    player.giveItemStack(ItemRegistry.PIERCE_REVOLVER.getDefaultStack());
+        }));
         
         FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer -> VERSION = modContainer.getMetadata().getVersion().getFriendlyString());
         FabricLoader.getInstance().getModContainer("lambdynlights").ifPresent(container -> DYN_LIGHTS = true);

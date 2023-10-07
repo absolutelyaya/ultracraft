@@ -1,7 +1,6 @@
 package absolutelyaya.ultracraft.client;
 
 import absolutelyaya.goop.client.GoopClient;
-import absolutelyaya.goop.client.GoopConfig;
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
@@ -491,6 +490,7 @@ public class UltracraftClient implements ClientModInitializer
 			case 21 -> onExternalRuleUpdate(GameruleRegistry.SHOTGUN_DAMAGE, value);
 			case 22 -> onExternalRuleUpdate(GameruleRegistry.NAILGUN_DAMAGE, value);
 			case 23 -> onExternalRuleUpdate(GameruleRegistry.HELL_OBSERVER_INTERVAL, value);
+			case 24 -> onExternalRuleUpdate(GameruleRegistry.START_WITH_PIERCER, value == 1);
 			case 127 -> gameRuleSyncFinished();
 			default -> Ultracraft.LOGGER.error("Received invalid Packet data: [rule_syncB] -> " + data);
 		}

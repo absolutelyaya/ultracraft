@@ -16,6 +16,7 @@ import net.minecraft.world.GameRules;
 public class GameruleRegistry
 {
 	static final GameRules.Category ULTRACATEGORY = ClassTinkerers.getEnum(GameRules.Category.class, "ULTRACRAFT");
+	static final GameRules.Category ULTRA_WORLD_CATEGORY = ClassTinkerers.getEnum(GameRules.Category.class, "ULTRACRAFT_WORLD");
 	
 	public static final GameRules.Key<EnumRule<ProjectileBoostSetting>> PROJ_BOOST =
 			GameRuleRegistry.register("ultra-projBoost", ULTRACATEGORY, GameRuleFactory.createEnumRule(ProjectileBoostSetting.LIMITED,
@@ -129,6 +130,10 @@ public class GameruleRegistry
 			GameRuleRegistry.register("ultra-hellObserverInterval", ULTRACATEGORY,
 					GameRuleFactory.createIntRule(5, 1, 10,
 							(server, rule) -> OnChanged(server, (byte)23, rule.get())));
+	public static final GameRules.Key<GameRules.BooleanRule> START_WITH_PIERCER =
+			GameRuleRegistry.register("ultra-startWithPiercer", ULTRA_WORLD_CATEGORY,
+					GameRuleFactory.createBooleanRule(true,
+							(server, rule) -> OnChanged(server, (byte)24, rule.get() ? 1 : 0)));
 	
 	public static void OnChanged(MinecraftServer server, byte b, int val)
 	{

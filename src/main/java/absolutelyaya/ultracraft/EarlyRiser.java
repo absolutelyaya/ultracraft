@@ -15,6 +15,8 @@ public class EarlyRiser implements Runnable
 		ClassTinkerers.enumBuilder(entityPose).addEnum("DASH").addEnum("SLIDE").build();
 		
 		String gameRuleCategory = remapper.mapClassName("intermediary", "net.minecraft.class_1928$class_5198");
-		ClassTinkerers.enumBuilder(gameRuleCategory, String.class).addEnum("ULTRACRAFT", "gamerule.ultracraft.category.general").build();
+		ClassTinkerers.enumBuilder(gameRuleCategory, String.class)
+				.addEnum("ULTRACRAFT", "gamerule.ultracraft.category.general")
+				.addEnum("ULTRACRAFT_WORLD", "gamerule.ultracraft.category.world").build();
 	}
 }

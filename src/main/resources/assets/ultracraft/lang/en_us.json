@@ -228,6 +228,7 @@
   "command.ultracraft.progression.reset-success": "[Ultracraft] Reset progression for %s",
 
   "gamerule.ultracraft.category.general": "ULTRACRAFT",
+  "gamerule.ultracraft.category.world": "ULTRACRAFT (world)",
   "gamerule.ultra-projBoost": "Projectile Boosting",
   "gamerule.ultra-projBoost.description": "Restricts what Projectiles can be boosted (aka self-parried immediately when shot, for example hitting your own arrow, making it do a lot more damage).",
   "gamerule.ultra-hiVelMode": "High Velocity Mode",
@@ -276,6 +277,8 @@
   "gamerule.ultra-flamethrowerGrief.description": "Whether Flamethrowers used by players place fire.",
   "gamerule.ultra-hellObserverInterval": "Hell Observer Interval",
   "gamerule.ultra-hellObserverInterval.description": "Hell Observers will only perform checks every X ticks. Higher values improve performance, but decrease check accuracy.",
+  "gamerule.ultra-startWithPiercer": "Start With Piercer",
+  "gamerule.ultra-startWithPiercer.description": "Newly spawned players start with a Piercer Revolver in their Inventory",
 
   "stat.ultracraft.collect_soul_orb": "Collected Soul Orbs",
   "stat.ultracraft.collect_blood_orb": "Collected Blood Orbs",

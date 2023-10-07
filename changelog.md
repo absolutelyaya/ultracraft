@@ -59,6 +59,8 @@
 - Added ultra-shotgunDamage Gamerule
 - Added ultra-nailgunDamage Gamerule
 - Added ultra-hellObserverInterval Gamerule
+- Added ULTRACRAFT (world) Category for gamerules mainly important when starting a new world.
+- Added ultra-startWithPiercer Gamerule
 ## Commands
 - Added `/ultracraft progression` subcommand (mainly for Debug)
   - Lets you list, grant or revoke Progression Entries
