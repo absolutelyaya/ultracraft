@@ -95,8 +95,6 @@ public class HellBulletEntity extends ThrownItemEntity implements ProjectileEnti
 	@Override
 	protected void onCollision(HitResult hitResult)
 	{
-		if(parrier != null && hitResult.getType().equals(HitResult.Type.ENTITY))
-			onParriedCollision(hitResult);
 		if (!getWorld().isClient && !isRemoved())
 		{
 			getWorld().sendEntityStatus(this, (byte)3);

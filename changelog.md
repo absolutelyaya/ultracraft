@@ -69,6 +69,8 @@
 - Added Setting for disabling the new Custom Death Screen
 ## Tweaks
 - Tweaked a Filth Animation
+- Nerfed base projectile parry damage (15 -> 10)
+- Buffed Parry Chaining Modifiers (damage 1 + x * (0.2 -> 0.35) | range 1 + x * (0.1 -> 0.15))
 ## Minor Changes
 - Discontinued Russian Translation
 - Primary Fire can now be held down
@@ -92,6 +94,7 @@
   - Creative Players only break pedestals now when main-hand punching and not sneaking a pedestal.
   - Item stacks get copied properly now in creative (geckolib animation synching is still funky though, I cannot fix that)
   - Weapons can't be fired anymore while looking directly at a Pedestal
+- Fixed Parried Hell Bullets applying parry damage twice
 ## Resource Changes
 - Added new Texture State for fully Charged Pierce Revolver (`pierce_revolver4.png`)
 - To reduce filesize, model translations of weapons now use inheritance. Meaning, you only need to replace `models/item/revolver.json` instead of all three variants. It should be safe to remove those excess files from Resourcepacks completely.

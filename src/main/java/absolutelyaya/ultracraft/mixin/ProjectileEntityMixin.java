@@ -137,8 +137,8 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 		if(getParryCount() <= 0)
 			return;
 		int parries = getParryCount() - 1;
-		float damageMult = 1f + parries * 0.2f;
-		float rangeMult = 1f + parries * 0.1f;
+		float damageMult = 1f + parries * 0.35f;
+		float rangeMult = 1f + parries * 0.15f;
 		Vec3d pos = hitResult.getPos();
 		if(owner == null)
 		{
@@ -150,7 +150,7 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 		if(hitResult.getType().equals(HitResult.Type.ENTITY))
 			hit = ((EntityHitResult)hitResult).getEntity();
 		if(owner.equals(hit))
-			owner.damage(DamageSources.get(getWorld(), DamageSources.PARRY, parrier), 15 * damageMult);
+			owner.damage(DamageSources.get(getWorld(), DamageSources.PARRY, parrier), 10 * damageMult);
 		ExplosionHandler.explosion(owner.equals(hit) ? hit : null, getWorld(), pos, DamageSources.get(getWorld(), DamageSources.PARRYAOE, parrier),
 				5f * damageMult, 1f, 3f * rangeMult, true);
 	}
