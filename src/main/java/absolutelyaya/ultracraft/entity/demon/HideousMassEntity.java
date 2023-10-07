@@ -12,8 +12,10 @@ import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.other.VerticalShockwaveEntity;
 import absolutelyaya.ultracraft.entity.projectile.HarpoonEntity;
 import absolutelyaya.ultracraft.entity.projectile.HideousMortarEntity;
+import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.control.LookControl;
@@ -613,6 +615,17 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 	}
 	
 	@Override
+	public void handleStatus(byte status)
+	{
+		super.handleStatus(status);
+		if(status == EntityStatuses.PLAY_ATTACK_SOUND)
+		{
+			Vec3d pos = tail.getPos().add(getRotationVector().multiply(2f));
+			getWorld().addParticle(new ParryIndicatorParticleEffect(false), pos.x, pos.y, pos.z, 0, 0, 0);
+		}
+	}
+	
+	@Override
 	public void remove(RemovalReason reason)
 	{
 		super.remove(reason);
@@ -756,6 +769,8 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		protected void process()
 		{
 			super.process();
+			if(timer == 7)
+				mob.getWorld().sendEntityStatus(mob, EntityStatuses.PLAY_ATTACK_SOUND);
 			if(timer == 14)
 				mob.shootHarpoon();
 		}
