@@ -267,7 +267,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 					if (closest instanceof ServerPlayerEntity player)
 					{
 						ServerHitscanHandler.scheduleDelayedAimingHitscan((LivingEntity) getOwner(), getPos(), getPos(), player, hitscanType,
-								(isDamageRicochet ? Math.max(amount, 1) : 1), DamageSources.RICOCHET, source.hitscan.maxHits, source.hitscan.maxBounces, null,
+								(isDamageRicochet ? Math.max(amount, 1) : 1), DamageSources.RICOCHET, source.hitscan.maxHits + 1, source.hitscan.maxBounces, null,
 								10 + 5 * (dataTracker.get(SPLITS) + 1), 15 + 5 * (dataTracker.get(SPLITS) + 1), true);
 						if (getOwner() instanceof ServerPlayerEntity attackingPlayer)
 						{
@@ -280,7 +280,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 						Vec3d target = closest.getBoundingBox().getCenter();
 						Vec3d dir = target.subtract(getPos()).normalize();
 						ServerHitscanHandler.performBouncingHitscan(new ServerHitscanHandler.Hitscan(attacker, getPos(), getPos(), getPos().add(dir.multiply(64f)), hitscanType,
-								isDamageRicochet ? 5 * amount : 5, DamageSources.RICOCHET).maxHits(source.hitscan.maxHits).bounces(source.hitscan.maxBounces).autoAim(source.hitscan.autoAim));
+								isDamageRicochet ? 5 * amount : 5, DamageSources.RICOCHET).maxHits(source.hitscan.maxHits + 1).bounces(source.hitscan.maxBounces).autoAim(source.hitscan.autoAim));
 						Ultracraft.freeze((ServerWorld) getWorld(), 3);
 						if (getOwner() instanceof ServerPlayerEntity player)
 							CriteriaRegistry.RICOCHET.trigger(player, damage);
