@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.gui.terminal.WeaponsTab;
+import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -27,6 +28,11 @@ public class ProgressionComponent implements IProgressionComponent, AutoSyncedCo
 	{
 		this.provider = provider;
 		unlocked.add(new Identifier(Ultracraft.MOD_ID, "pierce_revolver"));
+		if(provider.getWorld().getGameRules().getBoolean(GameruleRegistry.START_WITH_PIERCER))
+			owned.add(new Identifier(Ultracraft.MOD_ID, "pierce_revolver"));
+		//TODO: remove once enemies spawn in the world and weapons get obtainable through them
+		unlocked.add(new Identifier(Ultracraft.MOD_ID, "core_shotgun"));
+		unlocked.add(new Identifier(Ultracraft.MOD_ID, "attractor_nailgun"));
 	}
 	
 	@Override
