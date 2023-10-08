@@ -69,16 +69,16 @@ public abstract class HandRendererMixin
 			PlayerEntityRenderer renderer = (PlayerEntityRenderer) entityRenderDispatcher.getRenderer(client.player);
 			PlayerEntityModel<?> model = renderer.getModel();
 			IArmComponent arms = UltraComponents.ARMS.get(player);
-			VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(ArmFeature.getTexture(arms.getActiveArm())));
-			if(player.getMainArm().getOpposite().equals(Arm.RIGHT))
-			{
-				model.rightArm.render(matrices, consumer, light, OverlayTexture.DEFAULT_UV);
-				model.rightSleeve.render(matrices, consumer, light, OverlayTexture.DEFAULT_UV);
-			}
-			else
+			VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(ArmFeature.getTexture(arms.getActiveArm(), player.getModel().equals("slim"))));
+			if(player.getMainArm().equals(Arm.RIGHT))
 			{
 				model.leftArm.render(matrices, consumer, light, OverlayTexture.DEFAULT_UV);
 				model.leftSleeve.render(matrices, consumer, light, OverlayTexture.DEFAULT_UV);
+			}
+			else
+			{
+				model.rightArm.render(matrices, consumer, light, OverlayTexture.DEFAULT_UV);
+				model.rightSleeve.render(matrices, consumer, light, OverlayTexture.DEFAULT_UV);
 			}
 			matrices.pop();
 			matrices.push();
