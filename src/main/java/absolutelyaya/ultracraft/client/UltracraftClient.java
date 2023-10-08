@@ -245,6 +245,7 @@ public class UltracraftClient implements ClientModInitializer
 			{
 				helper.register(new WingsFeature<>((PlayerEntityRenderer)renderer, context.getModelLoader()));
 				helper.register(new PlayerBackTankFeature<>((PlayerEntityRenderer)renderer));
+				helper.register(new ArmFeature<>((PlayerEntityRenderer)renderer));
 			}
 		});
 		

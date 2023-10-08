@@ -18,6 +18,8 @@ public final class UltraComponents implements EntityComponentInitializer
 			ComponentRegistry.getOrCreate(new Identifier(Ultracraft.MOD_ID, "progression"), IProgressionComponent.class);
 	public static final ComponentKey<IEasterComponent> EASTER =
 			ComponentRegistry.getOrCreate(new Identifier(Ultracraft.MOD_ID, "easter"), IEasterComponent.class);
+	public static final ComponentKey<IArmComponent> ARMS =
+			ComponentRegistry.getOrCreate(new Identifier(Ultracraft.MOD_ID, "arms"), IArmComponent.class);
 	
 	@Override
 	public void registerEntityComponentFactories(EntityComponentFactoryRegistry registry)
@@ -26,5 +28,6 @@ public final class UltraComponents implements EntityComponentInitializer
 		registry.registerForPlayers(WINGED_ENTITY, WingedPlayerComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
 		registry.registerForPlayers(PROGRESSION, ProgressionComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
 		registry.registerForPlayers(EASTER, EasterComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
+		registry.registerForPlayers(ARMS, ArmComponent::new, RespawnCopyStrategy.ALWAYS_COPY);
 	}
 }

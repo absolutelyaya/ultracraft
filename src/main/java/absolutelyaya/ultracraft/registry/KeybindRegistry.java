@@ -45,8 +45,11 @@ public class KeybindRegistry
 	public static final KeyBinding WEAPON_CYCLE = KeyBindingHelper.registerKeyBinding(
 			new KeyBinding("key.ultracraft.weapon_cycle", InputUtil.Type.KEYSYM,
 					GLFW.GLFW_KEY_R, "category.ultracraft"));
+	public static final KeyBinding ARM_CYCLE = KeyBindingHelper.registerKeyBinding(
+			new KeyBinding("key.ultracraft.arm_cycle", InputUtil.Type.KEYSYM,
+					GLFW.GLFW_KEY_G, "category.ultracraft"));
 	
-	static boolean hivelPressed = false, punchPressed = false, wingCustomizationPressed = false, weaponCyclePressed = false;
+	static boolean hivelPressed = false, punchPressed = false, wingCustomizationPressed = false, weaponCyclePressed = false, armCyclePressed = false;
 	
 	public static void register()
 	{
@@ -130,6 +133,16 @@ public class KeybindRegistry
 			}
 			while(WEAPON_CYCLE.wasPressed()); //remove stored presses
 			weaponCyclePressed = WEAPON_CYCLE.isPressed();
+		});
+		ClientTickEvents.END_CLIENT_TICK.register(client ->
+		{
+			while (ARM_CYCLE.wasPressed() && !armCyclePressed)
+			{
+				ClientPlayerEntity player = client.player;
+				UltraComponents.ARMS.get(player).cycleArms();
+			}
+			while(ARM_CYCLE.wasPressed()); //remove stored presses
+			armCyclePressed = ARM_CYCLE.isPressed();
 		});
 	}
 }

@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
+import absolutelyaya.ultracraft.components.IArmComponent;
 import absolutelyaya.ultracraft.components.IProgressionComponent;
 import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
@@ -276,20 +277,37 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
 	void onWriteCustomData(NbtCompound nbt, CallbackInfo ci)
 	{
+		NbtCompound ultra = new NbtCompound();
+		
 		NbtCompound progression = new NbtCompound();
 		UltraComponents.PROGRESSION.get(this).writeToNbt(progression);
-		nbt.put("progression", progression);
+		ultra.put("progression", progression);
+		NbtCompound arms = new NbtCompound();
+		UltraComponents.ARMS.get(this).writeToNbt(arms);
+		ultra.put("arms", arms);
+		
+		nbt.put("ultracraft", ultra);
 	}
 	
 	@Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
 	void onReadCustomData(NbtCompound nbt, CallbackInfo ci)
 	{
-		if(nbt.contains("progression", NbtElement.COMPOUND_TYPE))
+		if(!nbt.contains("ultracraft", NbtElement.COMPOUND_TYPE))
+			return;
+		NbtCompound ultra = nbt.getCompound("ultracraft");
+		if(ultra.contains("progression", NbtElement.COMPOUND_TYPE))
 		{
-			NbtCompound progression = nbt.getCompound("progression");
+			NbtCompound progression = ultra.getCompound("progression");
 			IProgressionComponent progressionComponent = UltraComponents.PROGRESSION.get(this);
 			progressionComponent.readFromNbt(progression);
 			progressionComponent.sync();
+		}
+		if(ultra.contains("arms", NbtElement.COMPOUND_TYPE))
+		{
+			NbtCompound arms = ultra.getCompound("arms");
+			IArmComponent armComponent = UltraComponents.ARMS.get(this);
+			armComponent.readFromNbt(arms);
+			armComponent.sync();
 		}
 	}
 	

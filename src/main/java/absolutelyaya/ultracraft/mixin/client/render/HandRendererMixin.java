@@ -1,13 +1,23 @@
 package absolutelyaya.ultracraft.mixin.client.render;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
+import absolutelyaya.ultracraft.client.rendering.entity.feature.ArmFeature;
+import absolutelyaya.ultracraft.components.IArmComponent;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.item.PlushieItem;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.render.entity.PlayerEntityRenderer;
+import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
@@ -21,6 +31,7 @@ import net.minecraft.util.math.MathHelper;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,6 +49,10 @@ public abstract class HandRendererMixin
 	
 	@Shadow protected abstract void applySwingOffset(MatrixStack matrices, Arm arm, float swingProgress);
 	
+	@Shadow @Final private EntityRenderDispatcher entityRenderDispatcher;
+	
+	@Shadow @Final private MinecraftClient client;
+	
 	@Inject(method = "renderFirstPersonItem", at = @At(value = "HEAD"), cancellable = true)
 	void onRenderFirstPersonItem(AbstractClientPlayerEntity player, float tickDelta, float pitch, Hand hand, float swingProgress, ItemStack item, float equipProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci)
 	{
@@ -49,7 +64,22 @@ public abstract class HandRendererMixin
 			if(item.getItem() instanceof AbstractWeaponItem)
 				matrices.translate(0f, -0.2f, 0f);
 			matrices.push();
+			//TODO: hide normal arm
 			renderArmHoldingItem(matrices, vertexConsumers, light, equipProgress, swing, player.getMainArm().getOpposite());
+			PlayerEntityRenderer renderer = (PlayerEntityRenderer) entityRenderDispatcher.getRenderer(client.player);
+			PlayerEntityModel<?> model = renderer.getModel();
+			IArmComponent arms = UltraComponents.ARMS.get(player);
+			VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(ArmFeature.getTexture(arms.getActiveArm())));
+			if(player.getMainArm().getOpposite().equals(Arm.RIGHT))
+			{
+				model.rightArm.render(matrices, consumer, light, OverlayTexture.DEFAULT_UV);
+				model.rightSleeve.render(matrices, consumer, light, OverlayTexture.DEFAULT_UV);
+			}
+			else
+			{
+				model.leftArm.render(matrices, consumer, light, OverlayTexture.DEFAULT_UV);
+				model.leftSleeve.render(matrices, consumer, light, OverlayTexture.DEFAULT_UV);
+			}
 			matrices.pop();
 			matrices.push();
 			boolean transform = true;

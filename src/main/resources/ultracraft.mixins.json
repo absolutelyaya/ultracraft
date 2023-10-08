@@ -41,6 +41,7 @@
     "client.render.ItemRendererMixin",
     "client.render.LivingEntityRendererMixin",
     "client.render.ModelLoaderMixin",
+    "client.render.PlayerEntityRendererMixin",
     "client.render.RenderLayerMixin",
     "client.render.WorldRendererMixin"
   ],
