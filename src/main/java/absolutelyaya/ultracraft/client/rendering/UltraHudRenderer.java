@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.components.IArmComponent;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.item.MachineSwordItem;
 import absolutelyaya.ultracraft.item.PlushieItem;
@@ -218,11 +219,14 @@ public class UltraHudRenderer
 			RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 68.90625f, -35 + 21.09f, 21.09f, 46.4062f), 0f,
 					new Vec2f(80f, 64f), new Vector4f(49f, 0f, 15f, 33f), 0.75f);
 		}
-		//Fist
-		if(false) //if hasFist
+		//Arm
+		IArmComponent arms = UltraComponents.ARMS.get(player);
+		if(arms.getUnlockedArmCount() > 1) //if hasArm
 		{
 			RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 68.90625f, -35f, 21.09f, 19.68f), 0f,
 					new Vec2f(80f, 64f), new Vector4f(49f, 34f, 15f, 14f), 0.75f);
+			RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 68.90625f + 2.81f, -35f + 2.81f, 15.46f, 14.06f), 0f,
+					new Vec2f(80f, 64f), new Vector4f(47f + 11 * arms.getActiveArm(), 48f, 11f, 10f), 1f);
 		}
 		
 		if(config.moveUltrahud)

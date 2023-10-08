@@ -12,4 +12,10 @@ public interface IArmComponent extends ComponentV3, AutoSyncedComponent
 	void cycleArms();
 	
 	void sync();
+	
+	byte getUnlockedArmCount();
+	
+	boolean isFeedbacker();
+	
+	boolean isKnuckleblaster();
 }

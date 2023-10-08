@@ -9,7 +9,7 @@ import net.minecraft.util.Identifier;
 
 public class ArmComponent implements IArmComponent
 {
-	static final Identifier[] armIDs = new Identifier[]
+	public static final Identifier[] armIDs = new Identifier[]
 		{
 			new Identifier(Ultracraft.MOD_ID, "feedbacker"),
 			new Identifier(Ultracraft.MOD_ID, "knuckleblaster")
@@ -67,6 +67,31 @@ public class ArmComponent implements IArmComponent
 	public void sync()
 	{
 		UltraComponents.ARMS.sync(provider);
+	}
+	
+	@Override
+	public byte getUnlockedArmCount()
+	{
+		byte v = 0;
+		IProgressionComponent progression = UltraComponents.PROGRESSION.get(provider);
+		for (Identifier id : armIDs)
+		{
+			if (progression.isUnlocked(id))
+				v++;
+		}
+		return v;
+	}
+	
+	@Override
+	public boolean isFeedbacker()
+	{
+		return activeArm == 0;
+	}
+	
+	@Override
+	public boolean isKnuckleblaster()
+	{
+		return activeArm == 1;
 	}
 	
 	@Override
