@@ -29,6 +29,7 @@ import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec2f;
 import org.joml.*;
 
@@ -54,7 +55,7 @@ public class UltraHudRenderer
 		super();
 	}
 	
-	public void render(float tickDelta, Camera cam)
+	public void render(float delta, Camera cam)
 	{
 		if(!MinecraftClient.isHudEnabled() ||cam.isThirdPerson() || config.ultraHudVisibility.equals(UltraHudVisibility.NEVER))
 			return;
@@ -62,11 +63,157 @@ public class UltraHudRenderer
 			return;
 		MinecraftClient client = MinecraftClient.getInstance();
 		ClientPlayerEntity player = client.player;
-		if(player == null)
-			return;
-		if(player.isSpectator())
+		if(player == null || player.isSpectator())
 			return;
 		if(player instanceof WingedPlayerEntity winged && winged.getFocusedTerminal() != null)
+			return;
+		renderExtras(delta);
+		
+		RenderSystem.disableDepthTest();
+		RenderSystem.disableCull();
+		MatrixStack matrices = new MatrixStack();
+		int width = client.getWindow().getFramebufferWidth();
+		int height = client.getWindow().getFramebufferHeight();
+		float aspect = (float)height / (float)width;
+		RenderSystem.backupProjectionMatrix();
+		RenderSystem.setProjectionMatrix(client.gameRenderer.getBasicProjectionMatrix(90), VertexSorter.BY_DISTANCE);
+		RenderSystem.enableBlend();
+		
+		healthPercent = MathHelper.lerp(delta, healthPercent, player.getHealth() / player.getMaxHealth());
+		staminaPercent = MathHelper.lerp(delta, staminaPercent, UltraComponents.WINGED_ENTITY.get(player).getStamina() / 90f);
+		absorptionPercent = MathHelper.lerp(delta, absorptionPercent, Math.min(player.getAbsorptionAmount() / 20f, 1f));
+		//Crosshair
+		if(config.ultraHudCrosshair)
+		{
+			matrices.push();
+			matrices.scale(aspect, 1f, 1f);
+			matrices.translate(-0.75, -0.5, 0);
+			RenderSystem.setShaderTexture(0, CROSSHAIR_TEXTURE);
+			RenderingUtil.drawTexture(matrices.peek().getPositionMatrix(), new Vector4f(-6f, -5f, 5f, 11f * healthPercent), 100f,
+					new Vec2f(32f, 32f), new Vector4f(0f, 11 - 11f * healthPercent, 5f, 11f * healthPercent), 0.75f);
+			RenderingUtil.drawTexture(matrices.peek().getPositionMatrix(), new Vector4f(2f, -5f, 5f, 11f * staminaPercent), 100f,
+					new Vec2f(32f, 32f), new Vector4f(8f, 11 - 11f * staminaPercent, 5f, 11f * staminaPercent), 0.75f);
+			matrices.pop();
+		}
+		
+		matrices.push();
+		boolean flip = player.getMainArm().equals(Arm.LEFT) ^ config.switchSides;
+		if(!UltracraftClient.getConfigHolder().get().ultraHudFixed)
+		{
+			float h = MathHelper.lerp(delta, player.lastRenderPitch, player.renderPitch);
+			float i = MathHelper.lerp(delta, player.lastRenderYaw, player.renderYaw);
+			matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees((player.getPitch(delta) - h) * 0.15f));
+			matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees((player.getYaw(delta) - i) * 0.05f));
+		}
+		matrices.translate(flip ? 60 : -48, 0, -50);
+		if(config.switchSides)
+			matrices.translate(0, -30, 0);
+		matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(flip ? -10 : 10));
+		if(config.moveUltrahud)
+		{
+			Hand leftHand = player.getMainArm().equals(Arm.LEFT) ? Hand.MAIN_HAND : Hand.OFF_HAND;
+			Hand rightHand = leftHand.equals(Hand.OFF_HAND) ? Hand.MAIN_HAND : Hand.OFF_HAND;
+			boolean covered = (!(player.getStackInHand(leftHand).isEmpty()) && !flip) || (!player.getStackInHand(rightHand).isEmpty() && flip);
+			matrices.translate(0f, yOffset = MathHelper.lerp(delta, yOffset, covered ? 30f + (config.switchSides ? 30 : 0) : 0f), 0f);
+		}
+		
+		matrices.push();
+		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
+		matrices.translate(-24, -36, 0f);
+		int guiScale = client.options.getGuiScale().getValue();
+		if(guiScale == 0)
+			guiScale = 3;
+		float scale = guiScale * 0.2f;
+		matrices.scale(scale, scale, scale);
+		//main box
+		Matrix4f textureMatrix = new Matrix4f(matrices.peek().getPositionMatrix());
+		RenderingUtil.drawTexture(textureMatrix, new Vector4f(0, 0, 48f, 48f), 0f,
+				new Vec2f(80f, 64f), new Vector4f(0f, 0f, 48f, 48f), 0.75f);
+		//bars
+		//health
+		RenderingUtil.drawTexture(textureMatrix, new Vector4f(2, 8, 44 * healthPercent, 4), 0f,
+				new Vec2f(80f, 64f), new Vector4f(2f, 48f, 44f * healthPercent, 4f), 1f);
+		if(absorptionPercent > 0f)
+			RenderingUtil.drawTexture(textureMatrix, new Vector4f(2, 8, 44 * absorptionPercent, 4), 0f,
+					new Vec2f(80f, 64f), new Vector4f(2f, 56f, 44f * absorptionPercent, 4f), 1f);
+		//stamina
+		RenderingUtil.drawTexture(textureMatrix, new Vector4f(2, 2, 44 * staminaPercent, 4), 0f,
+				new Vec2f(80f, 64f), new Vector4f(2f, 52f, 44f * staminaPercent, 4f), 1f);
+		//Railgun
+		if(false) //if hasRailgun
+		{
+			RenderingUtil.drawTexture(textureMatrix, new Vector4f(49, 15, 15, 33), 0f,
+					new Vec2f(80f, 64f), new Vector4f(49f, 0f, 15f, 33f), 0.75f);
+			RenderingUtil.drawTexture(textureMatrix, new Vector4f(52, 18, 9, 27), 0f,
+					new Vec2f(80f, 64f), new Vector4f(68f, 3f, 9f, 27f), 1f);
+		}
+		//Arm
+		IArmComponent arms = UltraComponents.ARMS.get(player);
+		if(arms.getUnlockedArmCount() > 1)
+		{
+			RenderingUtil.drawTexture(textureMatrix, new Vector4f(49, 0, 15, 14), 0f,
+					new Vec2f(80f, 64f), new Vector4f(49f, 34f, 15f, 14f), 0.75f);
+			RenderingUtil.drawTexture(textureMatrix, new Vector4f(51, 2f, 11, 10), 0f,
+					new Vec2f(80f, 64f), new Vector4f(47f + 11 * arms.getActiveArm(), 48f, 11f, 10f), 1f);
+		}
+		
+		matrices.pop();
+		ItemStack mainHand = player.getMainHandStack();
+		boolean sprite = shouldRenderSpriteInstead(mainHand.getItem());
+		if(!sprite)
+			RenderSystem.restoreProjectionMatrix();
+		if(config.moveUltrahud)
+			matrices.translate(0f, yOffset / 3f - (config.switchSides ? 7 : 0), 0f);
+		//UltraHotbar
+		matrices.push();
+		matrices.translate((-21 - (3 - guiScale) * 8) * (flip ? -1.5 : 1), -24 - (3 - guiScale) * 8.5f, -50);
+		matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(flip ? -10f : 10f));
+		matrices.scale(scale, scale, scale);
+		matrices.scale(30f, 30f, 5f);
+		if(flip)
+			matrices.translate(-1.75, 0, 0);
+		VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
+		Matrix3f normal = matrices.peek().getNormalMatrix();
+		normal.set(new Quaternionf().rotateXYZ((float)Math.toRadians(cam.getPitch()), (float)Math.toRadians(cam.getYaw()), 0f));
+		matrices.push();
+		matrices.scale(0.5f, 0.5f, 0.5f);
+		matrices.translate(1.2, -0.25, 0);
+		
+		RenderSystem.setShaderColor(0.5f, 0.5f, 0.5f, 1f);
+		ItemStack stack = player.getInventory().getStack((player.getInventory().selectedSlot + 1) % 9);
+		if(!sprite)
+			drawItem(matrices, textureMatrix, client, immediate, stack, false); // right
+		int lastSlot = (player.getInventory().selectedSlot - 1) % 9;
+		stack = player.getInventory().getStack(lastSlot == -1 ? 8 : lastSlot);
+		matrices.translate(-2.5f, 0f, 0f);
+		//matrices.multiply(new Quaternionf(new AxisAngle4f(0.18f, 0f, 1f * (flip ? -1 : 1), 0f)));
+		if(!sprite)
+			drawItem(matrices, textureMatrix, client, immediate, stack, false); // left
+		matrices.pop();
+		matrices.translate(0f, 0f, 0.5f);
+		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
+		drawItem(matrices, textureMatrix, client, immediate, mainHand, true); // middle
+		
+		matrices.pop();
+		
+		if(wingHintDisplayTimer > 0.001f)
+		{
+			matrices.scale(0.25f, -0.25f, -1f);
+			if(config.moveUltrahud)
+				matrices.translate(0f, yOffset * 1.75f - (config.switchSides ? 7 : 0), 0f);
+			matrices.translate(0, 0, 10);
+			drawText(matrices, Text.translatable(
+							UltracraftClient.isHiVelEnabled() ? "message.ultracraft.hi-vel.enable" : "message.ultracraft.hi-vel.disable"),
+					flip ? -150 : -50, 14, MathHelper.clamp(wingHintDisplayTimer, 0.05f, 1f), false);
+			wingHintDisplayTimer -= delta / 20f;
+		}
+	}
+	
+	public void renderExtras(float tickDelta)
+	{
+		MinecraftClient client = MinecraftClient.getInstance();
+		ClientPlayerEntity player = client.player;
+		if(player == null)
 			return;
 		RenderSystem.disableDepthTest();
 		RenderSystem.disableCull();
@@ -155,127 +302,6 @@ public class UltraHudRenderer
 			coinRotDest = 0;
 		}
 		RenderSystem.enableBlend();
-		
-		healthPercent = MathHelper.lerp(tickDelta, healthPercent, player.getHealth() / player.getMaxHealth());
-		staminaPercent = MathHelper.lerp(tickDelta, staminaPercent, UltraComponents.WINGED_ENTITY.get(player).getStamina() / 90f);
-		absorptionPercent = MathHelper.lerp(tickDelta, absorptionPercent, Math.min(player.getAbsorptionAmount() / 20f, 1f));
-		//Crosshair
-		if(config.ultraHudCrosshair)
-		{
-			matrices.push();
-			matrices.scale(aspect, 1f, 1f);
-			matrices.translate(-0.75, -0.5, 0);
-			RenderSystem.setShaderTexture(0, CROSSHAIR_TEXTURE);
-			RenderingUtil.drawTexture(matrices.peek().getPositionMatrix(), new Vector4f(-6f, -5f, 5f, 11f * healthPercent), 100f,
-					new Vec2f(32f, 32f), new Vector4f(0f, 11 - 11f * healthPercent, 5f, 11f * healthPercent), 0.75f);
-			RenderingUtil.drawTexture(matrices.peek().getPositionMatrix(), new Vector4f(2f, -5f, 5f, 11f * staminaPercent), 100f,
-					new Vec2f(32f, 32f), new Vector4f(8f, 11 - 11f * staminaPercent, 5f, 11f * staminaPercent), 0.75f);
-			matrices.pop();
-		}
-		
-		matrices.push();
-		matrices.scale(0.8f, -0.5f, 0.5f);
-		
-		boolean flip = player.getMainArm().equals(Arm.LEFT) ^ config.switchSides;
-		if(!UltracraftClient.getConfigHolder().get().ultraHudFixed)
-		{
-			float h = MathHelper.lerp(tickDelta, player.lastRenderPitch, player.renderPitch);
-			float i = MathHelper.lerp(tickDelta, player.lastRenderYaw, player.renderYaw);
-			matrices.multiply(new Quaternionf().rotateX((float)Math.toRadians((player.getPitch(tickDelta) - h) * 0.15f)));
-			matrices.multiply(new Quaternionf().rotateY((float)Math.toRadians((player.getYaw(tickDelta) - i) * -0.05f)));
-		}
-		matrices.multiply(new Quaternionf(new AxisAngle4f(-0.6f * (flip ? -1 : 1), 0f, 1f, 0f)));
-		matrices.translate(-15 * (flip ? -4 : 1), 0, 150);
-		if(config.switchSides)
-			matrices.translate(0, -30, 0);
-		if(config.moveUltrahud)
-		{
-			Hand leftHand = player.getMainArm().equals(Arm.LEFT) ? Hand.MAIN_HAND : Hand.OFF_HAND;
-			Hand rightHand = leftHand.equals(Hand.OFF_HAND) ? Hand.MAIN_HAND : Hand.OFF_HAND;
-			boolean covered = (!(player.getStackInHand(leftHand).isEmpty()) && !flip) || (!player.getStackInHand(rightHand).isEmpty() && flip);
-			matrices.translate(0f, yOffset = MathHelper.lerp(tickDelta, yOffset, covered ? -64f + (config.switchSides ? 30 : 0) : 0f), 0f);
-		}
-		
-		matrices.push();
-		RenderSystem.setShaderTexture(0, GUI_TEXTURE);
-		matrices.translate(1f, 35f, 0f);
-		matrices.scale(1f, -1f, 1f);
-		Matrix4f textureMatrix = new Matrix4f(matrices.peek().getPositionMatrix());
-		RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f, -35f, 67.5f, 67.5f), 0f,
-				new Vec2f(80f, 64f), new Vector4f(0f, 0f, 48f, 48f), 0.75f);
-		//bars
-		//health
-		RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 2.8125f, -35f + 11.250f, 61.875f * healthPercent, 5.625f), 0f,
-				new Vec2f(80f, 64f), new Vector4f(2f, 48f, 44f * healthPercent, 4f), 1f);
-		if(absorptionPercent > 0f)
-			RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 2.8125f, -35f + 11.250f, 61.875f * absorptionPercent, 5.625f), 0f,
-					new Vec2f(80f, 64f), new Vector4f(2f, 56f, 44f * absorptionPercent, 4f), 1f);
-		//stamina
-		RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 2.8125f, -35f + 2.8125f, 61.875f * staminaPercent, 5.625f), 0f,
-				new Vec2f(80f, 64f), new Vector4f(2f, 52f, 44f * staminaPercent, 4f), 1f);
-		//Railgun
-		if(false) //if hasRailgun
-		{
-			RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 68.90625f, -35 + 21.09f, 21.09f, 46.4062f), 0f,
-					new Vec2f(80f, 64f), new Vector4f(49f, 0f, 15f, 33f), 0.75f);
-		}
-		//Arm
-		IArmComponent arms = UltraComponents.ARMS.get(player);
-		if(arms.getUnlockedArmCount() > 1) //if hasArm
-		{
-			RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 68.90625f, -35f, 21.09f, 19.68f), 0f,
-					new Vec2f(80f, 64f), new Vector4f(49f, 34f, 15f, 14f), 0.75f);
-			RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f + 68.90625f + 2.81f, -35f + 2.81f, 15.46f, 14.06f), 0f,
-					new Vec2f(80f, 64f), new Vector4f(47f + 11 * arms.getActiveArm(), 48f, 11f, 10f), 1f);
-		}
-		
-		if(config.moveUltrahud)
-			matrices.translate(0f, yOffset / 7f - (config.switchSides ? 7 : 0), 0f);
-		//UltraHotbar
-		matrices.push();
-		matrices.scale(30, 30, -30);
-		matrices.translate(-0.025, 0.425, 0);
-		if(flip)
-			matrices.translate(-1.75, 0, 0);
-		if(cam.getSubmersionType().equals(CameraSubmersionType.WATER))
-		{
-			matrices.translate(0.45, 0.025, -0.5);
-			matrices.scale(1.05f, 1f, 1f);
-		}
-		matrices.multiply(new Quaternionf(new AxisAngle4f(0.12f, -1f, 1f * (flip ? -1 : 1), 0f)));
-		VertexConsumerProvider.Immediate immediate = client.getBufferBuilders().getEntityVertexConsumers();
-		Matrix3f normal = matrices.peek().getNormalMatrix();
-		normal.set(new Quaternionf().rotateXYZ((float)Math.toRadians(cam.getPitch()), (float)Math.toRadians(cam.getYaw()), 0f));
-		matrices.push();
-		matrices.scale(0.5f, 0.5f, 0.5f);
-		matrices.multiply(new Quaternionf(new AxisAngle4f(-0.18f, 0f, 1f * (flip ? -1 : 1), 0f)));
-		matrices.translate(1.25, -0.25, 0);
-		
-		ItemStack mainHand = player.getMainHandStack();
-		ItemStack stack = player.getInventory().getStack((player.getInventory().selectedSlot + 1) % 9);
-		if(!shouldRenderSpriteInstead(mainHand.getItem()))
-			drawItem(matrices, textureMatrix, client, immediate, stack, false); // right
-		int lastSlot = (player.getInventory().selectedSlot - 1) % 9;
-		stack = player.getInventory().getStack(lastSlot == -1 ? 8 : lastSlot);
-		matrices.translate(-2.5, 0, 0);
-		matrices.multiply(new Quaternionf(new AxisAngle4f(0.18f, 0f, 1f * (flip ? -1 : 1), 0f)));
-		if(!shouldRenderSpriteInstead(mainHand.getItem()))
-			drawItem(matrices, textureMatrix, client, immediate, stack, false); // middle
-		matrices.pop();
-		drawItem(matrices, textureMatrix, client, immediate, mainHand, true); // left
-		matrices.pop();
-		matrices.pop();
-		
-		if(wingHintDisplayTimer > 0.001f)
-		{
-			if(config.moveUltrahud)
-				matrices.translate(0f, yOffset * 0.7f - (config.switchSides ? 7 : 0), 0f);
-			matrices.translate(5, 0, 150);
-			drawText(matrices, Text.translatable(
-					UltracraftClient.isHiVelEnabled() ? "message.ultracraft.hi-vel.enable" : "message.ultracraft.hi-vel.disable"),
-					-80 + (flip ? -40 : 0), -10, Math.min(wingHintDisplayTimer, 1f), false);
-			wingHintDisplayTimer -= tickDelta / 20f;
-		}
 		matrices.pop();
 		RenderSystem.restoreProjectionMatrix();
 	}
@@ -300,18 +326,24 @@ public class UltraHudRenderer
 			else if (item instanceof PlushieItem)
 				uv = new Vector2i(3, 0);
 			RenderSystem.setShaderTexture(0, WEAPONS_TEXTURE);
-			RenderingUtil.drawTexture(textureMatrix, new Vector4f(-60f, -35f + 22.5f, 67.5f, 45f), 0f,
+			RenderingUtil.drawTexture(textureMatrix, new Vector4f(0, 16, 48, 32f), 0f,
 					new Vec2f(192, 192), new Vector4f(uv.x * 48f, uv.y * 32f, 48f, 32f), 0.75f);
 		}
 		else
 		{
+			matrices.push();
 			//This HUD is *terribly* made, and entity item models don't render correctly. To hide this, I did the following :D
 			if(item.equals(Items.SHIELD))
 				stack = ItemRegistry.FAKE_SHIELD.getDefaultStack();
 			else if(item instanceof BannerItem)
 				stack = ItemRegistry.FAKE_BANNER.getDefaultStack();
+			if(client.getItemRenderer().getModel(stack, client.world, client.player, 0).isBuiltin())
+				stack = Items.BARRIER.getDefaultStack();
+			RenderSystem.disableDepthTest();
 			client.getItemRenderer().renderItem(stack, ModelTransformationMode.GUI,
 					15728880, OverlayTexture.DEFAULT_UV, matrices, immediate, client.world, 1);
+			RenderSystem.enableDepthTest();
+			matrices.pop();
 		}
 	}
 	
@@ -349,26 +381,6 @@ public class UltraHudRenderer
 				matrix, immediate, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
 		client.textRenderer.draw(text, x + 1, y, Color.ofRGBA(0f, 0f, 0f, alpha).getColor(), false,
 				matrix, immediate, TextRenderer.TextLayerType.NORMAL, 0, 15728880);
-	}
-	
-	void drawTexture(Matrix4f matrix, Vector4f transform, float z, Vec2f textureSize, Vector4f uv, float alpha)
-	{
-		RenderSystem.setShaderColor(1f, 1f, 1f, alpha);
-		RenderSystem.setShader(GameRenderer::getPositionTexProgram);
-		BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
-		bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);
-		uv = new Vector4f(uv.x() / textureSize.x, uv.y() / textureSize.y,
-				uv.z() / textureSize.x, uv.w() / textureSize.y);
-		bufferBuilder.vertex(matrix, transform.x(), transform.y() + transform.w(), z)
-				.texture(uv.x(), uv.y()).next();
-		bufferBuilder.vertex(matrix, transform.x() + transform.z(), transform.y() + transform.w(), z)
-				.texture(uv.x() + uv.z(), uv.y()).next();
-		bufferBuilder.vertex(matrix, transform.x() + transform.z(), transform.y(), z)
-				.texture(uv.x() + uv.z(), uv.y() + uv.w()).next();
-		bufferBuilder.vertex(matrix, transform.x(), transform.y(), z)
-				.texture(uv.x(), uv.y() + uv.w()).next();
-		BufferRenderer.drawWithGlobalProgram(bufferBuilder.end());
-		BufferRenderer.resetCurrentVertexBuffer();
 	}
  
 	public static void onUpdateWingsActive()
