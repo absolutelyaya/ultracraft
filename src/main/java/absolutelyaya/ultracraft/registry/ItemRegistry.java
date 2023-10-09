@@ -134,6 +134,9 @@ public class ItemRegistry
 	public static final TerminalItem TERMINAL = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "terminal"),
 			new TerminalItem(BlockRegistry.TERMINAL, new FabricItemSettings()));
+	public static final MusicDiscItem CLAIR_DE_LUNE_DISK = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "clair_de_lune"),
+			new MusicDiscItem(15, SoundRegistry.CLAIR_DE_LUNE.value(), new FabricItemSettings(), 231));
 	
 	public static final RegistryKey<ItemGroup> ULTRACRAFT_TAB = RegistryKey.of(RegistryKeys.ITEM_GROUP, new Identifier(Ultracraft.MOD_ID, "item"));
 	
@@ -208,6 +211,7 @@ public class ItemRegistry
 			content.add(SWORDSMACHINE.getDefaultStack("tundra"));
 			content.add(SWORDSMACHINE.getDefaultStack("agony"));
 			content.add(DRONE_MASK);
+			content.add(CLAIR_DE_LUNE_DISK);
 			for (TerminalBlockEntity.Base b : TerminalBlockEntity.Base.values())
 				content.add(TerminalItem.getStack(b));
 			content.add(BlockRegistry.HELL_OBSERVER.asItem());
