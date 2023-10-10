@@ -77,7 +77,7 @@
 - Fixed weirdness with Tundra//Agony Spawn Egg
 - Added Love
 - Fixed Spectator Gun Bug (again)
-- Increased Weapon Chargin Shake (remains the same if SafeVFX is enabled)
+- Increased Weapon Charging Shake (remains the same if SafeVFX is enabled)
 - Improved Hell Bullets
 - Added Scrap Item (Replaces Weapons crafted before the new System was added)
 - Added Custom Death Screen
@@ -95,6 +95,7 @@
   - Item stacks get copied properly now in creative (geckolib animation synching is still funky though, I cannot fix that)
   - Weapons can't be fired anymore while looking directly at a Pedestal
 - Fixed Parried Hell Bullets applying parry damage twice
+- Added Love
 ## Resource Changes
 - Added new Texture State for fully Charged Pierce Revolver (`pierce_revolver4.png`)
 - To reduce filesize, model translations of weapons now use inheritance. Meaning, you only need to replace `models/item/revolver.json` instead of all three variants. It should be safe to remove those excess files from Resourcepacks completely.

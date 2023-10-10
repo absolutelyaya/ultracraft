@@ -171,7 +171,7 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 					particlePos.x + offset.x, particlePos.y + offset.y, particlePos.z + offset.z,
 					-offset.x * 0.04, -offset.y * 0.04, -offset.z * 0.04);
 		}
-		else if(!super.isAttacking() && wasCharging)
+		else if(!super.isAttacking() && wasCharging && lovesTarget())
 		{
 			for (int i = 0; i < 4; i++)
 			{
