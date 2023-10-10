@@ -9,6 +9,7 @@ import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.husk.AbstractHuskEntity;
+import absolutelyaya.ultracraft.entity.other.ProgressionItemEntity;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import absolutelyaya.ultracraft.item.MachineSwordItem;
@@ -19,7 +20,6 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.advancement.Advancement;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -38,10 +38,6 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.loot.LootTable;
-import net.minecraft.loot.context.LootContextParameterSet;
-import net.minecraft.loot.context.LootContextParameters;
-import net.minecraft.loot.context.LootContextTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
@@ -329,23 +325,15 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		else if(source.isOf(DamageSources.SHOTGUN))
 			amount *= 1.5;
 		boolean b = super.damage(source, amount);
-		if(canLoseShotgun() && dataTracker.get(HAS_SHOTGUN) && getHealth() < (isBoss() ? 75 : 30))
+		if(!getWorld().isClient && dataTracker.get(BREAKDOWN_TICKS) <= 0 && canLoseShotgun() && dataTracker.get(HAS_SHOTGUN) && getHealth() < (isBoss() ? 75 : 30))
 		{
 			dataTracker.set(BREAKDOWN_TICKS, 60);
 			dataTracker.set(ANIMATION, ANIMATION_BREAKDOWN);
-			if(getWorld().getServer() == null || !(source.getAttacker() instanceof PlayerEntity))
+			if(!(source.getAttacker() instanceof PlayerEntity))
 				return b;
-			Advancement advancement = getWorld().getServer().getAdvancementLoader().get(new Identifier(Ultracraft.MOD_ID, "shotgun_get"));
-			if(getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT) && source.getAttacker() instanceof ServerPlayerEntity p &&
-					   !p.getAdvancementTracker().getProgress(advancement).isDone())
-			{
-				LootTable lootTable = getWorld().getServer().getLootManager().getLootTable(new Identifier(Ultracraft.MOD_ID, "entities/swordsmachine_breakdown"));
-				LootContextParameterSet.Builder builder = (new LootContextParameterSet.Builder((ServerWorld)this.getWorld())).add(LootContextParameters.THIS_ENTITY, this)
-																  .add(LootContextParameters.ORIGIN, this.getPos()).add(LootContextParameters.DAMAGE_SOURCE, source);
-				lootTable.generateLoot(builder.build(LootContextTypes.ENTITY), this::dropStack);
-				for (String string : p.getAdvancementTracker().getProgress(advancement).getUnobtainedCriteria())
-					p.getAdvancementTracker().grantCriterion(advancement, string);
-			}
+			if(isBoss() && getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT) && source.getAttacker() instanceof ServerPlayerEntity)
+				ProgressionItemEntity.spawn(getWorld(), getPos(), "ultracraft:core_shotgun",
+						ItemRegistry.CORE_SHOTGUN.getDefaultStack(), getRandom());
 		}
 		return b;
 	}

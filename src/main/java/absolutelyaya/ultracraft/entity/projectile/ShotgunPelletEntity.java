@@ -91,9 +91,12 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	protected void onEntityHit(EntityHitResult entityHitResult)
 	{
 		Entity entity = entityHitResult.getEntity();
-		if(!entity.getClass().equals(ignore) || ((ProjectileEntityAccessor)this).isParried())
+		boolean parried = ((ProjectileEntityAccessor)this).isParried();
+		if(!entity.getClass().equals(ignore))
 			entity.damage(DamageSources.get(getWorld(), DamageSources.SHOTGUN, getOwner()),
 					damage * getWorld().getGameRules().getInt(GameruleRegistry.SHOTGUN_DAMAGE));
+		if(parried)
+			onParriedCollision(entityHitResult);
 	}
 	
 	@Override
@@ -148,7 +151,7 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	public void setParried(boolean val, PlayerEntity parrier)
 	{
 		if(parrier == getOwner())
-			this.parrier = parrier;
+			super.setParried(val, parrier);
 	}
 	
 	@Override

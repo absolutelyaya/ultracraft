@@ -135,6 +135,10 @@ public class EntityRegistry
 			new Identifier(Ultracraft.MOD_ID, "stained_glass_window"),
 			EntityType.Builder.create(StainedGlassWindow::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
 					.maxTrackingRange(5).build("stained_glass_window"));
+	public static final EntityType<ProgressionItemEntity> PROGRESSION_ITEM = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "progression_item"),
+			EntityType.Builder.create(ProgressionItemEntity::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
+					.maxTrackingRange(5).build("progression_item"));
 	
 	public static final TagKey<EntityType<?>> PROJBOOSTABLE = TagKey.of(RegistryKeys.ENTITY_TYPE, new Identifier(Ultracraft.MOD_ID, "projboostable"));
 	
