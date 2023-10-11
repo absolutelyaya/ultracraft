@@ -21,6 +21,7 @@ import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
@@ -104,7 +105,7 @@ public class PlayerAnimator
 		playAnimation(player, animID, fade, firstPerson, false);
 	}
 	
-	public static void playAnimation(AbstractClientPlayerEntity player, int animID, int fade, boolean firstPerson, boolean fromServer)
+	public static void playAnimation(PlayerEntity player, int animID, int fade, boolean firstPerson, boolean fromServer)
 	{
 		if(player == null)
 			return;
@@ -118,7 +119,9 @@ public class PlayerAnimator
 		}
 		if(DISABLED)
 			return;
-		ModifierLayer<IAnimation> animationLayer = (ModifierLayer<IAnimation>)PlayerAnimationAccess.getPlayerAssociatedData(player)
+		if(!(player instanceof AbstractClientPlayerEntity clientPlayer))
+			return;
+		ModifierLayer<IAnimation> animationLayer = (ModifierLayer<IAnimation>)PlayerAnimationAccess.getPlayerAssociatedData(clientPlayer)
 															   .get(new Identifier(Ultracraft.MOD_ID, "animation"));
 		
 		KeyframeAnimation anim;

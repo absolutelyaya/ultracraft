@@ -4,12 +4,16 @@ import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.compat.PlayerAnimator;
+import absolutelyaya.ultracraft.components.player.IArmComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
+import absolutelyaya.ultracraft.registry.KeybindRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.*;
@@ -22,6 +26,7 @@ import net.minecraft.fluid.FluidState;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.MathHelper;
@@ -75,7 +80,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	
 	final int punchDuration = 6;
 	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
-	int punchTicks, ricochetCooldown, fatique, firecooldown;
+	int punchTicks, ticksSincePunch = Integer.MAX_VALUE, ricochetCooldown, fatique, firecooldown;
 	boolean punching, timeFrozen;
 	float punchProgress, prevPunchProgress, recoil, lastHealth;
 	
@@ -326,6 +331,21 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		}
 		else
 			punchTicks = 0;
+		if((Object)this instanceof PlayerEntity player)
+		{
+			IArmComponent arm = UltraComponents.ARMS.get(this);
+			if(ticksSincePunch < 8)
+			{
+				ticksSincePunch++;
+				if(ticksSincePunch == 8 && arm.isKnuckleblaster() && KeybindRegistry.PUNCH.isPressed())
+				{
+					PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+					ClientPlayNetworking.send(PacketRegistry.KNUCKLE_BLAST_PACKET_ID, buf);
+					PlayerAnimator.playAnimation(player, player.getMainArm().equals(Arm.LEFT) ? PlayerAnimator.KNUCKLE_BLAST_FLIPPED : PlayerAnimator.KNUCKLE_BLAST,
+							0, false, true);
+				}
+			}
+		}
 		
 		prevPunchProgress = punchProgress;
 		punchProgress = (float)punchTicks / (float)i;
@@ -339,6 +359,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		if(!punching)
 		{
 			punchTicks = 0;
+			ticksSincePunch = 0;
 			punching = true;
 			fatique = Math.min(fatique + 10, 40);
 			if(!getWorld().isClient)

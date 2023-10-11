@@ -208,6 +208,7 @@
   "death.attack.retaliation": "%1$s was made to atone for their sins",
   "death.attack.retaliation.player": "%1$s was made to atone for their sins",
   "death.attack.retaliation.item": "%1$s was made to atone for their sins",
+  "death.attack.knuckle_blaster": "%1$s got beaten to a pulp by %2$s",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 

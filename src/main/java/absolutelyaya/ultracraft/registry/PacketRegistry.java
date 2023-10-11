@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.registry;
 
+import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.*;
@@ -7,6 +8,7 @@ import absolutelyaya.ultracraft.block.HellObserverBlockEntity;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.block.PedestalBlock;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
+import absolutelyaya.ultracraft.compat.PlayerAnimator;
 import absolutelyaya.ultracraft.components.level.IUltraLevelComponent;
 import absolutelyaya.ultracraft.components.player.IWingDataComponent;
 import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
@@ -34,6 +36,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -71,6 +74,7 @@ public class PacketRegistry
 	public static final Identifier CYCLE_WEAPON_VARIANT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "cycle_weapon_variant");
 	public static final Identifier HELL_OBSERVER_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hell_observer_c2s");
 	public static final Identifier REQUEST_GRAFFITI_WHITELIST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "request_graffiti_whitelist");
+	public static final Identifier KNUCKLE_BLAST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "knuckle_blast");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "scan");
@@ -145,6 +149,8 @@ public class PacketRegistry
 					return;
 				}
 				
+				if(!UltraComponents.ARMS.get(player).isFeedbacker())
+					return;
 				//Projectile Parry
 				//Fetch all Parry Candidate Projectiles
 				boolean chainingAllowed = world.getGameRules().getBoolean(GameruleRegistry.PARRY_CHAINING);
@@ -466,6 +472,13 @@ public class PacketRegistry
 				PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
 				cbuf.writeBoolean(UltraComponents.GLOBAL.get(player.getWorld().getLevelProperties()).isPlayerAllowedToGraffiti(player));
 				ServerPlayNetworking.send(player, GRAFFITI_WHITELIST_PACKET_ID, cbuf);
+			});
+		});
+		ServerPlayNetworking.registerGlobalReceiver(KNUCKLE_BLAST_PACKET_ID, (server, player, handler, buf, sender) -> {
+			server.execute(() ->
+			{
+				ExplosionHandler.explosion(player, player.getWorld(), player.getPos(), DamageSources.get(player.getWorld(),
+						DamageSources.KNUCKLE_BLAST), 4f, 0.5f, 4, false);
 			});
 		});
 	}
