@@ -65,8 +65,10 @@
 ## Commands
 - Added `/ultracraft progression` subcommand (mainly for Debug)
   - Lets you list, grant or revoke Progression Entries
-- Added `/ultracraft graffiti` subcommand
-  - Lets you whitelist or ban specific Players from being able to make graffitis on Terminals
+- Added `/ultrawhitelist` command
+  - Lets you modify or de-/activate different whitelists
+    - High Velocity mode can be limited to specific Players now
+    - You can allow only specific players to be able to make graffitis on Terminals
 - Added Setting for disabling the new Custom Death Screen
 ## Tweaks
 - Tweaked a Filth Animation
