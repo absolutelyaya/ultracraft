@@ -3,7 +3,7 @@ package absolutelyaya.ultracraft.client.rendering.entity.feature;
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
-import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
+import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;

@@ -4,7 +4,7 @@ import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.ArmFeature;
-import absolutelyaya.ultracraft.components.IArmComponent;
+import absolutelyaya.ultracraft.components.player.IArmComponent;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.item.PlushieItem;
 import absolutelyaya.ultracraft.registry.ItemRegistry;

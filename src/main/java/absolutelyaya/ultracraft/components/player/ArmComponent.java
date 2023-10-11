@@ -1,4 +1,4 @@
-package absolutelyaya.ultracraft.components;
+package absolutelyaya.ultracraft.components.player;
 
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;

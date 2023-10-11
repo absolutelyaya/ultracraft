@@ -1,6 +1,6 @@
 package absolutelyaya.ultracraft;
 
-import absolutelyaya.ultracraft.command.UltracraftCommand;
+import absolutelyaya.ultracraft.command.Commands;
 import absolutelyaya.ultracraft.item.AbstractNailgunItem;
 import absolutelyaya.ultracraft.item.MarksmanRevolverItem;
 import absolutelyaya.ultracraft.item.SharpshooterRevolverItem;
@@ -67,7 +67,7 @@ public class Ultracraft implements ModInitializer
         
         });
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-            UltracraftCommand.register(dispatcher);
+            Commands.register(dispatcher);
         });
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             tickFreeze();

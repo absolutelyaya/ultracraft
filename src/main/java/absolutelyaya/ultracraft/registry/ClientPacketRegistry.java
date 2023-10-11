@@ -307,5 +307,8 @@ public class ClientPacketRegistry
 				builder.put(pair.getLeft(), pair.getRight());
 			UltraRecipeManager.setRecipes(builder.build());
 		})));
+		ClientPlayNetworking.registerGlobalReceiver(HIVEL_WHITELIST_PACKET_ID, (((client, handler, buf, responseSender) -> {
+			MinecraftClient.getInstance().execute(UltraHudRenderer::onWhitelistHint);
+		})));
 	}
 }

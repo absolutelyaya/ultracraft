@@ -1,4 +1,4 @@
-package absolutelyaya.ultracraft.components;
+package absolutelyaya.ultracraft.components.player;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.client.GunCooldownManager;

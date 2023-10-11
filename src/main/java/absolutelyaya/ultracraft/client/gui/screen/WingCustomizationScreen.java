@@ -6,7 +6,7 @@ import absolutelyaya.ultracraft.accessor.WidgetAccessor;
 import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.widget.WingColorSelectionWidget;
-import absolutelyaya.ultracraft.components.IWingDataComponent;
+import absolutelyaya.ultracraft.components.player.IWingDataComponent;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.WingColorPresetManager;
 import absolutelyaya.ultracraft.registry.WingPatterns;
@@ -335,7 +335,7 @@ public class WingCustomizationScreen extends Screen
 		
 		IWingDataComponent wings = UltraComponents.WING_DATA.get(client.player);
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-		buf.writeBoolean(wings.isVisible());
+		buf.writeBoolean(wings.isActive());
 		buf.writeVector3f(wings.getColors()[0]);
 		buf.writeVector3f(wings.getColors()[1]);
 		buf.writeString(wings.getPattern());

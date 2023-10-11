@@ -7,7 +7,7 @@ import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.HellObserverScreen;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
-import absolutelyaya.ultracraft.components.IWingDataComponent;
+import absolutelyaya.ultracraft.components.player.IWingDataComponent;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
 import net.minecraft.entity.Entity;
@@ -120,7 +120,7 @@ public abstract class CameraMixin
 		{
 			boolean flip = player.getMainArm().equals(Arm.LEFT);
 			IWingDataComponent winged = UltraComponents.WING_DATA.get(player);
-			if(winged.isVisible() && player.isSprinting())
+			if(winged.isActive() && player.isSprinting())
 			{
 				Vec3d offset = rotationize(new Vec3d(1.5f * f, f, -1.5f * f * (flip ? -1 : 1)));
 				HitResult hitResult = area.raycast(new RaycastContext(getPos(), getPos().add(offset), RaycastContext.ShapeType.VISUAL, RaycastContext.FluidHandling.NONE, focusedEntity));

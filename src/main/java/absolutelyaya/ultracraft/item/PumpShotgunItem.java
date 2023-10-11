@@ -4,7 +4,7 @@ import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.PumpShotgunRenderer;
-import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
+import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;

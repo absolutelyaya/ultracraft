@@ -1,7 +1,7 @@
 package absolutelyaya.ultracraft.entity.other;
 
 import absolutelyaya.ultracraft.UltraComponents;
-import absolutelyaya.ultracraft.components.IProgressionComponent;
+import absolutelyaya.ultracraft.components.player.IProgressionComponent;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;

@@ -6,7 +6,7 @@ import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import absolutelyaya.ultracraft.compat.PlayerAnimator;
-import absolutelyaya.ultracraft.components.IWingDataComponent;
+import absolutelyaya.ultracraft.components.player.IWingDataComponent;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
@@ -57,11 +57,6 @@ public class KeybindRegistry
 			while(HIGH_VELOCITY_TOGGLE.wasPressed() && !hivelPressed)
 			{
 				UltracraftClient.toggleHiVelEnabled();
-				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-				buf.writeBoolean(UltracraftClient.isHiVelEnabled());
-				ClientPlayNetworking.send(PacketRegistry.SEND_WING_STATE_C2S_PACKET_ID, buf);
-				IWingDataComponent wings = UltraComponents.WING_DATA.get(client.player);
-				wings.setVisible(UltracraftClient.isHiVelEnabled());
 				hivelPressed = true;
 			}
 			while(HIGH_VELOCITY_TOGGLE.wasPressed()); //remove stored hivel toggle presses
@@ -75,7 +70,7 @@ public class KeybindRegistry
 					continue;
 				if(player.isMainPlayer())
 					PlayerAnimator.playAnimation(player,
-							(UltraComponents.WING_DATA.get(player).isVisible() && player.isSprinting()) ? PlayerAnimator.SLIDE_PUNCH : PlayerAnimator.PUNCH,
+							(UltraComponents.WING_DATA.get(player).isActive() && player.isSprinting()) ? PlayerAnimator.SLIDE_PUNCH : PlayerAnimator.PUNCH,
 							0, false);
 				
 				HitResult crosshairTarget = client.crosshairTarget;

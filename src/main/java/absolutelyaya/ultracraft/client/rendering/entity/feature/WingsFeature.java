@@ -6,8 +6,8 @@ import absolutelyaya.ultracraft.client.HideWingsSetting;
 import absolutelyaya.ultracraft.client.RenderLayers;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
-import absolutelyaya.ultracraft.components.IWingDataComponent;
-import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
+import absolutelyaya.ultracraft.components.player.IWingDataComponent;
+import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.registry.WingPatterns;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gl.ShaderProgram;
@@ -58,7 +58,7 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 		}
 		IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(entity);
 		IWingDataComponent wings = UltraComponents.WING_DATA.get(entity);
-		if(wings.isVisible() || (entity.isMainPlayer() && WingCustomizationScreen.MenuOpen))
+		if(wings.isActive() || (entity.isMainPlayer() && WingCustomizationScreen.MenuOpen))
 		{
 			Vector3f[] clrs = wings.getColors();
 			String patternID = wings.getPattern();

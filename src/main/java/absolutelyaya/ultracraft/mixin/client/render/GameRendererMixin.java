@@ -3,8 +3,8 @@ package absolutelyaya.ultracraft.mixin.client.render;
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.client.UltracraftClient;
-import absolutelyaya.ultracraft.components.IWingDataComponent;
-import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
+import absolutelyaya.ultracraft.components.player.IWingDataComponent;
+import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.Camera;
@@ -38,7 +38,7 @@ public class GameRendererMixin
 			return;
 		IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(client.player);
 		IWingDataComponent wings = UltraComponents.WING_DATA.get(client.player);
-		if(wings.isVisible() && (client.player.isSprinting() || winged.isDashing()))
+		if(wings.isActive() && (client.player.isSprinting() || winged.isDashing()))
 			ci.cancel();
 		if(Ultracraft.isTimeFrozen())
 			ci.cancel();
@@ -49,7 +49,8 @@ public class GameRendererMixin
 	{
 		float f = UltracraftClient.getConfigHolder().get().slideTilt;
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
-		if(UltracraftClient.isHiVelEnabled() && player != null && !camera.isThirdPerson() && player.isSprinting() && f > 0)
+		IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
+		if(wings.isActive() && player != null && !camera.isThirdPerson() && player.isSprinting() && f > 0)
 		{
 			float side = MinecraftClient.getInstance().player.input.movementSideways;
 			slideViewTilt = MathHelper.lerp(tickDelta, slideViewTilt, f * -side);

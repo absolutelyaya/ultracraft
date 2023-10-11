@@ -1,7 +1,7 @@
 package absolutelyaya.ultracraft.recipe;
 
 import absolutelyaya.ultracraft.UltraComponents;
-import absolutelyaya.ultracraft.components.IProgressionComponent;
+import absolutelyaya.ultracraft.components.player.IProgressionComponent;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;

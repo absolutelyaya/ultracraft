@@ -29,7 +29,7 @@ import absolutelyaya.ultracraft.client.sound.MovingSlideSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingSwordsmachineSoundInstance;
 import absolutelyaya.ultracraft.client.sound.MovingWindSoundInstance;
 import absolutelyaya.ultracraft.compat.PlayerAnimator;
-import absolutelyaya.ultracraft.components.IWingDataComponent;
+import absolutelyaya.ultracraft.components.player.IWingDataComponent;
 import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import absolutelyaya.ultracraft.particle.*;
@@ -93,7 +93,6 @@ public class UltracraftClient implements ClientModInitializer
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	public static TrailRenderer TRAIL_RENDERER;
 	public static boolean REPLACE_MENU_MUSIC = true, applyEntityPoses;
-	static boolean HiVelMode = false;
 	static GameruleRegistry.Setting HiVelOption = GameruleRegistry.Setting.FREE;
 	static GameruleRegistry.Setting TimeFreezeOption = GameruleRegistry.Setting.FORCE_ON;
 	static GameruleRegistry.RegenSetting bloodRegen = GameruleRegistry.RegenSetting.ALWAYS;
@@ -205,9 +204,9 @@ public class UltracraftClient implements ClientModInitializer
 			wings.setColor(wingColors[0], 0);
 			wings.setColor(wingColors[1], 1);
 			wings.setPattern(wingPattern);
-			wings.setVisible(isHiVelEnabled());
+			wings.setVisible(false);
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-			buf.writeBoolean(wings.isVisible());
+			buf.writeBoolean(wings.isActive());
 			buf.writeVector3f(wings.getColors()[0]);
 			buf.writeVector3f(wings.getColors()[1]);
 			buf.writeString(wings.getPattern());
@@ -398,15 +397,6 @@ public class UltracraftClient implements ClientModInitializer
 			return TimeFreezeOption.equals(GameruleRegistry.Setting.FORCE_ON);
 	}
 	
-	public static boolean isHiVelEnabled()
-	{
-		GameruleRegistry.Setting option = HiVelOption;
-		if(option.equals(GameruleRegistry.Setting.FREE))
-			return HiVelMode;
-		else
-			return option.equals(GameruleRegistry.Setting.FORCE_ON);
-	}
-	
 	public static boolean isHandSwapEnabled()
 	{
 		return disableHandswap;
@@ -417,12 +407,13 @@ public class UltracraftClient implements ClientModInitializer
 		PlayerEntity player = MinecraftClient.getInstance().player;
 		if(player == null)
 			return;
+		IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
 		GameruleRegistry.Setting option = HiVelOption;
 		if(option.equals(GameruleRegistry.Setting.FREE))
 		{
-			setHiVel(!HiVelMode, false);
+			setHiVel(!wings.isActive(), false);
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-			buf.writeBoolean(isHiVelEnabled());
+			buf.writeBoolean(wings.isActive());
 			ClientPlayNetworking.send(PacketRegistry.SEND_WING_STATE_C2S_PACKET_ID, buf);
 		}
 		else
@@ -444,14 +435,13 @@ public class UltracraftClient implements ClientModInitializer
 	public static void setHiVel(boolean b, boolean fromServer)
 	{
 		PlayerEntity player = MinecraftClient.getInstance().player;
-		HiVelMode = b;
+		IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
+		wings.setVisible(b);
 		if(!fromServer && player != null)
 		{
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-			buf.writeBoolean(isHiVelEnabled());
+			buf.writeBoolean(b);
 			ClientPlayNetworking.send(PacketRegistry.SEND_WING_STATE_C2S_PACKET_ID, buf);
-			IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
-			wings.setVisible(isHiVelEnabled());
 		}
 	}
 	

@@ -46,7 +46,7 @@ public abstract class OtherClientPlayerMixin extends PlayerEntity implements Win
 				world.addParticle(ParticleRegistry.DASH, true, pos.x, pos.y, pos.z, particleVel.x, particleVel.y, particleVel.z);
 				lastDashPos = getPos();
 			}
-			if(isSprinting() && UltraComponents.WING_DATA.get(this).isVisible())
+			if(isSprinting() && UltraComponents.WING_DATA.get(this).isActive())
 			{
 				if(!wasSprinting)
 				{

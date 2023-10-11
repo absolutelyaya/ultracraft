@@ -1,4 +1,4 @@
-package absolutelyaya.ultracraft.components;
+package absolutelyaya.ultracraft.components.player;
 
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
@@ -48,7 +48,7 @@ public class WingDataComponent implements IWingDataComponent, AutoSyncedComponen
 	}
 	
 	@Override
-	public boolean isVisible()
+	public boolean isActive()
 	{
 		return visible;
 	}

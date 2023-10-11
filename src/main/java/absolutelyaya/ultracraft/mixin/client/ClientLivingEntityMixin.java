@@ -37,7 +37,7 @@ public abstract class ClientLivingEntityMixin implements LivingEntityAccessor
 	@Inject(method = "getJumpVelocity", at = @At("RETURN"), cancellable = true)
 	void onGetJumpVelocity(CallbackInfoReturnable<Float> cir)
 	{
-		if(this instanceof WingedPlayerEntity winged && UltraComponents.WING_DATA.get(winged).isVisible())
+		if(this instanceof WingedPlayerEntity winged && UltraComponents.WING_DATA.get(winged).isActive())
 			cir.setReturnValue(cir.getReturnValue() + 0.1f * Math.max(UltracraftClient.jumpBoost, 0));
 	}
 	

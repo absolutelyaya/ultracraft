@@ -7,8 +7,9 @@ import absolutelyaya.ultracraft.block.HellObserverBlockEntity;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.block.PedestalBlock;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
-import absolutelyaya.ultracraft.components.IWingDataComponent;
-import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
+import absolutelyaya.ultracraft.components.level.IUltraLevelComponent;
+import absolutelyaya.ultracraft.components.player.IWingDataComponent;
+import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
@@ -17,6 +18,7 @@ import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import net.bettercombat.utils.MathHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BellBlock;
 import net.minecraft.block.BlockState;
@@ -93,6 +95,7 @@ public class PacketRegistry
 	public static final Identifier ANIMATION_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "animation_s2c");
 	public static final Identifier SOAP_KILL_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "soapkill");
 	public static final Identifier ULTRA_RECIPE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ultra_recipe");
+	public static final Identifier HIVEL_WHITELIST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hivel_whitelist_hint");
 	
 	public static void registerC2S()
 	{
@@ -256,11 +259,17 @@ public class PacketRegistry
 		});
 		ServerPlayNetworking.registerGlobalReceiver(SEND_WING_STATE_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
-			boolean wingsActive = buf.readBoolean();
+			IUltraLevelComponent level = UltraComponents.GLOBAL.get(player.getWorld().getLevelProperties());
+			boolean whitelisted = level.isPlayerAllowedToHivel(player);
+			boolean wingsActive = buf.readBoolean() && whitelisted;
 			server.execute(() ->
 			{
 				wings.setVisible(wingsActive);
 				wings.sync();
+				if(whitelisted)
+					return;
+				PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
+				ServerPlayNetworking.send(player, PacketRegistry.HIVEL_WHITELIST_PACKET_ID, cbuf);
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(SEND_WING_DATA_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {

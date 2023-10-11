@@ -7,7 +7,7 @@ import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Sprite;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.SpriteListElement;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
-import absolutelyaya.ultracraft.components.IProgressionComponent;
+import absolutelyaya.ultracraft.components.player.IProgressionComponent;
 import absolutelyaya.ultracraft.recipe.UltraRecipe;
 import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
 import absolutelyaya.ultracraft.registry.PacketRegistry;

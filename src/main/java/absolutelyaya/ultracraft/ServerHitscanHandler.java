@@ -3,7 +3,7 @@ package absolutelyaya.ultracraft;
 import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
-import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
+import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.HitscanDamageSource;
 import absolutelyaya.ultracraft.entity.other.AbstractOrbEntity;

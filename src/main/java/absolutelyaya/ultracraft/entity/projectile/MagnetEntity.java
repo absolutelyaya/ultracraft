@@ -2,7 +2,7 @@ package absolutelyaya.ultracraft.entity.projectile;
 
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
-import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
+import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;

@@ -2,10 +2,12 @@ package absolutelyaya.ultracraft.command;
 
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.components.IProgressionComponent;
+import absolutelyaya.ultracraft.components.level.IUltraLevelComponent;
+import absolutelyaya.ultracraft.components.player.IProgressionComponent;
 import absolutelyaya.ultracraft.entity.machine.DestinyBondSwordsmachineEntity;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
@@ -27,42 +29,43 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.function.TriFunction;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
 import static net.minecraft.command.argument.EntityArgumentType.player;
+import static net.minecraft.command.argument.GameProfileArgumentType.gameProfile;
 import static net.minecraft.command.argument.IdentifierArgumentType.identifier;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
 
-public class UltracraftCommand
+public class Commands
 {
 	public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
 		dispatcher.register(literal("ultracraft").requires(ServerCommandSource::isExecutedByPlayer)
-			.then(literal("info").executes(UltracraftCommand::executeInfo))
-			.then(literal("config").requires(source -> source.hasPermissionLevel(2)).executes(UltracraftCommand::executeConfig))
-			.then(literal("block").then(argument("target", player()).executes(UltracraftCommand::executeBlock)))
-			.then(literal("unblock").then(argument("target", player()).executes(UltracraftCommand::executeUnblock)))
+			.then(literal("info").executes(Commands::executeInfo))
+			.then(literal("config").requires(source -> source.hasPermissionLevel(2)).executes(Commands::executeConfig))
+			.then(literal("block").then(argument("target", player()).executes(Commands::executeBlock)))
+			.then(literal("unblock").then(argument("target", player()).executes(Commands::executeUnblock)))
 			.then(literal("time").requires(source -> source.hasPermissionLevel(2))
-				.then(literal("freeze").then(argument("ticks", integer(1)).executes(UltracraftCommand::executeFreeze)))
-				.then(literal("unfreeze").executes(UltracraftCommand::executeUnfreeze)))
+				.then(literal("freeze").then(argument("ticks", integer(1)).executes(Commands::executeFreeze)))
+				.then(literal("unfreeze").executes(Commands::executeUnfreeze)))
 			.then(literal("debug").requires(source -> source.hasPermissionLevel(2))
-				.then(literal("ricoshot_warn").then(argument("pos", Vec3ArgumentType.vec3()).executes(UltracraftCommand::executeDebugRicoshotWarn))))
+				.then(literal("ricoshot_warn").then(argument("pos", Vec3ArgumentType.vec3()).executes(Commands::executeDebugRicoshotWarn))))
 			.then(literal("progression").requires(source -> source.hasPermissionLevel(2))
-				.then(argument("list", string()).suggests(UltracraftCommand::ProgressionListProvider)
-					.then(literal("list").then(argument("target", player()).executes(UltracraftCommand::executeProgressionList)))
-					.then(literal("grant").then(argument("target", player()).then(argument("entry", identifier()).executes(UltracraftCommand::executeProgressionGrant))))
-					.then(literal("revoke").then(argument("target", player()).then(argument("entry", identifier()).suggests(UltracraftCommand::progressionListProvider).executes(UltracraftCommand::executeProgressionRevoke)))))
-				.then(literal("reset").then(argument("target", player()).executes(UltracraftCommand::executeProgressionReset))))
-			.then(literal("graffiti").requires(source -> source.hasPermissionLevel(2))
-				.then(literal("whitelist")
-					.then(literal("list"))
-					.then(literal("add"))
-					.then(literal("remove"))))); //TODO: Add Graffiti Whitelist
-		dispatcher.register(literal("ultrasummon").requires(source -> source.hasPermissionLevel(2)).then(argument("type", string()).suggests((context, builder) -> CommandSource.suggestMatching(List.of("\"tundra//agony\""), builder)).then(argument("pos", Vec3ArgumentType.vec3()).then(argument("yaw", DoubleArgumentType.doubleArg()).executes(UltracraftCommand::executeSpecialSpawn)))));
+				.then(argument("list", string()).suggests(Commands::progressionListTypeProvider)
+					.then(literal("list").then(argument("target", player()).executes(Commands::executeProgressionList)))
+					.then(literal("grant").then(argument("target", player()).then(argument("entry", identifier()).executes(Commands::executeProgressionGrant))))
+					.then(literal("revoke").then(argument("target", player()).then(argument("entry", identifier()).suggests(Commands::progressionListProvider).executes(Commands::executeProgressionRevoke)))))
+				.then(literal("reset").then(argument("target", player()).executes(Commands::executeProgressionReset)))));
+		dispatcher.register(literal("ultrasummon").requires(source -> source.hasPermissionLevel(2)).then(argument("type", string()).suggests((context, builder) -> CommandSource.suggestMatching(List.of("\"tundra//agony\""), builder)).then(argument("pos", Vec3ArgumentType.vec3()).then(argument("yaw", DoubleArgumentType.doubleArg()).executes(Commands::executeSpecialSpawn)))));
+		dispatcher.register(literal("ultrawhitelist").requires(source -> source.hasPermissionLevel(2)).requires(ServerCommandSource::isExecutedByPlayer)
+			.then(argument("list", string()).suggests(Commands::whitelistProvider).executes(Commands::executeWhitelistCheck)
+					.then(argument("state", string()).suggests(Commands::whitelistToggleProvider).executes(Commands::executeWhitelistToggle))
+					.then(literal("list").executes(Commands::executeWhitelistList))
+					.then(literal("add").then(argument("target", gameProfile()).executes(Commands::executeWhitelistAdd)))
+					.then(literal("remove").then(argument("target", gameProfile()).suggests(Commands::whitelistEntryProvider).executes(Commands::executeWhitelistRemove)))));
 	}
 	
 	static int executeInfo(CommandContext<ServerCommandSource> context)
@@ -163,7 +166,7 @@ public class UltracraftCommand
 		return Command.SINGLE_SUCCESS;
 	}
 	
-	static CompletableFuture<Suggestions> ProgressionListProvider(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder)
+	static CompletableFuture<Suggestions> progressionListTypeProvider(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder)
 	{
 		return builder.suggest("unlocked").suggest("obtained").buildFuture();
 	}
@@ -253,6 +256,129 @@ public class UltracraftCommand
 		progression.reset();
 		progression.sync();
 		context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.reset-success", target.getName()));
+		return Command.SINGLE_SUCCESS;
+	}
+	
+	static CompletableFuture<Suggestions> whitelistProvider(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder)
+	{
+		return builder.suggest("hivel").suggest("graffiti").buildFuture();
+	}
+	
+	private static int executeWhitelistCheck(CommandContext<ServerCommandSource> context)
+	{
+		IUltraLevelComponent global = UltraComponents.GLOBAL.get(context.getSource().getWorld().getLevelProperties());
+		String list = context.getArgument("list", String.class);
+		boolean active = switch (list)
+		{
+			case "hivel" -> global.isHivelWhitelistActive();
+			case "graffiti" -> global.isGraffitiWhitelistActive();
+			default -> false;
+		};
+		context.getSource().sendMessage(Text.translatable("command.ultracraft.whitelist.check", list,
+				Text.translatable("command.ultracraft.whitelist." + (active ? "active" : "inactive"))));
+		
+		return Command.SINGLE_SUCCESS;
+	}
+	
+	static CompletableFuture<Suggestions> whitelistToggleProvider(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder)
+	{
+		IUltraLevelComponent global = UltraComponents.GLOBAL.get(context.getSource().getWorld().getLevelProperties());
+		builder.suggest(isWhitelistActive(global, context.getArgument("list", String.class)) ? "disable" : "enable");
+		return builder.buildFuture();
+	}
+	
+	static boolean isWhitelistActive(IUltraLevelComponent global, String list)
+	{
+		return switch (list)
+		{
+			case "hivel" -> global.isHivelWhitelistActive();
+			case "graffiti" -> global.isGraffitiWhitelistActive();
+			default -> false;
+		};
+	}
+	
+	static Map<UUID, String> getWhitelist(IUltraLevelComponent global, String list)
+	{
+		return switch(list)
+		{
+			case "hivel" -> global.getHivelWhitelist();
+			case "graffiti" -> global.getGraffitiWhitelist();
+			default -> null;
+		};
+	}
+	
+	private static int executeWhitelistToggle(CommandContext<ServerCommandSource> context)
+	{
+		IUltraLevelComponent global = UltraComponents.GLOBAL.get(context.getSource().getWorld().getLevelProperties());
+		String list = context.getArgument("list", String.class);
+		switch (list)
+		{
+			case "hivel" -> global.setHivelWhitelistActive(!isWhitelistActive(global, list));
+			case "graffiti" -> global.setGraffitiWhitelistActive(!isWhitelistActive(global, list));
+		}
+		context.getSource().sendMessage(Text.translatable("command.ultracraft.whitelist.toggle", list,
+				Text.translatable("command.ultracraft.whitelist." + (isWhitelistActive(global, list) ? "active" : "inactive"))));
+		return Command.SINGLE_SUCCESS;
+	}
+	
+	private static int executeWhitelistList(CommandContext<ServerCommandSource> context)
+	{
+		IUltraLevelComponent global = UltraComponents.GLOBAL.get(context.getSource().getWorld().getLevelProperties());
+		String list = context.getArgument("list", String.class);
+		Map<UUID, String> whitelist = getWhitelist(global, list);
+		if(whitelist == null)
+		{
+			context.getSource().sendError(Text.translatable("command.ultracraft.whitelist.invalid"));
+			return Command.SINGLE_SUCCESS;
+		}
+		StringBuilder builder = new StringBuilder(Text.translatable("command.ultracraft.whitelist.list-prefix", list).getString());
+		String[] entries = whitelist.values().toArray(new String[]{});
+		for (int i = 0; i < entries.length; i++)
+		{
+			builder.append(i % 2 == 0 ? "§6" : "§e");
+			builder.append(entries[i]);
+			if(i < entries.length - 1)
+				builder.append(", ");
+		}
+		context.getSource().sendMessage(Text.of(builder.toString()));
+		return Command.SINGLE_SUCCESS;
+	}
+	
+	private static int executeWhitelistAdd(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
+	{
+		IUltraLevelComponent global = UltraComponents.GLOBAL.get(context.getSource().getWorld().getLevelProperties());
+		Collection<GameProfile> target = GameProfileArgumentType.getProfileArgument(context, "target");
+		String list = context.getArgument("list", String.class);
+		Map<UUID, String> whitelist = getWhitelist(global, list);
+		for (GameProfile profile : target)
+		{
+			whitelist.put(profile.getId(), profile.getName());
+			context.getSource().sendMessage(Text.translatable("command.ultracraft.whitelist.add", profile.getName(), list));
+		}
+		return Command.SINGLE_SUCCESS;
+	}
+	
+	static CompletableFuture<Suggestions> whitelistEntryProvider(CommandContext<ServerCommandSource> context, SuggestionsBuilder builder)
+	{
+		IUltraLevelComponent global = UltraComponents.GLOBAL.get(context.getSource().getWorld().getLevelProperties());
+		String list = context.getArgument("list", String.class);
+		Map<UUID, String> whitelist = getWhitelist(global, list);
+		for (String name : whitelist.values())
+			builder.suggest(name);
+		return builder.buildFuture();
+	}
+	
+	private static int executeWhitelistRemove(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
+	{
+		IUltraLevelComponent global = UltraComponents.GLOBAL.get(context.getSource().getWorld().getLevelProperties());
+		Collection<GameProfile> target = GameProfileArgumentType.getProfileArgument(context, "target");
+		String list = context.getArgument("list", String.class);
+		Map<UUID, String> whitelist = getWhitelist(global, list);
+		for (GameProfile profile : target)
+		{
+			whitelist.remove(profile.getId());
+			context.getSource().sendMessage(Text.translatable("command.ultracraft.whitelist.remove", profile.getName(), list));
+		}
 		return Command.SINGLE_SUCCESS;
 	}
 }

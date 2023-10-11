@@ -5,7 +5,8 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
-import absolutelyaya.ultracraft.components.IArmComponent;
+import absolutelyaya.ultracraft.components.player.IArmComponent;
+import absolutelyaya.ultracraft.components.player.IWingDataComponent;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.item.MachineSwordItem;
 import absolutelyaya.ultracraft.item.PlushieItem;
@@ -44,7 +45,7 @@ public class UltraHudRenderer
 	final Identifier WEAPONS_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/weapon_icons.png");
 	final Identifier CROSSHAIR_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/crosshair_stats.png");
 	float healthPercent, staminaPercent, absorptionPercent, yOffset;
-	static float fishTimer, coinTimer, coinRot = 0, coinRotDest = 0, wingHintDisplayTimer;
+	static float fishTimer, coinTimer, coinRot = 0, coinRotDest = 0, wingHintDisplayTimer, whitelistHintDisplayTimer;
 	static ItemStack lastCatch;
 	static int coinCombo;
 	final String[] fishMania = new String[] {"message.ultracraft.fish.mania1", "message.ultracraft.fish.mania2", "message.ultracraft.fish.mania3", "message.ultracraft.fish.mania4"};
@@ -59,8 +60,6 @@ public class UltraHudRenderer
 	{
 		if(!MinecraftClient.isHudEnabled() ||cam.isThirdPerson() || config.ultraHudVisibility.equals(UltraHudVisibility.NEVER))
 			return;
-		if(config.ultraHudVisibility.equals(UltraHudVisibility.LIMITED) && !UltracraftClient.isHiVelEnabled())
-			return;
 		MinecraftClient client = MinecraftClient.getInstance();
 		ClientPlayerEntity player = client.player;
 		if(player == null || player.isSpectator())
@@ -68,6 +67,10 @@ public class UltraHudRenderer
 		if(player instanceof WingedPlayerEntity winged && winged.getFocusedTerminal() != null)
 			return;
 		renderExtras(delta);
+		IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
+		boolean wingsActive = wings.isActive();
+		if(config.ultraHudVisibility.equals(UltraHudVisibility.LIMITED) && !wingsActive)
+			return;
 		
 		RenderSystem.disableDepthTest();
 		RenderSystem.disableCull();
@@ -202,10 +205,16 @@ public class UltraHudRenderer
 			if(config.moveUltrahud)
 				matrices.translate(0f, yOffset * 1.75f - (config.switchSides ? 7 : 0), 0f);
 			matrices.translate(0, 0, 10);
-			drawText(matrices, Text.translatable(
-							UltracraftClient.isHiVelEnabled() ? "message.ultracraft.hi-vel.enable" : "message.ultracraft.hi-vel.disable"),
+			Text t = Text.translatable(wingsActive ? "message.ultracraft.hi-vel.enable" : "message.ultracraft.hi-vel.disable");
+			if(whitelistHintDisplayTimer > 0.001f)
+				t = Text.translatable("message.ultracraft.hi-vel.whitelist");
+			drawText(matrices, t,
 					flip ? -150 : -50, 14, MathHelper.clamp(wingHintDisplayTimer, 0.05f, 1f), false);
 			wingHintDisplayTimer -= delta / 20f;
+		}
+		if(whitelistHintDisplayTimer > 0.001f)
+		{
+			whitelistHintDisplayTimer -= delta / 20f;
 		}
 	}
 	
@@ -386,6 +395,11 @@ public class UltraHudRenderer
 	public static void onUpdateWingsActive()
 	{
 		wingHintDisplayTimer = 2.5f;
+	}
+	
+	public static void onWhitelistHint()
+	{
+		whitelistHintDisplayTimer = 3f;
 	}
 	
 	public static void onCatchFish(ItemStack stack)

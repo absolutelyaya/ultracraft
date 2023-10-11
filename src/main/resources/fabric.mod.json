@@ -38,6 +38,9 @@
     ],
     "cardinal-components-entity": [
       "absolutelyaya.ultracraft.UltraComponents"
+    ],
+    "cardinal-components-level": [
+      "absolutelyaya.ultracraft.UltraComponents"
     ]
   },
   "mixins": [
@@ -67,7 +70,8 @@
       "ultracraft:winged",
       "ultracraft:progression",
       "ultracraft:easter",
-      "ultracraft:arms"
+      "ultracraft:arms",
+      "ultracraft:global_data"
     ]
   },
   "accessWidener": "ultracraft.accesswidener"

@@ -5,9 +5,9 @@ import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
-import absolutelyaya.ultracraft.components.IArmComponent;
-import absolutelyaya.ultracraft.components.IProgressionComponent;
-import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
+import absolutelyaya.ultracraft.components.player.IArmComponent;
+import absolutelyaya.ultracraft.components.player.IProgressionComponent;
+import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.entity.other.BackTank;
@@ -87,7 +87,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	void onUpdatePose(PlayerEntity instance, EntityPose entityPose)
 	{
 		WingedPlayerEntity winged = ((WingedPlayerEntity)instance);
-		boolean hiVelMode = UltraComponents.WING_DATA.get(winged).isVisible();
+		boolean hiVelMode = UltraComponents.WING_DATA.get(winged).isActive();
 		if(hiVelMode)
 		{
 			if(UltraComponents.WINGED_ENTITY.get(winged).isDashing())
@@ -182,7 +182,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	
 	public boolean isWingsActive()
 	{
-		return UltraComponents.WING_DATA.get(this).isVisible();
+		return UltraComponents.WING_DATA.get(this).isActive();
 	}
 	
 	@Override
@@ -261,7 +261,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Redirect(method = "increaseTravelMotionStats", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;addExhaustion(F)V", ordinal = 3))
 	void addExhaustion(PlayerEntity instance, float exhaustion)
 	{
-		if(!UltraComponents.WING_DATA.get(instance).isVisible())
+		if(!UltraComponents.WING_DATA.get(instance).isActive())
 			instance.addExhaustion(exhaustion);
 	}
 	

@@ -2,7 +2,7 @@ package absolutelyaya.ultracraft.client.rendering.entity.feature;
 
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.components.IArmComponent;
+import absolutelyaya.ultracraft.components.player.IArmComponent;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;

@@ -1,7 +1,6 @@
 package absolutelyaya.ultracraft.client.sound;
 
 import absolutelyaya.ultracraft.UltraComponents;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.entity.player.PlayerEntity;
@@ -21,7 +20,7 @@ public class MovingWindSoundInstance extends MovingPlayerSoundInstance
 	{
 		if(owner == null || owner.isRemoved() || !UltracraftClient.getConfigHolder().get().movementSounds)
 			setDone();
-		if(!UltraComponents.WING_DATA.get(owner).isVisible())
+		if(!UltraComponents.WING_DATA.get(owner).isActive())
 		{
 			desiredVolume = volume = 0;
 			return;

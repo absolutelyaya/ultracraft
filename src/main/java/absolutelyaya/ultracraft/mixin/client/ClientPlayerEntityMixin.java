@@ -8,7 +8,8 @@ import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.TerminalScreen;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import absolutelyaya.ultracraft.compat.PlayerAnimator;
-import absolutelyaya.ultracraft.components.IWingedPlayerComponent;
+import absolutelyaya.ultracraft.components.player.IWingDataComponent;
+import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
@@ -108,7 +109,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	
 	void tryDash()
 	{
-		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying && wouldPoseNotCollide(EntityPose.STANDING))
+		IWingDataComponent wings = UltraComponents.WING_DATA.get(this);
+		if(wings.isActive() && !getAbilities().flying && wouldPoseNotCollide(EntityPose.STANDING))
 		{
 			if(isSneaking() && !lastSneaking)
 			{
@@ -151,7 +153,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		}
 		
 		IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(this);
-		if(UltracraftClient.isHiVelEnabled() && !getAbilities().flying && !isSpectator())
+		IWingDataComponent wings = UltraComponents.WING_DATA.get(this);
+		if(wings.isActive() && !getAbilities().flying && !isSpectator())
 		{
 			boolean grounded = isGrounded(0.1f);
 			if(slamCooldown > 0)
@@ -160,7 +163,7 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 				if(slamCooldown == 0 && !isSprinting())
 					slideVelocity = 0.33f;
 			}
-			if(wasHiVel != UltracraftClient.isHiVelEnabled() && lastSprintPressed)
+			if(wasHiVel != wings.isActive() && lastSprintPressed)
 				setSliding(true, false); //when switching into HiVelMode while sprinting, reinitiate sliding
 			if(slamJumpTimer > -1 && slamJumpTimer < 4)
 				slamJumpTimer++;
@@ -415,12 +418,12 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 		{
 			if (winged.shouldIgnoreSlowdown())
 				winged.setIgnoreSlowdown(false);
-			if((!wasHiVel || getAbilities().flying || isSpectator()) && UltracraftClient.isHiVelEnabled() && isSprinting())
+			if((!wasHiVel || getAbilities().flying || isSpectator()) && wings.isActive() && isSprinting())
 				setSliding(false, true);
 			if(slamming)
 				cancelGroundPound();
 		}
-		wasHiVel = UltracraftClient.isHiVelEnabled();
+		wasHiVel = wings.isActive();
 	}
 	
 	@Inject(method = "tickNewAi", at = @At("RETURN"))
@@ -520,7 +523,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Redirect(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/input/Input;hasForwardMovement()Z"))
 	boolean onTickMovement(Input instance)
 	{
-		if(UltracraftClient.isHiVelEnabled())
+		IWingDataComponent wings = UltraComponents.WING_DATA.get(this);
+		if(wings.isActive())
 			return true;
 		else
 			return input.hasForwardMovement();
@@ -529,8 +533,9 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Redirect(method = "tickMovement", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;setSprinting(Z)V"))
 	void onTickMovement(ClientPlayerEntity instance, boolean sprinting)
 	{
+		IWingDataComponent wings = UltraComponents.WING_DATA.get(this);
 		//cancel normal sprint triggers when in HiVelMode
-		if(!UltracraftClient.isHiVelEnabled())
+		if(!wings.isActive())
 			setSprinting(sprinting);
 	}
 	
@@ -545,7 +550,8 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Override
 	public void setSprinting(boolean sprinting)
 	{
-		if(UltracraftClient.isHiVelEnabled() && isSprinting() != sprinting)
+		IWingDataComponent wings = UltraComponents.WING_DATA.get(this);
+		if(wings.isActive() && isSprinting() != sprinting)
 			setSliding(sprinting, lastSprinting);
 		super.setSprinting(sprinting);
 	}
@@ -553,8 +559,9 @@ public abstract class ClientPlayerEntityMixin extends AbstractClientPlayerEntity
 	@Inject(method = "canSprint", at = @At(value = "HEAD"), cancellable = true)
 	void onCanSprint(CallbackInfoReturnable<Boolean> cir)
 	{
+		IWingDataComponent wings = UltraComponents.WING_DATA.get(this);
 		IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(this);
-		if((UltracraftClient.isHiVelEnabled() && !isSprinting() && !isOnGround()) || winged.isDashing())
+		if((wings.isActive() && !isSprinting() && !isOnGround()) || winged.isDashing())
 			cir.setReturnValue(false);
 	}
 	
