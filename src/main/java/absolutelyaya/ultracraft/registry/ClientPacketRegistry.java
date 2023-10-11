@@ -310,5 +310,11 @@ public class ClientPacketRegistry
 		ClientPlayNetworking.registerGlobalReceiver(HIVEL_WHITELIST_PACKET_ID, (((client, handler, buf, responseSender) -> {
 			MinecraftClient.getInstance().execute(UltraHudRenderer::onWhitelistHint);
 		})));
+		ClientPlayNetworking.registerGlobalReceiver(GRAFFITI_WHITELIST_PACKET_ID, (((client, handler, buf, responseSender) -> {
+			boolean b = buf.readBoolean();
+			MinecraftClient.getInstance().execute(() -> {
+				UltracraftClient.GRAFFITI_WHITELISTED = b;
+			});
+		})));
 	}
 }

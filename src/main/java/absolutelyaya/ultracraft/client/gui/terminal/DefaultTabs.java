@@ -39,13 +39,16 @@ public class DefaultTabs
 	
 	public static class Customization extends Tab
 	{
+		boolean wasCanGraffiti;
+		
 		public Customization()
 		{
 			super(CUSTOMIZATION_ID);
 			int y = 64;
 			buttons.add(new Button("terminal.customize.mainmenu", new Vector2i(48, y),
 					"edit-mainmenu", 0, true));
-			if(UltracraftClient.isCanGraffiti())
+			wasCanGraffiti = UltracraftClient.isCanGraffiti();
+			if(wasCanGraffiti)
 			{
 				y -= textRenderer.fontHeight + 5;
 				buttons.add(new Button("terminal.customize.graffiti", new Vector2i(48, y),
@@ -64,6 +67,12 @@ public class DefaultTabs
 		{
 			GUI.drawTab(matrices, buffers, "terminal.customize", DEFAULT_RETURN_BUTTON);
 			drawButtons(matrices, terminal, buffers);
+			boolean canGraffiti = UltracraftClient.isCanGraffiti();
+			if(wasCanGraffiti != canGraffiti)
+			{
+				terminal.setTab(new Customization()); //refresh Tab
+				wasCanGraffiti = canGraffiti;
+			}
 		}
 		
 		@Override

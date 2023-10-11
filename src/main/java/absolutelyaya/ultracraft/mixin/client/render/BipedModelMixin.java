@@ -36,7 +36,7 @@ public abstract class BipedModelMixin<T extends LivingEntity> extends AnimalMode
 	@Inject(method = "setAngles(Lnet/minecraft/entity/LivingEntity;FFFFF)V", at = @At("HEAD"), cancellable = true)
 	void onSetAngles(T livingEntity, float f, float g, float h, float i, float j, CallbackInfo ci)
 	{
-		if(!UltracraftClient.applyEntityPoses)
+		if(!UltracraftClient.APPLY_ENTITY_POSES)
 			return;
 		if(livingEntity.getPose().equals(ClassTinkerers.getEnum(EntityPose.class, "SLIDE")))
 		{

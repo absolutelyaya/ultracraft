@@ -51,6 +51,7 @@ import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 import net.fabricmc.fabric.api.client.rendering.v1.*;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
@@ -92,7 +93,7 @@ public class UltracraftClient implements ClientModInitializer
 	private static ShaderProgram wingsColoredProgram, wingsColoredUIProgram, texPosFade, flesh;
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	public static TrailRenderer TRAIL_RENDERER;
-	public static boolean REPLACE_MENU_MUSIC = true, applyEntityPoses;
+	public static boolean REPLACE_MENU_MUSIC = true, APPLY_ENTITY_POSES, GRAFFITI_WHITELISTED = true;
 	static GameruleRegistry.Setting HiVelOption = GameruleRegistry.Setting.FREE;
 	static GameruleRegistry.Setting TimeFreezeOption = GameruleRegistry.Setting.FORCE_ON;
 	static GameruleRegistry.RegenSetting bloodRegen = GameruleRegistry.RegenSetting.ALWAYS;
@@ -250,12 +251,12 @@ public class UltracraftClient implements ClientModInitializer
 			}
 		});
 		
-		WorldRenderEvents.BEFORE_ENTITIES.register((ctx) -> applyEntityPoses = true);
+		WorldRenderEvents.BEFORE_ENTITIES.register((ctx) -> APPLY_ENTITY_POSES = true);
 		
 		WorldRenderEvents.AFTER_ENTITIES.register((ctx) -> {
 			UltracraftClient.HITSCAN_HANDLER.render(ctx.matrixStack(), ctx.camera(), ctx.tickDelta());
 			UltracraftClient.TRAIL_RENDERER.render(ctx.matrixStack(), ctx.camera());
-			applyEntityPoses = false;
+			APPLY_ENTITY_POSES = false;
 		});
 		
 		HudRenderCallback.EVENT.register((matrices, delta) -> {
@@ -575,10 +576,12 @@ public class UltracraftClient implements ClientModInitializer
 	
 	public static boolean isCanGraffiti()
 	{
+		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+		ClientPlayNetworking.send(PacketRegistry.REQUEST_GRAFFITI_WHITELIST_PACKET_ID, buf);
 		return switch(GraffitiOption)
 		{
-			case ALLOW_ALL -> true;
-			case ONLY_ADMINS -> ((WingedPlayerEntity)MinecraftClient.getInstance().player).isOpped();
+			case ALLOW_ALL -> GRAFFITI_WHITELISTED;
+			case ONLY_ADMINS -> ((WingedPlayerEntity)MinecraftClient.getInstance().player).isOpped() && GRAFFITI_WHITELISTED;
 			case DISALLOW -> false;
 		};
 	}

@@ -18,7 +18,6 @@ import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import net.bettercombat.utils.MathHelper;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BellBlock;
 import net.minecraft.block.BlockState;
@@ -71,6 +70,7 @@ public class PacketRegistry
 	public static final Identifier TERMINAL_WEAPON_DISPENSE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "terminal_weapon_dispense");
 	public static final Identifier CYCLE_WEAPON_VARIANT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "cycle_weapon_variant");
 	public static final Identifier HELL_OBSERVER_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hell_observer_c2s");
+	public static final Identifier REQUEST_GRAFFITI_WHITELIST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "request_graffiti_whitelist");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "scan");
@@ -95,7 +95,8 @@ public class PacketRegistry
 	public static final Identifier ANIMATION_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "animation_s2c");
 	public static final Identifier SOAP_KILL_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "soapkill");
 	public static final Identifier ULTRA_RECIPE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ultra_recipe");
-	public static final Identifier HIVEL_WHITELIST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hivel_whitelist_hint");
+	public static final Identifier HIVEL_WHITELIST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hivel_whitelist");
+	public static final Identifier GRAFFITI_WHITELIST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "graffiti_whitelist");
 	
 	public static void registerC2S()
 	{
@@ -457,6 +458,14 @@ public class PacketRegistry
 					return;
 				observer.sync(playerCount, playerOperator, enemyCount, enemyOperator, requireBoth,
 						new Vec3i((int)offset.x, (int)offset.y, (int)offset.z), new Vec3i((int)size.x, (int)size.y, (int)size.z), previewArea);
+			});
+		});
+		ServerPlayNetworking.registerGlobalReceiver(REQUEST_GRAFFITI_WHITELIST_PACKET_ID, (server, player, handler, buf, sender) -> {
+			server.execute(() ->
+			{
+				PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
+				cbuf.writeBoolean(UltraComponents.GLOBAL.get(player.getWorld().getLevelProperties()).isPlayerAllowedToGraffiti(player));
+				ServerPlayNetworking.send(player, GRAFFITI_WHITELIST_PACKET_ID, cbuf);
 			});
 		});
 	}
