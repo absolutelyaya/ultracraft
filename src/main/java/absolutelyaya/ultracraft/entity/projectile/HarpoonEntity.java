@@ -27,16 +27,10 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.joml.Vector3f;
 
-public class HarpoonEntity extends PersistentProjectileEntity implements IIgnoreSharpshooter
+public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharpshooter
 {
 	protected static final TrackedData<Vector3f> START_POSITION = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.VECTOR3F);
-	protected static final TrackedData<Integer> GROUND_TICKS = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Boolean> RETURNING = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-	protected static final TrackedData<Float> IMPACT_YAW = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.FLOAT);
-	protected static final TrackedData<Float> IMPACT_PITCH = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.FLOAT);
-	
-	LivingEntity victim;
-	int unmovingTicks;
 	
 	public HarpoonEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world)
 	{
@@ -48,10 +42,7 @@ public class HarpoonEntity extends PersistentProjectileEntity implements IIgnore
 	{
 		super.initDataTracker();
 		dataTracker.startTracking(START_POSITION, new Vector3f());
-		dataTracker.startTracking(GROUND_TICKS, 0);
 		dataTracker.startTracking(RETURNING, false);
-		dataTracker.startTracking(IMPACT_YAW, 0f);
-		dataTracker.startTracking(IMPACT_PITCH, 0f);
 	}
 	
 	public static HarpoonEntity spawn(LivingEntity owner, Vec3d pos, Vec3d vel)
@@ -76,11 +67,11 @@ public class HarpoonEntity extends PersistentProjectileEntity implements IIgnore
 		super.tick();
 		if(getOwner() != null && !getOwner().isPlayer() && age > 600)
 			despawn();
-		if(inGround || victim != null)
-			dataTracker.set(GROUND_TICKS, dataTracker.get(GROUND_TICKS) + 1);
-		if(victim == null && dataTracker.get(GROUND_TICKS) > 20 && getOwner() != null && !getOwner().isPlayer())
+		if(isInGround())
+			dataTracker.set(GROUND_TIME, dataTracker.get(GROUND_TIME) + 1);
+		if(victim == null && dataTracker.get(GROUND_TIME) > 20 && getOwner() != null && !getOwner().isPlayer())
 			setReturning(true);
-		else if(victim != null && dataTracker.get(GROUND_TICKS) > 200 && getOwner() != null)
+		else if(victim != null && dataTracker.get(GROUND_TIME) > 200 && getOwner() != null)
 			setReturning(true);
 		if(dataTracker.get(RETURNING))
 		{
@@ -99,12 +90,6 @@ public class HarpoonEntity extends PersistentProjectileEntity implements IIgnore
 				despawn();
 			}
 		}
-		if(getVelocity().equals(Vec3d.ZERO) && !inGround && victim == null)
-			unmovingTicks++;
-		else if(unmovingTicks > 0)
-			unmovingTicks = 0;
-		if(unmovingTicks > 20)
-			despawn();
 		if(victim != null && !dataTracker.get(RETURNING))
 		{
 			if(!victim.isAlive())
@@ -113,15 +98,11 @@ public class HarpoonEntity extends PersistentProjectileEntity implements IIgnore
 				setReturning(true);
 				return;
 			}
-			setVelocity(Vec3d.ZERO);
-			setPosition(victim.getPos().add(0f, victim.getHeight() / 2, 0f));
-			setYaw(dataTracker.get(IMPACT_YAW));
-			setYaw(dataTracker.get(IMPACT_PITCH));
 			victim.addStatusEffect(new StatusEffectInstance(StatusEffectRegistry.IMPALED, 10, 1), this);
 		}
 	}
 	
-	void despawn()
+	protected void despawn()
 	{
 		getWorld().addParticle(new ItemStackParticleEffect(ParticleTypes.ITEM, asItemStack()),
 				getX(), getY(), getZ(), 0f, 0f, 0f);
@@ -155,16 +136,14 @@ public class HarpoonEntity extends PersistentProjectileEntity implements IIgnore
 		if(dataTracker.get(RETURNING) || victim != null)
 			return;
 		if(entityHitResult.getEntity() instanceof LivingEntity living)
-		{
-			victim = living;
-			dataTracker.set(IMPACT_YAW, getYaw());
-			dataTracker.set(IMPACT_PITCH, getPitch());
 			living.damage(DamageSources.get(getWorld(), DamageSources.HARPOON, this, getOwner()), 3.5f);
-		}
+		super.onEntityHit(entityHitResult);
 	}
 	
 	public void setReturning(boolean b)
 	{
+		if(victim != null)
+			victim = null;
 		dataTracker.set(RETURNING, b);
 	}
 	
@@ -184,16 +163,6 @@ public class HarpoonEntity extends PersistentProjectileEntity implements IIgnore
 					}, this::getLeashPos, getUuid(),
 					new Vec2f(0.01f, 0.05f), 0.1f, 0x000000, 1);
 		}
-	}
-	
-	public boolean isInGround()
-	{
-		return inGround;
-	}
-	
-	public LivingEntity getVictim()
-	{
-		return victim;
 	}
 	
 	@Override

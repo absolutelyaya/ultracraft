@@ -1,7 +1,6 @@
 package absolutelyaya.ultracraft.item;
 
 import absolutelyaya.ultracraft.UltraComponents;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.api.HeavyEntities;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.HarpoonGunRenderer;
@@ -69,7 +68,7 @@ public class HarpoonGunItem extends AbstractWeaponItem implements GeoItem
 				break;
 			}
 		}
-		if(ammoStack == null)
+		if(ammoStack == null && !user.isCreative())
 			return false;
 		if(!world.isClient)
 		{
@@ -111,7 +110,7 @@ public class HarpoonGunItem extends AbstractWeaponItem implements GeoItem
 			}
 			harpoon.setReturning(true);
 		}
-		user.setVelocity(ownerVelocity);
+		user.setVelocity(ownerVelocity.normalize().multiply(Math.min(harpoons.size(), 3)));
 		UltraComponents.WINGED_ENTITY.get(user).getGunCooldownManager().setCooldown(this, 100, GunCooldownManager.SECONDARY);
 		super.onAltFire(world, user);
 	}

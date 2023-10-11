@@ -191,7 +191,7 @@
   "death.attack.harpoon": "%1$s was impaled by %2$s's harpoon",
   "death.attack.harpoon.player": "%1$s was impaled by a harpoon whilst fighting %2$s",
   "death.attack.harpoon.item": "%1$s was impaled by %2$s's harpoon using %3$s",
-  "death.attack.harpoon_rip": "%1$s was torn apart with a harpoons barb",
+  "death.attack.harpoon_rip": "%1$s was torn apart with a harpoons barb by %2$s",
   "death.attack.harpoon_rip.player": "%1$s was torn apart with a harpoons barb by %2$s",
   "death.attack.harpoon_rip.item": "%1$s was torn apart with a harpoons barb by %2$s using %3$s",
   "death.attack.soap": "%s was cleansed",
