@@ -6,7 +6,6 @@ import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import absolutelyaya.ultracraft.compat.PlayerAnimator;
-import absolutelyaya.ultracraft.components.player.IWingDataComponent;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
@@ -24,6 +23,7 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.util.Arm;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -69,9 +69,15 @@ public class KeybindRegistry
 				if(player == null || !((LivingEntityAccessor)player).punch() || player.isSpectator())
 					continue;
 				if(player.isMainPlayer())
-					PlayerAnimator.playAnimation(player,
-							(UltraComponents.WING_DATA.get(player).isActive() && player.isSprinting()) ? PlayerAnimator.SLIDE_PUNCH : PlayerAnimator.PUNCH,
-							0, false);
+				{
+					boolean flip = player.getMainArm().equals(Arm.LEFT);
+					int anim;
+					if((UltraComponents.WING_DATA.get(player).isActive() && player.isSprinting()))
+						anim = flip ? PlayerAnimator.SLIDE_PUNCH_FLIPPED : PlayerAnimator.SLIDE_PUNCH;
+					else
+						anim = flip ? PlayerAnimator.PUNCH_FLIPPED : PlayerAnimator.PUNCH;
+					PlayerAnimator.playAnimation(player, anim, 0, false);
+				}
 				
 				HitResult crosshairTarget = client.crosshairTarget;
 				Entity entity = null;

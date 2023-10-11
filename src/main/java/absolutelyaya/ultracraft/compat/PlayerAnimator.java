@@ -48,18 +48,18 @@ public class PlayerAnimator
 	public static final int SLAM_DIVE = 10;
 	public static final int SLAMSTORE_DIVE = 11;
 	public static final int PUNCH = 12;
-	public static final int SLIDE_PUNCH = 13;
+	public static final int KNUCKLE_BLAST = 13;
+	public static final int PUNCH_FLIPPED = 14;
+	public static final int KNUCKLE_BLAST_FLIPPED = 15;
+	public static final int SLIDE_PUNCH = 16;
+	public static final int SLIDE_PUNCH_FLIPPED = 17;
 	
 	static List<KeyframeAnimation> ANIMATIONS;
 	static boolean DISABLED = false;
 	
 	public static void init()
 	{
-		PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(new Identifier(Ultracraft.MOD_ID, "animation"), 42, (player) -> {
-			ModifierLayer<IAnimation> animationLayer = new ModifierLayer<>();
-			animationLayer.addModifierBefore(new MirrorModifier(player.getMainArm().equals(Arm.LEFT)));
-			return animationLayer;
-		});
+		PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(new Identifier(Ultracraft.MOD_ID, "animation"), 42, (player) -> new ModifierLayer<>());
 		
 		PlayerAnimationAccess.REGISTER_ANIMATION_EVENT.register((player, animationStack) -> {
 			ModifierLayer<IAnimation> layer = new ModifierLayer<>();
