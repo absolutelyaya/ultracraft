@@ -61,6 +61,7 @@
 - Added ultra-hellObserverInterval Gamerule
 - Added ULTRACRAFT (world) Category for gamerules mainly important when starting a new world.
 - Added ultra-startWithPiercer Gamerule
+- Added ultra-bloodSaturation Gamerule
 ## Commands
 - Added `/ultracraft progression` subcommand (mainly for Debug)
   - Lets you list, grant or revoke Progression Entries

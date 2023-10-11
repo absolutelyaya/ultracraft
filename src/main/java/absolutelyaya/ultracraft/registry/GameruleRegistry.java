@@ -134,6 +134,10 @@ public class GameruleRegistry
 			GameRuleRegistry.register("ultra-startWithPiercer", ULTRA_WORLD_CATEGORY,
 					GameRuleFactory.createBooleanRule(true,
 							(server, rule) -> OnChanged(server, (byte)24, rule.get() ? 1 : 0)));
+	public static final GameRules.Key<GameRules.BooleanRule> BLOOD_SATURATION =
+			GameRuleRegistry.register("ultra-bloodSaturation", ULTRACATEGORY,
+					GameRuleFactory.createBooleanRule(true,
+							(server, rule) -> OnChanged(server, (byte)25, rule.get() ? 1 : 0)));
 	
 	public static void OnChanged(MinecraftServer server, byte b, int val)
 	{
@@ -177,6 +181,9 @@ public class GameruleRegistry
 		OnChanged(player, (byte)20, player.server.getGameRules().getBoolean(FLAMETHROWER_GRIEF) ? 1 : 0);
 		OnChanged(player, (byte)21, player.server.getGameRules().getInt(SHOTGUN_DAMAGE));
 		OnChanged(player, (byte)22, player.server.getGameRules().getInt(NAILGUN_DAMAGE));
+		OnChanged(player, (byte)23, player.server.getGameRules().getInt(HELL_OBSERVER_INTERVAL));
+		OnChanged(player, (byte)24, player.server.getGameRules().getBoolean(START_WITH_PIERCER) ? 1 : 0);
+		OnChanged(player, (byte)25, player.server.getGameRules().getBoolean(BLOOD_SATURATION) ? 1 : 0);
 		OnChanged(player, (byte)127, 0); //sync finished indicator
 	}
 	

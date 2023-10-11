@@ -289,7 +289,9 @@
   "gamerule.ultra-hellObserverInterval": "Hell Observer Interval",
   "gamerule.ultra-hellObserverInterval.description": "Hell Observers will only perform checks every X ticks. Higher values improve performance, but decrease check accuracy.",
   "gamerule.ultra-startWithPiercer": "Start With Piercer",
-  "gamerule.ultra-startWithPiercer.description": "Newly spawned players start with a Piercer Revolver in their Inventory",
+  "gamerule.ultra-startWithPiercer.description": "Newly spawned players start with a Piercer Revolver in their Inventory.",
+  "gamerule.ultra-bloodSaturation": "Blood Saturation",
+  "gamerule.ultra-bloodSaturation.description": "Whether Blood Healing also gives saturation.",
 
   "stat.ultracraft.collect_soul_orb": "Collected Soul Orbs",
   "stat.ultracraft.collect_blood_orb": "Collected Blood Orbs",

@@ -183,7 +183,8 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 				if(source.isIn(DamageTypeTags.MELEE))
 					healing /= 3.5f;
 				UltraComponents.WINGED_ENTITY.get(player).bloodHeal(healing);
-				player.getHungerManager().add((int)(healing / 1.5f), 5f);
+				if(getWorld().getGameRules().getBoolean(GameruleRegistry.BLOOD_SATURATION))
+					player.getHungerManager().add((int)healing, 1f);
 			}
 		}
 	}
