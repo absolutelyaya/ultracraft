@@ -24,7 +24,7 @@ public class HideousMassRenderer extends GeoEntityRenderer<HideousMassEntity>
 		if(animatable != null && (animatable.isDying() || animatable.isDead()))
 		{
 			Random r = entity.getRandom();
-			float f = UltracraftClient.getConfigHolder().get().safeVFX ? 0.1f : 0.5f;
+			float f = UltracraftClient.getConfig().safeVFX ? 0.1f : 0.5f;
 			matrices.translate(r.nextFloat() * f, r.nextFloat() * f, r.nextFloat() * f);
 		}
 		super.render(entity, entityYaw, partialTick, matrices, bufferSource, packedLight);

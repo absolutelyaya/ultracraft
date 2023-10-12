@@ -40,7 +40,7 @@ public class IntroScreen extends Screen
 	protected void init()
 	{
 		super.init();
-		config = UltracraftClient.getConfigHolder().getConfig();
+		config = UltracraftClient.getConfig();
 		INSTANCE = this;
 		SEQUENCE_FINISHED = false;
 		retryButton = addDrawableChild(new ButtonWidget.Builder(Text.translatable("message.ultracraft.fixer-button"), (button) -> {
@@ -63,7 +63,7 @@ public class IntroScreen extends Screen
 		{
 			options.setKeyCode(options.swapHandsKey, InputUtil.fromKeyCode(InputUtil.GLFW_KEY_R, 19));
 			config.startedBefore = true;
-			UltracraftClient.getConfigHolder().save();
+			UltracraftClient.saveConfig();
 		}
 	}
 	
@@ -136,7 +136,7 @@ public class IntroScreen extends Screen
 		{
 			resourceLoadFinished();
 			config.repeatIntro = false;
-			UltracraftClient.getConfigHolder().save();
+			UltracraftClient.saveConfig();
 		}
 		if(goalText == null)
 			return;

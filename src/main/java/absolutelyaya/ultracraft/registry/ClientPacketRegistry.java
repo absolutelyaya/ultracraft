@@ -56,7 +56,7 @@ public class ClientPacketRegistry
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.FREEZE_PACKET_ID, ((client, handler, buf, sender) -> {
 			int ticks = buf.readInt();
 			boolean freezePhysicsDisabled = buf.readBoolean();
-			if(!UltracraftClient.getConfigHolder().get().freezeVFX)
+			if(!UltracraftClient.getConfig().freezeVFX)
 				return;
 			if(!freezePhysicsDisabled)
 				Ultracraft.freeze((ServerWorld)null, ticks);
@@ -226,11 +226,11 @@ public class ClientPacketRegistry
 				return;
 			UUID target = buf.readUuid();
 			MinecraftClient.getInstance().execute(() -> {
-				boolean b = UltracraftClient.getConfigHolder().get().blockedPlayers.contains(target);
+				boolean b = UltracraftClient.getConfig().blockedPlayers.contains(target);
 				if(!b)
 				{
-					UltracraftClient.getConfigHolder().get().blockedPlayers.add(target);
-					UltracraftClient.getConfigHolder().save();
+					UltracraftClient.getConfig().blockedPlayers.add(target);
+					UltracraftClient.saveConfig();
 				}
 				client.player.sendMessage(Text.translatable("command.ultracraft.block.client-" + (b ? "fail" : "success")));
 			});
@@ -240,8 +240,8 @@ public class ClientPacketRegistry
 				return;
 			UUID target = buf.readUuid();
 			MinecraftClient.getInstance().execute(() -> {
-				boolean b = UltracraftClient.getConfigHolder().get().blockedPlayers.remove(target);
-				UltracraftClient.getConfigHolder().save();
+				boolean b = UltracraftClient.getConfig().blockedPlayers.remove(target);
+				UltracraftClient.saveConfig();
 				client.player.sendMessage(Text.translatable("command.ultracraft.unblock.client-" + (b ? "success" : "fail")));
 			});
 		}));

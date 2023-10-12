@@ -73,6 +73,7 @@ public class PacketRegistry
 	public static final Identifier HELL_OBSERVER_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hell_observer_c2s");
 	public static final Identifier REQUEST_GRAFFITI_WHITELIST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "request_graffiti_whitelist");
 	public static final Identifier KNUCKLE_BLAST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "knuckle_blast");
+	public static final Identifier ARM_VISIBLE_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "arm_visible_c2s");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "scan");
@@ -478,6 +479,10 @@ public class PacketRegistry
 				ExplosionHandler.explosion(player, player.getWorld(), player.getPos(), DamageSources.get(player.getWorld(),
 						DamageSources.KNUCKLE_BLAST), 4f, 0.5f, 4, false);
 			});
+		});
+		ServerPlayNetworking.registerGlobalReceiver(ARM_VISIBLE_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
+			boolean v = buf.readBoolean();
+			server.execute(() -> UltraComponents.ARMS.get(player).setArmVisible(v));
 		});
 	}
 	

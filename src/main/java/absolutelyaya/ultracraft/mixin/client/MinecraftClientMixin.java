@@ -1,7 +1,6 @@
 package absolutelyaya.ultracraft.mixin.client;
 
 import absolutelyaya.ultracraft.UltraComponents;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlock;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.block.TerminalDisplayBlock;
@@ -24,7 +23,6 @@ import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.GameOptions;
 import net.minecraft.client.sound.MusicType;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.Packet;
@@ -87,7 +85,7 @@ public abstract class MinecraftClientMixin
 	{
 		if (cir.getReturnValue().equals(MusicType.MENU) && UltracraftClient.REPLACE_MENU_MUSIC)
 		{
-			RegistryEntry.Reference<SoundEvent> music = switch(UltracraftClient.getConfigHolder().get().BGID)
+			RegistryEntry.Reference<SoundEvent> music = switch(UltracraftClient.getConfig().BGID)
 			{
 				case "ultracraft" -> SoundRegistry.THE_FIRE_IS_GONE;
 				case "limbo" -> SoundRegistry.CLAIR_DE_LUNE;

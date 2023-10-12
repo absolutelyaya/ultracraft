@@ -24,7 +24,7 @@ public class WingDataComponent implements IWingDataComponent, AutoSyncedComponen
 	@Override
 	public Vector3f[] getColors()
 	{
-		if(UltracraftClient.getConfigHolder().get().blockedPlayers.contains(provider.getUuid()))
+		if(UltracraftClient.getConfig().blockedPlayers.contains(provider.getUuid()))
 			return UltracraftClient.getDefaultWingColors();
 		return wingColors;
 	}

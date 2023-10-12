@@ -17,7 +17,7 @@ public class MovingSlideSoundInstance extends MovingPlayerSoundInstance
 	@Override
 	public void tick()
 	{
-		if(owner.isRemoved() || !UltracraftClient.getConfigHolder().get().movementSounds)
+		if(owner.isRemoved() || !UltracraftClient.getConfig().movementSounds)
 			setDone();
 		x = owner.getX();
 		y = owner.getY();

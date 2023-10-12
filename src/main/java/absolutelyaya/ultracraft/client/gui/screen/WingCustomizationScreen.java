@@ -92,7 +92,7 @@ public class WingCustomizationScreen extends Screen
 		client.options.getFovEffectScale().setValue(0.0);
 		Instance = this;
 		MenuOpen = true;
-		safeVFX = UltracraftClient.getConfigHolder().get().safeVFX;
+		safeVFX = UltracraftClient.getConfig().safeVFX;
 		WingColorPresetManager.restoreDefaults();
 		startWingColor = UltracraftClient.getWingColors()[0];
 		startMetalColor = UltracraftClient.getWingColors()[1];
@@ -324,12 +324,12 @@ public class WingCustomizationScreen extends Screen
 		if(client.player != null)
 			client.player.setPitch(prevPitch);
 		MenuOpen = false;
-		Ultraconfig config = UltracraftClient.getConfigHolder().getConfig();
+		Ultraconfig config = UltracraftClient.getConfig();
 		config.wingColors[0] = new Vec3d(UltracraftClient.getWingColors()[0]);
 		config.wingColors[1] = new Vec3d(UltracraftClient.getWingColors()[1]);
 		config.wingPreset = UltracraftClient.wingPreset;
 		config.wingPattern = UltracraftClient.wingPattern;
-		UltracraftClient.getConfigHolder().save();
+		UltracraftClient.saveConfig();
 		if(tab == Tab.PRESETS)
 			WingColorPresetManager.unloadPresets();
 		

@@ -11,7 +11,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import software.bernie.geckolib.model.DefaultedItemGeoModel;
 import software.bernie.geckolib.renderer.GeoItemRenderer;
 
@@ -61,7 +60,7 @@ public class PierceRevolverRenderer extends GeoItemRenderer<PierceRevolverItem>
 		poseStack.push();
 		float useTime = 1f - (stack.getItem().getMaxUseTime(stack) - ((PierceRevolverItem)stack.getItem()).getApproxUseTime()) / (float)(stack.getItem().getMaxUseTime(stack));
 		useTime = MathHelper.clamp(useTime, 0f, 1f);
-		float f = UltracraftClient.getConfigHolder().get().safeVFX ? 0.01f : 0.025f;
+		float f = UltracraftClient.getConfig().safeVFX ? 0.01f : 0.025f;
 		poseStack.translate((random.nextFloat() - 0.5f) * useTime * f, (random.nextFloat() - 0.5f) * useTime * f, (random.nextFloat() - 0.5f) * useTime * f);
 		super.render(stack, transformType, poseStack, bufferSource, packedLight, packedOverlay);
 		poseStack.pop();

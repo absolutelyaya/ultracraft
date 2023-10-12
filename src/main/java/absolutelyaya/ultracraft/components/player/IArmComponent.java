@@ -18,4 +18,8 @@ public interface IArmComponent extends ComponentV3, AutoSyncedComponent
 	boolean isFeedbacker();
 	
 	boolean isKnuckleblaster();
+	
+	void setArmVisible(boolean v);
+	
+	boolean isArmVisible();
 }

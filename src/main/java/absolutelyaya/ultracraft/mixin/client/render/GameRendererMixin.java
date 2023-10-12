@@ -47,7 +47,7 @@ public class GameRendererMixin
 	@Inject(method = "renderWorld", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/GameRenderer;tiltViewWhenHurt(Lnet/minecraft/client/util/math/MatrixStack;F)V"))
 	void onViewTilt(float tickDelta, long limitTime, MatrixStack matrices, CallbackInfo ci)
 	{
-		float f = UltracraftClient.getConfigHolder().get().slideTilt;
+		float f = UltracraftClient.getConfig().slideTilt;
 		ClientPlayerEntity player = MinecraftClient.getInstance().player;
 		IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
 		if(wings.isActive() && player != null && !camera.isThirdPerson() && player.isSprinting() && f > 0)

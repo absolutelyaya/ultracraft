@@ -35,7 +35,7 @@ public class ArmFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>> 
 		byte activeArm = arms.getActiveArm();
 		PlayerEntityModel<T> model = getContextModel();
 		boolean noneEquipped = activeArm == -1;
-		if(noneEquipped)
+		if(noneEquipped || !arms.isArmVisible())
 			return;
 		boolean slim = entity instanceof AbstractClientPlayerEntity clientPlayer && clientPlayer.getModel().equals("slim");
 		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(getTexture(activeArm, slim)));

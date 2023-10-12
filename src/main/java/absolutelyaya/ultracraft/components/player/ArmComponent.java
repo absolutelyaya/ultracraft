@@ -17,6 +17,7 @@ public class ArmComponent implements IArmComponent
 	
 	final PlayerEntity provider;
 	byte activeArm = 0;
+	boolean visible;
 	
 	public ArmComponent(PlayerEntity provider)
 	{
@@ -95,15 +96,31 @@ public class ArmComponent implements IArmComponent
 	}
 	
 	@Override
+	public void setArmVisible(boolean v)
+	{
+		visible = v;
+		sync();
+	}
+	
+	@Override
+	public boolean isArmVisible()
+	{
+		return visible;
+	}
+	
+	@Override
 	public void readFromNbt(NbtCompound tag)
 	{
 		if(tag.contains("active", NbtElement.BYTE_TYPE))
 			activeArm = tag.getByte("active");
+		if(tag.contains("visible", NbtElement.BYTE_TYPE))
+			visible = tag.getBoolean("visible");
 	}
 	
 	@Override
 	public void writeToNbt(NbtCompound tag)
 	{
 		tag.putByte("active", activeArm);
+		tag.putBoolean("visible", visible);
 	}
 }

@@ -97,7 +97,7 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 		super.tick();
 		if(getWorld().getFluidState(getBlockPos()).isIn(FluidTags.LAVA))
 			explode(getOwner());
-		if(getWorld().isClient && UltracraftClient.getConfigHolder().get().safeVFX)
+		if(getWorld().isClient && UltracraftClient.getConfig().safeVFX)
 			return;
 		if(age % 5 == 0)
 		{

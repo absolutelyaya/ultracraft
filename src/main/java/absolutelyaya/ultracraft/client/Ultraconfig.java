@@ -90,4 +90,6 @@ public class Ultraconfig implements ConfigData
 	public boolean showEpilepsyWarning = true;
 	@ConfigEntry.Gui.Excluded
 	public List<UUID> blockedPlayers = new ArrayList<>();
+	@ConfigEntry.Gui.Excluded
+	public boolean armVisible = true;
 }

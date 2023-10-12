@@ -40,7 +40,7 @@ public class WingsFeature<T extends PlayerEntity, M extends PlayerEntityModel<T>
 	@Override
 	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch)
 	{
-		HideWingsSetting hideWings = UltracraftClient.getConfigHolder().get().hideWings;
+		HideWingsSetting hideWings = UltracraftClient.getConfig().hideWings;
 		switch(hideWings)
 		{
 			case ALL -> {

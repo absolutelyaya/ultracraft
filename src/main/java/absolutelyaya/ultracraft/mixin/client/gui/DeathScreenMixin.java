@@ -37,7 +37,7 @@ public abstract class DeathScreenMixin extends Screen
 	@Inject(method = "init", at = @At("TAIL"))
 	void onInit(CallbackInfo ci)
 	{
-		if(!UltracraftClient.getConfigHolder().get().deathScreen)
+		if(!UltracraftClient.getConfig().deathScreen)
 			return;
 		for (ButtonWidget button : buttons)
 		{
@@ -48,7 +48,7 @@ public abstract class DeathScreenMixin extends Screen
 	@Inject(method = "render", at = @At("HEAD"), cancellable = true)
 	void onRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci)
 	{
-		if(!UltracraftClient.getConfigHolder().get().deathScreen)
+		if(!UltracraftClient.getConfig().deathScreen)
 			return;
 		time += delta;
 		context.fill(0, 0, width, height, 0xaa000000);
@@ -81,7 +81,7 @@ public abstract class DeathScreenMixin extends Screen
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers)
 	{
-		if(!UltracraftClient.getConfigHolder().get().deathScreen)
+		if(!UltracraftClient.getConfig().deathScreen)
 			return super.keyPressed(keyCode, scanCode, modifiers);
 		if(keyCode == 82)
 			client.player.requestRespawn();

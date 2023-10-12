@@ -51,7 +51,6 @@ import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 import net.fabricmc.fabric.api.client.rendering.v1.*;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.loader.api.FabricLoader;
@@ -212,6 +211,9 @@ public class UltracraftClient implements ClientModInitializer
 			buf.writeVector3f(wings.getColors()[1]);
 			buf.writeString(wings.getPattern());
 			ClientPlayNetworking.send(PacketRegistry.SEND_WING_DATA_C2S_PACKET_ID, buf);
+			buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeBoolean(config.get().armVisible);
+			ClientPlayNetworking.send(PacketRegistry.ARM_VISIBLE_C2S_PACKET_ID, buf);
 			if(config.get().showEpilepsyWarning)
 				MinecraftClient.getInstance().setScreen(new EpilepsyPopupScreen(null));
 			if(config.get().serverJoinInfo)
@@ -446,9 +448,14 @@ public class UltracraftClient implements ClientModInitializer
 		}
 	}
 	
-	public static ConfigHolder<Ultraconfig> getConfigHolder()
+	public static Ultraconfig getConfig()
 	{
-		return config;
+		return config.get();
+	}
+	
+	public static void saveConfig()
+	{
+		config.save();
 	}
 	
 	public static void syncGameRule(byte data, int value)

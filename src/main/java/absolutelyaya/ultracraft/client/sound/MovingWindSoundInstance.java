@@ -18,7 +18,7 @@ public class MovingWindSoundInstance extends MovingPlayerSoundInstance
 	@Override
 	public void tick()
 	{
-		if(owner == null || owner.isRemoved() || !UltracraftClient.getConfigHolder().get().movementSounds)
+		if(owner == null || owner.isRemoved() || !UltracraftClient.getConfig().movementSounds)
 			setDone();
 		if(!UltraComponents.WING_DATA.get(owner).isActive())
 		{

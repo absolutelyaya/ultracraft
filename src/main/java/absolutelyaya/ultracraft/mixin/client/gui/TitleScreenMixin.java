@@ -34,7 +34,7 @@ public abstract class TitleScreenMixin extends Screen
     
     @Shadow public abstract boolean mouseClicked(double mouseX, double mouseY, int button);
     
-    private static final Ultraconfig config = UltracraftClient.getConfigHolder().get();
+    private static final Ultraconfig config = UltracraftClient.getConfig();
     private static final Identifier BG_ICON_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/misc/bg_icons.png");
     RotatingCubeMapRenderer ultraBG, defaultBG, limboBG;
     SoundInstance wind;
@@ -105,6 +105,6 @@ public abstract class TitleScreenMixin extends Screen
             default -> defaultBG;
         };
         config.BGID = bg;
-        UltracraftClient.getConfigHolder().save();
+        UltracraftClient.saveConfig();
     }
 }

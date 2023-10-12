@@ -115,7 +115,7 @@ public abstract class CameraMixin
 	{
 		if(!(focusedEntity instanceof PlayerEntity player))
 			return;
-		float f = UltracraftClient.getConfigHolder().get().slideCamOffset / 100f;
+		float f = UltracraftClient.getConfig().slideCamOffset / 100f;
 		if(thirdPerson && f > 0f)
 		{
 			boolean flip = player.getMainArm().equals(Arm.LEFT);

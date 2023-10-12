@@ -40,7 +40,7 @@ import java.util.Random;
 @SuppressWarnings("SameParameterValue")
 public class UltraHudRenderer
 {
-	private static final Ultraconfig config = UltracraftClient.getConfigHolder().get();
+	private static final Ultraconfig config = UltracraftClient.getConfig();
 	final Identifier GUI_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/ultrahud.png");
 	final Identifier WEAPONS_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/weapon_icons.png");
 	final Identifier CROSSHAIR_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/gui/crosshair_stats.png");
@@ -101,7 +101,7 @@ public class UltraHudRenderer
 		
 		matrices.push();
 		boolean flip = player.getMainArm().equals(Arm.LEFT) ^ config.switchSides;
-		if(!UltracraftClient.getConfigHolder().get().ultraHudFixed)
+		if(!UltracraftClient.getConfig().ultraHudFixed)
 		{
 			float h = MathHelper.lerp(delta, player.lastRenderPitch, player.renderPitch);
 			float i = MathHelper.lerp(delta, player.lastRenderYaw, player.renderYaw);
@@ -404,7 +404,7 @@ public class UltraHudRenderer
 	
 	public static void onCatchFish(ItemStack stack)
 	{
-		if(UltracraftClient.getConfigHolder().get().fishingJoke)
+		if(UltracraftClient.getConfig().fishingJoke)
 		{
 			lastCatch = stack;
 			fishTimer = 10f;
@@ -414,7 +414,7 @@ public class UltraHudRenderer
 	
 	public static void onPunchCoin(int score)
 	{
-		if(UltracraftClient.getConfigHolder().get().coinPunchCounter)
+		if(UltracraftClient.getConfig().coinPunchCounter)
 		{
 			coinTimer = 10f;
 			coinCombo = score + 1;

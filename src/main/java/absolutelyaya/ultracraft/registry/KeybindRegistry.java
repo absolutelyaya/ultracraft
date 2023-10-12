@@ -110,7 +110,7 @@ public class KeybindRegistry
 				if(b)
 					buf.writeInt(entity.getId());
 				buf.writeVector3f(player.getVelocity().toVector3f());
-				buf.writeBoolean(UltracraftClient.getConfigHolder().get().showPunchArea);
+				buf.writeBoolean(UltracraftClient.getConfig().showPunchArea);
 				ClientPlayNetworking.send(PacketRegistry.PUNCH_PACKET_ID, buf);
 				punchPressed = true;
 			}
