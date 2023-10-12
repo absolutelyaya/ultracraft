@@ -64,13 +64,27 @@ public abstract class HandRendererMixin
 			if(item.getItem() instanceof AbstractWeaponItem)
 				matrices.translate(0f, -0.2f, 0f);
 			matrices.push();
-			//TODO: hide normal arm
-			renderArmHoldingItem(matrices, vertexConsumers, light, equipProgress, swing, player.getMainArm().getOpposite());
-			PlayerEntityRenderer renderer = (PlayerEntityRenderer) entityRenderDispatcher.getRenderer(client.player);
+			PlayerEntityRenderer renderer = (PlayerEntityRenderer)entityRenderDispatcher.getRenderer(client.player);
 			PlayerEntityModel<?> model = renderer.getModel();
+			boolean right = player.getMainArm().equals(Arm.RIGHT);
+			
+			renderArmHoldingItem(matrices, vertexConsumers, light, equipProgress, swing, player.getMainArm().getOpposite());
+			boolean arm, sleeve;
+			if(right)
+			{
+				arm = model.leftArm.visible;
+				sleeve = model.leftSleeve.visible;
+			}
+			else
+			{
+				arm = model.rightArm.visible;
+				sleeve = model.rightSleeve.visible;
+			}
+			setArmVisibility(model, right ? Arm.LEFT : Arm.RIGHT, true, true);
+			
 			IArmComponent arms = UltraComponents.ARMS.get(player);
 			VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(ArmFeature.getTexture(arms.getActiveArm(), player.getModel().equals("slim"))));
-			if(player.getMainArm().equals(Arm.RIGHT))
+			if(right)
 			{
 				model.leftArm.render(matrices, consumer, light, OverlayTexture.DEFAULT_UV);
 				model.leftSleeve.render(matrices, consumer, light, OverlayTexture.DEFAULT_UV);
@@ -80,10 +94,10 @@ public abstract class HandRendererMixin
 				model.rightArm.render(matrices, consumer, light, OverlayTexture.DEFAULT_UV);
 				model.rightSleeve.render(matrices, consumer, light, OverlayTexture.DEFAULT_UV);
 			}
+			setArmVisibility(model, right ? Arm.LEFT : Arm.RIGHT, arm, sleeve);
 			matrices.pop();
 			matrices.push();
 			boolean transform = true;
-			boolean right = player.getMainArm() == Arm.RIGHT;
 			float x = 0.8f * MathHelper.sin((float)(MathHelper.sqrt(swing) * Math.PI));
 			float y = 0.2f * MathHelper.sin((float)(MathHelper.sqrt(swing) * Math.PI * 2));
 			float z = -0.2f * MathHelper.sin((float)(swing * Math.PI));
@@ -129,6 +143,20 @@ public abstract class HandRendererMixin
 							ModelTransformationMode.NONE, !right, matrices, vertexConsumers, light);
 			matrices.pop();
 			ci.cancel();
+		}
+	}
+	
+	void setArmVisibility(PlayerEntityModel<?> model, Arm side, boolean arm, boolean sleeve)
+	{
+		if(side.equals(Arm.RIGHT))
+		{
+			model.rightArm.visible = arm;
+			model.rightSleeve.visible = sleeve;
+		}
+		else
+		{
+			model.leftArm.visible = arm;
+			model.leftSleeve.visible = sleeve;
 		}
 	}
 }

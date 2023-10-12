@@ -21,5 +21,5 @@ public interface IArmComponent extends ComponentV3, AutoSyncedComponent
 	
 	void setArmVisible(boolean v);
 	
-	boolean isArmVisible();
+	boolean isVisible();
 }

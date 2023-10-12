@@ -103,7 +103,7 @@ public class ArmComponent implements IArmComponent
 	}
 	
 	@Override
-	public boolean isArmVisible()
+	public boolean isVisible()
 	{
 		return visible;
 	}
