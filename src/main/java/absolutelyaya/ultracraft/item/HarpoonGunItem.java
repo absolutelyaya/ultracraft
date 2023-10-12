@@ -13,6 +13,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.TypedActionResult;
@@ -25,6 +26,7 @@ import software.bernie.geckolib.animatable.client.RenderProvider;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
@@ -36,6 +38,8 @@ public class HarpoonGunItem extends AbstractWeaponItem implements GeoItem
 {
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
+	final RawAnimation AnimationFire = RawAnimation.begin().thenPlay("fire");
+	final RawAnimation AnimationAltFire = RawAnimation.begin().thenPlay("alt_fire");
 	
 	public int texture;
 	
@@ -77,6 +81,7 @@ public class HarpoonGunItem extends AbstractWeaponItem implements GeoItem
 			HarpoonEntity harpoon = HarpoonEntity.spawn(user, user.getEyePos(), user.getRotationVector().multiply(3f));
 			world.spawnEntity(harpoon);
 			cdm.setCooldown(this, 15, GunCooldownManager.PRIMARY);
+			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), "fire");
 		}
 		return super.onPrimaryFire(world, user, userVelocity);
 	}
@@ -112,6 +117,8 @@ public class HarpoonGunItem extends AbstractWeaponItem implements GeoItem
 		}
 		user.setVelocity(ownerVelocity.normalize().multiply(Math.min(harpoons.size(), 3)));
 		UltraComponents.WINGED_ENTITY.get(user).getGunCooldownManager().setCooldown(this, 100, GunCooldownManager.SECONDARY);
+		if(!world.isClient)
+			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), "altFire");
 		super.onAltFire(world, user);
 	}
 	
@@ -152,7 +159,9 @@ public class HarpoonGunItem extends AbstractWeaponItem implements GeoItem
 	@Override
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
 	{
-		controllerRegistrar.add(new AnimationController<>(this, getControllerName(), 0, ignored -> PlayState.STOP));
+		controllerRegistrar.add(new AnimationController<>(this, getControllerName(), 0, ignored -> PlayState.STOP)
+										.triggerableAnim("fire", AnimationFire)
+										.triggerableAnim("altFire", AnimationAltFire));
 	}
 	
 	@Override

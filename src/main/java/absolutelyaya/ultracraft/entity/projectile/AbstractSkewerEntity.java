@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.entity.projectile;
 
+import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EntityType;
@@ -58,6 +59,8 @@ public abstract class AbstractSkewerEntity extends PersistentProjectileEntity
 			}
 			setVelocity(Vec3d.ZERO);
 			setPosition(victim.getPos().add(0f, victim.getHeight() / 2, 0f));
+			prevPitch = getPitch();
+			prevYaw = getYaw();
 			setYaw(dataTracker.get(IMPACT_YAW));
 			setPitch(dataTracker.get(IMPACT_PITCH));
 		}
@@ -107,6 +110,8 @@ public abstract class AbstractSkewerEntity extends PersistentProjectileEntity
 			dataTracker.set(IMPACT_YAW, getYaw());
 			dataTracker.set(IMPACT_PITCH, getPitch());
 			living.damage(DamageSources.get(getWorld(), DamageSources.MAGNET, this, getOwner()), 3.5f);
+			if(this instanceof ProjectileEntityAccessor proj && proj.isParried())
+				proj.onParriedCollision(entityHitResult);
 		}
 	}
 }

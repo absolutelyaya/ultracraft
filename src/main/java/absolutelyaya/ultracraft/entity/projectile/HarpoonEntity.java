@@ -67,8 +67,6 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 		super.tick();
 		if(getOwner() != null && !getOwner().isPlayer() && age > 600)
 			despawn();
-		if(isInGround())
-			dataTracker.set(GROUND_TIME, dataTracker.get(GROUND_TIME) + 1);
 		if(victim == null && dataTracker.get(GROUND_TIME) > 20 && getOwner() != null && !getOwner().isPlayer())
 			setReturning(true);
 		else if(victim != null && dataTracker.get(GROUND_TIME) > 200 && getOwner() != null)
@@ -179,5 +177,11 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 		if(getOwner() != null)
 			UltracraftClient.HITSCAN_HANDLER.removeMoving(getUuid());
 		super.onRemoved();
+	}
+	
+	@Override
+	public boolean hasNoGravity()
+	{
+		return dataTracker.get(RETURNING);
 	}
 }
