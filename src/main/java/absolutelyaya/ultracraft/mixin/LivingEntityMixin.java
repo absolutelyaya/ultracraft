@@ -78,7 +78,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	
 	@Shadow public abstract float getMaxHealth();
 	
-	final int punchDuration = 6;
+	int punchDuration = 60; // 10
 	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
 	int punchTicks, ticksSincePunch = Integer.MAX_VALUE, ricochetCooldown, fatique, firecooldown;
 	boolean punching, timeFrozen;
@@ -349,7 +349,8 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		}
 		
 		prevPunchProgress = punchProgress;
-		punchProgress = (float)punchTicks / (float)i;
+		punchProgress = Math.min(punchTicks / 8f, 0.5f);
+		punchProgress += MathHelper.clamp((4 - punchDuration + punchTicks) / 8f, 0f, 0.5f);
 		if(timeFrozen)
 			prevPunchProgress = punchProgress;
 	}
@@ -359,6 +360,12 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	{
 		if(!punching)
 		{
+			punchDuration = switch(UltraComponents.ARMS.get(this).getActiveArm())
+			{
+				case 0 -> 8;
+				case 1 -> 16;
+				default -> 6;
+			};
 			punchTicks = 0;
 			ticksSincePunch = 0;
 			punching = true;
@@ -371,13 +378,11 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	}
 	
 	@Override
-	public float GetPunchProgress(float tickDelta)
+	public float getPunchProgress(float tickDelta)
 	{
 		float f = punchProgress - prevPunchProgress;
-		if (f < 0.0F) {
+		if (f < 0f)
 			++f;
-		}
-		
 		if (Ultracraft.isTimeFrozen())
 			return punchProgress;
 		else
