@@ -51,7 +51,6 @@ public abstract class HandRendererMixin
 		if(hand == Hand.OFF_HAND && (playerAccessor.IsPunching() || !item.isEmpty()))
 		{
 			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-			float swing = playerAccessor.getPunchProgress(Ultracraft.isTimeFrozen() || MinecraftClient.getInstance().isPaused() ? 0f : tickDelta);
 			if(item.getItem() instanceof AbstractWeaponItem)
 				matrices.translate(0f, -0.2f, 0f);
 			matrices.push();
@@ -72,7 +71,10 @@ public abstract class HandRendererMixin
 			}
 			setArmVisibility(model, right ? Arm.LEFT : Arm.RIGHT, true, true);
 			
-			positionPunchArm(matrices, equipProgress, !right, !item.isEmpty()); //TODO: switch on active arm
+			if(playerAccessor.getKnuckleBlastProgress(tickDelta) > 0)
+				Ultracraft.positionKnuckleBlast(matrices, equipProgress, !right);
+			else
+				positionPunchArm(matrices, equipProgress, !right, !item.isEmpty());
 			
 			IArmComponent arms = UltraComponents.ARMS.get(player);
 			VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutout(ArmFeature.getTexture(arms.getActiveArm(), player.getModel().equals("slim"))));
@@ -171,6 +173,12 @@ public abstract class HandRendererMixin
 		float yaw = MathHelper.sin(swing * (float)Math.PI) / 1.5f;
 		matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(flip * yaw * 30.0f));
 		matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(flip * roll * -20.0f));
+		positionBaseArm(matrices, flipped);
+	}
+	
+	void positionBaseArm(MatrixStack matrices, boolean flipped)
+	{
+		int flip = flipped ? 1 : -1;
 		matrices.translate(flip * -1.0f, 3.6f, 3.5f);
 		matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(flip * 120.0f));
 		matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(200.0f));

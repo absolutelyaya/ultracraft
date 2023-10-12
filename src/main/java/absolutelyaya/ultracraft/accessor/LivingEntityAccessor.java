@@ -13,6 +13,10 @@ public interface LivingEntityAccessor
 	
 	boolean IsPunching();
 	
+	void knuckleBlast();
+	
+	float getKnuckleBlastProgress(float tickDelta);
+	
 	boolean IsCanBleed();
 	
 	void setCanBleedSupplier(Supplier<Boolean> supplier);

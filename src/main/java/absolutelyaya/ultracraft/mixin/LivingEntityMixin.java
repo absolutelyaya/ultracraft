@@ -78,11 +78,11 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	
 	@Shadow public abstract float getMaxHealth();
 	
-	int punchDuration = 60; // 10
+	int punchDuration = 60, knuckleDuration = 10;
 	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
-	int punchTicks, ticksSincePunch = Integer.MAX_VALUE, ricochetCooldown, fatique, firecooldown;
-	boolean punching, timeFrozen;
-	float punchProgress, prevPunchProgress, recoil, lastHealth;
+	int punchTicks, knuckleTicks, knuckleCooldown, ticksSincePunch = Integer.MAX_VALUE, ricochetCooldown, fatique, firecooldown;
+	boolean punching, blasting, timeFrozen;
+	float punchProgress, prevPunchProgress, knuckleProgress, prevKnuckleProgress, recoil, lastHealth;
 	
 	public LivingEntityMixin(EntityType<?> type, World world)
 	{
@@ -332,19 +332,14 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		}
 		else
 			punchTicks = 0;
-		if((Object)this instanceof PlayerEntity player)
+		if((Object)this instanceof PlayerEntity)
 		{
 			IArmComponent arm = UltraComponents.ARMS.get(this);
 			if(ticksSincePunch < 8)
 			{
 				ticksSincePunch++;
 				if(ticksSincePunch == 8 && arm.isKnuckleblaster() && KeybindRegistry.PUNCH.isPressed())
-				{
-					PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-					ClientPlayNetworking.send(PacketRegistry.KNUCKLE_BLAST_PACKET_ID, buf);
-					PlayerAnimator.playAnimation(player, player.getMainArm().equals(Arm.LEFT) ? PlayerAnimator.KNUCKLE_BLAST_FLIPPED : PlayerAnimator.KNUCKLE_BLAST,
-							0, false, true);
-				}
+					knuckleBlast();
 			}
 		}
 		
@@ -353,6 +348,26 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 		punchProgress += MathHelper.clamp((4 - punchDuration + punchTicks) / 8f, 0f, 0.5f);
 		if(timeFrozen)
 			prevPunchProgress = punchProgress;
+		
+		if(blasting)
+		{
+			if(knuckleTicks < 8)
+			{
+				knuckleTicks++;
+				if(knuckleTicks >= 8)
+				{
+					knuckleTicks = 0;
+					blasting = false;
+				}
+			}
+		}
+		else if(knuckleCooldown > 0)
+			knuckleCooldown--;
+		
+		prevKnuckleProgress = knuckleProgress;
+		knuckleProgress = Math.min(knuckleTicks / 8f, 1f);
+		if(timeFrozen)
+			prevKnuckleProgress = knuckleProgress;
 	}
 	
 	@Override
@@ -393,6 +408,32 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	public boolean IsPunching()
 	{
 		return punching;
+	}
+	
+	@Override
+	public void knuckleBlast()
+	{
+		if(knuckleCooldown > 0 || !((Object)this instanceof PlayerEntity player))
+			return;
+		knuckleTicks = 0;
+		knuckleCooldown = 40;
+		blasting = true;
+		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+		ClientPlayNetworking.send(PacketRegistry.KNUCKLE_BLAST_PACKET_ID, buf);
+		PlayerAnimator.playAnimation(player, player.getMainArm().equals(Arm.LEFT) ? PlayerAnimator.KNUCKLE_BLAST_FLIPPED : PlayerAnimator.KNUCKLE_BLAST,
+				0, false, true);
+	}
+	
+	@Override
+	public float getKnuckleBlastProgress(float tickDelta)
+	{
+		float f = knuckleProgress - prevKnuckleProgress;
+		if (f < 0f)
+			++f;
+		if (Ultracraft.isTimeFrozen())
+			return knuckleProgress;
+		else
+			return prevKnuckleProgress + f * tickDelta;
 	}
 	
 	@Override
