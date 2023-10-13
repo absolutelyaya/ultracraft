@@ -58,7 +58,8 @@ public class ArmComponent implements IArmComponent
 			if(activeArm != idx && progression.isUnlocked(id))
 			{
 				activeArm = (byte)idx;
-				sync();
+				if(!provider.getWorld().isClient)
+					sync();
 				return;
 			}
 		}

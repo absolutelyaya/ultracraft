@@ -5,7 +5,6 @@
     "minecraft:mob_attack_no_aggro",
     "minecraft:player_attack",
     "minecraft:generic",
-    "ultracraft:swordsmachine",
-    "ultracraft:interrupt"
+    "ultracraft:swordsmachine"
   ]
 }

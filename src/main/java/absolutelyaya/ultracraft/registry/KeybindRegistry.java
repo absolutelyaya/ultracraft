@@ -15,7 +15,6 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.BellBlock;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
@@ -144,6 +143,8 @@ public class KeybindRegistry
 				ClientPlayerEntity player = client.player;
 				UltraComponents.ARMS.get(player).cycleArms();
 				client.gameRenderer.firstPersonRenderer.resetEquipProgress(Hand.OFF_HAND);
+				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+				ClientPlayNetworking.send(PacketRegistry.ARM_CYCLE_PACKET_ID, buf);
 			}
 			while(ARM_CYCLE.wasPressed()); //remove stored presses
 			armCyclePressed = ARM_CYCLE.isPressed();

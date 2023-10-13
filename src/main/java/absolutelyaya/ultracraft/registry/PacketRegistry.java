@@ -9,6 +9,7 @@ import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.block.PedestalBlock;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.components.level.IUltraLevelComponent;
+import absolutelyaya.ultracraft.components.player.IArmComponent;
 import absolutelyaya.ultracraft.components.player.IWingDataComponent;
 import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
@@ -73,7 +74,8 @@ public class PacketRegistry
 	public static final Identifier HELL_OBSERVER_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hell_observer_c2s");
 	public static final Identifier REQUEST_GRAFFITI_WHITELIST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "request_graffiti_whitelist");
 	public static final Identifier KNUCKLE_BLAST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "knuckle_blast");
-	public static final Identifier ARM_VISIBLE_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "arm_visible_c2s");
+	public static final Identifier ARM_CYCLE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "arm_cycle");
+	public static final Identifier ARM_VISIBLE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "arm_visible");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "scan");
@@ -116,6 +118,7 @@ public class PacketRegistry
 			server.execute(() -> {
 				Vec3d forward = player.getRotationVector().normalize();
 				player.swingHand(Hand.OFF_HAND, true);
+				IArmComponent arm = UltraComponents.ARMS.get(player);
 				
 				if(player.getOffHandStack().getItem() instanceof SoapItem soap)
 				{
@@ -128,7 +131,7 @@ public class PacketRegistry
 				{
 					if(player.getOffHandStack().isIn(TagRegistry.PUNCH_FLAMES))
 						target.setFireTicks(100);
-					if (target instanceof MeleeInterruptable mp && (!(mp instanceof MobEntity) || ((MobEntity)mp).isAttacking()))
+					if (arm.isFeedbacker() && target instanceof MeleeInterruptable mp && (!(mp instanceof MobEntity) || ((MobEntity)mp).isAttacking()))
 					{
 						Ultracraft.freeze(player, 10);
 						target.damage(DamageSources.get(world, DamageSources.INTERRUPT, player), 6);
@@ -139,16 +142,19 @@ public class PacketRegistry
 					else
 					{
 						world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.75f, 0.5f);
-						target.damage(world.getDamageSources().mobAttack(player), 1);
+						boolean knuckle = arm.isKnuckleblaster();
+						target.damage(DamageSources.get(world, knuckle ? DamageSources.KNUCKLE_PUNCH : DamageSources.PUNCH, player), knuckle ? 2.5f : 1f);
 					}
 					boolean fatal = !target.isAlive();
 					Vec3d vel = forward.multiply(fatal ? 1.5f : 0.75f);
+					if(arm.isKnuckleblaster())
+						vel = vel.multiply(1.5f);
 					if(target instanceof ProjectileEntity || (target instanceof LivingEntityAccessor && ((LivingEntityAccessor)target).takePunchKnockback()))
 						target.setVelocity(vel);
 					return;
 				}
 				
-				if(!UltraComponents.ARMS.get(player).isFeedbacker())
+				if(!arm.isFeedbacker())
 					return;
 				//Projectile Parry
 				//Fetch all Parry Candidate Projectiles
@@ -477,10 +483,13 @@ public class PacketRegistry
 			server.execute(() ->
 			{
 				ExplosionHandler.explosion(player, player.getWorld(), player.getPos(), DamageSources.get(player.getWorld(),
-						DamageSources.KNUCKLE_BLAST), 4f, 0.5f, 4, false);
+						DamageSources.KNUCKLE_BLAST), 1f, 0.75f, 6, false);
 			});
 		});
-		ServerPlayNetworking.registerGlobalReceiver(ARM_VISIBLE_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
+		ServerPlayNetworking.registerGlobalReceiver(ARM_CYCLE_PACKET_ID, (server, player, handler, buf, sender) -> {
+			server.execute(() -> UltraComponents.ARMS.get(player).cycleArms());
+		});
+		ServerPlayNetworking.registerGlobalReceiver(ARM_VISIBLE_PACKET_ID, (server, player, handler, buf, sender) -> {
 			boolean v = buf.readBoolean();
 			server.execute(() -> UltraComponents.ARMS.get(player).setArmVisible(v));
 		});

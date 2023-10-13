@@ -1,6 +1,8 @@
 package absolutelyaya.ultracraft;
 
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
+import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
@@ -82,16 +84,21 @@ public class ExplosionHandler
 		Box box = new Box(pos.subtract(radius, radius, radius), pos.add(radius, radius, radius));
 		if(damage > 0f)
 		{
-			world.getOtherEntities(null, box, Entity::isLiving).forEach(e -> {
+			world.getOtherEntities(null, box, e -> e.isLiving() || e instanceof ProjectileEntityAccessor).forEach(e -> {
 				float normalizedDistance = (float)e.getPos().distanceTo(pos) / radius;
-				if((e instanceof LivingEntityAccessor living && (applyKnockbackToIgnored || !e.equals(ignored)) && living.takePunchKnockback()) || e instanceof ProjectileEntity)
-					e.addVelocity(e.getPos().subtract(pos).add(0.0, 1f - normalizedDistance, 0.0).normalize()
-										  .multiply(Math.min(radius * 0.75, 1.75f) * (normalizedDistance == 0f ? 0.75f : Math.min(1.5f - normalizedDistance, 1f))));
+				if((e instanceof LivingEntityAccessor living && (applyKnockbackToIgnored || !e.equals(ignored)) && living.takePunchKnockback()) || e instanceof ProjectileEntityAccessor)
+				{
+					float vel = (float)(Math.min(radius * 0.75, 1.75f) * (normalizedDistance == 0f ? 0.75f : Math.min(1.5f - normalizedDistance, 1f)));
+					if(e instanceof ProjectileEntity proj)
+						e.setVelocity(e.getPos().subtract(pos).normalize().multiply(Math.max(vel, Math.min(1f, proj.getVelocity().length()))));
+					else
+						e.addVelocity(e.getPos().subtract(pos).add(0.0, 1f - normalizedDistance, 0.0).normalize().multiply(vel));
+				}
 				if(e != ignored)
 				{
 					boolean unUltra = !(e instanceof AbstractUltraHostileEntity);
 					e.damage(source, MathHelper.lerp(normalizedDistance, damage * (unUltra ? 1.5f : 1f), Math.max(damage - falloff, 0f) * (unUltra ? 1.5f : 1f)));
-					if(!(e instanceof PlayerEntity))
+					if(!(e instanceof PlayerEntity || source.isOf(DamageSources.KNUCKLE_BLAST)))
 						e.setOnFireFor(10);
 				}
 			});

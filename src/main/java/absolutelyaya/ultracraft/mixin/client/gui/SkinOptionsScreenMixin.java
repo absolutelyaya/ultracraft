@@ -41,7 +41,7 @@ public abstract class SkinOptionsScreenMixin extends GameOptionsScreen
 							config.armVisible = v;
 							PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 							buf.writeBoolean(v);
-							ClientPlayNetworking.send(PacketRegistry.ARM_VISIBLE_C2S_PACKET_ID, buf);
+							ClientPlayNetworking.send(PacketRegistry.ARM_VISIBLE_PACKET_ID, buf);
 						}));
 		ButtonWidget b = addDrawableChild(ButtonWidget.builder(Text.translatable("screen.ultracraft.wing-settings.title").append("..."),
 						(button) -> client.setScreen(new WingCustomizationScreen(this)))

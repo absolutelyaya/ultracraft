@@ -213,7 +213,7 @@ public class UltracraftClient implements ClientModInitializer
 			ClientPlayNetworking.send(PacketRegistry.SEND_WING_DATA_C2S_PACKET_ID, buf);
 			buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeBoolean(config.get().armVisible);
-			ClientPlayNetworking.send(PacketRegistry.ARM_VISIBLE_C2S_PACKET_ID, buf);
+			ClientPlayNetworking.send(PacketRegistry.ARM_VISIBLE_PACKET_ID, buf);
 			if(config.get().showEpilepsyWarning)
 				MinecraftClient.getInstance().setScreen(new EpilepsyPopupScreen(null));
 			if(config.get().serverJoinInfo)

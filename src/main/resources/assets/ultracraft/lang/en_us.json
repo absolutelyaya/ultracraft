@@ -208,7 +208,15 @@
   "death.attack.retaliation": "%1$s was made to atone for their sins",
   "death.attack.retaliation.player": "%1$s was made to atone for their sins",
   "death.attack.retaliation.item": "%1$s was made to atone for their sins",
-  "death.attack.knuckle_blaster": "%1$s got beaten to a pulp by %2$s",
+  "death.attack.punch": "%1$s got punched to death by %2$s",
+  "death.attack.punch.player": "%1$s got punched to death by %2$s",
+  "death.attack.punch.item": "%1$s got punched to death by %2$s",
+  "death.attack.knuckle_punch": "%1$s got beaten to a pulp by %2$s",
+  "death.attack.knuckle_punch.player": "%1$s got beaten to a pulp by %2$s",
+  "death.attack.knuckle_punch.item": "%1$s got beaten to a pulp by %2$s",
+  "death.attack.knuckle_blast": "%1$s got blasted by %2$s",
+  "death.attack.knuckle_blast.player": "%1$s got blasted by %2$s",
+  "death.attack.knuckle_blast.item": "%1$s got blasted by %2$s",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 
