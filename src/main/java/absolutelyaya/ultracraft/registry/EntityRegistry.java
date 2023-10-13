@@ -8,10 +8,7 @@ import absolutelyaya.ultracraft.entity.demon.RetaliationEntity;
 import absolutelyaya.ultracraft.entity.husk.FilthEntity;
 import absolutelyaya.ultracraft.entity.husk.SchismEntity;
 import absolutelyaya.ultracraft.entity.husk.StrayEntity;
-import absolutelyaya.ultracraft.entity.machine.DestinyBondSwordsmachineEntity;
-import absolutelyaya.ultracraft.entity.machine.DroneEntity;
-import absolutelyaya.ultracraft.entity.machine.StreetCleanerEntity;
-import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
+import absolutelyaya.ultracraft.entity.machine.*;
 import absolutelyaya.ultracraft.entity.other.*;
 import absolutelyaya.ultracraft.entity.projectile.*;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
@@ -58,6 +55,9 @@ public class EntityRegistry
 	public static final EntityType<StreetCleanerEntity> STREET_CLEANER = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "streetcleaner"),
 			EntityType.Builder.create(StreetCleanerEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2F).maxTrackingRange(8).build("streetcleaner"));
+	public static final EntityType<V2Entity> V2 = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "v2"),
+			EntityType.Builder.create(V2Entity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2F).maxTrackingRange(8).build("v2"));
 	
 	public static final EntityType<HellBulletEntity> HELL_BULLET = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "hell_bullet"),
@@ -155,5 +155,6 @@ public class EntityRegistry
 		FabricDefaultAttributeRegistry.register(DESTINY_SWORDSMACHINE, DestinyBondSwordsmachineEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(DRONE, DroneEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(STREET_CLEANER, StreetCleanerEntity.getDefaultAttributes());
+		FabricDefaultAttributeRegistry.register(V2, V2Entity.getDefaultAttributes());
 	}
 }

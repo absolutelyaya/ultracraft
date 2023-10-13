@@ -86,7 +86,8 @@ public class ExplosionHandler
 		{
 			world.getOtherEntities(null, box, e -> e.isLiving() || e instanceof ProjectileEntityAccessor).forEach(e -> {
 				float normalizedDistance = (float)e.getPos().distanceTo(pos) / radius;
-				if((e instanceof LivingEntityAccessor living && (applyKnockbackToIgnored || !e.equals(ignored)) && living.takePunchKnockback()) || e instanceof ProjectileEntityAccessor)
+				if((e instanceof LivingEntityAccessor living && (applyKnockbackToIgnored || !e.equals(ignored)) && living.takePunchKnockback()) ||
+						   (e instanceof ProjectileEntityAccessor && !source.isOf(DamageSources.PROJBOOST)))
 				{
 					float vel = (float)(Math.min(radius * 0.75, 1.75f) * (normalizedDistance == 0f ? 0.75f : Math.min(1.5f - normalizedDistance, 1f)));
 					if(e instanceof ProjectileEntity proj)

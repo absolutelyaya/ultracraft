@@ -9,6 +9,7 @@ import absolutelyaya.ultracraft.components.player.IArmComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
+import absolutelyaya.ultracraft.entity.IAntiCheeseBoss;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.KeybindRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
@@ -314,6 +315,15 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	{
 		if(this instanceof WingedPlayerEntity winged && UltraComponents.WING_DATA.get(winged).isActive() && isSprinting())
 			cir.setReturnValue(true);
+	}
+	
+	@Inject(method = "onDamaged", at = @At("HEAD"))
+	void onOnDamaged(DamageSource damageSource, CallbackInfo ci)
+	{
+		if(damageSource.getAttacker() instanceof IAntiCheeseBoss boss)
+			boss.resetFrustration();
+		if(damageSource.getSource() instanceof IAntiCheeseBoss boss)
+			boss.resetFrustration();
 	}
 	
 	void punchTick()
