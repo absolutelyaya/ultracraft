@@ -52,6 +52,12 @@
 					]
 				},
 				{
+					"name": "weapon",
+					"parent": "left_arm_lower",
+					"pivot": [-5.5, 12, -1],
+					"rotation": [90, 0, 0]
+				},
+				{
 					"name": "right_arm",
 					"parent": "body",
 					"pivot": [5, 22, 0],
@@ -68,11 +74,6 @@
 						{"origin": [4, 12, -2], "size": [3, 6, 4], "uv": [50, 10]},
 						{"origin": [4, 12, -2], "size": [3, 6, 4], "inflate": 0.25, "uv": [50, 30]}
 					]
-				},
-				{
-					"name": "weapon",
-					"parent": "right_arm_lower",
-					"pivot": [5.5, 14, -2]
 				},
 				{
 					"name": "hips",

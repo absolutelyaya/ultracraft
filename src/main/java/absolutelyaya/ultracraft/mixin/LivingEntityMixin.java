@@ -10,6 +10,7 @@ import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.IAntiCheeseBoss;
+import absolutelyaya.ultracraft.entity.machine.V2Entity;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.KeybindRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
@@ -193,7 +194,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	@Inject(method = "getJumpVelocity", at = @At("RETURN"), cancellable = true)
 	void onGetJumpVel(CallbackInfoReturnable<Float> cir)
 	{
-		if(this instanceof WingedPlayerEntity winged && UltraComponents.WING_DATA.get(winged).isActive())
+		if(isAffectedByMovementRules())
 		{
 			if(!getWorld().isClient)
 				cir.setReturnValue(cir.getReturnValue() + 0.1f * Math.max(getWorld().getGameRules().getInt(GameruleRegistry.HIVEL_JUMP_BOOST) +
@@ -262,7 +263,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	@ModifyVariable(method = "travel", ordinal = 0, at = @At("STORE"))
 	private double modifyGravity(double value)
 	{
-		if(!(this instanceof WingedPlayerEntity winged && UltraComponents.WING_DATA.get(winged).isActive()) || ((PlayerEntity)winged).getAbilities().flying || touchingWater)
+		if(!(isAffectedByMovementRules()) || (((Object)this instanceof PlayerEntity player) && player.getAbilities().flying) || touchingWater)
 			return value;
 		int val = (getWorld().isClient ? getGravityReduction() : getWorld().getGameRules().get(GameruleRegistry.HIVEL_SLOWFALL).get());
 		return Math.max(value * (1f - 0.1f * val), 0.01f);
@@ -486,5 +487,10 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	public boolean isRicochetHittable()
 	{
 		return isAlive() && ricochetCooldown <= 0;
+	}
+	
+	boolean isAffectedByMovementRules()
+	{
+		return (this instanceof WingedPlayerEntity winged && UltraComponents.WING_DATA.get(winged).isActive()) || (Object)this instanceof V2Entity;
 	}
 }

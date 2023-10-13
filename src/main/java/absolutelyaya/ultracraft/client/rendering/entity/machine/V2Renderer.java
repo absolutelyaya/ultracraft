@@ -1,19 +1,16 @@
 package absolutelyaya.ultracraft.client.rendering.entity.machine;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.client.rendering.entity.feature.gecko.SwordsmachineEmissiveLayer;
-import absolutelyaya.ultracraft.client.rendering.entity.feature.gecko.SwordsmachineRageLayer;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.gecko.V2RageLayer;
-import absolutelyaya.ultracraft.entity.machine.DestinyBondSwordsmachineEntity;
-import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
 import absolutelyaya.ultracraft.entity.machine.V2Entity;
+import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.RotationAxis;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 import software.bernie.geckolib.cache.object.GeoBone;
@@ -22,6 +19,8 @@ import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
 
 public class V2Renderer extends GeoEntityRenderer<V2Entity>
 {
+	private static final String WEAPON = "weapon";
+	
 	public V2Renderer(EntityRendererFactory.Context ctx)
 	{
 		super(ctx, new V2Model());
@@ -31,19 +30,22 @@ public class V2Renderer extends GeoEntityRenderer<V2Entity>
 			@Override
 			protected ItemStack getStackForBone(GeoBone bone, V2Entity animatable)
 			{
+				if(bone.getName().equals(WEAPON))
+					return ItemRegistry.CORE_SHOTGUN.getDefaultStack();
 				return super.getStackForBone(bone, animatable);
-			}
-			
-			@Override
-			protected ModelTransformationMode getTransformTypeForStack(GeoBone bone, ItemStack stack, V2Entity animatable)
-			{
-				return super.getTransformTypeForStack(bone, stack, animatable);
 			}
 			
 			@Override
 			protected void renderStackForBone(MatrixStack poseStack, GeoBone bone, ItemStack stack, V2Entity animatable, VertexConsumerProvider bufferSource, float partialTick, int packedLight, int packedOverlay)
 			{
+				poseStack.push();
+				if(bone.getName().equals(WEAPON))
+				{
+					poseStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(90));
+					poseStack.translate(0f, 0.05f, -0.3f);
+				}
 				super.renderStackForBone(poseStack, bone, stack, animatable, bufferSource, partialTick, packedLight, packedOverlay);
+				poseStack.pop();
 			}
 		});
 		addRenderLayer(new V2RageLayer(this));

@@ -53,15 +53,15 @@ public class V2Model extends GeoModel<V2Entity>
 		if(hips != null && animatable.isOnGround() && animatable.getAnimation() == 0)
 		{
 			Vec3d vel = animatable.getVelocity().normalize();
-			if(vel.length() <= 0.05f)
+			if(vel.length() <= 0.1f)
 				return;
 			else
 				hips.setRotY(0f);
 			float targetYaw = -((float)MathHelper.atan2(vel.x, vel.z)) * MathHelper.DEGREES_PER_RADIAN;
 			float phi = Math.abs(targetYaw - animatable.getYaw()) % 360;
 			float angleDelta = phi > 180 ? 360 - phi : phi;
-			double max = Math.toRadians(60);
-			hips.setRotY(-(float)MathHelper.clamp(Math.toRadians(angleDelta), -max, max));
+			double max = Math.toRadians(50);
+			hips.setRotY((float)MathHelper.clamp(Math.toRadians(angleDelta), -max, max));
 		}
 	}
 }

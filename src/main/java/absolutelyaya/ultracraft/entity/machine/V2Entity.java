@@ -7,7 +7,8 @@ import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.IAntiCheeseBoss;
 import absolutelyaya.ultracraft.entity.goal.AntiCheeseProximityTargetGoal;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.entity.ai.control.MoveControl;
+import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -16,6 +17,7 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
+import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -29,6 +31,8 @@ import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
+import java.util.EnumSet;
+
 public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseBoss, GeoEntity, Enrageable
 {
 	private static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenPlay("idle");
@@ -41,15 +45,19 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	static protected final TrackedData<Integer> DISTANCE = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.INTEGER);
 	static protected final TrackedData<Integer> IDLE_TIMER = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.INTEGER);
 	static protected final TrackedData<Integer> INTRO_TICKS = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.INTEGER);
+	static protected final TrackedData<Byte> MOVEMENT_MODE = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.BYTE);
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	protected static final byte ANIMATION_IDLE = 0;
 	protected static final byte ANIMATION_INTRO = 1;
 	protected static final byte ANIMATION_SLIDE = 2;
 	
+	int counter;
+	
 	public V2Entity(EntityType<? extends HostileEntity> entityType, World world)
 	{
 		super(entityType, world);
 		((LivingEntityAccessor)this).setTakePunchKnockbackSupplier(() -> false); //disable knockback
+		moveControl = new V2MoveControl(this);
 	}
 	
 	public static DefaultAttributeContainer getDefaultAttributes()
@@ -69,6 +77,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		dataTracker.startTracking(DISTANCE, 0);
 		dataTracker.startTracking(IDLE_TIMER, 0);
 		dataTracker.startTracking(INTRO_TICKS, 0);
+		dataTracker.startTracking(MOVEMENT_MODE, (byte)1);
 	}
 	
 	@Override
@@ -86,7 +95,8 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	protected void initGoals()
 	{
 		super.initGoals();
-		goalSelector.add(0, new MeleeAttackGoal(this, 1f, true));
+		goalSelector.add(0, new YellowMovementGoal(this));
+		goalSelector.add(0, new BlueMovementGoal(this));
 		
 		targetSelector.add(0, new AntiCheeseProximityTargetGoal<>(this, PlayerEntity.class, 5, 32));
 	}
@@ -113,6 +123,18 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 				dataTracker.set(ANIMATION, ANIMATION_INTRO);
 			if(getAnimation() == ANIMATION_INTRO)
 				dataTracker.set(INTRO_TICKS, dataTracker.get(INTRO_TICKS) + 1);
+		}
+	}
+	
+	@Override
+	public void tickMovement()
+	{
+		super.tickMovement();
+		setYaw(getHeadYaw());
+		if(counter-- <= 0)
+		{
+			dataTracker.set(MOVEMENT_MODE, (byte)(dataTracker.get(MOVEMENT_MODE) == 0 ? 1 : 0));
+			counter = 1200;
 		}
 	}
 	
@@ -191,7 +213,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	
 	boolean isPlayingIntro()
 	{
-		return dataTracker.get(INTRO_TICKS) > 0;
+		return dataTracker.get(INTRO_TICKS) >= 0;
 	}
 	
 	@Override
@@ -214,5 +236,169 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	public Vec3d getEnragedFeatureOffset()
 	{
 		return new Vec3d(0f, -2f, 0f);
+	}
+	
+	static class V2MoveControl extends MoveControl
+	{
+		public V2MoveControl(MobEntity entity)
+		{
+			super(entity);
+		}
+		
+		public void strafeTo(float forward, float sideways, float speed)
+		{
+			this.state = State.STRAFE;
+			this.forwardMovement = forward;
+			this.sidewaysMovement = sideways;
+			this.speed = speed;
+		}
+	}
+	
+	static class V2MovementGoal extends Goal
+	{
+		protected final V2Entity mob;
+		
+		public V2MovementGoal(V2Entity mob)
+		{
+			this.mob = mob;
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			return !mob.isPlayingIntro();
+		}
+	}
+	
+	static class YellowMovementGoal extends V2MovementGoal //Random Direction + Jumping
+	{
+		int cooldown;
+		Vec3d dir;
+		
+		public YellowMovementGoal(V2Entity mob)
+		{
+			super(mob);
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			if(!super.canStart())
+				return false;
+			return mob.getTarget() != null && mob.dataTracker.get(MOVEMENT_MODE) == 0;
+		}
+		
+		@Override
+		public void start()
+		{
+			super.start();
+			changeDirection();
+		}
+		
+		void changeDirection()
+		{
+			dir = new Vec3d(mob.random.nextFloat() - 0.5f, 0f, mob.random.nextFloat() - 0.5f).normalize();
+			cooldown = 300 + (int)(300 * mob.random.nextFloat());
+		}
+		
+		@Override
+		public boolean shouldRunEveryTick()
+		{
+			return true;
+		}
+		
+		@Override
+		public void tick()
+		{
+			if(dir == null)
+			{
+				changeDirection();
+				return;
+			}
+			super.tick();
+			mob.getLookControl().lookAt(mob.getTarget());
+			mob.setVelocity(dir.multiply(mob.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) * 1.5f).add(0, mob.getVelocity().y, 0));
+			cooldown--;
+			if(mob.getRandom().nextFloat() < 0.005f)
+				mob.jump();
+			if(mob.horizontalCollision || cooldown <= 0)
+			{
+				changeDirection();
+				if(mob.getRandom().nextFloat() < 0.1f)
+					mob.jump();
+			}
+			if(mob.distanceTo(mob.getTarget()) > 24f)
+				dir = mob.getTarget().getPos().subtract(mob.getPos()).normalize();
+		}
+		
+		@Override
+		public boolean shouldContinue()
+		{
+			return mob.dataTracker.get(MOVEMENT_MODE) == 0 && mob.getTarget() != null;
+		}
+	}
+	
+	static class BlueMovementGoal extends V2MovementGoal //Circle Target
+	{
+		float dir;
+		
+		public BlueMovementGoal(V2Entity mob)
+		{
+			super(mob);
+			setControls(EnumSet.of(Goal.Control.MOVE, Goal.Control.LOOK));
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			if(!super.canStart())
+				return false;
+			return mob.getTarget() != null && mob.dataTracker.get(MOVEMENT_MODE) == 1;
+		}
+		
+		@Override
+		public void start()
+		{
+			super.start();
+			dir = mob.getRandom().nextBoolean() ? 1 : -1;
+		}
+		
+		@Override
+		public void tick()
+		{
+			mob.getLookControl().lookAt(mob.getTarget(), 30.0f, 30.0f);
+			float forward = 0.2f;
+			float dirChangeChance = 0.01f;
+			if(mob.horizontalCollision)
+			{
+				forward -= 0.5f;
+				dirChangeChance = 0.1f;
+				if(mob.getRandom().nextFloat() < 0.1f)
+					mob.jump();
+			}
+			if(mob.getRandom().nextFloat() < dirChangeChance)
+				dir = (dir == 1 ? -1 : 1);
+			if(mob.getMoveControl() instanceof V2MoveControl moveControl)
+				moveControl.strafeTo(mob.distanceTo(mob.getTarget()) < 3f ? 0f : forward, 0.8f * dir, 0.5f);
+		}
+		
+		@Override
+		public boolean shouldRunEveryTick()
+		{
+			return true;
+		}
+		
+		@Override
+		public boolean shouldContinue()
+		{
+			return mob.dataTracker.get(MOVEMENT_MODE) == 1 && mob.getTarget() != null;
+		}
+		
+		@Override
+		public void stop()
+		{
+			super.stop();
+			mob.getMoveControl().strafeTo(0f, 0f);
+		}
 	}
 }
