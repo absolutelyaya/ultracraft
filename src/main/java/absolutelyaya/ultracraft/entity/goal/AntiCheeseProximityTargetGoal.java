@@ -48,7 +48,7 @@ public class AntiCheeseProximityTargetGoal<T extends LivingEntity> extends Goal
 	{
 		List<T> list = mob.getWorld().getEntitiesByClass(targetClass, mob.getBoundingBox().expand(radius), i -> true);
 		Vec3d pos = mob.getPos();
-		target = mob.getWorld().getClosestEntity(list, TargetPredicate.DEFAULT, mob, pos.x, pos.y, pos.z);
+		target = mob.getWorld().getClosestEntity(list, TargetPredicate.DEFAULT.ignoreVisibility(), mob, pos.x, pos.y, pos.z);
 		if(!forceTargetSwitch || (forceTargetSwitch && target != null))
 		{
 			mob.setTarget(target);

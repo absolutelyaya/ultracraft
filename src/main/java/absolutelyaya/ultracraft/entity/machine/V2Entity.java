@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.IAntiCheeseBoss;
 import absolutelyaya.ultracraft.entity.goal.AntiCheeseProximityTargetGoal;
+import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.control.MoveControl;
 import net.minecraft.entity.ai.goal.Goal;
@@ -19,6 +20,8 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.Box;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -51,7 +54,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	protected static final byte ANIMATION_INTRO = 1;
 	protected static final byte ANIMATION_SLIDE = 2;
 	
-	int counter;
+	int counter, wallJumps = 3;
 	
 	public V2Entity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -97,8 +100,9 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		super.initGoals();
 		goalSelector.add(0, new YellowMovementGoal(this));
 		goalSelector.add(0, new BlueMovementGoal(this));
+		goalSelector.add(0, new RedMovementGoal(this));
 		
-		targetSelector.add(0, new AntiCheeseProximityTargetGoal<>(this, PlayerEntity.class, 5, 32));
+		targetSelector.add(0, new AntiCheeseProximityTargetGoal<>(this, PlayerEntity.class, 20, 32));
 	}
 	
 	@Override
@@ -130,12 +134,29 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	public void tickMovement()
 	{
 		super.tickMovement();
-		setYaw(getHeadYaw());
+		if(getAnimation() != ANIMATION_SLIDE)
+		{
+			prevYaw = getYaw();
+			setYaw(MathHelper.lerp(0.1f, getYaw(), getHeadYaw()));
+		}
 		if(counter-- <= 0)
 		{
-			dataTracker.set(MOVEMENT_MODE, (byte)(dataTracker.get(MOVEMENT_MODE) == 0 ? 1 : 0));
-			counter = 1200;
+			dataTracker.set(MOVEMENT_MODE, (byte)((dataTracker.get(MOVEMENT_MODE) + 1) % 3));
+			counter = 600;
 		}
+		if(wallJumps < 3 && groundCollision)
+			wallJumps = 3;
+	}
+	
+	@Override
+	protected void jump()
+	{
+		if(!groundCollision)
+		{
+			if(wallJumps-- <= 0)
+				return;
+		}
+		super.jump();
 	}
 	
 	@Override
@@ -163,7 +184,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	
 	private <T extends GeoAnimatable> PlayState legPredicate(AnimationState<T> ctx)
 	{
-		if(getAnimation() == ANIMATION_IDLE && ctx.isMoving())
+		if(getAnimation() == ANIMATION_IDLE && ctx.isMoving() && isOnGround())
 		{
 			AnimationController<?> controller = ctx.getController();
 			controller.setAnimationSpeed(1.65f);
@@ -179,6 +200,11 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		controllerRegistrar.add(
 				new AnimationController<>(this, "main", 2, this::predicate),
 				new AnimationController<>(this, "legs", 2, this::legPredicate));
+	}
+	
+	double getSpeedAttribute()
+	{
+		return getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED);
 	}
 	
 	@Override
@@ -238,6 +264,14 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		return new Vec3d(0f, -2f, 0f);
 	}
 	
+	@Override
+	public Box getBoundingBox(EntityPose pose)
+	{
+		if(getAnimation() == ANIMATION_SLIDE)
+			return Box.of(getPos(), 0.3f, 0.5f, 0.3f);
+		return super.getBoundingBox(pose);
+	}
+	
 	static class V2MoveControl extends MoveControl
 	{
 		public V2MoveControl(MobEntity entity)
@@ -261,6 +295,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		public V2MovementGoal(V2Entity mob)
 		{
 			this.mob = mob;
+			setControls(EnumSet.of(Goal.Control.MOVE, Goal.Control.LOOK));
 		}
 		
 		@Override
@@ -295,7 +330,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			changeDirection();
 		}
 		
-		void changeDirection()
+		void changeDirection() //TODO: force direction to lead away from nearby walls
 		{
 			dir = new Vec3d(mob.random.nextFloat() - 0.5f, 0f, mob.random.nextFloat() - 0.5f).normalize();
 			cooldown = 300 + (int)(300 * mob.random.nextFloat());
@@ -317,7 +352,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			}
 			super.tick();
 			mob.getLookControl().lookAt(mob.getTarget());
-			mob.setVelocity(dir.multiply(mob.getAttributeValue(EntityAttributes.GENERIC_MOVEMENT_SPEED) * 1.5f).add(0, mob.getVelocity().y, 0));
+			mob.setVelocity(dir.multiply(mob.getSpeedAttribute() * 1.5f).add(0, mob.getVelocity().y, 0));
 			cooldown--;
 			if(mob.getRandom().nextFloat() < 0.005f)
 				mob.jump();
@@ -345,7 +380,6 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		public BlueMovementGoal(V2Entity mob)
 		{
 			super(mob);
-			setControls(EnumSet.of(Goal.Control.MOVE, Goal.Control.LOOK));
 		}
 		
 		@Override
@@ -371,7 +405,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			float dirChangeChance = 0.01f;
 			if(mob.horizontalCollision)
 			{
-				forward -= 0.5f;
+				forward += 0.5f;
 				dirChangeChance = 0.1f;
 				if(mob.getRandom().nextFloat() < 0.1f)
 					mob.jump();
@@ -379,7 +413,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			if(mob.getRandom().nextFloat() < dirChangeChance)
 				dir = (dir == 1 ? -1 : 1);
 			if(mob.getMoveControl() instanceof V2MoveControl moveControl)
-				moveControl.strafeTo(mob.distanceTo(mob.getTarget()) < 3f ? 0f : forward, 0.8f * dir, 0.5f);
+				moveControl.strafeTo(mob.distanceTo(mob.getTarget()) < 5f ? 0f : forward, 0.8f * dir, 0.5f);
 		}
 		
 		@Override
@@ -399,6 +433,89 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		{
 			super.stop();
 			mob.getMoveControl().strafeTo(0f, 0f);
+		}
+	}
+	
+	static class RedMovementGoal extends V2MovementGoal //Rapid, Aggressive approach
+	{
+		Vec3d slideDir;
+		int slideTimer;
+		boolean circleDir;
+		
+		public RedMovementGoal(V2Entity mob)
+		{
+			super(mob);
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			if(!super.canStart())
+				return false;
+			return mob.getTarget() != null && mob.dataTracker.get(MOVEMENT_MODE) == 2;
+		}
+		
+		@Override
+		public void start()
+		{
+			super.start();
+			circleDir = mob.random.nextBoolean();
+		}
+		
+		@Override
+		public void tick()
+		{
+			super.tick();
+			float targetDistance = mob.distanceTo(mob.getTarget());
+			mob.getLookControl().lookAt(mob.getTarget(), 20.0f, 20.0f);
+			if(mob.getAnimation() != ANIMATION_SLIDE) //Not Sliding
+			{
+				if (targetDistance > 10f) //Start sliding
+				{
+					if(mob.canSee(mob.getTarget()) && mob.getRandom().nextFloat() < 0.025f)
+					{
+						mob.getDataTracker().set(ANIMATION, ANIMATION_SLIDE);
+						slideDir = mob.getTarget().getPos().add(mob.getTarget().getVelocity().multiply(1.5f)).subtract(mob.getPos()).normalize();
+						slideTimer = 200 + mob.getRandom().nextInt(100);
+					}
+				}
+				if(targetDistance > 4f)
+				{
+					Vec3d dest = mob.getTarget().getPos();
+					mob.moveControl.moveTo(dest.x, dest.y, dest.z, 1.4f);
+				}
+				else //Circle Target
+				{
+					if(mob.getMoveControl() instanceof V2MoveControl moveControl)
+						moveControl.strafeTo(targetDistance < 3f ? 0f : 0.2f, 0.8f * (circleDir ? 1 : -1), 0.5f);
+				}
+			}
+			else //Sliding
+			{
+				if(targetDistance < 5f || slideTimer-- <= 0 || mob.horizontalCollision)
+					mob.dataTracker.set(ANIMATION, ANIMATION_IDLE);
+				mob.setVelocity(slideDir.multiply(mob.getSpeedAttribute() * 1.9f).add(0, mob.getVelocity().y, 0));
+			}
+		}
+		
+		@Override
+		public boolean shouldRunEveryTick()
+		{
+			return true;
+		}
+		
+		@Override
+		public boolean shouldContinue()
+		{
+			return mob.dataTracker.get(MOVEMENT_MODE) == 2 && mob.getTarget() != null;
+		}
+		
+		@Override
+		public void stop()
+		{
+			super.stop();
+			if(mob.getAnimation() == ANIMATION_SLIDE)
+				mob.getDataTracker().set(ANIMATION, ANIMATION_IDLE);
 		}
 	}
 }
