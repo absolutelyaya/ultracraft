@@ -6,8 +6,10 @@ import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.IAntiCheeseBoss;
 import absolutelyaya.ultracraft.entity.goal.AntiCheeseProximityTargetGoal;
+import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.control.MoveControl;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -20,9 +22,7 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
@@ -80,7 +80,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		dataTracker.startTracking(DISTANCE, 0);
 		dataTracker.startTracking(IDLE_TIMER, 0);
 		dataTracker.startTracking(INTRO_TICKS, 0);
-		dataTracker.startTracking(MOVEMENT_MODE, (byte)1);
+		dataTracker.startTracking(MOVEMENT_MODE, (byte)0);
 	}
 	
 	@Override
@@ -101,6 +101,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		goalSelector.add(0, new YellowMovementGoal(this));
 		goalSelector.add(0, new BlueMovementGoal(this));
 		goalSelector.add(0, new RedMovementGoal(this));
+		goalSelector.add(0, new GreenMovementGoal(this));
 		
 		targetSelector.add(0, new AntiCheeseProximityTargetGoal<>(this, PlayerEntity.class, 20, 32));
 	}
@@ -139,9 +140,16 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			prevYaw = getYaw();
 			setYaw(MathHelper.lerp(0.1f, getYaw(), getHeadYaw()));
 		}
-		if(counter-- <= 0)
+		else
 		{
-			dataTracker.set(MOVEMENT_MODE, (byte)((dataTracker.get(MOVEMENT_MODE) + 1) % 3));
+			Vec3d dir = getVelocity().multiply(1.0, 0.0, 1.0).normalize();
+			Vec3d particleVel = new Vec3d(-dir.x, -dir.y, -dir.z).multiply(random.nextDouble() * 0.1 + 0.025);
+			Vec3d pos = getPos().add(dir.multiply(1.5));
+			getWorld().addParticle(ParticleRegistry.SLIDE, false, pos.x, pos.y + 0.1, pos.z, particleVel.x, particleVel.y, particleVel.z);
+		}
+		if(counter-- <= 0) //TODO: Display movement type using Wing Colors
+		{
+			dataTracker.set(MOVEMENT_MODE, (byte)((dataTracker.get(MOVEMENT_MODE) + 1) % 4));
 			counter = 600;
 		}
 		if(wallJumps < 3 && groundCollision)
@@ -330,9 +338,18 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			changeDirection();
 		}
 		
-		void changeDirection() //TODO: force direction to lead away from nearby walls
+		void changeDirection()
 		{
-			dir = new Vec3d(mob.random.nextFloat() - 0.5f, 0f, mob.random.nextFloat() - 0.5f).normalize();
+			Vec3d wallDir = Vec3d.ZERO;
+			Direction[] dirs = new Direction[] { Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST };
+			for (Direction dir : dirs)
+			{
+				BlockPos pos = mob.getBlockPos().offset(dir);
+				Vec3i vec = dir.getVector();
+				if (mob.getWorld().getBlockState(pos).isFullCube(mob.getWorld(), pos))
+					wallDir = wallDir.add(vec.getX() * 0.5f, vec.getY() * 0.5f, vec.getZ() * 0.5f);
+			}
+			dir = new Vec3d(mob.random.nextFloat() - 0.5f, 0f, mob.random.nextFloat() - 0.5f).subtract(wallDir).normalize();
 			cooldown = 300 + (int)(300 * mob.random.nextFloat());
 		}
 		
@@ -516,6 +533,46 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			super.stop();
 			if(mob.getAnimation() == ANIMATION_SLIDE)
 				mob.getDataTracker().set(ANIMATION, ANIMATION_IDLE);
+		}
+	}
+	
+	//TODO: reduce attack rate when fleeing
+	static class GreenMovementGoal extends V2MovementGoal //Flee
+	{
+		public GreenMovementGoal(V2Entity mob)
+		{
+			super(mob);
+		}
+		
+		@Override
+		public boolean canStart()
+		{
+			if(!super.canStart())
+				return false;
+			if(mob.getTarget() == null)
+				return false;
+			LivingEntity target = mob.getTarget();
+			return target.getHealth() > target.getMaxHealth() / 3f && mob.dataTracker.get(MOVEMENT_MODE) == 3;
+		}
+		
+		@Override
+		public void tick()
+		{
+			super.tick();
+			Vec3d dest = mob.getPos().add(mob.getPos().subtract(mob.getTarget().getPos()).normalize().multiply(2f));
+			mob.navigation.startMovingTo(dest.x, dest.y, dest.z, 1.25f);
+		}
+		
+		@Override
+		public boolean shouldRunEveryTick()
+		{
+			return true;
+		}
+		
+		@Override
+		public boolean shouldContinue()
+		{
+			return mob.dataTracker.get(MOVEMENT_MODE) == 3 && mob.getTarget() != null;
 		}
 	}
 }
