@@ -6,10 +6,10 @@ import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.IAntiCheeseBoss;
 import absolutelyaya.ultracraft.entity.goal.AntiCheeseProximityTargetGoal;
+import absolutelyaya.ultracraft.entity.other.ProgressionItemEntity;
+import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
-import net.minecraft.entity.EntityPose;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.*;
 import net.minecraft.entity.ai.control.MoveControl;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
@@ -22,9 +22,16 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.thrown.SnowballEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.*;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
@@ -51,13 +58,16 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	static protected final TrackedData<Integer> DISTANCE = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.INTEGER);
 	static protected final TrackedData<Integer> IDLE_TIMER = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.INTEGER);
 	static protected final TrackedData<Integer> INTRO_TICKS = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.INTEGER);
+	static protected final TrackedData<Integer> OUTRO_TICKS = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.INTEGER);
 	static protected final TrackedData<Byte> MOVEMENT_MODE = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.BYTE);
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	protected static final byte ANIMATION_IDLE = 0;
 	protected static final byte ANIMATION_INTRO = 1;
 	protected static final byte ANIMATION_SLIDE = 2;
+	protected static final byte ANIMATION_OUTRO = 3;
 	
 	int counter, wallJumps = 3;
+	SnowballEntity escapePearl;
 	
 	public V2Entity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -83,6 +93,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		dataTracker.startTracking(DISTANCE, 0);
 		dataTracker.startTracking(IDLE_TIMER, 0);
 		dataTracker.startTracking(INTRO_TICKS, 0);
+		dataTracker.startTracking(OUTRO_TICKS, 0);
 		dataTracker.startTracking(MOVEMENT_MODE, (byte)0);
 	}
 	
@@ -125,13 +136,37 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		}
 		else if(dataTracker.get(IDLE_TIMER) > 0)
 			dataTracker.set(IDLE_TIMER, 0);
-		if(dataTracker.get(INTRO_TICKS) != -1)
+		if(!finishedIntro())
 		{
 			if(isOnGround() && getAnimation() != ANIMATION_INTRO)
 				dataTracker.set(ANIMATION, ANIMATION_INTRO);
 			if(getAnimation() == ANIMATION_INTRO)
 				dataTracker.set(INTRO_TICKS, dataTracker.get(INTRO_TICKS) + 1);
 		}
+		int outro;
+		if((outro = dataTracker.get(OUTRO_TICKS)) > 0)
+		{
+			dataTracker.set(OUTRO_TICKS, outro + 1);
+			if(getWorld().isClient)
+				return;
+			if(outro >= 133)
+				trueDeath();
+			else if(outro == 91)
+				escapePearl = throwEscapeEnderPearl();
+			else if(outro == 105 && escapePearl != null && !escapePearl.isRemoved())
+				escapePearl.discard();
+		}
+	}
+	
+	public SnowballEntity throwEscapeEnderPearl()
+	{
+		SnowballEntity pearl = new SnowballEntity(getWorld(), this);
+		pearl.setItem(Items.ENDER_PEARL.getDefaultStack());
+		pearl.setPosition(getEyePos());
+		pearl.setVelocity(getRotationVector().multiply(1f, 0f, 1f).add(0, 2f, 0));
+		pearl.noClip = true;
+		getWorld().spawnEntity(pearl);
+		return pearl;
 	}
 	
 	@Override
@@ -189,6 +224,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			case ANIMATION_IDLE -> ctx.setAnimation(isOnGround() ? IDLE_ANIM : FALL_ANIM);
 			case ANIMATION_INTRO -> ctx.setAnimation(INTRO_ANIM);
 			case ANIMATION_SLIDE -> ctx.setAnimation(SLIDE_ANIM);
+			case ANIMATION_OUTRO -> ctx.setAnimation(OUTRO_ANIM);
 		}
 		return PlayState.CONTINUE;
 	}
@@ -260,6 +296,16 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			return false;
 		if(source.isOf(DamageTypes.FALL))
 			return false;
+		if(getHealth() - amount <= 0 || isPlayingOutro())
+		{
+			if(!getWorld().isClient && !isPlayingOutro())
+			{
+				dataTracker.set(ANIMATION, ANIMATION_OUTRO);
+				dataTracker.set(OUTRO_TICKS, 1);
+				return false;
+			}
+			return false;
+		}
 		return super.damage(source, amount);
 	}
 	
@@ -300,6 +346,11 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		return dataTracker.get(INTRO_TICKS) == -1;
 	}
 	
+	public boolean isPlayingOutro()
+	{
+		return dataTracker.get(OUTRO_TICKS) > 0;
+	}
+	
 	@Override
 	public void writeCustomDataToNbt(NbtCompound nbt)
 	{
@@ -313,6 +364,38 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		super.readCustomDataFromNbt(nbt);
 		if(nbt.contains("playIntro", NbtElement.BYTE_TYPE) && !nbt.getBoolean("playIntro"))
 			dataTracker.set(INTRO_TICKS, -1);
+	}
+	
+	void trueDeath()
+	{
+		getWorld().sendEntityStatus(this, EntityStatuses.ADD_DEATH_PARTICLES);
+		if(isBoss() && getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT))
+		{
+			ProgressionItemEntity item = ProgressionItemEntity.spawn(getWorld(), getPos(), "ultracraft:knuckleblaster",
+					ItemRegistry.KNUCKLEBLASTER.getDefaultStack(), getRandom());
+			item.setNoPickup();
+		}
+		remove(Entity.RemovalReason.KILLED);
+	}
+	
+	@Override
+	public void handleStatus(byte status)
+	{
+		if(status == EntityStatuses.ADD_DEATH_PARTICLES)
+		{
+			for (int i = 0; i < 20; i++)
+			{
+				EntityDimensions dimensions = getDimensions(getPose());
+				Vec3d pos = getBoundingBox().getCenter().add((random.nextFloat() - 0.5f) * dimensions.width,
+						(random.nextFloat() - 0.5f) * dimensions.height,
+						(random.nextFloat() - 0.5f) * dimensions.width);
+				getWorld().addParticle(ParticleTypes.PORTAL, pos.x, pos.y, pos.z,
+						(random.nextFloat() - 0.5f) * 0.25f, (random.nextFloat() - 0.5f) * 0.25f, (random.nextFloat() - 0.5f) * 0.25f);
+			}
+			getWorld().playSound(this, getBlockPos(), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.HOSTILE, 1f, 1f);
+			return;
+		}
+		super.handleStatus(status);
 	}
 	
 	static class V2MoveControl extends MoveControl
@@ -344,7 +427,15 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		@Override
 		public boolean canStart()
 		{
-			return !mob.isPlayingIntro();
+			return !mob.isPlayingIntro() && !mob.isPlayingOutro();
+		}
+		
+		@Override
+		public boolean shouldContinue()
+		{
+			if(mob.isPlayingOutro())
+				return false;
+			return super.shouldContinue();
 		}
 	}
 	
@@ -421,7 +512,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		@Override
 		public boolean shouldContinue()
 		{
-			return mob.dataTracker.get(MOVEMENT_MODE) == 0 && mob.getTarget() != null;
+			return mob.dataTracker.get(MOVEMENT_MODE) == 0 && mob.getTarget() != null && super.shouldContinue();
 		}
 	}
 	
@@ -477,7 +568,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		@Override
 		public boolean shouldContinue()
 		{
-			return mob.dataTracker.get(MOVEMENT_MODE) == 1 && mob.getTarget() != null;
+			return mob.dataTracker.get(MOVEMENT_MODE) == 1 && mob.getTarget() != null && super.shouldContinue();
 		}
 		
 		@Override
@@ -560,7 +651,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		@Override
 		public boolean shouldContinue()
 		{
-			return mob.dataTracker.get(MOVEMENT_MODE) == 2 && mob.getTarget() != null;
+			return mob.dataTracker.get(MOVEMENT_MODE) == 2 && mob.getTarget() != null && super.shouldContinue();
 		}
 		
 		@Override
@@ -608,7 +699,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		@Override
 		public boolean shouldContinue()
 		{
-			return mob.dataTracker.get(MOVEMENT_MODE) == 3 && mob.getTarget() != null;
+			return mob.dataTracker.get(MOVEMENT_MODE) == 3 && mob.getTarget() != null && super.shouldContinue();
 		}
 	}
 }

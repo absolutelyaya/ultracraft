@@ -82,7 +82,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	
 	int punchDuration = 60, knuckleDuration = 10;
 	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
-	int punchTicks, knuckleTicks, knuckleCooldown, ticksSincePunch = Integer.MAX_VALUE, ricochetCooldown, fatique, firecooldown;
+	int punchTicks, knuckleTicks, ticksSincePunch = Integer.MAX_VALUE, ricochetCooldown, fatique, firecooldown;
 	boolean punching, blasting, timeFrozen;
 	float punchProgress, prevPunchProgress, knuckleProgress, prevKnuckleProgress, recoil, lastHealth;
 	
@@ -372,8 +372,6 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 				}
 			}
 		}
-		else if(knuckleCooldown > 0)
-			knuckleCooldown--;
 		
 		prevKnuckleProgress = knuckleProgress;
 		knuckleProgress = Math.min(knuckleTicks / 8f, 1f);
@@ -424,10 +422,9 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	@Override
 	public void knuckleBlast()
 	{
-		if(knuckleCooldown > 0 || !((Object)this instanceof PlayerEntity player))
+		if(!((Object)this instanceof PlayerEntity player))
 			return;
 		knuckleTicks = 0;
-		knuckleCooldown = 40;
 		blasting = true;
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		ClientPlayNetworking.send(PacketRegistry.KNUCKLE_BLAST_PACKET_ID, buf);

@@ -65,6 +65,8 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "mincedmeat"), new SpecialItem(new FabricItemSettings()
 						.food(new FoodComponent.Builder().hunger(12).saturationModifier(6f).build()))
 								.putLore(new String[] { "item.ultracraft.mincedmeat.lore" }, new String[] { "item.ultracraft.mincedmeat.hiddenlore" }));
+	public static final Item KNUCKLEBLASTER = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "knuckleblaster"), new Item(new FabricItemSettings()));
 	
 	//Weapons
 	public static final PierceRevolverItem PIERCE_REVOLVER = Registry.register(Registries.ITEM,

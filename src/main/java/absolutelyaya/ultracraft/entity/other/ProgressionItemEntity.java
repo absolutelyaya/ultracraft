@@ -22,6 +22,7 @@ import net.minecraft.world.World;
 public class ProgressionItemEntity extends ItemEntity
 {
 	protected static final TrackedData<String> PROGRESSION_ENTRY = DataTracker.registerData(ProgressionItemEntity.class, TrackedDataHandlerRegistry.STRING);
+	protected static final TrackedData<Boolean> PICKUP = DataTracker.registerData(ProgressionItemEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	
 	public ProgressionItemEntity(EntityType<? extends ItemEntity> entityType, World world)
 	{
@@ -44,6 +45,7 @@ public class ProgressionItemEntity extends ItemEntity
 	{
 		super.initDataTracker();
 		dataTracker.startTracking(PROGRESSION_ENTRY, "");
+		dataTracker.startTracking(PICKUP, true);
 	}
 	
 	@Override
@@ -65,7 +67,7 @@ public class ProgressionItemEntity extends ItemEntity
 	public void onPlayerCollision(PlayerEntity player)
 	{
 		IProgressionComponent progression = UltraComponents.PROGRESSION.get(player);
-		if(progression.isOwned(Identifier.tryParse(getProgressionEntry())) || !player.getInventory().insertStack(getStack().copy()))
+		if(progression.isOwned(Identifier.tryParse(getProgressionEntry())) || (dataTracker.get(PICKUP) && !player.getInventory().insertStack(getStack().copy())))
 			return;
 		int count = getStack().getCount();
 		player.sendPickup(this, count);
@@ -93,5 +95,10 @@ public class ProgressionItemEntity extends ItemEntity
 	{
 		nbt.putString("progressionEntry", getProgressionEntry());
 		return super.writeNbt(nbt);
+	}
+	
+	public void setNoPickup()
+	{
+		dataTracker.set(PICKUP, false);
 	}
 }

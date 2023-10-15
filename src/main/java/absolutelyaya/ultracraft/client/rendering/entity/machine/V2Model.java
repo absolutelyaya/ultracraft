@@ -60,7 +60,7 @@ public class V2Model extends GeoModel<V2Entity>
 		EntityModelData extraData = (EntityModelData)animationState.getExtraData().get(DataTickets.ENTITY_MODEL_DATA);
 		if(head != null && animatable.getAnimation() != 1)
 		{
-			head.setRotX(extraData.headPitch() * f);
+			head.setRotX(head.getRotX() + extraData.headPitch() * f);
 			head.setRotY(extraData.netHeadYaw() * f);
 		}
 		
