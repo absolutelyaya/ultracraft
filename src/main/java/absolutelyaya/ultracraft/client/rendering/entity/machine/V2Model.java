@@ -14,6 +14,11 @@ import software.bernie.geckolib.model.data.EntityModelData;
 
 public class V2Model extends GeoModel<V2Entity>
 {
+	static final Identifier YELLOW = new Identifier(Ultracraft.MOD_ID, "textures/entity/v2/yellow.png");
+	static final Identifier GREEN = new Identifier(Ultracraft.MOD_ID, "textures/entity/v2/green.png");
+	static final Identifier RED = new Identifier(Ultracraft.MOD_ID, "textures/entity/v2/red.png");
+	static final Identifier BLUE = new Identifier(Ultracraft.MOD_ID, "textures/entity/v2/blue.png");
+	
 	@Override
 	public Identifier getModelResource(V2Entity object)
 	{
@@ -23,7 +28,13 @@ public class V2Model extends GeoModel<V2Entity>
 	@Override
 	public Identifier getTextureResource(V2Entity object)
 	{
-		return new Identifier(Ultracraft.MOD_ID, "textures/entity/v2.png");
+		return switch(object.getMovementMode())
+		{
+			default -> YELLOW;
+			case 1 -> BLUE;
+			case 2 -> RED;
+			case 3 -> GREEN;
+		};
 	}
 	
 	@Override
@@ -38,10 +49,13 @@ public class V2Model extends GeoModel<V2Entity>
 		super.setCustomAnimations(animatable, instanceId, animationState);
 		CoreGeoBone head = this.getAnimationProcessor().getBone("head");
 		CoreGeoBone hips = this.getAnimationProcessor().getBone("hips");
+		CoreGeoBone wings = this.getAnimationProcessor().getBone("wing_root");
 		
 		float f = ((float) Math.PI / 180F);
 		if(MinecraftClient.getInstance().isPaused())
 			return;
+		
+		wings.setHidden(!animatable.finishedIntro());
 		
 		EntityModelData extraData = (EntityModelData)animationState.getExtraData().get(DataTickets.ENTITY_MODEL_DATA);
 		if(head != null && animatable.getAnimation() != 1)

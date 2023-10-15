@@ -1,6 +1,6 @@
 package absolutelyaya.ultracraft.client.rendering.entity.machine;
 
-import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.client.rendering.entity.feature.gecko.V2EmissiveLayer;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.gecko.V2RageLayer;
 import absolutelyaya.ultracraft.entity.machine.V2Entity;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
@@ -11,8 +11,6 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
-import org.joml.AxisAngle4f;
-import org.joml.Quaternionf;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
@@ -49,12 +47,13 @@ public class V2Renderer extends GeoEntityRenderer<V2Entity>
 			}
 		});
 		addRenderLayer(new V2RageLayer(this));
+		addRenderLayer(new V2EmissiveLayer(this));
 	}
 	
 	@Override
 	public Identifier getTexture(V2Entity object)
 	{
-		return new Identifier(Ultracraft.MOD_ID, "textures/entity/v2.png");
+		return model.getTextureResource(animatable);
 	}
 	
 	@Override

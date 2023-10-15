@@ -22,6 +22,8 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoEntity;
@@ -44,6 +46,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	private static final RawAnimation INTRO_ANIM = RawAnimation.begin().thenPlay("intro").thenPlay("idle");
 	private static final RawAnimation SLIDE_ANIM = RawAnimation.begin().thenPlay("slide_start").thenPlay("slide_loop");
 	private static final RawAnimation SLIDE_END_ANIM = RawAnimation.begin().thenPlay("slide_stop").thenPlay("idle");
+	private static final RawAnimation OUTRO_ANIM = RawAnimation.begin().thenPlay("outro");
 	static protected final TrackedData<Integer> FRUSTRATION = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.INTEGER);
 	static protected final TrackedData<Integer> DISTANCE = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.INTEGER);
 	static protected final TrackedData<Integer> IDLE_TIMER = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.INTEGER);
@@ -87,7 +90,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	public void onTrackedDataSet(TrackedData<?> data)
 	{
 		super.onTrackedDataSet(data);
-		if(data.equals(INTRO_TICKS) && getAnimation() == ANIMATION_INTRO && dataTracker.get(INTRO_TICKS) >= 90)
+		if(data.equals(INTRO_TICKS) && getAnimation() == ANIMATION_INTRO && dataTracker.get(INTRO_TICKS) >= 100)
 		{
 			dataTracker.set(INTRO_TICKS, -1);
 			dataTracker.set(ANIMATION, ANIMATION_IDLE);
@@ -147,7 +150,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			Vec3d pos = getPos().add(dir.multiply(1.5));
 			getWorld().addParticle(ParticleRegistry.SLIDE, false, pos.x, pos.y + 0.1, pos.z, particleVel.x, particleVel.y, particleVel.z);
 		}
-		if(counter-- <= 0) //TODO: Display movement type using Wing Colors
+		if(counter-- <= 0)
 		{
 			dataTracker.set(MOVEMENT_MODE, (byte)((dataTracker.get(MOVEMENT_MODE) + 1) % 4));
 			counter = 600;
@@ -280,6 +283,38 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		return super.getBoundingBox(pose);
 	}
 	
+	/**
+	 * 0 : yellow -> random movement + jumping<br>
+	 * 1 : blue -> circle target<br>
+	 * 2 : red -> approach, slide and circle target (closer)<br>
+	 * 3 : green -> flee<br>
+	 */
+	public int getMovementMode()
+	{
+		return dataTracker.get(MOVEMENT_MODE);
+	}
+	
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
+	public boolean finishedIntro()
+	{
+		return dataTracker.get(INTRO_TICKS) == -1;
+	}
+	
+	@Override
+	public void writeCustomDataToNbt(NbtCompound nbt)
+	{
+		super.writeCustomDataToNbt(nbt);
+		nbt.putBoolean("playIntro", !finishedIntro());
+	}
+	
+	@Override
+	public void readCustomDataFromNbt(NbtCompound nbt)
+	{
+		super.readCustomDataFromNbt(nbt);
+		if(nbt.contains("playIntro", NbtElement.BYTE_TYPE) && !nbt.getBoolean("playIntro"))
+			dataTracker.set(INTRO_TICKS, -1);
+	}
+	
 	static class V2MoveControl extends MoveControl
 	{
 		public V2MoveControl(MobEntity entity)
@@ -371,7 +406,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			mob.getLookControl().lookAt(mob.getTarget());
 			mob.setVelocity(dir.multiply(mob.getSpeedAttribute() * 1.5f).add(0, mob.getVelocity().y, 0));
 			cooldown--;
-			if(mob.getRandom().nextFloat() < 0.005f)
+			if(mob.getRandom().nextFloat() < 0.005f && mob.isOnGround())
 				mob.jump();
 			if(mob.horizontalCollision || cooldown <= 0)
 			{
@@ -492,7 +527,8 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 					if(mob.canSee(mob.getTarget()) && mob.getRandom().nextFloat() < 0.025f)
 					{
 						mob.getDataTracker().set(ANIMATION, ANIMATION_SLIDE);
-						slideDir = mob.getTarget().getPos().add(mob.getTarget().getVelocity().multiply(1.5f)).subtract(mob.getPos()).normalize();
+						slideDir = mob.getTarget().getPos().add(mob.getTarget().getVelocity().multiply(1.5f)).subtract(mob.getPos())
+										   .multiply(1, 0, 1).normalize();
 						slideTimer = 200 + mob.getRandom().nextInt(100);
 					}
 				}
