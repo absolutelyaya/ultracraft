@@ -30,6 +30,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 @Mixin(ProjectileEntity.class)
 public abstract class ProjectileEntityMixin extends Entity implements ProjectileEntityAccessor, ChainParryAccessor
@@ -46,6 +47,7 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	protected PlayerEntity parrier;
 	boolean frozen;
 	Vec3d preFreezeVel;
+	Consumer<Integer> onParried;
 	
 	public ProjectileEntityMixin(EntityType<?> type, World world)
 	{
@@ -161,6 +163,8 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 		dataTracker.set(PARRIES, dataTracker.get(PARRIES) + 1);
 		this.parrier = parrier;
 		age = 0;
+		if(onParried != null)
+			onParried.accept(dataTracker.get(PARRIES));
 	}
 	
 	@Override
@@ -208,5 +212,11 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	public void setParryCount(int val)
 	{
 		dataTracker.set(PARRIES, val);
+	}
+	
+	@Override
+	public void setOnParried(Consumer<Integer> onParried)
+	{
+		this.onParried = onParried;
 	}
 }

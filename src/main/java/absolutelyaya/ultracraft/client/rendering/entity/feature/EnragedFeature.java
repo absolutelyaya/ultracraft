@@ -36,7 +36,7 @@ public class EnragedFeature<T extends LivingEntity> extends FeatureRenderer<T, E
 		matrices = new MatrixStack();
 		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(TEXTURE));
 		Camera cam = MinecraftClient.getInstance().gameRenderer.getCamera();
-		Vec3d pos = entity.getPos().subtract(cam.getPos());
+		Vec3d pos = entity.getLerpedPos(tickDelta).subtract(cam.getPos());
 		Vec3d scale = gamer.getEnrageFeatureSize();
 		Vec3d off = gamer.getEnragedFeatureOffset();
 		matrices.multiply(new Quaternionf(new AxisAngle4d(Math.toRadians(cam.getPitch()), 1f, 0f, 0f)));

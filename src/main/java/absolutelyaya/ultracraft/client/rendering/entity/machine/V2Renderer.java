@@ -23,13 +23,13 @@ public class V2Renderer extends GeoEntityRenderer<V2Entity>
 	{
 		super(ctx, new V2Model());
 		
-		addRenderLayer(new BlockAndItemGeoLayer<>(this) //TODO: actually hold the currently used weapon
+		addRenderLayer(new BlockAndItemGeoLayer<>(this)
 		{
 			@Override
 			protected ItemStack getStackForBone(GeoBone bone, V2Entity animatable)
 			{
 				if(bone.getName().equals(WEAPON))
-					return ItemRegistry.CORE_SHOTGUN.getDefaultStack();
+					return animatable.getWeapon();
 				return super.getStackForBone(bone, animatable);
 			}
 			

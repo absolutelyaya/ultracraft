@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.entity.machine;
 
+import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
@@ -8,6 +9,10 @@ import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.IAntiCheeseBoss;
 import absolutelyaya.ultracraft.entity.goal.AntiCheeseProximityTargetGoal;
 import absolutelyaya.ultracraft.entity.other.ProgressionItemEntity;
+import absolutelyaya.ultracraft.entity.projectile.BeamProjectileEntity;
+import absolutelyaya.ultracraft.entity.projectile.EjectedCoreEntity;
+import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
+import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import net.minecraft.entity.*;
@@ -31,7 +36,6 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
 import net.minecraft.util.math.*;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
@@ -69,8 +73,9 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	protected static final byte ANIMATION_SLIDE = 2;
 	protected static final byte ANIMATION_OUTRO = 3;
 	
-	int wallJumps = 3, ferocity, movementChangeCD = 0;
+	int wallJumps = 3, ferocity, movementChangeCD = 0, attackCD = 60, activeAttack = -1, shots;
 	SnowballEntity escapePearl;
+	Vec3d nextShotDir;
 	
 	public V2Entity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -129,17 +134,21 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	{
 		super.tick();
 		dataTracker.set(FRUSTRATION, dataTracker.get(FRUSTRATION) + 1);
-		if(getTarget() == null && getHealth() < getMaxHealth())
+		if(getTarget() == null)
 		{
-			dataTracker.set(IDLE_TIMER, dataTracker.get(IDLE_TIMER) + 1);
-			if(dataTracker.get(IDLE_TIMER) > 1200)
+			ferocity = 60;
+			if(getHealth() < getMaxHealth())
 			{
-				if(age % 20 == 0)
-					heal(1f);
-				if(isEnraged())
+				dataTracker.set(IDLE_TIMER, dataTracker.get(IDLE_TIMER) + 1);
+				if(dataTracker.get(IDLE_TIMER) > 1200)
 				{
-					dataTracker.set(ENRAGED, false);
-					ferocity = 0;
+					if(age % 20 == 0)
+						heal(1f);
+					if(isEnraged())
+					{
+						dataTracker.set(ENRAGED, false);
+						ferocity = 0;
+					}
 				}
 			}
 		}
@@ -196,7 +205,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		}
 		if(wallJumps < 3 && groundCollision)
 			wallJumps = 3;
-		if(getTarget() != null)
+		if(getTarget() != null && !(Ultracraft.isTimeFrozen() || isPlayingIntro() || isPlayingOutro()))
 		{
 			updateMovementGoal();
 			tickAttack();
@@ -205,8 +214,6 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	
 	void updateMovementGoal()
 	{
-		if(Ultracraft.isTimeFrozen() || isPlayingIntro() || isPlayingOutro())
-			return;
 		LivingEntity target = getTarget();
 		float targetDistance = distanceTo(target);
 		boolean rage = isEnraged();
@@ -257,7 +264,148 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	
 	void tickAttack()
 	{
+		if(getTarget() == null)
+		{
+			attackCD = 60;
+			return;
+		}
+		else if(attackCD > 0)
+		{
+			attackCD--;
+			return;
+		}
+		switch(activeAttack)
+		{
+			default -> {
+				float dist = distanceTo(getTarget());
+				if(dist > 12f)
+				{
+					activeAttack = random.nextInt(2);
+					shots = -1;
+					if(!dataTracker.get(WEAPON).isOf(ItemRegistry.PIERCE_REVOLVER))
+						dataTracker.set(WEAPON, ItemRegistry.PIERCE_REVOLVER.getDefaultStack());
+				}
+				else
+				{
+					activeAttack = random.nextBetween(2, 4);
+					if(!dataTracker.get(WEAPON).isOf(ItemRegistry.CORE_SHOTGUN))
+						dataTracker.set(WEAPON, ItemRegistry.CORE_SHOTGUN.getDefaultStack());
+				}
+			}
+			case 0 -> { //revolver three shots
+				if(shots == 0)
+				{
+					activeAttack = -1;
+					attackCD = 10 + random.nextInt(20);
+					return;
+				}
+				if(shots == -1)
+				{
+					shots = 3;
+					attackCD = 20;
+					getWorld().sendEntityStatus(this, EntityStatuses.PLAY_ATTACK_SOUND); //flash
+					nextShotDir = null;
+				}
+				else if(shots > 0)
+				{
+					if(nextShotDir != null)
+					{
+						fireRevolver();
+						shots--;
+						attackCD = 10;
+						nextShotDir = null;
+					}
+					else
+					{
+						attackCD = 5;
+						nextShotDir = aim(0.25f);
+					}
+				}
+				else
+					activeAttack = -1; //safeguard
+			}
+			case 1 -> { //piercer shot
+				if(shots == -1)
+				{
+					shots = 1;
+					attackCD = isEnraged() ? 20 : 40;
+				}
+				else if(shots == 1)
+				{
+					if(nextShotDir == null)
+					{
+						nextShotDir = aim(0.2f);
+						attackCD = 10;
+						return;
+					}
+					firePiercer();
+					shots = 0;
+					activeAttack = -1;
+					if(!isEnraged())
+						attackCD = 20 + random.nextInt(20);
+				}
+			}
+			case 2 -> { //shotgun shot
+				fireShotgun();
+				activeAttack = -1;
+				attackCD = (isEnraged() ? 10 : 30) + random.nextInt(20);
+			}
+			case 3 -> { //core eject
+				ejectCore();
+				activeAttack = -1;
+				attackCD = 20 + random.nextInt(30);
+			}
+		}
+	}
 	
+	void fireRevolver()
+	{
+		BeamProjectileEntity beam = BeamProjectileEntity.spawn(getWorld(), this, 5f, ServerHitscanHandler.NORMAL);
+		beam.setVelocity(nextShotDir.multiply(7.5f));
+		beam.setDamage(1.5f);
+		playSound(SoundEvents.ENTITY_FIREWORK_ROCKET_BLAST, 0.75f, 0.9f + (getRandom().nextFloat() - 0.5f) * 0.2f);
+	}
+	
+	void firePiercer()
+	{
+		BeamProjectileEntity beam = BeamProjectileEntity.spawn(getWorld(), this, 5f, ServerHitscanHandler.REVOLVER_PIERCE);
+		beam.setVelocity(nextShotDir.multiply(7.5f));
+		beam.setDamage(2f);
+		playSound(SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 1f, 0.85f + (getRandom().nextFloat() - 0.5f) * 0.2f);
+	}
+	
+	Vec3d aim(float predict)
+	{
+		return getTarget().getPos().add(getTarget().getVelocity().normalize().multiply(predict)).subtract(getPos()).normalize();
+	}
+	
+	void fireShotgun()
+	{
+		Vec3d dir = getTarget().getEyePos().subtract(getEyePos()).normalize();
+		for (int i = 0; i < 16; i++)
+		{
+			ShotgunPelletEntity bullet = ShotgunPelletEntity.spawn(this, getWorld(), false);
+			bullet.setVelocity(dir.x, dir.y, dir.z, 1f, 20f);
+			Vec3d vel = bullet.getVelocity();
+			getWorld().addParticle(ParticleTypes.SMOKE, bullet.getX(), bullet.getY(), bullet.getZ(), vel.x, vel.y, vel.z);
+			bullet.setNoGravity(true);
+			bullet.setIgnored(getClass());
+			getWorld().spawnEntity(bullet);
+		}
+		playSound(SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 1.0f, 0.2f / (getRandom().nextFloat() * 0.2f + 0.6f));
+	}
+	
+	void ejectCore()
+	{
+		Vec3d dir = getTarget().getPos().subtract(getPos()).normalize();
+		EjectedCoreEntity core = EjectedCoreEntity.spawn(this, getWorld());
+		core.setVelocity(dir.multiply(0.33f, 0, 0.33f).add(0, 0.2, 0));
+		getWorld().spawnEntity(core);
+	}
+	
+	public ItemStack getWeapon()
+	{
+		return dataTracker.get(WEAPON);
 	}
 	
 	void enrage()
@@ -380,6 +528,9 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			{
 				dataTracker.set(ANIMATION, ANIMATION_OUTRO);
 				dataTracker.set(OUTRO_TICKS, 1);
+				dataTracker.set(ENRAGED, false);
+				dataTracker.set(WEAPON, ItemStack.EMPTY);
+				bossBar.setPercent(0f);
 				return false;
 			}
 			return false;
@@ -416,6 +567,11 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	public int getMovementMode()
 	{
 		return dataTracker.get(MOVEMENT_MODE);
+	}
+	
+	public boolean shouldHideWings()
+	{
+		return dataTracker.get(INTRO_TICKS) < 5 && !finishedIntro();
 	}
 	
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -471,6 +627,13 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 						(random.nextFloat() - 0.5f) * 0.25f, (random.nextFloat() - 0.5f) * 0.25f, (random.nextFloat() - 0.5f) * 0.25f);
 			}
 			getWorld().playSound(this, getBlockPos(), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.HOSTILE, 4f, 1f);
+			return;
+		}
+		if(status == EntityStatuses.PLAY_ATTACK_SOUND)
+		{
+			Vec3d pos = getEyePos().add(getRotationVector()).subtract(0, 0.25, 0);
+			getWorld().addParticle(new ParryIndicatorParticleEffect(false), pos.x, pos.y, pos.z, 0f, 0f, 0f);
+			playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 5f, 1.25f);
 			return;
 		}
 		super.handleStatus(status);
@@ -752,9 +915,10 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		}
 	}
 	
-	//TODO: reduce attack rate when fleeing
 	static class GreenMovementGoal extends V2MovementGoal //Flee
 	{
+		int timer;
+		
 		public GreenMovementGoal(V2Entity mob)
 		{
 			super(mob);
@@ -772,15 +936,24 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		}
 		
 		@Override
+		public void start()
+		{
+			super.start();
+			mob.jump();
+			mob.addVelocity(mob.getPos().subtract(mob.getTarget().getPos()).normalize().multiply(2f));
+			mob.ferocity += 50;
+			timer = 20;
+		}
+		
+		@Override
 		public void tick()
 		{
 			if(Ultracraft.isTimeFrozen())
 				return;
+			mob.getLookControl().lookAt(mob.getTarget(), 30.0f, 30.0f);
+			if(timer-- <= 0)
+				mob.setMovementMode(mob.getRandom().nextInt(2)); //either yellow or blue
 			super.tick();
-			Vec3d dest = mob.getPos().add(mob.getPos().subtract(mob.getTarget().getPos()).normalize().multiply(7));
-			mob.navigation.startMovingTo(dest.x, dest.y, dest.z, 1.5f);
-			if((mob.horizontalCollision && mob.getRandom().nextFloat() < 0.1f) || mob.getRandom().nextFloat() < 0.01f)
-				mob.jump();
 		}
 		
 		@Override
@@ -792,14 +965,13 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		@Override
 		public boolean shouldContinue()
 		{
-			return mob.dataTracker.get(MOVEMENT_MODE) == 3 && mob.getTarget() != null && super.shouldContinue();
+			return mob.dataTracker.get(MOVEMENT_MODE) == 3 && mob.getTarget() != null && timer > 0 && super.shouldContinue();
 		}
 		
 		@Override
 		public void stop()
 		{
 			super.stop();
-			mob.navigation.stop();
 		}
 	}
 }

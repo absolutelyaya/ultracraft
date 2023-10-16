@@ -108,6 +108,10 @@ public class EntityRegistry
 			new Identifier(Ultracraft.MOD_ID, "nail"),
 			EntityType.Builder.create(NailEntity::new, SpawnGroup.MISC).setDimensions(0.125f, 0.125f)
 					.maxTrackingRange(5).trackingTickInterval(3).disableSaving().build("nail"));
+	public static final EntityType<BeamProjectileEntity> BEAM = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "beam"),
+			EntityType.Builder.create(BeamProjectileEntity::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
+					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("beam"));
 	
 	public static final EntityType<ShockwaveEntity> SHOCKWAVE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "shockwave"),

@@ -55,7 +55,7 @@ public class V2Model extends GeoModel<V2Entity>
 		if(MinecraftClient.getInstance().isPaused())
 			return;
 		
-		//wings.setHidden(!animatable.finishedIntro());
+		wings.setHidden(animatable.shouldHideWings());
 		
 		EntityModelData extraData = (EntityModelData)animationState.getExtraData().get(DataTickets.ENTITY_MODEL_DATA);
 		if(head != null && animatable.getAnimation() != 1)

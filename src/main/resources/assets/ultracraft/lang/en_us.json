@@ -148,6 +148,7 @@
   "entity.ultracraft.stained_glass_window": "Stained Glass Window",
   "entity.ultracraft.reinforce_stained_glass_window": "Reinforced Stained Glass Window",
   "entity.ultracraft.v2": "V2",
+  "entity.ultracraft.beam": "A Hitscan that's actually a projectile ._.",
 
   "effect.ultracraft.chilled": "Chilled",
   "effect.ultracraft.instant_energy": "Instant Energy",

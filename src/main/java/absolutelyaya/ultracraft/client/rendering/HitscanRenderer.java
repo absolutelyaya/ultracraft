@@ -16,7 +16,7 @@ import java.awt.*;
 
 public class HitscanRenderer
 {
-	public void render(ClientHitscanHandler.Hitscan hitscan, MatrixStack matrices, Camera camera, float delta)
+	public static void render(ClientHitscanHandler.Hitscan hitscan, MatrixStack matrices, Camera camera, float delta)
 	{
 		Color col = hitscan.getColor();
 		Vec3d camPos = camera.getPos();
@@ -28,7 +28,7 @@ public class HitscanRenderer
 				(hitscan instanceof ClientHitscanHandler.MovingHitscan ? RenderLayer.getGui() : RenderLayer.getLightning()), hitscan.getLayers());
 	}
 	
-	void renderRay(MatrixStack matrices, Vec3d from, Vec3d to, Vec3d camPos, float girth, Color col, RenderLayer layer, int steps)
+	public static void renderRay(MatrixStack matrices, Vec3d from, Vec3d to, Vec3d camPos, float girth, Color col, RenderLayer layer, int steps)
 	{
 		RenderSystem.setShader(GameRenderer::getPositionColorProgram);
 		RenderSystem.setShaderColor(1f, 1f, 1f, 1f);

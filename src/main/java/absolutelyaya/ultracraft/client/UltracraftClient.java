@@ -148,6 +148,7 @@ public class UltracraftClient implements ClientModInitializer
 		EntityRendererRegistry.register(EntityRegistry.STAINED_GLASS_WINDOW, StainedGlassWindowRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.PROGRESSION_ITEM, ItemEntityRenderer::new);
 		EntityRendererRegistry.register(EntityRegistry.V2, V2Renderer::new);
+		EntityRendererRegistry.register(EntityRegistry.BEAM, BeamProjectileRenderer::new);
 		//Particles
 		ParticleFactoryRegistry particleRegistry = ParticleFactoryRegistry.getInstance();
 		particleRegistry.register(ParticleRegistry.MALICIOUS_CHARGE, MaliciousChargeParticle.Factory::new);

@@ -15,12 +15,7 @@
   - Use Alt fire to reel all fired Harpoons back in
     - Harpoons stuck in non-Heavy enemies fill throw them towards you
     - Harpoons stuck in Blocks or Heavy Enemies throw you towards them
-- Added Blocks
-  - Rusty Pipe
-  - Rusty Mesh
-  - F L E S H (not animated with Sodium due to world rendering changes)
-  - Cracked Stone
-  - Vent Cover
+- Added V2 Boss Enemy
 - Added Terminals
   - Right-Click to focus; all parts of the menu that are on the actual display block can also be punched when unfocused though
   - Added new Weapon Crafting System
@@ -39,10 +34,20 @@
     - Magnets can get stuck in Blocks and Entities.
     - Magnets Degrade and Break after a while. The more Nails it's attracting, the more quickly it breaks.
     - You can have 3 Magnets at a time. They only recharge after breaking.
+- Added Blocks
+  - Rusty Pipe
+  - Rusty Mesh
+  - F L E S H (not animated with Sodium due to world rendering changes)
+  - Cracked Stone
+  - Vent Cover
 - Shockwaves are now actually Round (cursed, I know)
 - Added Soap
 - Fully moved Wing Customization and Player Data to Cardinal Components
 - Added Progression System (Which weapons have been crafted and which are unlocked)
+- Added Progression Item Entities. 
+  - When picked up, these unlock and obtain a set Progression Entry. 
+  - Every Client can pick up the Item independantly.
+  - Can be set to not actually give an item but only the Progression Entry.
 - Added Weapon Variant Switching Keybind (Default: `R`)
 - Added Limbo Themed BG to Title Menu
   - Added Clair de Lune Noteblock Cover
@@ -50,6 +55,12 @@
   - Detects Players and Entities in a specified area.
   - Emits a redstone Signal when user-defined threshholds of either or both are met.
     - This is difficult to explain well in text, just play around with them ¯\\\_(ツ)_/¯
+- Added Arm System
+  - Press default Keybind `G` to cycle owned Arms
+  - Feedbacker is owned by default
+  - Once more than one Arm is owned, an element is added to the UltraHUD which indicates what Arm is currently selected
+  - Only the Feedbacker can Parry Projectiles and Interrupt interrupable Attacks
+  - The Knuckleblaster does more Damage per punch. Hold Punch (Default `F`) to cause an explosion.
 ## Settings & Gamerules
 - Added ultra-flamethrowerGrief Gamerule
 - Added ultra-graffiti Gamerule
@@ -99,6 +110,9 @@
   - Weapons can't be fired anymore while looking directly at a Pedestal
 - Fixed Parried Hell Bullets applying parry damage twice
 - Added Love
+- Improved Enraged Feature Rendering
+  - Lightning actually starts white
+  - Follows parent mob more smoothly now
 ## Resource Changes
 - Added new Texture State for fully Charged Pierce Revolver (`pierce_revolver4.png`)
 - To reduce filesize, model translations of weapons now use inheritance. Meaning, you only need to replace `models/item/revolver.json` instead of all three variants. It should be safe to remove those excess files from Resourcepacks completely.
