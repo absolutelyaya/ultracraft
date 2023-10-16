@@ -17,6 +17,7 @@ public class DynamicLightManager implements DynamicLightsInitializer
 		DynamicLightHandlers.registerDynamicLightHandler(EntityRegistry.CERBERUS, entity -> 10);
 		DynamicLightHandlers.registerDynamicLightHandler(EntityRegistry.STREET_CLEANER, entity -> 2);
 		DynamicLightHandlers.registerDynamicLightHandler(EntityRegistry.FLAME, entity -> 6);
+		DynamicLightHandlers.registerDynamicLightHandler(EntityRegistry.STAINED_GLASS_WINDOW, entity -> 12);
 		//TODO: Add Stalker -> 6
 		//TODO: Add Ferryman -> 3
 		//TODO: Add Mindflayer -> 9

@@ -2,10 +2,8 @@ package absolutelyaya.ultracraft.entity.goal;
 
 import absolutelyaya.ultracraft.entity.IAntiCheeseBoss;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.TargetPredicate;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.util.math.Vec3d;
 
 import java.util.List;
 
@@ -47,8 +45,22 @@ public class AntiCheeseProximityTargetGoal<T extends LivingEntity> extends Goal
 	public void start()
 	{
 		List<T> list = mob.getWorld().getEntitiesByClass(targetClass, mob.getBoundingBox().expand(radius), i -> true);
-		Vec3d pos = mob.getPos();
-		target = mob.getWorld().getClosestEntity(list, TargetPredicate.DEFAULT.ignoreVisibility(), mob, pos.x, pos.y, pos.z);
+		T closest = null;
+		float closestDistance = Float.MAX_VALUE;
+		for (T living : list)
+		{
+			if(!living.canTakeDamage())
+				continue;
+			float dist = living.distanceTo(mob);
+			if(dist < closestDistance)
+			{
+				closest = living;
+				closestDistance = dist;
+			}
+		}
+		if(closest != null)
+			target = closest;
+		//target = mob.getWorld().getClosestEntity(list, TargetPredicate.DEFAULT.ignoreVisibility(), mob, pos.x, pos.y, pos.z);
 		if(!forceTargetSwitch || (forceTargetSwitch && target != null))
 		{
 			mob.setTarget(target);

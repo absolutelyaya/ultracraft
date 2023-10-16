@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.entity.machine;
 
+import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.damage.DamageSources;
@@ -30,6 +31,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.*;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
@@ -55,18 +57,19 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	private static final RawAnimation SLIDE_END_ANIM = RawAnimation.begin().thenPlay("slide_stop").thenPlay("idle");
 	private static final RawAnimation OUTRO_ANIM = RawAnimation.begin().thenPlay("outro");
 	static protected final TrackedData<Integer> FRUSTRATION = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.INTEGER);
-	static protected final TrackedData<Integer> DISTANCE = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.INTEGER);
 	static protected final TrackedData<Integer> IDLE_TIMER = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.INTEGER);
 	static protected final TrackedData<Integer> INTRO_TICKS = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.INTEGER);
 	static protected final TrackedData<Integer> OUTRO_TICKS = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.INTEGER);
 	static protected final TrackedData<Byte> MOVEMENT_MODE = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.BYTE);
+	static protected final TrackedData<Boolean> ENRAGED = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	static protected final TrackedData<ItemStack> WEAPON = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	protected static final byte ANIMATION_IDLE = 0;
 	protected static final byte ANIMATION_INTRO = 1;
 	protected static final byte ANIMATION_SLIDE = 2;
 	protected static final byte ANIMATION_OUTRO = 3;
 	
-	int counter, wallJumps = 3;
+	int wallJumps = 3, ferocity, movementChangeCD = 0;
 	SnowballEntity escapePearl;
 	
 	public V2Entity(EntityType<? extends HostileEntity> entityType, World world)
@@ -90,11 +93,12 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	{
 		super.initDataTracker();
 		dataTracker.startTracking(FRUSTRATION, 0);
-		dataTracker.startTracking(DISTANCE, 0);
 		dataTracker.startTracking(IDLE_TIMER, 0);
 		dataTracker.startTracking(INTRO_TICKS, 0);
 		dataTracker.startTracking(OUTRO_TICKS, 0);
 		dataTracker.startTracking(MOVEMENT_MODE, (byte)0);
+		dataTracker.startTracking(ENRAGED, false);
+		dataTracker.startTracking(WEAPON, ItemRegistry.CORE_SHOTGUN.getDefaultStack());
 	}
 	
 	@Override
@@ -132,6 +136,11 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			{
 				if(age % 20 == 0)
 					heal(1f);
+				if(isEnraged())
+				{
+					dataTracker.set(ENRAGED, false);
+					ferocity = 0;
+				}
 			}
 		}
 		else if(dataTracker.get(IDLE_TIMER) > 0)
@@ -151,9 +160,9 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 				return;
 			if(outro >= 133)
 				trueDeath();
-			else if(outro == 91)
+			else if(outro == 77)
 				escapePearl = throwEscapeEnderPearl();
-			else if(outro == 105 && escapePearl != null && !escapePearl.isRemoved())
+			else if(outro == 100 && escapePearl != null && !escapePearl.isRemoved())
 				escapePearl.discard();
 		}
 	}
@@ -163,7 +172,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		SnowballEntity pearl = new SnowballEntity(getWorld(), this);
 		pearl.setItem(Items.ENDER_PEARL.getDefaultStack());
 		pearl.setPosition(getEyePos());
-		pearl.setVelocity(getRotationVector().multiply(1f, 0f, 1f).add(0, 2f, 0));
+		pearl.setVelocity(getRotationVector().multiply(0.75f, 0f, 0.75f).add(0, 1f, 0));
 		pearl.noClip = true;
 		getWorld().spawnEntity(pearl);
 		return pearl;
@@ -185,13 +194,82 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			Vec3d pos = getPos().add(dir.multiply(1.5));
 			getWorld().addParticle(ParticleRegistry.SLIDE, false, pos.x, pos.y + 0.1, pos.z, particleVel.x, particleVel.y, particleVel.z);
 		}
-		if(counter-- <= 0)
-		{
-			dataTracker.set(MOVEMENT_MODE, (byte)((dataTracker.get(MOVEMENT_MODE) + 1) % 4));
-			counter = 600;
-		}
 		if(wallJumps < 3 && groundCollision)
 			wallJumps = 3;
+		if(getTarget() != null)
+		{
+			updateMovementGoal();
+			tickAttack();
+		}
+	}
+	
+	void updateMovementGoal()
+	{
+		if(Ultracraft.isTimeFrozen() || isPlayingIntro() || isPlayingOutro())
+			return;
+		LivingEntity target = getTarget();
+		float targetDistance = distanceTo(target);
+		boolean rage = isEnraged();
+		if(targetDistance >= 8f && !rage)
+			ferocity += 1;
+		else if(targetDistance < 4f)
+			ferocity -= 2;
+		else if(targetDistance < 8f && !rage && ferocity > 0)
+			ferocity--;
+		if(ferocity >= 500 && !isEnraged())
+		{
+			enrage();
+			return;
+		}
+		if(rage)
+		{
+			if(getMovementMode() != 2)
+				setMovementMode(2);
+			return;
+		}
+		if(movementChangeCD > 0)
+		{
+			movementChangeCD--;
+			return;
+		}
+		if(rage && ferocity <= 0)
+			dataTracker.set(ENRAGED, false);
+		if(ferocity <= 0 && targetDistance < 4f && target.getHealth() > target.getMaxHealth() / 3f )
+				setMovementMode(3);
+		if(getMovementMode() == 3)
+		{
+			if(targetDistance > 10f)
+				setMovementMode(random.nextBetween(0, 1));
+			return;
+		}
+		float changeOdds = 0.05f;
+		if(getMovementMode() == 2)
+			changeOdds += 0.04f;
+		if(ferocity < 150 && random.nextFloat() < changeOdds)
+			setMovementMode(getMovementMode() == 0 ? 1 : 0);
+		else if(ferocity > 400 && random.nextFloat() < 0.05f)
+			setMovementMode(2);
+		else if(ferocity > 250 && random.nextFloat() < 0.01f)
+			setMovementMode(2);
+		else if(ferocity > 150 && random.nextFloat() < changeOdds)
+			setMovementMode(random.nextBetween(0, 2));
+	}
+	
+	void tickAttack()
+	{
+	
+	}
+	
+	void enrage()
+	{
+		dataTracker.set(ENRAGED, true);
+		playSound(SoundEvents.ENTITY_ZOMBIE_VILLAGER_CURE, 10f, 1f);
+	}
+	
+	void setMovementMode(int i)
+	{
+		dataTracker.set(MOVEMENT_MODE, (byte)i);
+		movementChangeCD = 100;
 	}
 	
 	@Override
@@ -275,7 +353,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	@Override
 	public boolean isEnraged()
 	{
-		return false;
+		return dataTracker.get(ENRAGED);
 	}
 	
 	@Override
@@ -392,7 +470,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 				getWorld().addParticle(ParticleTypes.PORTAL, pos.x, pos.y, pos.z,
 						(random.nextFloat() - 0.5f) * 0.25f, (random.nextFloat() - 0.5f) * 0.25f, (random.nextFloat() - 0.5f) * 0.25f);
 			}
-			getWorld().playSound(this, getBlockPos(), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.HOSTILE, 1f, 1f);
+			getWorld().playSound(this, getBlockPos(), SoundEvents.ENTITY_ENDERMAN_TELEPORT, SoundCategory.HOSTILE, 4f, 1f);
 			return;
 		}
 		super.handleStatus(status);
@@ -473,7 +551,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 				BlockPos pos = mob.getBlockPos().offset(dir);
 				Vec3i vec = dir.getVector();
 				if (mob.getWorld().getBlockState(pos).isFullCube(mob.getWorld(), pos))
-					wallDir = wallDir.add(vec.getX() * 0.5f, vec.getY() * 0.5f, vec.getZ() * 0.5f);
+					wallDir = wallDir.add(vec.getX() * 0.35f, vec.getY() * 0.35f, vec.getZ() * 0.35f);
 			}
 			dir = new Vec3d(mob.random.nextFloat() - 0.5f, 0f, mob.random.nextFloat() - 0.5f).subtract(wallDir).normalize();
 			cooldown = 300 + (int)(300 * mob.random.nextFloat());
@@ -488,6 +566,8 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		@Override
 		public void tick()
 		{
+			if(Ultracraft.isTimeFrozen())
+				return;
 			if(dir == null)
 			{
 				changeDirection();
@@ -543,12 +623,14 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		@Override
 		public void tick()
 		{
+			if(Ultracraft.isTimeFrozen())
+				return;
 			mob.getLookControl().lookAt(mob.getTarget(), 30.0f, 30.0f);
-			float forward = 0.2f;
+			float forward = 0.5f;
 			float dirChangeChance = 0.01f;
 			if(mob.horizontalCollision)
 			{
-				forward += 0.5f;
+				forward += 0.2f;
 				dirChangeChance = 0.1f;
 				if(mob.getRandom().nextFloat() < 0.1f)
 					mob.jump();
@@ -556,7 +638,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			if(mob.getRandom().nextFloat() < dirChangeChance)
 				dir = (dir == 1 ? -1 : 1);
 			if(mob.getMoveControl() instanceof V2MoveControl moveControl)
-				moveControl.strafeTo(mob.distanceTo(mob.getTarget()) < 5f ? 0f : forward, 0.8f * dir, 0.5f);
+				moveControl.strafeTo(mob.distanceTo(mob.getTarget()) < 4f ? 0f : forward, dir, 0.5f);
 		}
 		
 		@Override
@@ -608,11 +690,18 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		@Override
 		public void tick()
 		{
+			if(Ultracraft.isTimeFrozen())
+				return;
 			super.tick();
 			float targetDistance = mob.distanceTo(mob.getTarget());
 			mob.getLookControl().lookAt(mob.getTarget(), 20.0f, 20.0f);
 			if(mob.getAnimation() != ANIMATION_SLIDE) //Not Sliding
 			{
+				float jumpChance = 0.01f;
+				if(mob.getTarget().getPos().y - 2 < mob.getPos().y)
+					jumpChance = 0.1f;
+				if(mob.horizontalCollision && mob.getRandom().nextFloat() < jumpChance)
+					mob.jump();
 				if (targetDistance > 10f) //Start sliding
 				{
 					if(mob.canSee(mob.getTarget()) && mob.getRandom().nextFloat() < 0.025f)
@@ -685,9 +774,13 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		@Override
 		public void tick()
 		{
+			if(Ultracraft.isTimeFrozen())
+				return;
 			super.tick();
-			Vec3d dest = mob.getPos().add(mob.getPos().subtract(mob.getTarget().getPos()).normalize().multiply(2f));
-			mob.navigation.startMovingTo(dest.x, dest.y, dest.z, 1.25f);
+			Vec3d dest = mob.getPos().add(mob.getPos().subtract(mob.getTarget().getPos()).normalize().multiply(7));
+			mob.navigation.startMovingTo(dest.x, dest.y, dest.z, 1.5f);
+			if((mob.horizontalCollision && mob.getRandom().nextFloat() < 0.1f) || mob.getRandom().nextFloat() < 0.01f)
+				mob.jump();
 		}
 		
 		@Override
@@ -700,6 +793,13 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		public boolean shouldContinue()
 		{
 			return mob.dataTracker.get(MOVEMENT_MODE) == 3 && mob.getTarget() != null && super.shouldContinue();
+		}
+		
+		@Override
+		public void stop()
+		{
+			super.stop();
+			mob.navigation.stop();
 		}
 	}
 }

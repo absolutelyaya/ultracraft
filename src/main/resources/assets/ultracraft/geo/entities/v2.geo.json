@@ -78,7 +78,7 @@
 				{
 					"name": "wing_root",
 					"parent": "body",
-					"pivot": [0, 0, 0],
+					"pivot": [0, 19, 0],
 					"cubes": [
 						{"origin": [-3, 15, 2], "size": [6, 7, 2], "uv": [32, 55]}
 					]

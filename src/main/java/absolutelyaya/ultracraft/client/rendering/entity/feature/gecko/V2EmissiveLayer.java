@@ -28,7 +28,7 @@ public class V2EmissiveLayer extends GeoRenderLayer<V2Entity>
 	public void render(MatrixStack poseStack, V2Entity animatable, BakedGeoModel bakedModel, RenderLayer renderType, VertexConsumerProvider bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay)
 	{
 		RenderLayer armorRenderType;
-		Identifier tex = switch((animatable.getMovementMode() + 3) % 4)
+		Identifier tex = switch((animatable.getMovementMode()) % 4)
 		{
 			default -> YELLOW;
 			case 1 -> BLUE;

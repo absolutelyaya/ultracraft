@@ -28,7 +28,7 @@ public class V2Model extends GeoModel<V2Entity>
 	@Override
 	public Identifier getTextureResource(V2Entity object)
 	{
-		return switch(object.getMovementMode())
+		return switch((object.getMovementMode()) % 4)
 		{
 			default -> YELLOW;
 			case 1 -> BLUE;
@@ -55,7 +55,7 @@ public class V2Model extends GeoModel<V2Entity>
 		if(MinecraftClient.getInstance().isPaused())
 			return;
 		
-		wings.setHidden(!animatable.finishedIntro());
+		//wings.setHidden(!animatable.finishedIntro());
 		
 		EntityModelData extraData = (EntityModelData)animationState.getExtraData().get(DataTickets.ENTITY_MODEL_DATA);
 		if(head != null && animatable.getAnimation() != 1)
