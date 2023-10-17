@@ -86,6 +86,7 @@
   "item.ultracraft.clair_de_lune": "Music Disc",
   "item.ultracraft.clair_de_lune.desc": "Clair de Lune - Debussy (Noteblock Cover)",
   "item.ultracraft.knuckleblaster": "Knuckleblaster",
+  "item.ultracraft.hell_mass": "Hell Mass",
 
   "rei-group.ultracraft.terminals": "Terminal Variants",
 
@@ -509,10 +510,12 @@
   "advancements.ultracraft.ricochet.description": "Hit an Entity with a Ricochet spanning over 4 or more Coins.",
   "advancements.ultracraft.traitor.title": "Top 10 Anime Betrayals",
   "advancements.ultracraft.traitor.description": "Kill Tundra or Agony with the Sword of their Counterpart.",
+  "advancements.ultracraft.clair_de_lune.title": "Clair de Lune",
+  "advancements.ultracraft.clair_de_lune.description": "Kill V2 during a Full Moon Night.",
 
   "narrator.button.background.vanilla": "Vanilla BG",
   "narrator.button.background.ultracraft": "Ultracraft BG",
-  "narrator.button.background.limbo": "ULTRACRAFT Limbo BG",
+  "narrator.button.background.limbo": "Layer 1 // Limbo",
 
   "modmenu.descriptionTranslation.ultracraft": "Ultrakill moment\n\nMade after a Game by §6Arsi \"Hakita\" Patala§r\nGo play the real thing, it's much better than this mod lol",
   "ultrakill.game": "ULTRAKILL (real)",

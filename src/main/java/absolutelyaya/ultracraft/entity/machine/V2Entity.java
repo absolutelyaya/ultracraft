@@ -530,7 +530,14 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 				dataTracker.set(OUTRO_TICKS, 1);
 				dataTracker.set(ENRAGED, false);
 				dataTracker.set(WEAPON, ItemStack.EMPTY);
+				setHealth(1f);
 				bossBar.setPercent(0f);
+				if(source.getAttacker() instanceof LivingEntity living)
+					setAttacker(living);
+				LivingEntity adversary = getPrimeAdversary();
+				System.out.println(adversary);
+				if(adversary != null)
+					adversary.updateKilledAdvancementCriterion(this, 1, source);
 				return false;
 			}
 			return false;

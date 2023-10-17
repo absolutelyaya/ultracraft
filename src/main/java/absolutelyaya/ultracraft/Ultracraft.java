@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.command.WhitelistCommand;
 import absolutelyaya.ultracraft.item.AbstractNailgunItem;
 import absolutelyaya.ultracraft.item.MarksmanRevolverItem;
 import absolutelyaya.ultracraft.item.SharpshooterRevolverItem;
+import absolutelyaya.ultracraft.recipe.RecipeSerializers;
 import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
 import absolutelyaya.ultracraft.registry.*;
 import com.google.gson.JsonObject;

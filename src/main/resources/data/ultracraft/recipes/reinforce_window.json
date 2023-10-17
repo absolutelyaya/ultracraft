@@ -1,0 +1,18 @@
+{
+  "type": "ultracraft:reinforce_window",
+  "ingredients": [
+    {
+      "item": "minecraft:iron_bars"
+    },
+    {
+      "item": "ultracraft:stained_glass_window"
+    }
+  ],
+  "key": {
+  },
+  "result": {
+    "item": "ultracraft:stained_glass_window",
+    "reinforced": true,
+    "count": 1
+  }
+}

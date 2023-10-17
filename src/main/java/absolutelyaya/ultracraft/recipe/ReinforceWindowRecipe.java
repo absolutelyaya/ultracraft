@@ -1,6 +1,6 @@
 package absolutelyaya.ultracraft.recipe;
 
-import absolutelyaya.ultracraft.item.PlushieItem;
+import absolutelyaya.ultracraft.item.StainedGlassWindowItem;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -15,24 +15,22 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.collection.DefaultedList;
 
-public class PlushieRecipe extends AbstractNbtResultRecipe
+public class ReinforceWindowRecipe extends AbstractNbtResultRecipe
 {
-	
-	public PlushieRecipe(Identifier id, String group, CraftingRecipeCategory category, ItemStack output, DefaultedList<Ingredient> input)
+	public ReinforceWindowRecipe(Identifier id, String group, CraftingRecipeCategory category, ItemStack output, DefaultedList<Ingredient> input)
 	{
 		super(id, group, category, output, input);
 	}
-	
 	@Override
 	public RecipeSerializer<?> getSerializer()
 	{
-		return RecipeSerializers.PLUSHIE_SERIALIZER;
+		return RecipeSerializers.REINFORCE_WINDOW_SERIALIZER;
 	}
 	
-	public static class Serializer extends AbstractNbtRecipeSerializer<PlushieRecipe>
+	public static class Serializer extends AbstractNbtRecipeSerializer<ReinforceWindowRecipe>
 	{
 		@Override
-		public PlushieRecipe read(Identifier id, JsonObject json)
+		public ReinforceWindowRecipe read(Identifier id, JsonObject json)
 		{
 			String string = JsonHelper.getString(json, "group", "");
 			CraftingRecipeCategory craftingRecipeCategory = CraftingRecipeCategory.CODEC.byId(JsonHelper.getString(json, "category", null), CraftingRecipeCategory.MISC);
@@ -42,24 +40,24 @@ public class PlushieRecipe extends AbstractNbtResultRecipe
 			if (defaultedList.size() > 9)
 				throw new JsonParseException("Too many ingredients for shapeless recipe");
 			ItemStack itemStack = outputFromJson(JsonHelper.getObject(json, "result"));
-			return new PlushieRecipe(id, string, craftingRecipeCategory, itemStack, defaultedList);
+			return new ReinforceWindowRecipe(id, string, craftingRecipeCategory, itemStack, defaultedList);
 		}
 		
 		public ItemStack outputFromJson(JsonObject json)
 		{
-			String type = JsonHelper.getString(json, "type");
+			boolean reinforced = JsonHelper.getBoolean(json, "reinforced");
 			int i = JsonHelper.getInt(json, "count", 1);
 			if (i < 1)
 				throw new JsonSyntaxException("Invalid output count: " + i);
-			Item item = JsonHelper.getItem(json, "item", ItemRegistry.PLUSHIE);
-			if(item instanceof PlushieItem plushie)
-				return plushie.getDefaultStack(type);
+			Item item = JsonHelper.getItem(json, "item", ItemRegistry.STAINED_GLASS_WINDOW);
+			if(item instanceof StainedGlassWindowItem)
+				return StainedGlassWindowItem.getStack(reinforced);
 			else
-				throw new JsonSyntaxException("Not a PlushieItem: " + item);
+				throw new JsonSyntaxException("Not a StainedGlassWindowItem: " + item);
 		}
 		
 		@Override
-		public PlushieRecipe read(Identifier id, PacketByteBuf buf)
+		public ReinforceWindowRecipe read(Identifier id, PacketByteBuf buf)
 		{
 			String string = buf.readString();
 			CraftingRecipeCategory craftingRecipeCategory = buf.readEnumConstant(CraftingRecipeCategory.class);
@@ -67,11 +65,11 @@ public class PlushieRecipe extends AbstractNbtResultRecipe
 			DefaultedList<Ingredient> defaultedList = DefaultedList.ofSize(i, Ingredient.EMPTY);
 			defaultedList.replaceAll(ignored -> Ingredient.fromPacket(buf));
 			ItemStack itemStack = buf.readItemStack();
-			return new PlushieRecipe(id, string, craftingRecipeCategory, itemStack, defaultedList);
+			return new ReinforceWindowRecipe(id, string, craftingRecipeCategory, itemStack, defaultedList);
 		}
 		
 		@Override
-		public void write(PacketByteBuf buf, PlushieRecipe recipe)
+		public void write(PacketByteBuf buf, ReinforceWindowRecipe recipe)
 		{
 			buf.writeString(recipe.group);
 			buf.writeEnumConstant(recipe.category);

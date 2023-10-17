@@ -131,6 +131,8 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "blood_orb"), new OrbItem(new FabricItemSettings(), EntityRegistry.BLOOD_ORB));
 	public static final StainedGlassWindowItem STAINED_GLASS_WINDOW = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "stained_glass_window"), new StainedGlassWindowItem(EntityRegistry.STAINED_GLASS_WINDOW, new FabricItemSettings()));
+	public static final Item HELL_MASS = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "hell_mass"), new Item(new FabricItemSettings()));
 	
 	//Special
 	public static final TerminalItem TERMINAL = Registry.register(Registries.ITEM,
@@ -217,6 +219,7 @@ public class ItemRegistry
 			for (TerminalBlockEntity.Base b : TerminalBlockEntity.Base.values())
 				content.add(TerminalItem.getStack(b));
 			content.add(BlockRegistry.HELL_OBSERVER.asItem());
+			content.add(HELL_MASS);
 		});
 	}
 }

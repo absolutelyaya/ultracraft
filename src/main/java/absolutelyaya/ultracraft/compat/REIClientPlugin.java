@@ -28,7 +28,8 @@ public class REIClientPlugin implements me.shedaniel.rei.api.client.plugins.REIC
 				EntryStacks.of(ItemRegistry.BLOOD_RAY),
 				EntryStacks.of(ItemRegistry.EJECTED_CORE),
 				EntryStacks.of(ItemRegistry.NAIL),
-				EntryStacks.of(ItemRegistry.MINCED_MEAT)));
+				EntryStacks.of(ItemRegistry.MINCED_MEAT),
+				EntryStacks.of(ItemRegistry.KNUCKLEBLASTER)));
 	}
 	
 	@Override
