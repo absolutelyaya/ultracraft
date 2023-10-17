@@ -22,4 +22,8 @@ public interface IArmComponent extends ComponentV3, AutoSyncedComponent
 	void setArmVisible(boolean v);
 	
 	boolean isVisible();
+	
+	void setPunchPressed(boolean v);
+	
+	boolean isPunchPressed();
 }

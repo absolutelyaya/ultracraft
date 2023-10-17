@@ -1,16 +1,19 @@
 package absolutelyaya.ultracraft.block;
 
-import absolutelyaya.ultracraft.client.gui.screen.HellObserverScreen;
 import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
+import absolutelyaya.ultracraft.registry.PacketRegistry;
+import io.netty.buffer.Unpooled;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.IntProperty;
@@ -63,9 +66,11 @@ public class HellObserverBlock extends BlockWithEntity implements BlockEntityPro
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit)
 	{
-		if(player.isMainPlayer() && world.isClient)
+		if(player instanceof ServerPlayerEntity serverPlayer)
 		{
-			MinecraftClient.getInstance().setScreen(new HellObserverScreen(pos));
+			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+			buf.writeBlockPos(pos);
+			ServerPlayNetworking.send(serverPlayer, PacketRegistry.HELL_OBSERVER_PACKET_ID, buf);
 			return ActionResult.success(true);
 		}
 		return super.onUse(state, world, pos, player, hand, hit);

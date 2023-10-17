@@ -8,6 +8,7 @@ import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ITrailEnjoyer;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.client.gui.screen.HellObserverScreen;
 import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.compat.PlayerAnimator;
@@ -314,6 +315,12 @@ public class ClientPacketRegistry
 			boolean b = buf.readBoolean();
 			MinecraftClient.getInstance().execute(() -> {
 				UltracraftClient.GRAFFITI_WHITELISTED = b;
+			});
+		})));
+		ClientPlayNetworking.registerGlobalReceiver(HELL_OBSERVER_PACKET_ID, (((client, handler, buf, responseSender) -> {
+			BlockPos pos = buf.readBlockPos();
+			MinecraftClient.getInstance().execute(() -> {
+				MinecraftClient.getInstance().setScreen(new HellObserverScreen(pos));
 			});
 		})));
 	}

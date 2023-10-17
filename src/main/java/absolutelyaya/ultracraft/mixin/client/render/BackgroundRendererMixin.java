@@ -1,7 +1,7 @@
 package absolutelyaya.ultracraft.mixin.client.render;
 
 import absolutelyaya.ultracraft.client.UltracraftClient;
-import absolutelyaya.ultracraft.effects.RetaliationStatusEffect;
+import absolutelyaya.ultracraft.effects.RetaliationFogMultiplier;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
 import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -21,6 +21,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(BackgroundRenderer.class)
 public class BackgroundRendererMixin
 {
+	private static final RetaliationFogMultiplier RETALIATION_FOG_MULTIPLIER = new RetaliationFogMultiplier();
+	
 	@Inject(method = "applyFog", at = @At("TAIL"))
 	private static void onBloodFog(Camera camera, BackgroundRenderer.FogType fogType, float viewDistance, boolean thickFog, float tickDelta, CallbackInfo ci)
 	{
@@ -40,6 +42,6 @@ public class BackgroundRendererMixin
 	private static void onGetFogMultiplier(Entity entity, float tickDelta, CallbackInfoReturnable<BackgroundRenderer.StatusEffectFogModifier> cir)
 	{
 		if (entity instanceof LivingEntity living && living.hasStatusEffect(StatusEffectRegistry.RETALIATION))
-			cir.setReturnValue(RetaliationStatusEffect.FOG_MULTIPLIER);
+			cir.setReturnValue(RETALIATION_FOG_MULTIPLIER);
 	}
 }

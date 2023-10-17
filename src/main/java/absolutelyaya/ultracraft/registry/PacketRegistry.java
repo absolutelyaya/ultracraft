@@ -73,9 +73,9 @@ public class PacketRegistry
 	public static final Identifier CYCLE_WEAPON_VARIANT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "cycle_weapon_variant");
 	public static final Identifier HELL_OBSERVER_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hell_observer_c2s");
 	public static final Identifier REQUEST_GRAFFITI_WHITELIST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "request_graffiti_whitelist");
-	public static final Identifier KNUCKLE_BLAST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "knuckle_blast");
 	public static final Identifier ARM_CYCLE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "arm_cycle");
 	public static final Identifier ARM_VISIBLE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "arm_visible");
+	public static final Identifier PUNCH_PRESSED_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_pressed");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
 	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "scan");
@@ -102,6 +102,7 @@ public class PacketRegistry
 	public static final Identifier ULTRA_RECIPE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ultra_recipe");
 	public static final Identifier HIVEL_WHITELIST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hivel_whitelist");
 	public static final Identifier GRAFFITI_WHITELIST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "graffiti_whitelist");
+	public static final Identifier HELL_OBSERVER_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hell_observer");
 	
 	public static void registerC2S()
 	{
@@ -116,6 +117,8 @@ public class PacketRegistry
 			boolean debug = buf.readBoolean();
 			
 			server.execute(() -> {
+				if(player instanceof LivingEntityAccessor accessor)
+					accessor.punch();
 				Vec3d forward = player.getRotationVector().normalize();
 				player.swingHand(Hand.OFF_HAND, true);
 				IArmComponent arm = UltraComponents.ARMS.get(player);
@@ -479,19 +482,16 @@ public class PacketRegistry
 				ServerPlayNetworking.send(player, GRAFFITI_WHITELIST_PACKET_ID, cbuf);
 			});
 		});
-		ServerPlayNetworking.registerGlobalReceiver(KNUCKLE_BLAST_PACKET_ID, (server, player, handler, buf, sender) -> {
-			server.execute(() ->
-			{
-				ExplosionHandler.explosion(player, player.getWorld(), player.getPos(), DamageSources.get(player.getWorld(),
-						DamageSources.KNUCKLE_BLAST), 1f, 0.75f, 6, false);
-			});
-		});
 		ServerPlayNetworking.registerGlobalReceiver(ARM_CYCLE_PACKET_ID, (server, player, handler, buf, sender) -> {
 			server.execute(() -> UltraComponents.ARMS.get(player).cycleArms());
 		});
 		ServerPlayNetworking.registerGlobalReceiver(ARM_VISIBLE_PACKET_ID, (server, player, handler, buf, sender) -> {
 			boolean v = buf.readBoolean();
 			server.execute(() -> UltraComponents.ARMS.get(player).setArmVisible(v));
+		});
+		ServerPlayNetworking.registerGlobalReceiver(PUNCH_PRESSED_PACKET_ID, (server, player, handler, buf, sender) -> {
+			boolean v = buf.readBoolean();
+			server.execute(() -> UltraComponents.ARMS.get(player).setPunchPressed(v));
 		});
 	}
 	

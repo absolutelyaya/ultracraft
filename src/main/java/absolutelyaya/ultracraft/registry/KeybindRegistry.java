@@ -64,6 +64,12 @@ public class KeybindRegistry
 			hivelPressed = HIGH_VELOCITY_TOGGLE.isPressed();
 		});
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			if(punchPressed != PUNCH.isPressed())
+			{
+				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+				buf.writeBoolean(PUNCH.isPressed());
+				ClientPlayNetworking.send(PacketRegistry.PUNCH_PRESSED_PACKET_ID, buf);
+			}
 			while(PUNCH.wasPressed() && !punchPressed)
 			{
 				ClientPlayerEntity player = client.player;

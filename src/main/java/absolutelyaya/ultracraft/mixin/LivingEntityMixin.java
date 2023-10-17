@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.mixin;
 
+import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
@@ -12,10 +13,8 @@ import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.IAntiCheeseBoss;
 import absolutelyaya.ultracraft.entity.machine.V2Entity;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
-import absolutelyaya.ultracraft.registry.KeybindRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.*;
@@ -80,7 +79,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	
 	@Shadow public abstract float getMaxHealth();
 	
-	int punchDuration = 60, knuckleDuration = 10;
+	int punchDuration = 60;
 	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
 	int punchTicks, knuckleTicks, ticksSincePunch = Integer.MAX_VALUE, ricochetCooldown, fatique, firecooldown;
 	boolean punching, blasting, timeFrozen;
@@ -349,7 +348,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			if(ticksSincePunch < 8)
 			{
 				ticksSincePunch++;
-				if(ticksSincePunch == 8 && arm.isKnuckleblaster() && KeybindRegistry.PUNCH.isPressed())
+				if(ticksSincePunch == 8 && arm.isKnuckleblaster() && arm.isPunchPressed())
 					knuckleBlast();
 			}
 		}
@@ -422,14 +421,16 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	@Override
 	public void knuckleBlast()
 	{
-		if(!((Object)this instanceof PlayerEntity player))
-			return;
 		knuckleTicks = 0;
 		blasting = true;
-		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-		ClientPlayNetworking.send(PacketRegistry.KNUCKLE_BLAST_PACKET_ID, buf);
-		PlayerAnimator.playAnimation(player, player.getMainArm().equals(Arm.LEFT) ? PlayerAnimator.KNUCKLE_BLAST_FLIPPED : PlayerAnimator.KNUCKLE_BLAST,
-				0, false, true);
+		if(!((Object)this instanceof PlayerEntity player))
+			return;
+		if(!getWorld().isClient)
+			ExplosionHandler.explosion(player, player.getWorld(), player.getPos(), DamageSources.get(player.getWorld(),
+					DamageSources.KNUCKLE_BLAST), 1f, 0.75f, 6, false);
+		else
+			PlayerAnimator.playAnimation(player, player.getMainArm().equals(Arm.LEFT) ? PlayerAnimator.KNUCKLE_BLAST_FLIPPED : PlayerAnimator.KNUCKLE_BLAST,
+					0, false, false);
 	}
 	
 	@Override
