@@ -23,5 +23,8 @@ public abstract class ModelLoaderMixin
 	{
 		addModel(new ModelIdentifier(Ultracraft.MOD_ID, "harpoon_long", "inventory"));
 		addModel(new ModelIdentifier(Ultracraft.MOD_ID, "trinkets/player_back_tank", "inventory"));
+		addModel(new ModelIdentifier(Ultracraft.MOD_ID, "fake_shield", "inventory"));
+		addModel(new ModelIdentifier(Ultracraft.MOD_ID, "fake_banner", "inventory"));
+		addModel(new ModelIdentifier(Ultracraft.MOD_ID, "fake_terminal", "inventory"));
 	}
 }

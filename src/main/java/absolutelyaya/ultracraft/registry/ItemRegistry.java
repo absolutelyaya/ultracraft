@@ -36,6 +36,8 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "fake_shield"), new Item(new FabricItemSettings().maxCount(0)));
 	public static final Item FAKE_BANNER = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "fake_banner"), new Item(new FabricItemSettings().maxCount(0)));
+	public static final Item FAKE_TERMINAL = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "fake_terminal"), new Item(new FabricItemSettings().maxCount(0)));
 	public static final Item NAIL = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "nail"), new Item(new FabricItemSettings().maxCount(0)));
 	public static final Item BLOOD_BUCKET = Registry.register(Registries.ITEM,
@@ -133,6 +135,9 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "stained_glass_window"), new StainedGlassWindowItem(EntityRegistry.STAINED_GLASS_WINDOW, new FabricItemSettings()));
 	public static final Item HELL_MASS = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "hell_mass"), new Item(new FabricItemSettings()));
+	public static final Item PLACEHOLDER = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "placeholder"),
+			new Item(new FabricItemSettings().food(new FoodComponent.Builder().alwaysEdible().hunger(-1).build())));
 	
 	//Special
 	public static final TerminalItem TERMINAL = Registry.register(Registries.ITEM,

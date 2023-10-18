@@ -10,6 +10,7 @@ import absolutelyaya.ultracraft.components.player.IWingDataComponent;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.item.MachineSwordItem;
 import absolutelyaya.ultracraft.item.PlushieItem;
+import absolutelyaya.ultracraft.item.TerminalItem;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.util.RenderingUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -341,17 +342,21 @@ public class UltraHudRenderer
 		else
 		{
 			matrices.push();
+			RenderSystem.disableDepthTest();
 			//This HUD is *terribly* made, and entity item models don't render correctly. To hide this, I did the following :D
 			if(item.equals(Items.SHIELD))
 				stack = ItemRegistry.FAKE_SHIELD.getDefaultStack();
 			else if(item instanceof BannerItem)
 				stack = ItemRegistry.FAKE_BANNER.getDefaultStack();
-			if(client.getItemRenderer().getModel(stack, client.world, client.player, 0).isBuiltin())
-				stack = Items.BARRIER.getDefaultStack();
+			else if(item instanceof TerminalItem)
+				stack = ItemRegistry.FAKE_TERMINAL.getDefaultStack();
+			else if(client.getItemRenderer().getModel(stack, client.world, client.player, 0).isBuiltin())
+				stack = ItemRegistry.PLACEHOLDER.getDefaultStack();
 			RenderSystem.disableDepthTest();
 			client.getItemRenderer().renderItem(stack, ModelTransformationMode.GUI,
 					15728880, OverlayTexture.DEFAULT_UV, matrices, immediate, client.world, 1);
 			RenderSystem.enableDepthTest();
+			
 			matrices.pop();
 		}
 	}
