@@ -5,7 +5,6 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.damage.DamageSources;
-import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.damage.HitscanDamageSource;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
@@ -99,7 +98,7 @@ public class BackTank extends Entity
 	{
 		if(source instanceof HitscanDamageSource)
 		{
-			owner.damage(DamageSources.get(getWorld(), DamageSources.BACK_TANK), 999);
+			owner.damage(DamageSources.get(getWorld(), DamageSources.BACK_TANK, this, source.getAttacker()), 999);
 			ExplosionHandler.explosion(owner, getWorld(), getPos(), DamageSources.get(getWorld(), DamageTypes.EXPLOSION, this, source.getAttacker()),
 					8, 5, 3f, true);
 			if(source.getAttacker() instanceof ServerPlayerEntity player)

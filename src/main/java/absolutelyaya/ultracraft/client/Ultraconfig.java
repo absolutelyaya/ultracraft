@@ -72,7 +72,7 @@ public class Ultraconfig implements ConfigData
 	@ConfigEntry.Gui.Tooltip
 	public boolean safeVFX = true;
 	@ConfigEntry.Gui.Tooltip
-	public boolean deathScreen = true;
+	public boolean deathScreen = false;
 	public boolean repeatIntro = false;
 	public boolean neverIntro = false;
 	

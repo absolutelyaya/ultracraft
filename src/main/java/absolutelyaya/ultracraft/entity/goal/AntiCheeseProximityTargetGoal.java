@@ -44,12 +44,15 @@ public class AntiCheeseProximityTargetGoal<T extends LivingEntity> extends Goal
 	@Override
 	public void start()
 	{
+		LivingEntity cur = mob.getTarget();
+		if(cur != null && (cur.isDead() || cur.isRemoved() || mob.distanceTo(cur) > radius))
+			mob.setTarget(null);
 		List<T> list = mob.getWorld().getEntitiesByClass(targetClass, mob.getBoundingBox().expand(radius), i -> true);
 		T closest = null;
 		float closestDistance = Float.MAX_VALUE;
 		for (T living : list)
 		{
-			if(!living.canTakeDamage())
+			if(!living.canTakeDamage() || living.isDead())
 				continue;
 			float dist = living.distanceTo(mob);
 			if(dist < closestDistance)

@@ -214,7 +214,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Inject(method = "tick", at = @At("TAIL"))
 	void onTick(CallbackInfo ci)
 	{
-		if(!getWorld().isClient() && getMainHandStack().isOf(ItemRegistry.FLAMETHROWER) && (backtank == null || backtank.isRemoved()))
+		if(!getWorld().isClient() && getMainHandStack().isOf(ItemRegistry.FLAMETHROWER) && (backtank == null || backtank.isRemoved()) && isAlive())
 			backtank = BackTank.spawn(getWorld(), this);
 	}
 	
@@ -247,8 +247,13 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			}
 			fallDistance = 0f;
 		}
-		if(backtank != null && !backtank.isRemoved())
-			backtank.positionSelf(this);
+		if(backtank != null)
+		{
+			if(backtank.isRemoved())
+				backtank = null;
+			else
+				backtank.positionSelf(this);
+		}
 	}
 	
 	@Inject(method = "adjustMovementForSneaking", at = @At("HEAD"), cancellable = true)

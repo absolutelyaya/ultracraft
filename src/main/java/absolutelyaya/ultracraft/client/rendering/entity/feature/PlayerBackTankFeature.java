@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.client.rendering.entity.feature;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.RenderLayers;
+import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.ModelTransform;
 import net.minecraft.client.render.OverlayTexture;
@@ -34,7 +35,7 @@ public class PlayerBackTankFeature<T extends PlayerEntity, M extends PlayerEntit
 	@Override
 	public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, T entity, float limbAngle, float limbDistance, float tickDelta, float animationProgress, float headYaw, float headPitch)
 	{
-		if(!(entity instanceof WingedPlayerEntity winged) || winged.getBacktank() == null)
+		if(!(entity instanceof WingedPlayerEntity) || !entity.getMainHandStack().isOf(ItemRegistry.FLAMETHROWER))
 			return;
 		ItemRenderer renderer = MinecraftClient.getInstance().getItemRenderer();
 		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayers.getCutout());

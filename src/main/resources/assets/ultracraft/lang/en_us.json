@@ -98,7 +98,7 @@
   "block.ultracraft.secret_elevator_floor": "Elevator Room Floor (Secret Level)",
   "block.ultracraft.pedestal": "Pedestal",
   "block.ultracraft.pedestal.lore1": "§7Punch to display held Item",
-  "block.ultracraft.pedestal.lore2": "§7Right click with red/blue dye to color",
+  "block.ultracraft.pedestal.lore2": "§7Right click with red//blue dye to color",
   "block.ultracraft.cerberus_block": "Cerberus",
   "block.ultracraft.cerberus_block.lore": "§7Power using Redstone to wake up the Cerberus",
   "block.ultracraft.cerberus_block.proximity": "Cerberus (Proximity activated)",
@@ -333,7 +333,7 @@
   "message.ultracraft.hi-vel.enable": "High Velocity Wings activated!",
   "message.ultracraft.hi-vel.disable": "High Velocity Wings deactivated!",
   "message.ultracraft.hi-vel.whitelist": "You're not whitelisted!",
-  "message.ultracraft.server.freeze-enable-warning": "[§4Ultracraft§r] h-hey, you just enabled the freeze effect! Please be aware that this effect is §4SERVER-WIDE§r, so any time-freeze affects EVERYONE. If you have many players, please consider leaving this turned off.",
+  "message.ultracraft.server.freeze-enable-warning": "[§4Ultracraft§r] h-hey, you just enabled the freeze effect! Please be aware that this effect is §4SERVER-WIDE§r, so any time-freeze affects EVERYONE.",
   "message.ultracraft.server.projboost-all": "[§4Ultracraft§r] All Projectiles can now be Projectile boosted. This includes Arrows, Tridents, enderpearls and even Rockets",
   "message.ultracraft.server.projboost-limited": "[§4Ultracraft§r] Only Shotgun Primary Fire can now be Projectile Boosted.",
   "message.ultracraft.server.projboost-tag": "[§4Ultracraft§r] Only Projectiles in the \"projboostable\" entity tag can now be Projectile boosted. (customize via datapack)",
@@ -347,7 +347,7 @@
   "message.ultracraft.fish.mania4": "THE SIZE 2 IS REAL!!",
   "message.ultracraft.fish.mania5": "...that's... \nthat's bigger than usual! \nI have to be getting close!!",
   "message.ultracraft.handswap-disabled": "[§4Ultracraft§r] This Server has disabled hand quick-swapping.",
-  "message.ultracraft.content": "Welcome to Ultracraft!\nThis Mod aims to recreate the game Ultrakill (by §6Arsi \"Hakita\" Patala§f) and its mechanics in Minecraft. The Current Content includes:\n- All Prologue Enemies\n- 6 Weapons\n- A few Blocks and Items\n- A few Secrets/Jokes\n\nThe next noteworthy Update will be §6Chapter I Content§f.\nPlease be sure to report Issues/Bugs and send any Feedback you have my way!\nRelevant Links are in the Mod Info.\n\n☆ Absolutelyaya ☆",
+  "message.ultracraft.content": "Welcome to Ultracraft V2.0!\nThis Mod aims to recreate the game Ultrakill (by §6Arsi \"Hakita\" Patala§f) and its mechanics in Minecraft. The Current Content includes:\n- Enemies up to Layer 1 // Limbo\n- 13 Weapons (6 of which Original)\n- A few Blocks and Items\n- Customizable Wings\n- Highly Customizable Terminals\n- A few Secrets//Jokes\n- Plushies (some even huggable)\n\nPlease be sure to report Issues//Bugs and send any Feedback you have my way!\nRelevant Links are in the Mod Info.\nOh and join the Discord Community for (relatively) regular teasers!\n\n☆ Absolutelyaya ☆",
   "message.ultracraft.consent": "Understood",
   "message.ultracraft.intro-error": "Something went wrong with the Ultracraft intro sequence.\nThe issue: Sometimes detecting the asset reload being finished doesn't work.\nLuckily, we have a button that can solve any problem!",
   "message.ultracraft.fixer-button": "Fix that",
@@ -429,6 +429,7 @@
   "screen.ultracraft.hell_observer.move_hint": "Press A or D to move",
   "screen.ultracraft.hell_observer.edit_area": "Edit Area",
   "screen.ultracraft.arm-visibility": "Ultracraft Arm Visible",
+  "screen.ultracraft.title.subtitle": "LAYER 1 // LIMBO",
 
   "terminal.coming-soon": "Coming Soon",
   "terminal.button": "Button",
@@ -523,7 +524,7 @@
 
   "text.autoconfig.ultracraft.category.default": "Ultracraft",
   "text.autoconfig.ultracraft.category.ultra-hud": "UltraHUD",
-  "text.autoconfig.ultracraft.category.blood": "Goop / Blood",
+  "text.autoconfig.ultracraft.category.blood": "Goop // Blood",
   "text.autoconfig.ultracraft.category.debug": "Debug",
 
   "text.autoconfig.ultracraft.option.fancyGoop": "Fancy Goop",
@@ -539,7 +540,7 @@
   "text.autoconfig.ultracraft.option.detailedJoinInfo.@Tooltip": "Tells you *more* mod-relevant Game Rules upon joining a game.",
 
   "text.autoconfig.ultracraft.option.freezeVFX": "Freeze VFX",
-  "text.autoconfig.ultracraft.option.freezeVFX.@Tooltip[0]": "Whether Time should freeze momentarily from certain actions (parrying/projectile-boosting)",
+  "text.autoconfig.ultracraft.option.freezeVFX.@Tooltip[0]": "Whether Time should freeze momentarily from certain actions (parrying//projectile-boosting)",
   "text.autoconfig.ultracraft.option.freezeVFX.@Tooltip[1]": "This Setting is overridden by Servers!",
 
   "text.autoconfig.ultracraft.option.fishingJoke": "Fishing Popup",
@@ -602,7 +603,7 @@
   "text.autoconfig.ultracraft.option.hideWings.@Tooltip": "Lets you hide High Velocity Wings",
 
   "text.autoconfig.ultracraft.option.ultraHudFixed": "Fixed Rotation",
-  "text.autoconfig.ultracraft.option.ultraHudFixed.@Tooltip": "Prevents the Ultrahud from moving / \"following\" the view",
+  "text.autoconfig.ultracraft.option.ultraHudFixed.@Tooltip": "Prevents the Ultrahud from moving // \"following\" the view",
 
   "text.autoconfig.ultracraft.option.deathScreen": "Ultrakill Death Screen",
   "text.autoconfig.ultracraft.option.deathScreen.@Tooltip": "Replaces the Death Screen with the one from Ultrakill"

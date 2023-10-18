@@ -10,14 +10,17 @@ import absolutelyaya.ultracraft.client.rendering.TitleLimboBGRenderer;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.CubeMapRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.RotatingCubeMapRenderer;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.SplashTextRenderer;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.sound.SoundInstance;
 import net.minecraft.client.sound.SoundManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -25,6 +28,8 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.time.LocalDateTime;
 
 @Mixin(TitleScreen.class)
 public abstract class TitleScreenMixin extends Screen
@@ -34,6 +39,7 @@ public abstract class TitleScreenMixin extends Screen
     
     @Shadow public abstract boolean mouseClicked(double mouseX, double mouseY, int button);
     
+    @Shadow private @Nullable SplashTextRenderer splashText;
     private static final Ultraconfig config = UltracraftClient.getConfig();
     private static final Identifier BG_ICON_TEXTURE = new Identifier(Ultracraft.MOD_ID, "textures/misc/bg_icons.png");
     RotatingCubeMapRenderer ultraBG, defaultBG, limboBG;
@@ -51,6 +57,14 @@ public abstract class TitleScreenMixin extends Screen
         defaultBG = new RotatingCubeMapRenderer(PANORAMA_CUBE_MAP);
         ultraBG = new TitleBGRenderer(PANORAMA_CUBE_MAP);
         limboBG = new TitleLimboBGRenderer(PANORAMA_CUBE_MAP);
+        
+        LocalDateTime time = LocalDateTime.now();
+        if(time.getHour() == 6 && time.getMinute() == 9)
+            splashText = new SplashTextRenderer("No Sex :pensive:");
+        else if(time.getHour() == 4 && time.getMinute() == 20)
+            splashText = new SplashTextRenderer("WOOOOOO 420!"); //not encouraging drug use, it's just the funny number :D
+        else if(time.getHour() == 3 && time.getMinute() == 33)
+            splashText = new SplashTextRenderer("Something Wicked this way comes");
     }
     
     @Inject(method = "tick", at = @At("HEAD"))
@@ -91,6 +105,16 @@ public abstract class TitleScreenMixin extends Screen
             case "limbo" -> limbo.onPress();
             case "ultracraft" -> ultracraft.onPress();
             default -> vanilla.onPress();
+        }
+    }
+    
+    @Inject(method = "render", at = @At("TAIL"))
+    void onRender(DrawContext context, int mouseX, int mouseY, float delta, CallbackInfo ci)
+    {
+        if(config.BGID.equals("limbo"))
+        {
+            Text t = Text.translatable("screen.ultracraft.title.subtitle");
+            context.drawText(textRenderer, t, width / 2 - textRenderer.getWidth(t) / 2, 70, 0xffffff00, true);
         }
     }
     

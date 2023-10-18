@@ -79,6 +79,8 @@ public class PedestalBlockEntityRenderer implements BlockEntityRenderer<Pedestal
 			matrices.scale(1.75f, 1.75f, 1.75f);
 			matrices.translate(0f, -0.1f, 0f);
 		}
+		else if ((item instanceof BlockItem block) && block.getBlock() instanceof PedestalBlock)
+			matrices.scale(0.6f, 0.6f, 0.6f);
 		else if (!(item instanceof BlockItem) && !(item.equals(ItemRegistry.BLUE_SKULL) || item.equals(ItemRegistry.RED_SKULL)))
 		{
 			matrices.scale(0.75f, 0.75f, 0.75f);
