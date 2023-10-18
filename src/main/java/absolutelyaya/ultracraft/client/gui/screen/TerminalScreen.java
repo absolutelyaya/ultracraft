@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.client.gui.screen;
 
+import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.api.terminal.TerminalCodeRegistry;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
@@ -16,6 +17,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.joml.Vector2d;
 import org.joml.Vector2i;
 import org.joml.Vector3i;
@@ -24,6 +26,8 @@ import java.util.List;
 
 public class TerminalScreen extends Screen
 {
+	public static final Identifier CHECKERS = new Identifier(Ultracraft.MOD_ID, "textures/gui/graffiti_checkers.png");
+	
 	SimpleColorSelectionWidget textColorPicker, paletteColorPicker;
 	TerminalBlockEntity terminal;
 	TerminalPaletteWidget paletteWidget;
@@ -54,20 +58,23 @@ public class TerminalScreen extends Screen
 			lastSelected = i;
 		});
 		paletteWidget.setSelectedColor(lastSelected);
-		editPalleteCheckbox = addDrawableChild(new CheckboxWidget(16, height - 32, 16, 20,
+		int scale = client.options.getGuiScale().getValue();
+		editPalleteCheckbox = addDrawableChild(new CheckboxWidget(16 + (scale == 0 || scale == 4 ? 24 : 0), height - 32, 16, 20,
 				Text.translatable("screen.ultracraft.terminal.graffiti.edit-palette"), false));
 		paletteColorPicker = new SimpleColorSelectionWidget(textRenderer,
 				Text.translatable("screen.ultracraft.terminal.graffiti.palette-clr", paletteWidget.getSelectedColor()),
 				new Vector3i(64, height / 2 - 41, 155), () -> terminal.getPaletteColor(paletteWidget.getSelectedColor()),
 				i -> terminal.setPaletteColor(paletteWidget.getSelectedColor() - 1, (0xff << 24) + i));
 		paletteColorPicker.setAlpha(1f);
-		exportName = addDrawableChild(new TextFieldWidget(textRenderer, 64, height / 2 + 67, 128, 20,
+		int yOffset = (scale == 0 || scale == 4 ? 32 : 0);
+		exportName = addDrawableChild(new TextFieldWidget(textRenderer, 64, height / 2 + 67 - yOffset, 128, 20,
 				Text.translatable("screen.ultracraft.terminal.graffiti.default_name")));
 		exportName.setText(Text.translatable("screen.ultracraft.terminal.graffiti.default_name").getString());
 		exportName.setPlaceholder(Text.translatable("screen.ultracraft.terminal.graffiti.name_placeholder"));
 		exportName.setChangedListener(s -> exportButton.setMessage(Text.translatable("screen.ultracraft.terminal.graffiti.export", s)));
 		exportButton = addDrawableChild(ButtonWidget.builder(Text.translatable("screen.ultracraft.terminal.graffiti.export", exportName.getText()),
-				b -> ClientGraffitiManager.exportGraffitiPng(terminal, exportName.getText())).dimensions(63, height / 2 + 67 + 22, 130, 20).build());
+				b -> ClientGraffitiManager.exportGraffitiPng(terminal, exportName.getText()))
+												.dimensions(63, height / 2 + 67 + 22 - yOffset, 130, 20).build());
 		if(!terminal.getTab().id.equals(Tab.GRAFFITI_ID))
 		{
 			editPalleteCheckbox.active = false;
@@ -153,11 +160,13 @@ public class TerminalScreen extends Screen
 			exportName.visible = true;
 			if(terminal.getGraffitiTexture() != null)
 			{
-				int x = 64, y = height / 2 - 64;
+				int scale = client.options.getGuiScale().getValue();
+				int x = 64, y = height / 2 - (scale == 0 || scale == 4 ? 96 : 64);
 				graffitiTexturePos = new Vector2i(x, y);
 				context.getMatrices().push();
 				context.getMatrices().translate(x, y, 0f);
 				context.getMatrices().scale(0.5f, 0.5f, 0.5f);
+				context.drawTexture(CHECKERS, 0, 0, 0, 0, 256, 256);
 				context.drawTexture(terminal.getGraffitiTexture(), 0, 0, 0, 0, 256, 256);
 				context.getMatrices().pop();
 				context.drawBorder(x - 1, y - 1, 34, 90, 0xffffffff);
@@ -166,6 +175,16 @@ public class TerminalScreen extends Screen
 				context.fill(x, y + 89, x + 32, y + 128, 0x88000000);
 				context.fill(x + 96, y + 89, x + 32 + 96, y + 128, 0x88000000);
 				context.drawBorder(x - 1, y - 1, 130, 130, 0xffffffff);
+				if(mouseX > graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 128 && mouseY > graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 128)
+				{
+					int mx = Math.round(mouseX / 4f) * 4;
+					int my = Math.round(mouseY / 4f) * 4;
+					int c = paletteWidget.getSelectedColor();
+					if(c != 0)
+						context.fill(mx, my, mx + 4, my + 4, terminal.getPaletteColor(c));
+					else
+						context.drawBorder(mx - 1, my - 1, 6, 6, 0xffffffff);
+				}
 			}
 			else
 				ClientGraffitiManager.refreshGraffitiTexture(terminal);
