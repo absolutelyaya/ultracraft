@@ -43,16 +43,6 @@ public class ItemRegistry
 	public static final Item BLOOD_BUCKET = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "blood_bucket"), new BucketItem(FluidRegistry.STILL_BLOOD,
 					new FabricItemSettings().maxCount(1).recipeRemainder(Items.BUCKET)));
-	public static final PlushieItem PLUSHIE = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "plushie"), new PlushieItem(new FabricItemSettings()));
-	public static final PlushieItem PITR = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "pitr"), new PitrItem(new FabricItemSettings()));
-	public static final PlushieItem PITR_POIN = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "pitr_poin"), new PitrPoinItem(new FabricItemSettings()));
-	public static final SwordsmachinePlushieItem SWORDSMACHINE = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "swordsmachine_plushie"), new SwordsmachinePlushieItem(new FabricItemSettings()));
-	public static final TalonItem TALON = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "talon"), new TalonItem(new FabricItemSettings()));
 	public static final CoinItem COIN = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "coin"), new CoinItem(new FabricItemSettings()));
 	public static final KillerFishItem KILLERFISH = Registry.register(Registries.ITEM,
@@ -69,6 +59,11 @@ public class ItemRegistry
 								.putLore(new String[] { "item.ultracraft.mincedmeat.lore" }, new String[] { "item.ultracraft.mincedmeat.hiddenlore" }));
 	public static final Item KNUCKLEBLASTER = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "knuckleblaster"), new Item(new FabricItemSettings()));
+	public static final Item HELL_MASS = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "hell_mass"), new Item(new FabricItemSettings()));
+	public static final Item PLACEHOLDER = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "placeholder"),
+			new Item(new FabricItemSettings().food(new FoodComponent.Builder().alwaysEdible().hunger(-1).build())));
 	
 	//Weapons
 	public static final PierceRevolverItem PIERCE_REVOLVER = Registry.register(Registries.ITEM,
@@ -133,11 +128,20 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "blood_orb"), new OrbItem(new FabricItemSettings(), EntityRegistry.BLOOD_ORB));
 	public static final StainedGlassWindowItem STAINED_GLASS_WINDOW = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "stained_glass_window"), new StainedGlassWindowItem(EntityRegistry.STAINED_GLASS_WINDOW, new FabricItemSettings()));
-	public static final Item HELL_MASS = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "hell_mass"), new Item(new FabricItemSettings()));
-	public static final Item PLACEHOLDER = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "placeholder"),
-			new Item(new FabricItemSettings().food(new FoodComponent.Builder().alwaysEdible().hunger(-1).build())));
+	
+	//Plushies
+	public static final PlushieItem PLUSHIE = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "plushie"), new PlushieItem(new FabricItemSettings()));
+	public static final PlushieItem PITR = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "pitr"), new PitrItem(new FabricItemSettings()));
+	public static final PlushieItem PITR_POIN = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "pitr_poin"), new PitrPoinItem(new FabricItemSettings()));
+	public static final SwordsmachinePlushieItem SWORDSMACHINE = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "swordsmachine_plushie"), new SwordsmachinePlushieItem(new FabricItemSettings()));
+	public static final TalonItem TALON = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "talon"), new TalonItem(new FabricItemSettings()));
+	public static final V2Item V2 = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "v2"), new V2Item(new FabricItemSettings()));
 	
 	//Special
 	public static final TerminalItem TERMINAL = Registry.register(Registries.ITEM,
@@ -219,6 +223,7 @@ public class ItemRegistry
 			content.add(SWORDSMACHINE.getDefaultStack("swordsmachine"));
 			content.add(SWORDSMACHINE.getDefaultStack("tundra"));
 			content.add(SWORDSMACHINE.getDefaultStack("agony"));
+			content.add(V2.getDefaultStack("v2"));
 			content.add(DRONE_MASK);
 			content.add(CLAIR_DE_LUNE_DISK);
 			for (TerminalBlockEntity.Base b : TerminalBlockEntity.Base.values())
