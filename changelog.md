@@ -85,6 +85,8 @@
 - Tweaked a Filth Animation
 - Nerfed base projectile parry damage (15 -> 10)
 - Buffed Parry Chaining Modifiers (damage 1 + x * (0.2 -> 0.35) | range 1 + x * (0.1 -> 0.15))
+- Nerfed Coin Ricochet Damage for non-players (5 * chain -> 3 * chain)
+- Halved deadcoin window
 ## Minor Changes
 - Discontinued Russian Translation
 - Primary Fire can now be held down
