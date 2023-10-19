@@ -169,7 +169,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 				CriteriaRegistry.CHARGEBACK.trigger(player, malicious);
 			return hitNext(hitscanSource, amount, attacker);
 		}
-		if(realAge <= 2) //deadcoin period
+		if(realAge <= 1) //deadcoin period
 		{
 			if(source.isOf(DamageSources.RICOCHET))
 			{
@@ -280,7 +280,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 						Vec3d target = closest.getBoundingBox().getCenter();
 						Vec3d dir = target.subtract(getPos()).normalize();
 						ServerHitscanHandler.performBouncingHitscan(new ServerHitscanHandler.Hitscan(attacker, getPos(), getPos(), getPos().add(dir.multiply(64f)), hitscanType,
-								isDamageRicochet ? 5 * amount : 5, DamageSources.RICOCHET).maxHits(source.hitscan.maxHits + 1).bounces(source.hitscan.maxBounces).autoAim(source.hitscan.autoAim));
+								isDamageRicochet ? 3 * amount : 5, DamageSources.RICOCHET).maxHits(source.hitscan.maxHits + 1).bounces(source.hitscan.maxBounces).autoAim(source.hitscan.autoAim));
 						Ultracraft.freeze((ServerWorld) getWorld(), 3);
 						if (getOwner() instanceof ServerPlayerEntity player)
 							CriteriaRegistry.RICOCHET.trigger(player, damage);
