@@ -12,6 +12,7 @@ import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.util.RenderingUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
+import dev.architectury.event.events.client.ClientTooltipEvent;
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -308,7 +309,6 @@ public class UltraHudRenderer
 			coinRot = 0;
 			coinRotDest = 0;
 		}
-		RenderSystem.enableBlend();
 		matrices.pop();
 		RenderSystem.restoreProjectionMatrix();
 	}
@@ -337,6 +337,7 @@ public class UltraHudRenderer
 			RenderSystem.setShaderTexture(0, WEAPONS_TEXTURE);
 			RenderingUtil.drawTexture(textureMatrix, new Vector4f(0, 16, 48, 32f), 0f,
 					new Vec2f(192, 192), new Vector4f(uv.x * 48f, uv.y * 32f, 48f, 32f), 0.75f);
+			RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
 		}
 		else
 		{
