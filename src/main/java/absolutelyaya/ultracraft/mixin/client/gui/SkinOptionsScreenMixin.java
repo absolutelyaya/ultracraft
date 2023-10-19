@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.option.GameOptionsScreen;
 import net.minecraft.client.gui.screen.option.SkinOptionsScreen;
@@ -51,6 +52,11 @@ public abstract class SkinOptionsScreenMixin extends GameOptionsScreen
 			b.active = false;
 			b.setTooltip(Tooltip.of(Text.translatable("screen.ultracraft.wing-settings.only-in-world")));
 		}
+		//if(UltracraftClient.IRIS)
+		//{
+		//	b.active = false;
+		//	b.setTooltip(Tooltip.of(Text.translatable("screen.ultracraft.wing-settings.iris")));
+		//}
 	}
 	
 	@ModifyVariable(method = "init", ordinal = 0, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/option/SkinOptionsScreen;addDrawableChild(Lnet/minecraft/client/gui/Element;)Lnet/minecraft/client/gui/Element;", ordinal = 1))

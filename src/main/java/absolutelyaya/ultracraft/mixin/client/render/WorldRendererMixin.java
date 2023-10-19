@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.mixin.client.render;
 
 import absolutelyaya.ultracraft.client.RenderLayers;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Vec3d;
@@ -19,6 +20,8 @@ public abstract class WorldRendererMixin
 	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderLayer(Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/util/math/MatrixStack;DDDLorg/joml/Matrix4f;)V", ordinal = 1))
 	void onRenderLayers(MatrixStack matrices, float tickDelta, long limitTime, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightmapTextureManager lightmapTextureManager, Matrix4f projectionMatrix, CallbackInfo ci)
 	{
+		if(UltracraftClient.SODIUM)
+			return;
 		Vec3d pos = camera.getPos();
 		renderLayer(RenderLayers.getFlesh(), matrices, pos.x, pos.y, pos.z, projectionMatrix);
 	}

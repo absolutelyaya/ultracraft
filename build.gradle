@@ -86,9 +86,6 @@ dependencies {
     //better combat
     modImplementation "maven.modrinth:better-combat:${project.bettercombat_version}-fabric"
 
-    //Sodium
-    modCompileOnly "maven.modrinth:sodium:mc1.20.1-0.5.2"
-
     //cadinal components
     include modApi("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cardinal_components_version}")
     include modApi("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cardinal_components_version}")

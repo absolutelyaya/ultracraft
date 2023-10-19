@@ -52,9 +52,6 @@
     "minecraft": "1.20.1",
     "geckolib": ">=4.2.1"
   },
-  "conflicts": {
-    "iris": "*"
-  },
   "recommends": {
     "lambdynlights": "*"
   },

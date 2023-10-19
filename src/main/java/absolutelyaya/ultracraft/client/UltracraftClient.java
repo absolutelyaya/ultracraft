@@ -93,7 +93,7 @@ public class UltracraftClient implements ClientModInitializer
 	private static ShaderProgram wingsColoredProgram, wingsColoredUIProgram, texPosFade, flesh;
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	public static TrailRenderer TRAIL_RENDERER;
-	public static boolean REPLACE_MENU_MUSIC = true, APPLY_ENTITY_POSES, GRAFFITI_WHITELISTED = true;
+	public static boolean REPLACE_MENU_MUSIC = true, APPLY_ENTITY_POSES, GRAFFITI_WHITELISTED = true, SODIUM = true, IRIS = false;
 	static GameruleRegistry.Setting HiVelOption = GameruleRegistry.Setting.FREE;
 	static GameruleRegistry.Setting TimeFreezeOption = GameruleRegistry.Setting.FORCE_ON;
 	static GameruleRegistry.RegenSetting bloodRegen = GameruleRegistry.RegenSetting.ALWAYS;
@@ -112,6 +112,9 @@ public class UltracraftClient implements ClientModInitializer
 	@Override
 	public void onInitializeClient()
 	{
+		SODIUM = FabricLoader.getInstance().getModContainer("sodium").isPresent();
+		IRIS = FabricLoader.getInstance().getModContainer("iris").isPresent();
+		
 		config = AutoConfig.register(Ultraconfig.class, GsonConfigSerializer::new);
 		KeybindRegistry.register();
 		
@@ -330,7 +333,7 @@ public class UltracraftClient implements ClientModInitializer
 				new SimpleFluidRenderHandler(new Identifier(Ultracraft.MOD_ID, "block/blood_still"), new Identifier(Ultracraft.MOD_ID, "block/blood_flow")));
 		BlockRenderLayerMap.INSTANCE.putFluids(RenderLayer.getSolid(), FluidRegistry.STILL_BLOOD, FluidRegistry.Flowing_BLOOD);
 		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.FLESH, //prevent Sodium from crashing when trying to render Flesh Blocks
-				FabricLoader.getInstance().getModContainer("sodium").isPresent() ? RenderLayers.getSolid() : RenderLayers.getFlesh());
+				SODIUM ? RenderLayers.getSolid() : RenderLayers.getFlesh());
 		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.ADORNED_RAILING, RenderLayer.getCutout());
 		
 		TerminalCodeRegistry.registerCode("saiai", t -> t.setTab(new PetTab()));
