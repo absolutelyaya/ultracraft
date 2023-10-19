@@ -95,7 +95,6 @@ public class TerminalDisplayBlock extends BlockWithEntity
 		if(entity instanceof TerminalBlockEntity terminal)
 			terminal.onBlockBreak();
 		super.onBreak(world, pos, state, player);
-		//TODO: manually drop item with all NBT data
 	}
 	
 	@Override

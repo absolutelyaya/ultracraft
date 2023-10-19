@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.api.terminal.GlobalButtonActions;
 import absolutelyaya.ultracraft.client.gui.terminal.DefaultTabs;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.*;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.ListElement;
+import absolutelyaya.ultracraft.item.TerminalItem;
 import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
 import absolutelyaya.ultracraft.client.ClientGraffitiManager;
@@ -16,10 +17,11 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.*;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
@@ -164,6 +166,42 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	{
 		for (WingedPlayerEntity p : focusedPlayers)
 			p.setFocusedTerminal(null);
+		ItemEntity item = new ItemEntity(EntityType.ITEM, getWorld());
+		item.setStack(getAsStack());
+		item.setPosition(getPos().toCenterPos());
+		getWorld().spawnEntity(item);
+	}
+	
+	public ItemStack getAsStack()
+	{
+		ItemStack stack = TerminalItem.getStack(base);
+		NbtCompound terminalData = new NbtCompound();
+		terminalData.putInt("txt-clr", textColor);
+		if(owner != null)
+			terminalData.putUuid("owner", owner);
+		terminalData.put("screensaver", serializeScreensaver());
+		terminalData.putUuid("terminal-id", Objects.requireNonNullElseGet(terminalID, () -> terminalID = UUID.randomUUID()));
+		terminalData.put("graffiti", serializeGraffiti());
+		terminalData.put("mainmenu", serializeMainMenu());
+		
+		NbtCompound base = stack.getOrCreateNbt();
+		base.put("terminalData", terminalData);
+		stack.setNbt(base);
+		return stack;
+	}
+	
+	public void fromitem(ItemStack stack)
+	{
+		if(!stack.hasNbt())
+			return;
+		NbtCompound nbt = stack.getNbt().getCompound("terminalData");
+		textColor = nbt.getInt("txt-clr");
+		if(nbt.containsUuid("owner"))
+			owner = nbt.getUuid("owner");
+		applyScreensaver(nbt.getCompound("screensaver"));
+		terminalID = nbt.getUuid("terminal-id");
+		applyGraffiti(nbt.getCompound("graffiti"));
+		applyMainMenu(nbt.getCompound("mainmenu"));
 	}
 	
 	@Override

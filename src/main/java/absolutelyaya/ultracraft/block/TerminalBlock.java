@@ -59,9 +59,11 @@ public class TerminalBlock extends BlockWithEntity
 			world.setBlockState(pos.up(),
 					BlockRegistry.TERMINAL_DISPLAY.getDefaultState().with(FACING, state.get(FACING)));
 			TerminalBlockEntity terminal = (TerminalBlockEntity)world.getBlockEntity(pos.up());
+			if(itemStack.hasNbt() && itemStack.getNbt().contains("terminalData"))
+				terminal.fromitem(itemStack);
+			else if(placer.isPlayer())
+					terminal.owner = placer.getUuid();
 			terminal.base = TerminalItem.getBase(itemStack);
-			if(placer.isPlayer())
-				terminal.owner = placer.getUuid();
 			world.setBlockState(pos.up(2),
 					BlockRegistry.TERMINAL.getDefaultState().with(FACING, state.get(FACING)).with(HALF, DoubleBlockHalf.UPPER));
 		}
@@ -99,13 +101,14 @@ public class TerminalBlock extends BlockWithEntity
 			BlockEntity be = world.getBlockEntity(pos);
 			if(be instanceof TerminalBlockEntity terminal && world.getGameRules().getBoolean(GameruleRegistry.TERMINAL_PROT) && terminal.isCannotBreak(player))
 				return;
+			world.getBlockState(pos).getBlock().onBreak(world, pos, state, player);
 			world.setBlockState(pos, Blocks.AIR.getDefaultState());
 			world.addBlockBreakParticles(pos, state);
-			world.getBlockState(pos).getBlock().onBreak(world, pos, state, player);
 		}
 		pos = pos.offset(dir, 1);
 		if(world.getBlockState(pos).isOf(BlockRegistry.TERMINAL))
 		{
+			world.getBlockState(pos).getBlock().onBreak(world, pos, state, player);
 			world.setBlockState(pos, Blocks.AIR.getDefaultState());
 			world.addBlockBreakParticles(pos, state);
 		}
@@ -146,7 +149,7 @@ public class TerminalBlock extends BlockWithEntity
 		pos = pos.offset(dir, 1);
 		BlockEntity be = world.getBlockEntity(pos);
 		if(be instanceof TerminalBlockEntity terminal)
-			return TerminalItem.getStack(terminal.getBase());
+			return terminal.getAsStack();
 		return ItemStack.EMPTY;
 	}
 	
