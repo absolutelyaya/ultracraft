@@ -58,7 +58,6 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	private static final RawAnimation FALL_ANIM = RawAnimation.begin().thenPlay("fall");
 	private static final RawAnimation INTRO_ANIM = RawAnimation.begin().thenPlay("intro").thenPlay("idle");
 	private static final RawAnimation SLIDE_ANIM = RawAnimation.begin().thenPlay("slide_start").thenPlay("slide_loop");
-	private static final RawAnimation SLIDE_END_ANIM = RawAnimation.begin().thenPlay("slide_stop").thenPlay("idle");
 	private static final RawAnimation OUTRO_ANIM = RawAnimation.begin().thenPlay("outro");
 	static protected final TrackedData<Integer> FRUSTRATION = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.INTEGER);
 	static protected final TrackedData<Integer> IDLE_TIMER = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.INTEGER);
@@ -76,6 +75,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	int wallJumps = 3, ferocity, movementChangeCD = 0, attackCD = 60, activeAttack = -1, shots;
 	SnowballEntity escapePearl;
 	Vec3d nextShotDir;
+	DamageSource killingBlow;
 	
 	public V2Entity(EntityType<? extends HostileEntity> entityType, World world)
 	{
@@ -535,9 +535,9 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 				if(source.getAttacker() instanceof LivingEntity living)
 					setAttacker(living);
 				LivingEntity adversary = getPrimeAdversary();
-				System.out.println(adversary);
 				if(adversary != null)
 					adversary.updateKilledAdvancementCriterion(this, 1, source);
+				killingBlow = source;
 				return false;
 			}
 			return false;
@@ -615,6 +615,8 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			ProgressionItemEntity item = ProgressionItemEntity.spawn(getWorld(), getPos(), "ultracraft:knuckleblaster",
 					ItemRegistry.KNUCKLEBLASTER.getDefaultStack(), getRandom());
 			item.setNoPickup();
+			if(killingBlow != null)
+				dropLoot(killingBlow, killingBlow.getAttacker() != null && killingBlow.getAttacker().isPlayer());
 		}
 		remove(Entity.RemovalReason.KILLED);
 	}
