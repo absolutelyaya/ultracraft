@@ -175,18 +175,11 @@ public class PacketRegistry
 						e -> (!((ProjectileEntityAccessor)e).isParried() || chainingAllowed) && !projectiles.contains(e));
 				for (ProjectileEntity proj : potentialProjectiles)
 				{
-					//Predict position within the last 1 and next 3 ticks. If it is or was within the parry check, then the parry is successful
-					//This is mainly intended for combatting latency and shit
-					for (int i = 0; i < 4; i++)
+					Vec3d vel = proj.getVelocity();
+					if (check.intersects(proj.getBoundingBox().expand(vel.x, vel.y, vel.z)))
 					{
-						Vec3d predictedPos = proj.getLerpedPos(i);
-						if (check.contains(predictedPos))
-						{
-							if(debug)
-								addDebugParticle(player, predictedPos);
-							projectiles.add(proj);
-							break;
-						}
+						projectiles.add(proj);
+						break;
 					}
 				}
 				
