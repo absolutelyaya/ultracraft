@@ -58,13 +58,14 @@ public abstract class AbstractSkewerEntity extends PersistentProjectileEntity
 				return;
 			}
 			setVelocity(Vec3d.ZERO);
+			prevX = getX();
+			prevY = getY();
+			prevZ = getZ();
 			setPosition(victim.getPos().add(0f, victim.getHeight() / 2, 0f));
-			prevPitch = getPitch();
-			prevYaw = getYaw();
-			setYaw(dataTracker.get(IMPACT_YAW));
-			setPitch(dataTracker.get(IMPACT_PITCH));
+			setYaw(prevYaw = dataTracker.get(IMPACT_YAW));
+			setPitch(prevPitch = dataTracker.get(IMPACT_PITCH));
 		}
-		if(isRemoved() || !isInGround())
+		if(isRemoved() || (!isInGround() && victim == null))
 			return;
 		dataTracker.set(GROUND_TIME, dataTracker.get(GROUND_TIME) + 1f);
 	}
@@ -78,7 +79,23 @@ public abstract class AbstractSkewerEntity extends PersistentProjectileEntity
 	
 	public boolean isInGround()
 	{
-		return inGround || victim != null;
+		return inGround;
+	}
+	
+	@Override
+	public float getPitch(float tickDelta)
+	{
+		if(dataTracker.get(IMPACT_PITCH) != 0)
+			return dataTracker.get(IMPACT_PITCH);
+		return super.getPitch(tickDelta);
+	}
+	
+	@Override
+	public float getYaw()
+	{
+		if(dataTracker.get(IMPACT_YAW) != 0)
+			return dataTracker.get(IMPACT_YAW);
+		return super.getYaw();
 	}
 	
 	public LivingEntity getVictim()

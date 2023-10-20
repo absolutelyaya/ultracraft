@@ -94,7 +94,7 @@ public class EntityRegistry
 	public static final EntityType<HarpoonEntity> HARPOON = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "harpoon"),
 			EntityType.Builder.create(HarpoonEntity::new, SpawnGroup.MISC).setDimensions(0.35f, 0.35f)
-					.maxTrackingRange(5).trackingTickInterval(1).build("harpoon"));
+					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("harpoon"));
 	public static final EntityType<ThrownSoapEntity> SOAP = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "soap"),
 			EntityType.Builder.create(ThrownSoapEntity::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
@@ -102,7 +102,7 @@ public class EntityRegistry
 	public static final EntityType<MagnetEntity> MAGNET = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "magnet"),
 			EntityType.Builder.create(MagnetEntity::new, SpawnGroup.MISC).setDimensions(0.35f, 0.35f)
-					.maxTrackingRange(5).trackingTickInterval(1).build("magnet"));
+					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("magnet"));
 	//only tracking interval 3 due to the guaranteed large amount of these and it's not like they're parriable anyways
 	public static final EntityType<NailEntity> NAIL = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "nail"),

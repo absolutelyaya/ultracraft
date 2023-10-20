@@ -99,7 +99,8 @@ public class HarpoonGunItem extends AbstractWeaponItem implements GeoItem
 	public void onAltFire(World world, PlayerEntity user)
 	{
 		List<HarpoonEntity> harpoons;
-		harpoons = world.getEntitiesByType(TypeFilter.instanceOf(HarpoonEntity.class), user.getBoundingBox().expand(64f), i -> i.getOwner().equals(user));
+		harpoons = world.getEntitiesByType(TypeFilter.instanceOf(HarpoonEntity.class), user.getBoundingBox().expand(64f),
+				i -> i.getOwner() != null && i.getOwner().equals(user));
 		if(harpoons.size() == 0)
 			return;
 		Vec3d ownerVelocity = Vec3d.ZERO;

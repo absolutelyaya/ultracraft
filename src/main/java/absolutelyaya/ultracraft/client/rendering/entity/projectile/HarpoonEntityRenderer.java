@@ -34,7 +34,7 @@ public class HarpoonEntityRenderer extends ProjectileEntityRenderer<HarpoonEntit
 	public void render(HarpoonEntity harpoon, float yaw, float delta, MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, int i)
 	{
 		matrices.push();
-		matrices.multiply(new Quaternionf(new AxisAngle4f((harpoon.getYaw() + 182.5f) * MathHelper.RADIANS_PER_DEGREE, 0f, 1f, 0f)));
+		matrices.multiply(new Quaternionf(new AxisAngle4f((harpoon.getYaw(delta) + 182.5f) * MathHelper.RADIANS_PER_DEGREE, 0f, 1f, 0f)));
 		matrices.multiply(new Quaternionf(new AxisAngle4f((harpoon.getPitch(delta) + 15f) * MathHelper.RADIANS_PER_DEGREE, 1f, 0f, 0f)));
 		matrices.translate(0f, 0f, 0.5f);
 		MinecraftClient client = MinecraftClient.getInstance();

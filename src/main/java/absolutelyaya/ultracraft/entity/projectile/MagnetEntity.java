@@ -78,10 +78,11 @@ public class MagnetEntity extends AbstractSkewerEntity implements GeoEntity, IIg
 			flashTimer = 0f;
 			playSound(SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), 0.5f, 1.85f);
 		}
-		if(isRemoved() || !isInGround())
+		if(isRemoved() || (!isInGround() && victim == null))
 			return;
 		List<NailEntity> nails = getWorld().getEntitiesByType(TypeFilter.instanceOf(NailEntity.class), getBoundingBox().expand(8), n -> true);
-		List<MagnetEntity> magnets = getWorld().getEntitiesByType(TypeFilter.instanceOf(MagnetEntity.class), getBoundingBox().expand(8), MagnetEntity::isInGround);
+		List<MagnetEntity> magnets = getWorld().getEntitiesByType(TypeFilter.instanceOf(MagnetEntity.class), getBoundingBox().expand(8),
+				m -> m.isInGround() || m.victim != null);
 		Vec3d pos = getPos();
 		for (MagnetEntity magnet : magnets)
 			pos = pos.add(magnet.getPos());
@@ -89,7 +90,7 @@ public class MagnetEntity extends AbstractSkewerEntity implements GeoEntity, IIg
 		for (NailEntity nail : nails)
 			nail.setVelocity(nail.getVelocity().lerp(pos.add(0, 1, 0).subtract(nail.getPos()).normalize(),
 					Math.max(1f - nail.distanceTo(this) / 6f, 0)));
-		if(isInGround())
+		if(isInGround() || victim != null)
 		{
 			float strain = nails.size() / 42f / Math.max(magnets.size(), 1f);
 			dataTracker.set(GROUND_TIME, groundTime + strain);

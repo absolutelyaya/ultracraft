@@ -33,7 +33,7 @@ public class MagnetEntityRenderer extends GeoEntityRenderer<MagnetEntity>
 	public void render(MagnetEntity magnet, float yaw, float delta, MatrixStack matrices, VertexConsumerProvider vertexConsumerProvider, int i)
 	{
 		matrices.push();
-		matrices.multiply(new Quaternionf(new AxisAngle4f((magnet.getYaw() + 182.5f) * MathHelper.RADIANS_PER_DEGREE, 0f, 1f, 0f)));
+		matrices.multiply(new Quaternionf(new AxisAngle4f((magnet.getYaw(delta) + 182.5f) * MathHelper.RADIANS_PER_DEGREE, 0f, 1f, 0f)));
 		matrices.multiply(new Quaternionf(new AxisAngle4f((magnet.getPitch(delta) + 90f) * MathHelper.RADIANS_PER_DEGREE, 1f, 0f, 0f)));
 		matrices.translate(0f, 0f, 0f);
 		super.render(magnet, yaw, delta, matrices, vertexConsumerProvider, i);
