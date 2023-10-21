@@ -58,7 +58,7 @@ public class NailEntity extends ProjectileEntity implements ProjectileEntityAcce
 		if(isOwner(entity))
 			return;
 		super.onEntityHit(entityHitResult);
-		float amount = 0.3f;
+		float amount = 0.4f;
 		entity.damage(DamageSources.get(getWorld(), DamageSources.NAIL, getOwner(), this),
 				amount * getWorld().getGameRules().getInt(GameruleRegistry.NAILGUN_DAMAGE));
 	}

@@ -34,6 +34,7 @@
     - Magnets can get stuck in Blocks and Entities.
     - Magnets Degrade and Break after a while. The more Nails it's attracting, the more quickly it breaks.
     - You can have 3 Magnets at a time. They only recharge after breaking.
+    - Magnets have a low chance to attract Lightning (chance increases depending on amount of attracted nails)
 - Added Blocks
   - Rusty Pipe
   - Rusty Mesh
@@ -124,6 +125,7 @@
   - Most Animations are now shorter. (It's fine if your animations are longer due to the next bullet point)
   - Shot Animations now have Duplicates to cancel each other while rapid firing / shotgun swapping
   - Added `switch` animation (+duplicate)
+- Made Preparations to replace a bunch of sounds currently substituted using vanilla ones<br>This means a bunch of sounds were added that you can replace using Resourcepacks. Not all of them are actually implemented yet though. Check ``sounds.json``
 ## API Changes
 - Added Terminal API Tools
   - Allows adding fully Custom Coded Tabs and Global Button Actions to Terminals

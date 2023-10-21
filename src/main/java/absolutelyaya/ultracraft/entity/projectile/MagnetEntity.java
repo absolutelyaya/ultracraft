@@ -8,6 +8,7 @@ import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LightningEntity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
@@ -96,6 +97,12 @@ public class MagnetEntity extends AbstractSkewerEntity implements GeoEntity, IIg
 			float strain = nails.size() / 42f / Math.max(magnets.size(), 1f);
 			dataTracker.set(GROUND_TIME, groundTime + strain);
 			dataTracker.set(STRAIN, strain);
+		}
+		if(getWorld().isThundering() && age % 40 == 0 && random.nextFloat() < 0.01f + nails.size() * 0.01f)
+		{
+			LightningEntity lightning = new LightningEntity(EntityType.LIGHTNING_BOLT, getWorld());
+			lightning.setPosition(getPos());
+			getWorld().spawnEntity(lightning);
 		}
 	}
 	
