@@ -77,7 +77,7 @@ public abstract class TitleScreenMixin extends Screen
         }
         
         if(wind == null)
-            wind = PositionedSoundInstance.ambient(SoundRegistry.ELEVATOR_FALL.value(), 1f, 0.75f);
+            wind = PositionedSoundInstance.ambient(SoundRegistry.ELEVATOR_FALL, 1f, 0.75f);
         else if (wind.canPlay() && windTicks <= 0 && backgroundRenderer.equals(ultraBG))
         {
             if (wind.getSound() != SoundManager.MISSING_SOUND)

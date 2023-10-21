@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.components.player;
 
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -60,6 +61,7 @@ public class ArmComponent implements IArmComponent
 				activeArm = (byte)idx;
 				if(!provider.getWorld().isClient)
 					sync();
+				provider.playSound(SoundRegistry.ARM_SWITCH, 1f, 1f);
 				return;
 			}
 		}

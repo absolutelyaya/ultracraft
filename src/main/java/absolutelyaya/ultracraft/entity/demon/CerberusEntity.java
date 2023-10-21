@@ -8,6 +8,7 @@ import absolutelyaya.ultracraft.entity.goal.TimedAttackGoal;
 import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.projectile.CerberusBallEntity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
@@ -133,7 +134,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 	public void enrage()
 	{
 		dataTracker.set(ENRAGED, true);
-		playSound(SoundEvents.ENTITY_ZOMBIE_VILLAGER_CURE, 1.5f, 0.9f);
+		playSound(SoundRegistry.GENERIC_ENRAGE, 1.5f, 0.9f);
 	}
 	
 	public boolean isEnraged()

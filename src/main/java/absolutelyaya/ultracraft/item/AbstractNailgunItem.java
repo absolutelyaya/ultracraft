@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.entity.projectile.NailEntity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -38,6 +39,7 @@ public abstract class AbstractNailgunItem extends AbstractWeaponItem implements 
 		ItemStack stack = user.getMainHandStack();
 		if(isCanFirePrimary(user) && getNbt(user.getMainHandStack(), "nails") > 0)
 		{
+			user.playSound(SoundRegistry.NAILGUN_FIRE, 1f, 1.5f + user.getRandom().nextFloat() * 0.1f);
 			if(world.isClient)
 			{
 				super.onPrimaryFire(world, user, userVelocity);

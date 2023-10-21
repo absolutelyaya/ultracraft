@@ -115,12 +115,6 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 		return getLerpedPos(delta).add(new Vec3d(0f, 0.2f, -1.5f).rotateX(getPitch() * f).rotateY(getYaw() * f));
 	}
 	
-	@Override
-	protected SoundEvent getHitSound()
-	{
-		return SoundEvents.ITEM_TRIDENT_HIT_GROUND;
-	}
-	
 	public Vector3f getStartPosition()
 	{
 		if(getOwner() != null)

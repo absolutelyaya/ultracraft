@@ -7,6 +7,7 @@ import absolutelyaya.ultracraft.entity.AbstractUltraFlyingEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.control.MoveControl;
@@ -122,6 +123,7 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 				else
 					dataTracker.set(FALLDIR, getRotationVector().toVector3f());
 				setHealth(0.5f);
+				playSound(SoundRegistry.DRONE_DEATH, 1f, 1f);
 				return super.damage(source, 0.001f);
 			}
 			return false;
@@ -304,6 +306,14 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 		super.readCustomDataFromNbt(nbt);
 		if(nbt.contains("oddValue"))
 			dataTracker.set(LOVEABLE, nbt.getBoolean("oddValue"));
+	}
+	
+	@Override
+	public void setAttacking(boolean attacking)
+	{
+		super.setAttacking(attacking);
+		if(attacking)
+			playSound(SoundRegistry.DRONE_CHARGE, 1f, 1f);
 	}
 	
 	static class DroneMoveControl extends MoveControl

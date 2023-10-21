@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.AttractorNailgunRenderer;
 import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.entity.projectile.MagnetEntity;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
@@ -39,6 +40,7 @@ public class AttractorNailgunItem extends AbstractNailgunItem
 	@Override
 	public void onAltFire(World world, PlayerEntity user)
 	{
+		user.playSound(SoundRegistry.NAILGUN_MAGNET_FIRE, 1f, 0.8f + user.getRandom().nextFloat() * 0.1f);
 		super.onAltFire(world, user);
 		MagnetEntity magnet = MagnetEntity.spawn(user, user.getEyePos(), user.getRotationVector().multiply(1.5f));
 		world.spawnEntity(magnet);
@@ -55,7 +57,7 @@ public class AttractorNailgunItem extends AbstractNailgunItem
 	{
 		int magnets = UltraComponents.WINGED_ENTITY.get(user).getMagnets();
 		ItemStack itemStack = user.getStackInHand(hand);
-		if(magnets >= 3 || getNbt(itemStack, "magnets") <= 0)
+		if((magnets >= 3 && !world.isClient) || getNbt(itemStack, "magnets") <= 0)
 			return TypedActionResult.fail(itemStack);
 		return super.use(world, user, hand);
 	}

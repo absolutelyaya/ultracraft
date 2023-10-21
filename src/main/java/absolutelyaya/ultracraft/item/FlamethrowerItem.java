@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.FlamethrowerRenderer;
 import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.entity.projectile.FlameProjectileEntity;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -14,7 +15,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -83,12 +83,12 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 				fireball.setVelocity(dir.x, dir.y, dir.z, (overdrive ? 1.25f : 0.75f) + user.getRandom().nextFloat() * 0.5f, overdrive ? 30 : 15);
 				world.spawnEntity(fireball);
 			}
-			world.playSound(null, user.getBlockPos(), SoundEvents.ITEM_FIRECHARGE_USE, SoundCategory.PLAYERS, 0.75f,
+			world.playSound(null, user.getBlockPos(), SoundRegistry.FLAMETHROWER_LOOP, SoundCategory.PLAYERS, 0.75f,
 					(overdrive ? 1f : 0.8f) + user.getRandom().nextFloat() * 0.4f);
 			if(heat > 300)
 			{
 				cdm.setCooldown(this, 600, GunCooldownManager.PRIMARY);
-				world.playSound(null, user.getBlockPos(), SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.PLAYERS, 1f,
+				world.playSound(null, user.getBlockPos(), SoundRegistry.FLAMETHROWER_OVERHEAT, SoundCategory.PLAYERS, 1f,
 						0.25f + user.getRandom().nextFloat() * 0.1f);
 			}
 			setNbt(stack, "heat", heat + 4);
@@ -117,6 +117,13 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 	}
 	
 	@Override
+	public void onPrimaryFireStart(World world, PlayerEntity user)
+	{
+		super.onPrimaryFireStart(world, user);
+		world.playSound(null, user.getBlockPos(), SoundRegistry.FLAMETHROWER_START, SoundCategory.PLAYERS, 1f, 1f);
+	}
+	
+	@Override
 	public void onPrimaryFireStop(World world, PlayerEntity user)
 	{
 		if(!(user instanceof WingedPlayerEntity))
@@ -126,6 +133,7 @@ public class FlamethrowerItem extends AbstractWeaponItem implements GeoItem
 			cdm.setCooldown(this, getNbt(user.getMainHandStack(), "heat") > 200 ? 25 : 50, GunCooldownManager.PRIMARY);
 		if(!world.isClient)
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), "stop");
+		world.playSound(null, user.getBlockPos(), SoundRegistry.FLAMETHROWER_STOP, SoundCategory.PLAYERS, 1f, 1f);
 	}
 	
 	@Override

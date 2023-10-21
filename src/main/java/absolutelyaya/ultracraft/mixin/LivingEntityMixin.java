@@ -14,6 +14,7 @@ import absolutelyaya.ultracraft.entity.IAntiCheeseBoss;
 import absolutelyaya.ultracraft.entity.machine.V2Entity;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -349,7 +350,10 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			{
 				ticksSincePunch++;
 				if(ticksSincePunch == 8 && arm.isKnuckleblaster() && arm.isPunchPressed())
+				{
 					knuckleBlast();
+					playSound(SoundRegistry.KNUCKLEBLASTER_RELOAD, 1f, 1f);
+				}
 			}
 		}
 		
@@ -383,7 +387,8 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	{
 		if(!punching)
 		{
-			punchDuration = switch(UltraComponents.ARMS.get(this).getActiveArm())
+			IArmComponent arm = UltraComponents.ARMS.get(this);
+			punchDuration = switch(arm.getActiveArm())
 			{
 				case 0 -> 8;
 				case 1 -> 16;
@@ -395,6 +400,10 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			fatique = Math.min(fatique + 10, 40);
 			if(!getWorld().isClient)
 				swingHand(Hand.OFF_HAND);
+			if(arm.isFeedbacker())
+				playSound(SoundRegistry.FEEDBACKER_PUNCH, 1f, 1f);
+			else if(arm.isKnuckleblaster())
+				playSound(SoundRegistry.KNUCKLEBLASTER_PUNCH, 1f, 1f);
 			return true;
 		}
 		return false;

@@ -7,6 +7,7 @@ import absolutelyaya.ultracraft.client.rendering.item.HarpoonGunRenderer;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.projectile.HarpoonEntity;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
@@ -83,6 +84,7 @@ public class HarpoonGunItem extends AbstractWeaponItem implements GeoItem
 			cdm.setCooldown(this, 15, GunCooldownManager.PRIMARY);
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), "fire");
 		}
+		user.playSound(SoundRegistry.REPULSIVE_SKEWER_SHOOT, 1f, 1f);
 		return super.onPrimaryFire(world, user, userVelocity);
 	}
 	
@@ -120,6 +122,7 @@ public class HarpoonGunItem extends AbstractWeaponItem implements GeoItem
 		UltraComponents.WINGED_ENTITY.get(user).getGunCooldownManager().setCooldown(this, 100, GunCooldownManager.SECONDARY);
 		if(!world.isClient)
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), "altFire");
+		user.playSound(SoundRegistry.REPULSIVE_SKEWER_REEL, 1f, 1f);
 		super.onAltFire(world, user);
 	}
 	

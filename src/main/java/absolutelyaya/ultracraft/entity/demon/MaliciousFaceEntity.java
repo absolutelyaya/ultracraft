@@ -14,6 +14,7 @@ import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
@@ -116,7 +117,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 						x, y, z, 0f, 0f, 0f);
 			}
 			if(getWorld().getDifficulty().equals(Difficulty.HARD) || getWorld().getGameRules().getBoolean(GameruleRegistry.EFFECTIVELY_VIOLENT))
-				playSound(SoundEvents.ENTITY_ZOMBIE_VILLAGER_CURE, 1.5f, 0.9f);
+				playSound(SoundRegistry.GENERIC_ENRAGE, 1.5f, 0.9f);
 		}
 		else if(data.equals(LANDED) && dataTracker.get(LANDED))
 		{

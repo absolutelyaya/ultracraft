@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.entity.projectile;
 
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -11,6 +12,7 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.particle.ItemStackParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -104,7 +106,8 @@ public abstract class AbstractSkewerEntity extends PersistentProjectileEntity
 	}
 	
 	@Override
-	public void handleStatus(byte status) {
+	public void handleStatus(byte status)
+	{
 		if (status != EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES)
 			return;
 		for (int i = 0; i < 16; i++)
@@ -113,7 +116,13 @@ public abstract class AbstractSkewerEntity extends PersistentProjectileEntity
 			Vec3d vel = Vec3d.ZERO.addRandom(random, 0.25f);
 			getWorld().addParticle(new ItemStackParticleEffect(ParticleTypes.ITEM, asItemStack()), pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
 		}
-		//TODO: break sound
+		playSound(SoundRegistry.SKEWER_BREAK, 1f, 0.9f + random.nextFloat() * 0.2f);
+	}
+	
+	@Override
+	protected SoundEvent getHitSound()
+	{
+		return SoundRegistry.SKEWER_HIT_GROUND;
 	}
 	
 	@Override

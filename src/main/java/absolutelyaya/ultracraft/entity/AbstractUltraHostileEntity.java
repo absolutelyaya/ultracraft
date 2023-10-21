@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.entity;
 
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.particle.TeleportParticleEffect;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
@@ -19,6 +20,8 @@ import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
@@ -80,14 +83,7 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	{
 		super.onSpawnPacket(packet);
 		getWorld().addParticle(new TeleportParticleEffect(getTeleportParticleSize()), packet.getX(), packet.getY(), packet.getZ(), 0f, 0f, 0f);
-		playSound(SoundEvents.BLOCK_END_PORTAL_FRAME_FILL, 1f, 1.3f + random.nextFloat() * 0.15f);
-	}
-	
-	@Override
-	public boolean teleport(double x, double y, double z, boolean particleEffects)
-	{
-		getWorld().addParticle(new TeleportParticleEffect(getTeleportParticleSize()), x, y, z, 0f, 0f, 0f);
-		return super.teleport(x, y, z, particleEffects);
+		getWorld().playSound(getX(), getY(), getZ(), SoundRegistry.GENERIC_SPAWN, SoundCategory.HOSTILE, 0.75f, 1.3f + random.nextFloat() * 0.15f, false);
 	}
 	
 	protected ServerBossBar initBossBar()
@@ -196,5 +192,35 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	public boolean isBossBarVisible()
 	{
 		return true;
+	}
+	
+	protected EnemySoundType getSoundType()
+	{
+		return EnemySoundType.GENERIC;
+	}
+	
+	@Override
+	protected SoundEvent getHurtSound(DamageSource source)
+	{
+		return switch(getSoundType()) {
+			case HUSK -> SoundRegistry.HUSK_DAMAGE;
+			case MACHINE -> SoundRegistry.MACHINE_DAMAGE;
+			case GENERIC -> SoundEvents.ENTITY_GENERIC_HURT;
+		};
+	}
+	
+	@Override
+	protected SoundEvent getDeathSound()
+	{
+		return switch(getSoundType()) {
+			case HUSK -> SoundRegistry.HUSK_DEATH;
+			case MACHINE -> SoundRegistry.MACHINE_DEATH;
+			case GENERIC -> SoundEvents.ENTITY_GENERIC_DEATH;
+		};
+	}
+	
+	protected void playFireSound()
+	{
+		playSound(SoundRegistry.GENERIC_FIRE, 1, 1);
 	}
 }

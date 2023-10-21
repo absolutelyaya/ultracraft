@@ -107,7 +107,7 @@ public abstract class AbstractOrbEntity extends Entity
 			getWorld().addParticle(ParticleTypes.END_ROD, getX(), getY(), getZ(), dir.x, dir.y, dir.z);
 			getWorld().addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK, getParticleBlockstate()), getX(), getY(), getZ(), dir.x, dir.y, dir.z);
 		}
-		getWorld().playSound(null, getBlockPos(), SoundRegistry.BARRIER_BREAK.value(), SoundCategory.PLAYERS, 0.9f, 1f);
+		getWorld().playSound(null, getBlockPos(), SoundRegistry.BARRIER_BREAK, SoundCategory.PLAYERS, 0.9f, 1f);
 		super.onRemoved();
 	}
 	

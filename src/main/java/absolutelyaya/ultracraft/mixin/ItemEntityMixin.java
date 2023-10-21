@@ -41,7 +41,7 @@ public abstract class ItemEntityMixin extends Entity
 	{
 		if(getStack().getItem() instanceof PlushieItem && source.isIn(DamageTypeTags.EXPLODE_PLUSHIE) && health - amount <= 0f)
 		{
-			playSound(SoundRegistry.BAD_EXPLOSION.value(), 0.75f, 1f);
+			playSound(SoundRegistry.BAD_EXPLOSION, 0.75f, 1f);
 			getWorld().sendEntityStatus(this, EntityStatuses.ADD_DEATH_PARTICLES);
 			if(getOwner() instanceof PlayerEntity player)
 			{

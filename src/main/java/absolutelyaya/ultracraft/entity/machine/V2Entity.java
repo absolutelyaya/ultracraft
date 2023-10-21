@@ -15,6 +15,7 @@ import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.control.MoveControl;
 import net.minecraft.entity.ai.goal.Goal;
@@ -287,7 +288,13 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 				}
 				else
 				{
-					activeAttack = random.nextBetween(2, 4);
+					if(random.nextFloat() < 0.25f)
+					{
+						shots = -1;
+						activeAttack = 3; //core_eject (rarer)
+					}
+					else
+						activeAttack = 2;
 					if(!dataTracker.get(WEAPON).isOf(ItemRegistry.CORE_SHOTGUN))
 						dataTracker.set(WEAPON, ItemRegistry.CORE_SHOTGUN.getDefaultStack());
 				}
@@ -329,6 +336,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 				{
 					shots = 1;
 					attackCD = isEnraged() ? 20 : 40;
+					playSound(SoundRegistry.V2_PIERCER_TELL, 1.5f, 1f);
 				}
 				else if(shots == 1)
 				{
@@ -351,9 +359,19 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 				attackCD = (isEnraged() ? 10 : 30) + random.nextInt(20);
 			}
 			case 3 -> { //core eject
-				ejectCore();
-				activeAttack = -1;
-				attackCD = 20 + random.nextInt(30);
+				if(shots == -1)
+				{
+					shots = 1;
+					attackCD = 30;
+					playSound(SoundRegistry.V2_CORE_EJECT_TELL, 1.5f, 1f);
+				}
+				else if(shots == 1)
+				{
+					ejectCore();
+					shots = 0;
+					activeAttack = -1;
+					attackCD = 20 + random.nextInt(30);
+				}
 			}
 		}
 	}
@@ -411,7 +429,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	void enrage()
 	{
 		dataTracker.set(ENRAGED, true);
-		playSound(SoundEvents.ENTITY_ZOMBIE_VILLAGER_CURE, 10f, 1f);
+		playSound(SoundRegistry.GENERIC_ENRAGE, 10f, 1f);
 	}
 	
 	void setMovementMode(int i)
@@ -538,6 +556,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 				if(adversary != null)
 					adversary.updateKilledAdvancementCriterion(this, 1, source);
 				killingBlow = source;
+				playSound(SoundRegistry.V2_DEATH, 1f, 1f);
 				return false;
 			}
 			return false;

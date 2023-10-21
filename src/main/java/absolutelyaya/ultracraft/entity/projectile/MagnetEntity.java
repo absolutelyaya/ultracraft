@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
@@ -76,7 +77,7 @@ public class MagnetEntity extends AbstractSkewerEntity implements GeoEntity, IIg
 		{
 			flash = 1f;
 			flashTimer = 0f;
-			playSound(SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), 0.5f, 1.85f);
+			playSound(SoundRegistry.NAILGUN_MAGNET_BEEP, 0.5f, 1.85f);
 		}
 		if(isRemoved() || (!isInGround() && victim == null))
 			return;
@@ -116,12 +117,6 @@ public class MagnetEntity extends AbstractSkewerEntity implements GeoEntity, IIg
 			}
 		}
 		super.despawn();
-	}
-	
-	@Override
-	protected SoundEvent getHitSound()
-	{
-		return SoundEvents.ITEM_TRIDENT_HIT_GROUND;
 	}
 	
 	@Override

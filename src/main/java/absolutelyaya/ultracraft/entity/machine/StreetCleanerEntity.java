@@ -3,11 +3,13 @@ package absolutelyaya.ultracraft.entity.machine;
 import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
+import absolutelyaya.ultracraft.entity.EnemySoundType;
 import absolutelyaya.ultracraft.entity.other.BackTank;
 import absolutelyaya.ultracraft.entity.projectile.EjectedCoreEntity;
 import absolutelyaya.ultracraft.entity.projectile.FlameProjectileEntity;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -29,6 +31,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.BlockPos;
@@ -139,6 +142,7 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 					flame.setVelocity(dir.x, dir.y, dir.z, 0.6f + getRandom().nextFloat() * 0.5f, 10);
 					flame.setGriefing(false);
 					getWorld().spawnEntity(flame);
+					playSound(SoundRegistry.FLAMETHROWER_LOOP, 1, 1);
 				}
 			}
 		}
@@ -159,10 +163,7 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 	{
 		super.tickMovement();
 		if(!getWorld().isClient && age % 20 == 0 && random.nextFloat() < 0.33f)
-		{
-			getWorld().playSound(null, getBlockPos(), SoundEvents.ENTITY_PLAYER_BREATH,
-					SoundCategory.HOSTILE, 1f, 0.75f + random.nextFloat() * 0.15f);
-		}
+			playSound(SoundRegistry.STREET_CLEANER_BREATHE, 1f, 0.75f + random.nextFloat() * 0.15f);
 		setBodyYaw(headYaw);
 		if(touchingWater)
 			damage(DamageSources.get(getWorld(), DamageSources.SHORT_CIRCUIT), 999f);
@@ -204,6 +205,12 @@ public class StreetCleanerEntity extends AbstractUltraHostileEntity implements G
 		if(source.isOf(DamageTypes.FALL) && getHealth() - amount <= 0)
 			ExplosionHandler.explosion(this, getWorld(), getPos(), DamageSources.get(getWorld(), DamageTypes.EXPLOSION, this, this), 6, 4, 3, true);
 		return super.damage(source, source.isIn(DamageTypeTags.IS_EXPLOSION) ? amount * 0.5f : amount);
+	}
+	
+	@Override
+	protected EnemySoundType getSoundType()
+	{
+		return EnemySoundType.MACHINE;
 	}
 	
 	private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> event)

@@ -1,6 +1,5 @@
 package absolutelyaya.ultracraft.registry;
 
-import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.*;
@@ -397,7 +396,7 @@ public class PacketRegistry
 		});
 		ServerPlayNetworking.registerGlobalReceiver(KILLER_FISH_PACKET_ID, (server, player, handler, buf, sender) -> {
 			server.execute(() -> player.getWorld().playSound(null, player.getBlockPos(),
-					SoundRegistry.KILLERFISH_SELECT.value(), SoundCategory.PLAYERS, 1f, 1f));
+					SoundRegistry.KILLERFISH_SELECT, SoundCategory.PLAYERS, 1f, 1f));
 		});
 		ServerPlayNetworking.registerGlobalReceiver(TERMINAL_SYNC_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			BlockPos pos = buf.readBlockPos();

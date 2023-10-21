@@ -12,7 +12,7 @@ public class MovingWindSoundInstance extends MovingPlayerSoundInstance
 	
 	public MovingWindSoundInstance(PlayerEntity owner)
 	{
-		super(SoundRegistry.WIND_LOOP.value(), owner);
+		super(SoundRegistry.WIND_LOOP, owner);
 	}
 	
 	@Override

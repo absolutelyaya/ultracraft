@@ -34,7 +34,7 @@ public class KillerFishItem extends Item
 	{
 		boolean hi = rand.nextInt(500) == 0;
 		boolean lo = rand.nextInt(500) == 0;
-		user.playSound(SoundRegistry.KILLERFISH_USE.value(), 1, hi ? 2f : lo ? 0.5f : 1f);
+		user.playSound(SoundRegistry.KILLERFISH_USE, 1, hi ? 2f : lo ? 0.5f : 1f);
 		user.getItemCooldownManager().set(this, 10);
 		return TypedActionResult.success(user.getStackInHand(hand));
 	}

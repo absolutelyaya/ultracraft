@@ -8,6 +8,7 @@ import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
+import absolutelyaya.ultracraft.entity.EnemySoundType;
 import absolutelyaya.ultracraft.entity.husk.AbstractHuskEntity;
 import absolutelyaya.ultracraft.entity.other.ProgressionItemEntity;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
@@ -16,6 +17,7 @@ import absolutelyaya.ultracraft.item.MachineSwordItem;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import io.netty.buffer.Unpooled;
@@ -44,6 +46,7 @@ import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Pair;
@@ -356,6 +359,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	{
 		dataTracker.set(ENRAGED_TICKS, 250);
 		dataTracker.set(ANIMATION, ANIMATION_ENRAGE);
+		playSound(SoundRegistry.SWORDSMACHINE_ENRAGE, 1f, 1f);
 	}
 	
 	private void setCurrentAttackTrail(byte attack)
@@ -628,6 +632,18 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 			case AGONY -> new Vector4f(0.66f, 0.1f, 0.06f, 0.6f);
 			case TUNDRA -> new Vector4f(0.22f, 0.47f, 0.65f, 0.6f);
 		};
+	}
+	
+	@Override
+	protected EnemySoundType getSoundType()
+	{
+		return EnemySoundType.MACHINE;
+	}
+	
+	@Override
+	protected SoundEvent getDeathSound()
+	{
+		return SoundRegistry.SWORDSMACHINE_DEATH;
 	}
 	
 	static class TargetHuskGoal extends ActiveTargetGoal<LivingEntity>

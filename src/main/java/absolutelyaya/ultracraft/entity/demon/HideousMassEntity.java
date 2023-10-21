@@ -14,6 +14,7 @@ import absolutelyaya.ultracraft.entity.projectile.HarpoonEntity;
 import absolutelyaya.ultracraft.entity.projectile.HideousMortarEntity;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EntityType;
@@ -462,6 +463,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		shockwave.setAffectOnly(PlayerEntity.class);
 		shockwave.setPosition(getPos().add(0f, 0.5f, 0f));
 		getWorld().spawnEntity(shockwave);
+		playSound(SoundRegistry.HIDEOUS_MASS_IMPACT, 1f, 1f);
 	}
 	
 	private void clap()
@@ -473,6 +475,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		shockwave.setAffectOnly(PlayerEntity.class);
 		shockwave.setPosition(getPos().add(0f, 0.5f, 0f));
 		getWorld().spawnEntity(shockwave);
+		playSound(SoundRegistry.HIDEOUS_MASS_IMPACT, 1f, 1f);
 	}
 	
 	private void shootHarpoon()
@@ -488,7 +491,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		harpoon.setVelocity(x, y, z, 4f, 0.0f);
 		harpoon.setNoGravity(true);
 		harpoon.setYaw(-getYaw());
-		playSound(SoundEvents.ITEM_TRIDENT_THROW, 2.0f, 0.4f / (getRandom().nextFloat() * 0.4f + 0.8f));
+		playSound(SoundRegistry.REPULSIVE_SKEWER_SHOOT, 2.0f, 0.4f / (getRandom().nextFloat() * 0.4f + 0.8f));
 		getWorld().spawnEntity(harpoon);
 		this.harpoon = harpoon;
 		setHasHarpoon(false);
@@ -542,6 +545,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 				harpoon = null;
 			}
 			setHealth(1f);
+			playSound(SoundRegistry.HIDEOUS_MASS_DEATH, 1f, 1f);
 			return true;
 		}
 		boolean b = super.damage(source, amount);
@@ -709,6 +713,13 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		}
 		
 		@Override
+		public void start()
+		{
+			super.start();
+			mob.playSound(SoundRegistry.HIDEOUS_MASS_SLAM_TELL, 1f, 1f);
+		}
+		
+		@Override
 		protected void process()
 		{
 			super.process();
@@ -742,6 +753,13 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		}
 		
 		@Override
+		public void start()
+		{
+			super.start();
+			mob.playSound(SoundRegistry.HIDEOUS_MASS_CLAP_TELL, 1f, 1f);
+		}
+		
+		@Override
 		protected void process()
 		{
 			super.process();
@@ -763,6 +781,13 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 			if(mob.isDying() || mob.isDead())
 				return false;
 			return super.canStart() && mob.isHasHarpoon() && mob.dataTracker.get(LAYING) && mob.dataTracker.get(SLAM_COUNTER) > 0 && mob.random.nextFloat() < 0.5f;
+		}
+		
+		@Override
+		public void start()
+		{
+			super.start();
+			mob.playSound(SoundRegistry.HIDEOUS_MASS_HARPOON_TELL, 1f, 1f);
 		}
 		
 		@Override
@@ -825,6 +850,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 			super.start();
 			mob.dataTracker.set(ENRAGED, true);
 			mob.setAnimation(ANIMATION_ENRAGED);
+			mob.playSound(SoundRegistry.GENERIC_ENRAGE, 1.5f, 1f);
 		}
 	}
 	
@@ -848,6 +874,13 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 			List<PlayerEntity> nearby = mob.getWorld().getPlayers(TargetPredicate.DEFAULT.setPredicate(e -> e.distanceTo(mob) < 24f), mob,
 					mob.getBoundingBox().expand(64));
 			return mob.getTarget() != null && mob.isHidden() && nearby.size() > 0;
+		}
+		
+		@Override
+		public void start()
+		{
+			super.start();
+			mob.playSound(SoundRegistry.HIDEOUS_MASS_UNHIDE, 1f, 1f);
 		}
 		
 		@Override
