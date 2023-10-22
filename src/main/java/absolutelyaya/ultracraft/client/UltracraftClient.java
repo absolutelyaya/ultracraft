@@ -336,7 +336,7 @@ public class UltracraftClient implements ClientModInitializer
 				SODIUM ? RenderLayers.getSolid() : RenderLayers.getFlesh());
 		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.ADORNED_RAILING, RenderLayer.getCutout());
 		
-		TerminalCodeRegistry.registerCode("saiai", t -> t.setTab(new PetTab()));
+		TerminalCodeRegistry.registerCode("florp", t -> t.setTab(new PetTab()));
 		TerminalCodeRegistry.registerCode("somethingwicked", new TerminalCodeRegistry.Result(t -> {
 			t.setColorOverride(0x460006);
 			MinecraftClient.getInstance().player.sendMessage(Text.of("Something Wicked this way comes"), true);

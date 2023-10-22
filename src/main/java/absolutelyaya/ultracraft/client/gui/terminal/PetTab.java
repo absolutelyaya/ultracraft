@@ -13,12 +13,12 @@ import org.joml.Vector2i;
 
 public class PetTab extends Tab
 {
-	public static final Identifier SPRITE_SHEET = new Identifier(Ultracraft.MOD_ID, "textures/gui/terminal/saiai.png");
+	public static final Identifier SPRITE_SHEET = new Identifier(Ultracraft.MOD_ID, "textures/gui/terminal/game.png");
 	public static final String ID = "PET-GAME";
 	boolean mainMenu = true;
 	Button startGameButton;
 	Sprite petSprite;
-	float hunger, energy, hygiene;
+	float hunger = 1f, energy = 1f, hygiene = 1f;
 	
 	public PetTab()
 	{
@@ -45,8 +45,9 @@ public class PetTab extends Tab
 	
 	void drawMainMenu(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
-		GUI.drawTab(matrices, buffers, "SAIAI", "☆", DEFAULT_RETURN_BUTTON);
+		GUI.drawTab(matrices, buffers, "FLORP", "☆", DEFAULT_RETURN_BUTTON);
 		GUI.drawButton(buffers, matrices, startGameButton);
+		GUI.drawText(buffers, matrices, "unfinished :(", 12, -50, 0.001f, 0xffff00);
 	}
 	
 	void drawPetScreen(MatrixStack matrices, VertexConsumerProvider buffers)
@@ -58,6 +59,8 @@ public class PetTab extends Tab
 	
 	void drawStatMeters(MatrixStack matrices, VertexConsumerProvider buffers)
 	{
+		matrices.push();
+		matrices.translate(0f, 0f, -0.001f);
 		GUI.drawSprite(buffers, matrices, SPRITE_SHEET, new Vector2i(1, 79), 0.0001f,
 				new Vector2i(0, 86), new Vector2i(26, 4), new Vector2i(100, 100));
 		GUI.drawBox(buffers, matrices, 1, 84, 98, 1, 0xffffffff);
@@ -79,6 +82,7 @@ public class PetTab extends Tab
 		GUI.drawBox(buffers, matrices, 28, 95, 1, 3, 0xffffffff);
 		GUI.drawBox(buffers, matrices, 28, 94, 71, 1, 0xffffffff);
 		GUI.drawBox(buffers, matrices, 29, 95, 69 * hygiene, 3, 0xffdd0000);
+		matrices.pop();
 	}
 	
 	@Override
