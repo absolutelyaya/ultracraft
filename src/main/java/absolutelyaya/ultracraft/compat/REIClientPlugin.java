@@ -24,13 +24,16 @@ public class REIClientPlugin implements me.shedaniel.rei.api.client.plugins.REIC
 				EntryStacks.of(ItemRegistry.COIN),
 				EntryStacks.of(ItemRegistry.FAKE_BANNER),
 				EntryStacks.of(ItemRegistry.FAKE_SHIELD),
+				EntryStacks.of(ItemRegistry.FAKE_CHEST),
+				EntryStacks.of(ItemRegistry.FAKE_ENDER_CHEST),
 				EntryStacks.of(ItemRegistry.KILLERFISH),
 				EntryStacks.of(ItemRegistry.BLOOD_RAY),
 				EntryStacks.of(ItemRegistry.EJECTED_CORE),
 				EntryStacks.of(ItemRegistry.NAIL),
 				EntryStacks.of(ItemRegistry.MINCED_MEAT),
 				EntryStacks.of(ItemRegistry.KNUCKLEBLASTER),
-				EntryStacks.of(ItemRegistry.PLACEHOLDER)));
+				EntryStacks.of(ItemRegistry.PLACEHOLDER),
+				EntryStacks.of(ItemRegistry.FLORP)));
 	}
 	
 	@Override

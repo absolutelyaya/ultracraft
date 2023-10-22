@@ -12,7 +12,6 @@ import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.util.RenderingUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
-import dev.architectury.event.events.client.ClientTooltipEvent;
 import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -350,6 +349,10 @@ public class UltraHudRenderer
 				stack = ItemRegistry.FAKE_BANNER.getDefaultStack();
 			else if(item instanceof TerminalItem)
 				stack = ItemRegistry.FAKE_TERMINAL.getDefaultStack();
+			else if(stack.isOf(Items.CHEST) || stack.isOf(Items.TRAPPED_CHEST))
+				stack = ItemRegistry.FAKE_CHEST.getDefaultStack();
+			else if(stack.isOf(Items.ENDER_CHEST))
+				stack = ItemRegistry.FAKE_ENDER_CHEST.getDefaultStack();
 			else if(client.getItemRenderer().getModel(stack, client.world, client.player, 0).isBuiltin())
 				stack = ItemRegistry.PLACEHOLDER.getDefaultStack();
 			RenderSystem.disableDepthTest();

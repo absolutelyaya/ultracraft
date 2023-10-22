@@ -1,0 +1,6 @@
+{
+	"parent": "ultracraft:item/fake_chest",
+	"textures": {
+		"0": "ultracraft:item/ender_chest"
+	}
+}

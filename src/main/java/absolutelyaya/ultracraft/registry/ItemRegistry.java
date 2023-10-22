@@ -32,12 +32,6 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "cerberus_ball"), new HellBulletItem(new FabricItemSettings().fireproof().maxCount(21)));
 	public static final Item EJECTED_CORE = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "ejected_core"), new HellBulletItem(new FabricItemSettings().maxCount(0)));
-	public static final Item FAKE_SHIELD = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "fake_shield"), new Item(new FabricItemSettings().maxCount(0)));
-	public static final Item FAKE_BANNER = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "fake_banner"), new Item(new FabricItemSettings().maxCount(0)));
-	public static final Item FAKE_TERMINAL = Registry.register(Registries.ITEM,
-			new Identifier(Ultracraft.MOD_ID, "fake_terminal"), new Item(new FabricItemSettings().maxCount(0)));
 	public static final Item NAIL = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "nail"), new Item(new FabricItemSettings().maxCount(0)));
 	public static final Item BLOOD_BUCKET = Registry.register(Registries.ITEM,
@@ -153,6 +147,18 @@ public class ItemRegistry
 	public static final FlorpItem FLORP = (FlorpItem)Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "florp"), new FlorpItem(new FabricItemSettings().rarity(Rarity.EPIC).maxCount(1))
 																.putLore(true, new String[] { "item.ultracraft.florp.hiddenlore" }));
+	
+	//fakes
+	public static final Item FAKE_SHIELD = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "fake_shield"), new Item(new FabricItemSettings().maxCount(0)));
+	public static final Item FAKE_BANNER = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "fake_banner"), new Item(new FabricItemSettings().maxCount(0)));
+	public static final Item FAKE_TERMINAL = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "fake_terminal"), new Item(new FabricItemSettings().maxCount(0)));
+	public static final Item FAKE_CHEST = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "fake_chest"), new Item(new FabricItemSettings().maxCount(0)));
+	public static final Item FAKE_ENDER_CHEST = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "fake_ender_chest"), new Item(new FabricItemSettings().maxCount(0)));
 	
 	public static final RegistryKey<ItemGroup> ULTRACRAFT_TAB = RegistryKey.of(RegistryKeys.ITEM_GROUP, new Identifier(Ultracraft.MOD_ID, "item"));
 	
