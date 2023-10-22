@@ -172,11 +172,13 @@ public abstract class AbstractWeaponItem extends Item
 		Item nextItem = getNextVariant(stack, progression);
 		if(nextItem == null)
 			return;
-		NbtCompound nbt = stack.getOrCreateNbt();
-		if(nbt.contains("charging"))
-			nbt.remove("charging"); //TODO: doesn't work
+		stack.getItem().onStoppedUsing(stack, player.getWorld(), player, 100);
 		ItemStack nextStack = new ItemStack(nextItem);
-		nextStack.setNbt(nbt);
+		if(stack.hasNbt())
+		{
+			NbtCompound nbt = stack.getOrCreateNbt();
+			nextStack.setNbt(nbt);
+		}
 		player.getInventory().main.set(player.getInventory().selectedSlot, nextStack);
 		if(nextItem instanceof AbstractWeaponItem weapon)
 		{
