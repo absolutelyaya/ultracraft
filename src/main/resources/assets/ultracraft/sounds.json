@@ -142,6 +142,11 @@
       "random/break"
     ]
   },
+  "entity.skewer.disown": {
+    "sounds": [
+      {"name":"entity.leash_knot.break","type":"event"}
+    ]
+  },
 
   "entity.v2.tell.core_eject": {
     "sounds": [

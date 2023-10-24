@@ -77,7 +77,7 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "flamethrower"), new FlamethrowerItem(new FabricItemSettings().maxCount(1), 0, 0));
 	public static final Item HARPOON = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "harpoon"), new HarpoonItem(6f, -2.75f,
-					new FabricItemSettings().maxCount(4)));
+					new FabricItemSettings().maxDamage(100)));
 	public static final Item HARPOON_GUN = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "harpoon_gun"), new HarpoonGunItem(new FabricItemSettings(), 25, 0f));
 	public static final SoapItem SOAP = Registry.register(Registries.ITEM,

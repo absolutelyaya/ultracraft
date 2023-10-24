@@ -66,6 +66,7 @@ public class SoundRegistry
 	
 	public static final SoundEvent SKEWER_HIT_GROUND = register("entity.skewer.hit_ground");
 	public static final SoundEvent SKEWER_BREAK = register("entity.skewer.break");
+	public static final SoundEvent SKEWER_DISOWN = register("entity.skewer.disown");
 	
 	public static final SoundEvent ARM_SWITCH = register("arm.switch");
 	public static final SoundEvent FEEDBACKER_PUNCH = register("arm.feedbacker.punch");

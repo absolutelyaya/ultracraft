@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.demon.HideousMassEntity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -18,8 +19,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.particle.ItemStackParticleEffect;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
@@ -31,6 +30,7 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 {
 	protected static final TrackedData<Vector3f> START_POSITION = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.VECTOR3F);
 	protected static final TrackedData<Boolean> RETURNING = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<ItemStack> STACK = DataTracker.registerData(HarpoonEntity.class, TrackedDataHandlerRegistry.ITEM_STACK);
 	
 	public HarpoonEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world)
 	{
@@ -43,6 +43,7 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 		super.initDataTracker();
 		dataTracker.startTracking(START_POSITION, new Vector3f());
 		dataTracker.startTracking(RETURNING, false);
+		dataTracker.startTracking(STACK, ItemStack.EMPTY);
 	}
 	
 	public static HarpoonEntity spawn(LivingEntity owner, Vec3d pos, Vec3d vel)
@@ -65,8 +66,14 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 	public void tick()
 	{
 		super.tick();
-		if(getOwner() != null && !getOwner().isPlayer() && age > 600)
+		if(((getOwner() != null && !getOwner().isPlayer()) || getOwner() == null) && age > 600)
 			despawn();
+		if(getOwner() != null && getOwner().isPlayer() && distanceTo(getOwner()) > 32)
+		{
+			getOwner().playSound(SoundRegistry.SKEWER_DISOWN, 1, 1);
+			UltracraftClient.HITSCAN_HANDLER.removeMoving(getUuid());
+			owner = null;
+		}
 		if(victim == null && dataTracker.get(GROUND_TIME) > 20 && getOwner() != null && !getOwner().isPlayer())
 			setReturning(true);
 		else if(victim != null && dataTracker.get(GROUND_TIME) > 200 && getOwner() != null)
@@ -84,7 +91,7 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 			if(start.distanceTo(getPos()) < 0.1f)
 			{
 				if(getOwner() != null && getOwner().isPlayer() && !((PlayerEntity)getOwner()).isCreative())
-					((PlayerEntity)getOwner()).giveItemStack(ItemRegistry.HARPOON.getDefaultStack());
+					((PlayerEntity)getOwner()).giveItemStack(dataTracker.get(STACK));
 				despawn();
 			}
 		}
@@ -137,6 +144,13 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 		if(victim != null)
 			victim = null;
 		dataTracker.set(RETURNING, b);
+		if(b && !dataTracker.get(STACK).isEmpty() && getOwner() instanceof LivingEntity living)
+		{
+			ItemStack stack = dataTracker.get(STACK);
+			stack.damage(25, living, e -> despawn());
+			if(stack.getDamage() == stack.getMaxDamage())
+				despawn();
+		}
 	}
 	
 	@Override
@@ -177,5 +191,10 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 	public boolean hasNoGravity()
 	{
 		return dataTracker.get(RETURNING);
+	}
+	
+	public void setStack(ItemStack ammoStack)
+	{
+		dataTracker.set(STACK, ammoStack);
 	}
 }

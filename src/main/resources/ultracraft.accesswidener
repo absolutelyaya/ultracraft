@@ -6,3 +6,4 @@ accessible method net/minecraft/client/render/item/ItemRenderer renderBakedItemM
 accessible class net/minecraft/server/world/ServerWorld$ServerEntityHandler
 accessible class net/minecraft/client/render/BackgroundRenderer$StatusEffectFogModifier
 accessible class net/minecraft/client/render/BackgroundRenderer$FogData
+accessible field net/minecraft/entity/projectile/ProjectileEntity owner Lnet/minecraft/entity/Entity;
