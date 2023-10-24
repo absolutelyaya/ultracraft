@@ -93,6 +93,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 	protected static final TrackedData<Boolean> HAS_SHOTGUN = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> HAS_SWORD = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> BLASTING = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Boolean> NO_BREAKDOWN = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Byte> CURRENT_ATTACK = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.BYTE);
 	protected static final TrackedData<Integer> ENRAGED_TICKS = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	protected static final TrackedData<Integer> BREAKDOWN_TICKS = DataTracker.registerData(SwordsmachineEntity.class, TrackedDataHandlerRegistry.INTEGER);
@@ -138,6 +139,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		dataTracker.startTracking(HAS_SHOTGUN, true);
 		dataTracker.startTracking(HAS_SWORD, true);
 		dataTracker.startTracking(BLASTING, false);
+		dataTracker.startTracking(NO_BREAKDOWN, false);
 		dataTracker.startTracking(MAX_STAMINA, 100);
 		dataTracker.startTracking(CURRENT_ATTACK, (byte)0);
 		dataTracker.startTracking(LAST_TRAIL_ID, Optional.empty());
@@ -276,6 +278,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		nbt.putBoolean("shotgun", dataTracker.get(HAS_SHOTGUN));
 		nbt.putBoolean("sword", dataTracker.get(HAS_SWORD));
 		nbt.putBoolean("boss", dataTracker.get(BOSS));
+		nbt.putBoolean("noBreakdown", dataTracker.get(NO_BREAKDOWN));
 	}
 	
 	@Override
@@ -288,8 +291,12 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 			dataTracker.set(HAS_SHOTGUN, nbt.getBoolean("shotgun"));
 		if(nbt.contains("sword", NbtElement.BYTE_TYPE))
 			dataTracker.set(HAS_SWORD, nbt.getBoolean("sword"));
-		if(!nbt.contains("boss", NbtElement.BYTE_TYPE))
+		if(nbt.contains("boss", NbtElement.BYTE_TYPE))
+			dataTracker.set(BOSS, nbt.getBoolean("boss"));
+		else
 			dataTracker.set(BOSS, true);
+		if(nbt.contains("noBreakdown", NbtElement.BYTE_TYPE))
+			dataTracker.set(NO_BREAKDOWN, nbt.getBoolean("noBreakdown"));
 	}
 	
 	@Override
@@ -328,6 +335,8 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 		else if(source.isOf(DamageSources.SHOTGUN))
 			amount *= 1.5;
 		boolean b = super.damage(source, amount);
+		if(dataTracker.get(NO_BREAKDOWN))
+			return b;
 		if(!getWorld().isClient && dataTracker.get(BREAKDOWN_TICKS) <= 0 && canLoseShotgun() && dataTracker.get(HAS_SHOTGUN) && getHealth() < (isBoss() ? 75 : 30))
 		{
 			dataTracker.set(BREAKDOWN_TICKS, 60);
