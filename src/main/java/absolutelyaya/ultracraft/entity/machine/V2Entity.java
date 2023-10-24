@@ -19,6 +19,7 @@ import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.control.MoveControl;
 import net.minecraft.entity.ai.goal.Goal;
+import net.minecraft.entity.ai.goal.RevengeGoal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -128,6 +129,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		goalSelector.add(0, new GreenMovementGoal(this));
 		
 		targetSelector.add(0, new AntiCheeseProximityTargetGoal<>(this, PlayerEntity.class, 20, 32));
+		targetSelector.add(1, new RevengeGoal(this, V2Entity.class));
 	}
 	
 	@Override
@@ -325,7 +327,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 					else
 					{
 						attackCD = 5;
-						nextShotDir = aim(0.25f);
+						nextShotDir = aim(0.1f);
 					}
 				}
 				else
@@ -342,7 +344,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 				{
 					if(nextShotDir == null)
 					{
-						nextShotDir = aim(0.2f);
+						nextShotDir = aim(0.1f);
 						attackCD = 10;
 						return;
 					}

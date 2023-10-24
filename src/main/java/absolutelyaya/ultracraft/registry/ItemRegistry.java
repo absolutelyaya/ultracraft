@@ -122,6 +122,9 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "blood_orb"), new OrbItem(new FabricItemSettings(), EntityRegistry.BLOOD_ORB));
 	public static final StainedGlassWindowItem STAINED_GLASS_WINDOW = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "stained_glass_window"), new StainedGlassWindowItem(EntityRegistry.STAINED_GLASS_WINDOW, new FabricItemSettings()));
+	public static final SpawnEggItem V2_SPAWN_EGG = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "v2_spawn_egg"),
+			new SpawnEggItem(EntityRegistry.V2, 0xbd2a22, 0x261e1f, new FabricItemSettings()));
 	
 	//Plushies
 	public static final PlushieItem PLUSHIE = Registry.register(Registries.ITEM,
@@ -221,6 +224,7 @@ public class ItemRegistry
 			content.add(STREET_CLEANER_SPAWN_EGG);
 			content.add(HIDEOUS_SPAWN_EGG);
 			content.add(HIDEOUS_SPAWN_EGG.getDefaultBossStack("item.ultracraft.hideous_spawn_egg.unremarkable", false));
+			content.add(V2_SPAWN_EGG);
 			content.add(SOUL_ORB);
 			content.add(BLOOD_ORB);
 			content.add(PLUSHIE.getDefaultStack("yaya"));

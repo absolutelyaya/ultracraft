@@ -20,11 +20,13 @@
   ],
   "client": [
     "client.CameraMixin",
+    "client.ClientBossBarMixin",
     "client.ClientLivingEntityMixin",
     "client.ClientPlayerEntityMixin",
     "client.KeyboardInputMixin",
     "client.MinecraftClientMixin",
     "client.OtherClientPlayerMixin",
+    "client.gui.BossbarHudMixin",
     "client.gui.ClickableWidgetMixin",
     "client.gui.DeathScreenMixin",
     "client.gui.IngameHudMixin",

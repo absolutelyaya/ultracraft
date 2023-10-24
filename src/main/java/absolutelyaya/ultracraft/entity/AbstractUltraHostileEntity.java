@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.entity;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.particle.TeleportParticleEffect;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
+import com.chocohead.mm.api.ClassTinkerers;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
@@ -88,7 +89,7 @@ public abstract class AbstractUltraHostileEntity extends HostileEntity
 	
 	protected ServerBossBar initBossBar()
 	{
-		return new ServerBossBar(getDisplayName(), BossBar.Color.RED, BossBar.Style.PROGRESS);
+		return new ServerBossBar(getDisplayName(), BossBar.Color.RED, ClassTinkerers.getEnum(BossBar.Style.class, "ULTRA"));
 	}
 	
 	protected double getTeleportParticleSize()

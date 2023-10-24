@@ -18,5 +18,10 @@ public class EarlyRiser implements Runnable
 		ClassTinkerers.enumBuilder(gameRuleCategory, String.class)
 				.addEnum("ULTRACRAFT", "gamerule.ultracraft.category.general")
 				.addEnum("ULTRACRAFT_WORLD", "gamerule.ultracraft.category.world").build();
+		
+		String bossbarStyle = remapper.mapClassName("intermediary", "net.minecraft.class_1259$class_1261");
+		ClassTinkerers.enumBuilder(bossbarStyle, String.class)
+				.addEnum("ULTRA", "ultra")
+				.addEnum("ULTRA-V2", "ultra-v2").build();
 	}
 }
