@@ -17,9 +17,11 @@ import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.entity.*;
+import net.minecraft.entity.ai.NoPenaltyTargeting;
 import net.minecraft.entity.ai.control.MoveControl;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.RevengeGoal;
+import net.minecraft.entity.ai.pathing.Path;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
@@ -326,7 +328,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 					}
 					else
 					{
-						attackCD = 5;
+						attackCD = 3;
 						nextShotDir = aim(0.1f);
 					}
 				}
@@ -345,7 +347,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 					if(nextShotDir == null)
 					{
 						nextShotDir = aim(0.1f);
-						attackCD = 10;
+						attackCD = 4;
 						return;
 					}
 					firePiercer();
@@ -948,6 +950,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	static class GreenMovementGoal extends V2MovementGoal //Flee
 	{
 		int timer;
+		Path path;
 		
 		public GreenMovementGoal(V2Entity mob)
 		{
@@ -962,17 +965,21 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			if(mob.getTarget() == null)
 				return false;
 			LivingEntity target = mob.getTarget();
-			return target.getHealth() > target.getMaxHealth() / 3f && mob.dataTracker.get(MOVEMENT_MODE) == 3;
+			Vec3d vec3d = NoPenaltyTargeting.findFrom(this.mob, 16, 7, mob.getTarget().getPos());
+			if (vec3d == null)
+				return false;
+			path = mob.getNavigation().findPathTo(vec3d.x, vec3d.y, vec3d.z, 0);
+			return path != null && target.getHealth() > target.getMaxHealth() / 3f && mob.dataTracker.get(MOVEMENT_MODE) == 3;
 		}
 		
 		@Override
 		public void start()
 		{
 			super.start();
-			mob.jump();
 			mob.addVelocity(mob.getPos().subtract(mob.getTarget().getPos()).normalize().multiply(2f));
 			mob.ferocity += 50;
 			timer = 20;
+			mob.getNavigation().startMovingAlong(path, mob.getSpeedAttribute() * 1.25f);
 		}
 		
 		@Override
@@ -1002,6 +1009,8 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		public void stop()
 		{
 			super.stop();
+			mob.navigation.stop();
+			path = null;
 		}
 	}
 }
