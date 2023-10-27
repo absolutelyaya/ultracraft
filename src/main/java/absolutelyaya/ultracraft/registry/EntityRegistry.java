@@ -1,10 +1,7 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.entity.demon.CerberusEntity;
-import absolutelyaya.ultracraft.entity.demon.HideousMassEntity;
-import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
-import absolutelyaya.ultracraft.entity.demon.RetaliationEntity;
+import absolutelyaya.ultracraft.entity.demon.*;
 import absolutelyaya.ultracraft.entity.husk.FilthEntity;
 import absolutelyaya.ultracraft.entity.husk.SchismEntity;
 import absolutelyaya.ultracraft.entity.husk.StrayEntity;
@@ -58,6 +55,9 @@ public class EntityRegistry
 	public static final EntityType<V2Entity> V2 = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "v2"),
 			EntityType.Builder.create(V2Entity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2F).maxTrackingRange(8).build("v2"));
+	public static final EntityType<RodentEntity> RODENT = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "rodent"),
+			EntityType.Builder.create(RodentEntity::new, SpawnGroup.MONSTER).setDimensions(0.25F, 0.25F).maxTrackingRange(8).build("rodent"));
 	
 	public static final EntityType<HellBulletEntity> HELL_BULLET = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "hell_bullet"),
