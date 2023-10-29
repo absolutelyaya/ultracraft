@@ -91,6 +91,7 @@
   "item.ultracraft.hell_mass": "Hell Mass",
   "item.ultracraft.florp": "Florp",
   "item.ultracraft.florp.hiddenlore": "Hampter",
+  "item.ultracraft.cancer_bullet": "Cancer Bullet",
 
   "rei-group.ultracraft.terminals": "Terminal Variants",
 
@@ -154,6 +155,8 @@
   "entity.ultracraft.reinforce_stained_glass_window": "Reinforced Stained Glass Window",
   "entity.ultracraft.v2": "V2",
   "entity.ultracraft.beam": "A Hitscan that's actually a projectile ._.",
+  "entity.ultracraft.rodent": "Cancerous Rodent",
+  "entity.ultracraft.rodent.prefix": "VERY ",
 
   "effect.ultracraft.chilled": "Chilled",
   "effect.ultracraft.instant_energy": "Instant Energy",
@@ -225,6 +228,9 @@
   "death.attack.knuckle_blast": "%1$s got blasted by %2$s",
   "death.attack.knuckle_blast.player": "%1$s got blasted by %2$s",
   "death.attack.knuckle_blast.item": "%1$s got blasted by %2$s",
+  "death.attack.cancer": "%1$s got ultracancer from %2$s",
+  "death.attack.cancer.player": "%1$s got ultracancer from %2$s",
+  "death.attack.cancer.item": "%1$s got ultracancer from %2$s using %3$s",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 

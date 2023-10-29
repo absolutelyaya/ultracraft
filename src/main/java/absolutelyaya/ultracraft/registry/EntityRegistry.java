@@ -71,6 +71,10 @@ public class EntityRegistry
 			new Identifier(Ultracraft.MOD_ID, "shotgun_pellet"),
 			EntityType.Builder.create(ShotgunPelletEntity::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
 					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().disableSaving().build("shotgun_pellet"));
+	public static final EntityType<CancerBulletEntity> CANCER_BULLET = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "cancer_bullet"),
+			EntityType.Builder.create(CancerBulletEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
+					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("cancer_bullet"));
 	public static final EntityType<EjectedCoreEntity> EJECTED_CORE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "ejected_core"),
 			EntityType.Builder.create(EjectedCoreEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
@@ -160,5 +164,6 @@ public class EntityRegistry
 		FabricDefaultAttributeRegistry.register(DRONE, DroneEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(STREET_CLEANER, StreetCleanerEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(V2, V2Entity.getDefaultAttributes());
+		FabricDefaultAttributeRegistry.register(RODENT, RodentEntity.getDefaultAttributes());
 	}
 }

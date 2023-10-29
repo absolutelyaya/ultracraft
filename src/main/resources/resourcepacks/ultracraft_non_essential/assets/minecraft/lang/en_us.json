@@ -1,0 +1,6 @@
+{
+  "options.difficulty.peaceful": "Harmless",
+  "options.difficulty.easy": "Lenient",
+  "options.difficulty.normal": "Standard",
+  "options.difficulty.hard": "Violent"
+}

@@ -30,6 +30,8 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "hell_bullet"), new HellBulletItem(new FabricItemSettings().fireproof().maxCount(25)));
 	public static final Item CERBERUS_BALL = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "cerberus_ball"), new HellBulletItem(new FabricItemSettings().fireproof().maxCount(21)));
+	public static final Item CANCER_BULLET = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "cancer_bullet"), new HellBulletItem(new FabricItemSettings().fireproof().maxCount(7)));
 	public static final Item EJECTED_CORE = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "ejected_core"), new HellBulletItem(new FabricItemSettings().maxCount(0)));
 	public static final Item NAIL = Registry.register(Registries.ITEM,

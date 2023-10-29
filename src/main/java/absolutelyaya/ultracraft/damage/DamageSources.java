@@ -40,6 +40,7 @@ public class DamageSources
 	public static final RegistryKey<DamageType> KNUCKLE_BLAST = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "knuckle_blast"));
 	public static final RegistryKey<DamageType> PUNCH = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "punch"));
 	public static final RegistryKey<DamageType> KNUCKLE_PUNCH = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "knuckle_punch"));
+	public static final RegistryKey<DamageType> CANCER = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "cancer"));
 	
 	public static DamageSource get(World world, RegistryKey<DamageType> type)
 	{

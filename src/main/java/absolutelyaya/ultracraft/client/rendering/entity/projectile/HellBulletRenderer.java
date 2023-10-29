@@ -17,6 +17,7 @@ public class HellBulletRenderer extends EntityRenderer<HellBulletEntity>
 {
 	protected static final Identifier HELL_BULLET = new Identifier(Ultracraft.MOD_ID, "textures/item/hell_bullet.png");
 	protected static final Identifier CERB_BALL = new Identifier(Ultracraft.MOD_ID, "textures/item/cerberus_ball.png");
+	protected static final Identifier CANCER_BULLET = new Identifier(Ultracraft.MOD_ID, "textures/item/cancer_bullet.png");
 	
 	public HellBulletRenderer(EntityRendererFactory.Context context)
 	{
