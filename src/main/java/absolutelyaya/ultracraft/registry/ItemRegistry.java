@@ -127,6 +127,9 @@ public class ItemRegistry
 	public static final SpawnEggItem V2_SPAWN_EGG = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "v2_spawn_egg"),
 			new SpawnEggItem(EntityRegistry.V2, 0xbd2a22, 0x261e1f, new FabricItemSettings()));
+	public static final SpawnEggItem RODENT_SPAWN_EGG = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "rodent_spawn_egg"),
+			new SpawnEggItem(EntityRegistry.RODENT, 0xb6d53c, 0x71aa34, new FabricItemSettings()));
 	
 	//Plushies
 	public static final PlushieItem PLUSHIE = Registry.register(Registries.ITEM,
@@ -227,6 +230,7 @@ public class ItemRegistry
 			content.add(HIDEOUS_SPAWN_EGG);
 			content.add(HIDEOUS_SPAWN_EGG.getDefaultBossStack("item.ultracraft.hideous_spawn_egg.unremarkable", false));
 			content.add(V2_SPAWN_EGG);
+			content.add(RODENT_SPAWN_EGG);
 			content.add(SOUL_ORB);
 			content.add(BLOOD_ORB);
 			content.add(PLUSHIE.getDefaultStack("yaya"));
