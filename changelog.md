@@ -62,6 +62,10 @@
   - Once more than one Arm is owned, an element is added to the UltraHUD which indicates what Arm is currently selected
   - Only the Feedbacker can Parry Projectiles and Interrupt interrupable Attacks
   - The Knuckleblaster does more Damage per punch. Hold Punch (Default `F`) to cause an explosion.
+- Added Cancerous Rodent
+- Added Slam Block Breaking
+  - Breakable blocks can be customized using the `ultracraft:slam_breakable` Block Tag
+  - Only Strong Groundpounds break blocks
 ## Settings & Gamerules
 - Added ultra-flamethrowerGrief Gamerule
 - Added ultra-graffiti Gamerule
@@ -98,7 +102,6 @@
 - Fixed Spectator Gun Bug (again)
 - Increased Weapon Charging Shake (remains the same if SafeVFX is enabled)
 - Improved Hell Bullets
-- Added Scrap Item (Replaces Weapons crafted before the new System was added)
 - Added Custom Death Screen
 - Added Statistics
   - Times Dashed
