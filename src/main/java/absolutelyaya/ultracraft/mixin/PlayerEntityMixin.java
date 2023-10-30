@@ -12,10 +12,7 @@ import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.entity.other.BackTank;
 import absolutelyaya.ultracraft.item.IOverrideMeleeDamageType;
-import absolutelyaya.ultracraft.registry.GameruleRegistry;
-import absolutelyaya.ultracraft.registry.ItemRegistry;
-import absolutelyaya.ultracraft.registry.ParticleRegistry;
-import absolutelyaya.ultracraft.registry.StatisticRegistry;
+import absolutelyaya.ultracraft.registry.*;
 import com.chocohead.mm.api.ClassTinkerers;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -34,7 +31,9 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -209,6 +208,21 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			if((e instanceof LivingEntityAccessor l) && l.takePunchKnockback())
 				e.addVelocity(0f, 1f, 0f);
 		});
+		World world = getWorld();
+		if(!world.isClient)
+		{
+			for (int x = -1; x <= 1; x++)
+			{
+				for (int z = -1; z <= 1; z++)
+				{
+					BlockPos pos = getSteppingPos().add(new Vec3i(x, 0, z));
+					if(!canModifyAt(world, pos))
+						continue;
+					if(world.getBlockState(pos).isIn(TagRegistry.SLAM_BREAKABLE))
+						world.breakBlock(pos, true, this);
+				}
+			}
+		}
 	}
 	
 	@Inject(method = "tick", at = @At("TAIL"))
