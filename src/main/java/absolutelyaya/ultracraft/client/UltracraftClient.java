@@ -10,10 +10,7 @@ import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
 import absolutelyaya.ultracraft.client.gui.terminal.PetTab;
 import absolutelyaya.ultracraft.client.rendering.TrailRenderer;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
-import absolutelyaya.ultracraft.client.rendering.block.entity.CerberusBlockRenderer;
-import absolutelyaya.ultracraft.client.rendering.block.entity.HellObserverRenderer;
-import absolutelyaya.ultracraft.client.rendering.block.entity.PedestalBlockEntityRenderer;
-import absolutelyaya.ultracraft.client.rendering.block.entity.TerminalBlockEntityRenderer;
+import absolutelyaya.ultracraft.client.rendering.block.entity.*;
 import absolutelyaya.ultracraft.client.rendering.entity.demon.*;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.*;
 import absolutelyaya.ultracraft.client.rendering.entity.husk.FilthRenderer;
@@ -182,6 +179,7 @@ public class UltracraftClient implements ClientModInitializer
 		BlockEntityRendererFactories.register(BlockEntityRegistry.CERBERUS, context -> new CerberusBlockRenderer());
 		BlockEntityRendererFactories.register(BlockEntityRegistry.TERMINAL, context -> new TerminalBlockEntityRenderer());
 		BlockEntityRendererFactories.register(BlockEntityRegistry.HELL_OBSERVER, context -> new HellObserverRenderer());
+		BlockEntityRendererFactories.register(BlockEntityRegistry.HELL_SPAWNER, context -> new HellSpawnerBlockRenderer());
 		//Player Animations
 		PlayerAnimator.init();
 		

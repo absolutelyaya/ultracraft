@@ -175,7 +175,7 @@ public abstract class MinecraftClientMixin
 			if(be instanceof TerminalBlockEntity e && e.isCannotBreak(player))
 			{
 				player.swingHand(Hand.MAIN_HAND);
-				player.sendMessage(Text.translatable("message.ultracraft.flamethrower.terminal-prot"));
+				player.sendMessage(Text.translatable("message.ultracraft.terminal-prot"));
 				cir.setReturnValue(false);
 				return;
 			}

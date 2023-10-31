@@ -65,6 +65,8 @@ public class BlockRegistry
 			new Block(AbstractBlock.Settings.copy(Blocks.CALCITE).sounds(BlockSoundGroup.CALCITE).mapColor(MapColor.GRAY).requiresTool()), true);
 	public static final Block ADORNED_RAILING = register("adorned_railing",
 			new AdornedRailingBlock(AbstractBlock.Settings.copy(Blocks.IRON_BARS).sounds(BlockSoundGroup.METAL).mapColor(MapColor.GRAY).requiresTool()), true);
+	public static final Block HELL_SPAWNER = register("hell_spawner",
+			new HellSpawnerBlock(AbstractBlock.Settings.copy(Blocks.NETHERRACK).sounds(BlockSoundGroup.MUD).mapColor(MapColor.DARK_CRIMSON).nonOpaque()), false);
 	
 	@SuppressWarnings("SameParameterValue")
 	private static Block register(String name, Block block, boolean item, int burn, int spread)

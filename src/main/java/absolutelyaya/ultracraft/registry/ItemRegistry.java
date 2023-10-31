@@ -156,6 +156,10 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "florp"), new FlorpItem(new FabricItemSettings().rarity(Rarity.EPIC).maxCount(1))
 																.putLore(true, new String[] { "item.ultracraft.florp.hiddenlore" }));
 	
+	//Animated Blocks
+	public static final HellSpawnerItem HELL_SPAWNER = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "hell_spawner"), new HellSpawnerItem(new FabricItemSettings()));
+	
 	//fakes
 	public static final Item FAKE_SHIELD = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "fake_shield"), new Item(new FabricItemSettings().maxCount(0)));
@@ -248,6 +252,7 @@ public class ItemRegistry
 			for (TerminalBlockEntity.Base b : TerminalBlockEntity.Base.values())
 				content.add(TerminalItem.getStack(b));
 			content.add(BlockRegistry.HELL_OBSERVER.asItem());
+			content.add(BlockRegistry.HELL_SPAWNER.asItem());
 			content.add(HELL_MASS);
 		});
 	}

@@ -136,7 +136,7 @@ public class TerminalBlock extends BlockWithEntity
 		if(be instanceof TerminalBlockEntity terminal && world.getGameRules().getBoolean(GameruleRegistry.TERMINAL_PROT) && !terminal.isOwner(player.getUuid()))
 		{
 			if(!world.isClient)
-				player.sendMessage(Text.translatable("message.ultracraft.flamethrower.terminal-prot"));
+				player.sendMessage(Text.translatable("message.ultracraft.terminal-prot"));
 			return;
 		}
 		super.onBlockBreakStart(state, world, pos, player);
