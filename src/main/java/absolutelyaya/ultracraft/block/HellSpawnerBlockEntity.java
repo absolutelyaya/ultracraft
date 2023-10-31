@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.block;
 
 import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.SpawnReason;
@@ -43,6 +44,8 @@ public class HellSpawnerBlockEntity extends BlockEntity implements GeoBlockEntit
 	public void setSpawnStack(ItemStack stack)
 	{
 		this.spawnStack = stack;
+		if(world != null)
+			world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_ALL);
 	}
 	
 	public void spawn(ServerWorld world, BlockPos pos, BlockState state)
