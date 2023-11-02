@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.entity.demon;
 
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.projectile.CancerBulletEntity;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
@@ -17,6 +18,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.text.Text;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -47,7 +49,6 @@ public class RodentEntity extends AbstractUltraHostileEntity implements GeoEntit
 	protected void initGoals()
 	{
 		goalSelector.add(0, new RodentAttackGoal(this));
-		goalSelector.add(1, new RodentFollowGoal(this));
 		
 		targetSelector.add(0, new ActiveTargetGoal<>(this, PlayerEntity.class, true));
 	}
@@ -66,6 +67,20 @@ public class RodentEntity extends AbstractUltraHostileEntity implements GeoEntit
 		super.onTrackedDataSet(data);
 		if (data.equals(SIZE))
 			calculateDimensions();
+	}
+	
+	@Override
+	public void tickMovement()
+	{
+		super.tickMovement();
+		if(getTarget() != null)
+		{
+			double e = getTarget().getX() - getX();
+			double f = getTarget().getZ() - getZ();
+			float targetYaw = -((float) MathHelper.atan2(e, f)) * MathHelper.DEGREES_PER_RADIAN;
+			setYaw(targetYaw);
+			moveControl.strafeTo(0.33f, 0f);
+		}
 	}
 	
 	@Override
@@ -149,26 +164,20 @@ public class RodentEntity extends AbstractUltraHostileEntity implements GeoEntit
 		getWorld().spawnEntity(bullet);
 	}
 	
-	static class RodentFollowGoal extends Goal
+	@Override
+	public void pushAwayFrom(Entity entity)
 	{
-		final RodentEntity rodent;
-		
-		public RodentFollowGoal(RodentEntity rodent)
-		{
-			this.rodent = rodent;
-		}
-		
-		@Override
-		public boolean canStart()
-		{
-			return rodent.getTarget() != null;
-		}
-		
-		@Override
-		public void start()
-		{
-			rodent.navigation.startMovingTo(rodent.getTarget(), 1f);
-		}
+		if(entity.isPlayer() && getSize() == 0)
+			return;
+		super.pushAwayFrom(entity);
+	}
+	
+	@Override
+	protected void pushAway(Entity entity)
+	{
+		if(entity.isPlayer() && getSize() == 0)
+			return;
+		super.pushAway(entity);
 	}
 	
 	static class RodentAttackGoal extends Goal
