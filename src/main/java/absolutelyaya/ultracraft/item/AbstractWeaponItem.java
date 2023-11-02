@@ -172,7 +172,7 @@ public abstract class AbstractWeaponItem extends Item
 		Item nextItem = getNextVariant(stack, progression);
 		if(nextItem == null)
 			return;
-		stack.getItem().onStoppedUsing(stack, player.getWorld(), player, 100);
+		stack.getItem().onStoppedUsing(stack, player.getWorld(), player, 999);
 		ItemStack nextStack = new ItemStack(nextItem);
 		if(stack.hasNbt())
 		{

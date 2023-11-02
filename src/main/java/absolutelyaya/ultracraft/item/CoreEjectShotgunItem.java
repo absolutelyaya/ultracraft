@@ -88,6 +88,8 @@ public class CoreEjectShotgunItem extends AbstractShotgunItem
 	@Override
 	public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks)
 	{
+		if(remainingUseTicks == 999)
+			return; //pretty much definitely a variant swap - don't core eject
 		NbtCompound nbt = stack.getNbt();
 		if(!world.isClient && user instanceof PlayerEntity player)
 		{
