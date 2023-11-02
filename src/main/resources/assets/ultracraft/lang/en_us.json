@@ -122,6 +122,8 @@
   "block.ultracraft.ornate_wainscot": "Ornate Wainscot",
   "block.ultracraft.adorned_railing": "Adorned Railing",
   "block.ultracraft.hell_spawner": "Hell Spawner",
+  "block.ultracraft.sky_block": "Sky Block",
+  "block.ultracraft.sky_block.lore": "§4Unimplemented",
 
   "entity.ultracraft.filth": "Filth",
   "entity.ultracraft.stray": "Stray",
