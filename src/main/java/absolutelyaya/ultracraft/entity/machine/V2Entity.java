@@ -645,6 +645,12 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	}
 	
 	@Override
+	public void takeKnockback(double strength, double x, double z)
+	{
+	
+	}
+	
+	@Override
 	public void handleStatus(byte status)
 	{
 		if(status == EntityStatuses.ADD_DEATH_PARTICLES)
@@ -680,9 +686,14 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		
 		public void strafeTo(float forward, float sideways, float speed)
 		{
-			this.state = State.STRAFE;
-			this.forwardMovement = forward;
-			this.sidewaysMovement = sideways;
+			if(entity instanceof V2Entity v2 && (v2.isPlayingIntro() || v2.isPlayingOutro()))
+			{
+				forwardMovement = sidewaysMovement = 0f;
+				return;
+			}
+			state = State.STRAFE;
+			forwardMovement = forward;
+			sidewaysMovement = sideways;
 			this.speed = speed;
 		}
 	}
