@@ -61,6 +61,8 @@ public class HideousMortarEntity extends HellBulletEntity implements ProjectileE
 	public void tick()
 	{
 		super.tick();
+		if(isParried())
+			return;
 		if(age == 1 && !isRemoved())
 			if(getWorld().isClient)
 				UltracraftClient.TRAIL_RENDERER.createTrail(uuid, this::getPoint, new Vector4f(1f, 1f, 0f, 0.4f), 10);

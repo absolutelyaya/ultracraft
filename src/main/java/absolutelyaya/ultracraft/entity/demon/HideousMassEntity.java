@@ -462,7 +462,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		shockwave.setAffectOnly(PlayerEntity.class);
 		shockwave.setPosition(getPos().add(0f, 0.5f, 0f));
 		getWorld().spawnEntity(shockwave);
-		playSound(SoundRegistry.HIDEOUS_MASS_IMPACT, 1f, 1f);
+		playSound(SoundRegistry.HIDEOUS_MASS_IMPACT, 5f, 1f);
 	}
 	
 	private void clap()
@@ -474,7 +474,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		shockwave.setAffectOnly(PlayerEntity.class);
 		shockwave.setPosition(getPos().add(0f, 0.5f, 0f));
 		getWorld().spawnEntity(shockwave);
-		playSound(SoundRegistry.HIDEOUS_MASS_IMPACT, 1f, 1f);
+		playSound(SoundRegistry.HIDEOUS_MASS_CLAP_IMPACT, 5f, 1f);
 	}
 	
 	private void shootHarpoon()
@@ -715,7 +715,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		public void start()
 		{
 			super.start();
-			mob.playSound(SoundRegistry.HIDEOUS_MASS_SLAM_TELL, 1f, 1f);
+			mob.playSound(SoundRegistry.HIDEOUS_MASS_SLAM_TELL, 5f, 1f);
 		}
 		
 		@Override
@@ -755,7 +755,7 @@ public class HideousMassEntity extends AbstractUltraHostileEntity implements Geo
 		public void start()
 		{
 			super.start();
-			mob.playSound(SoundRegistry.HIDEOUS_MASS_CLAP_TELL, 1f, 1f);
+			mob.playSound(SoundRegistry.HIDEOUS_MASS_CLAP_TELL, 5f, 1f);
 		}
 		
 		@Override

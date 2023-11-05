@@ -38,6 +38,7 @@ public class SoundRegistry
 	public static final SoundEvent HIDEOUS_MASS_CLAP_TELL = register("entity.hideous_mass.tell.clap");
 	public static final SoundEvent HIDEOUS_MASS_HARPOON_TELL = register("entity.hideous_mass.tell.harpoon");
 	public static final SoundEvent HIDEOUS_MASS_IMPACT = register("entity.hideous_mass.impact");
+	public static final SoundEvent HIDEOUS_MASS_CLAP_IMPACT = register("entity.hideous_mass.clap_impact");
 	public static final SoundEvent HIDEOUS_MASS_ENRAGED_LOOP = register("entity.hideous_mass.enraged_loop");
 	public static final SoundEvent HIDEOUS_MASS_DEATH = register("entity.hideous_mass.death");
 	

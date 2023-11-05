@@ -108,17 +108,27 @@
   },
   "entity.hideous_mass.tell.stomp": {
     "sounds": [
-      {"name":"ultracraft:placeholder","type":"event"}
+      "ultracraft:entity/hideous_mass/laugh2"
     ]
   },
   "entity.hideous_mass.tell.clap": {
     "sounds": [
-      {"name":"ultracraft:placeholder","type":"event"}
+      "ultracraft:entity/hideous_mass/laugh1"
     ]
   },
   "entity.hideous_mass.tell.harpoon": {
     "sounds": [
-      {"name":"ultracraft:placeholder","type":"event"}
+      "ultracraft:entity/hideous_mass/gross-wet-noise"
+    ]
+  },
+  "entity.hideous_mass.impact": {
+    "sounds": [
+      "ultracraft:entity/hideous_mass/impact"
+    ]
+  },
+  "entity.hideous_mass.clap_impact": {
+    "sounds": [
+      "ultracraft:entity/hideous_mass/clap-impact"
     ]
   },
   "entity.hideous_mass.enraged_loop": {
@@ -150,12 +160,12 @@
 
   "entity.v2.tell.core_eject": {
     "sounds": [
-      {"name":"ultracraft:placeholder","type":"event"}
+      "ultracraft:item/core_charge_quick"
     ]
   },
   "entity.v2.tell.piercer": {
     "sounds": [
-      {"name":"ultracraft:placeholder","type":"event"}
+      "ultracraft:item/piercer_charge"
     ]
   },
   "entity.v2.death": {
@@ -290,16 +300,11 @@
   },
   "entity.blood_heal": {
     "sounds": [
-      "random/fizz"
+      "ultracraft:misc/bloodheal"
     ]
   },
   "placeholder": {
     "sounds": [
-      "ultracraft:misc/placeholder1",
-      "ultracraft:misc/placeholder2",
-      "ultracraft:misc/placeholder3",
-      "ultracraft:misc/placeholder4",
-      "ultracraft:misc/placeholder5"
     ]
   },
 
