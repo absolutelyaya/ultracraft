@@ -2,6 +2,8 @@
   "replace": false,
   "values": [
     "ultracraft:overcharge",
-    "ultracraft:swordsmachine"
+    "ultracraft:swordsmachine",
+    "ultracraft:flamethrower",
+    "ultracraft:back_tank"
   ]
 }

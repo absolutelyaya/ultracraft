@@ -1,15 +1,17 @@
 package absolutelyaya.ultracraft.item;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
+import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
@@ -22,18 +24,22 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import software.bernie.geckolib.animatable.GeoItem;
+import software.bernie.geckolib.core.animation.RawAnimation;
 
 public abstract class AbstractShotgunItem extends AbstractWeaponItem implements GeoItem
 {
+	boolean b; //toggled on every shot; decides purely which shot animation should be used to allow for rapid firing
 	public AbstractShotgunItem(Settings settings, float recoil, float altRecoil)
 	{
 		super(settings, recoil, altRecoil);
 	}
+	protected final RawAnimation AnimationSwitch = RawAnimation.begin().thenPlay("switch");
+	protected final RawAnimation AnimationSwitch2 = RawAnimation.begin().thenPlay("switch2");
 	
 	@Override
 	public boolean onPrimaryFire(World world, PlayerEntity user, Vec3d userVelocity)
 	{
-		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(user).getGunCooldownManager();
 		Vec3d dir = new Vec3d(0f, 0f, 1f);
 		dir = dir.rotateX((float)Math.toRadians(-user.getPitch()));
 		dir = dir.rotateY((float)Math.toRadians(-user.getHeadYaw()));
@@ -56,8 +62,10 @@ public abstract class AbstractShotgunItem extends AbstractWeaponItem implements 
 				}
 				parry = true;
 			}
-			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), getShotAnimationName());
-			cdm.setCooldown(this, 35, GunCooldownManager.PRIMARY);
+			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(),
+					getShotAnimationName() + (b ? "2" : ""));
+			cdm.setCooldown(this, getPrimaryCooldown(), GunCooldownManager.PRIMARY);
+			b = !b;
 			for (int i = 0; i < getPelletCount(user.getMainHandStack()); i++)
 			{
 				//guarantees that the first bullet goes straight and only that one is actually boostable (if this isn't a shotgun parry)
@@ -97,13 +105,40 @@ public abstract class AbstractShotgunItem extends AbstractWeaponItem implements 
 		return true;
 	}
 	
+	@Override
+	Item[] getVariants()
+	{
+		return new Item[] {ItemRegistry.CORE_SHOTGUN, ItemRegistry.PUMP_SHOTGUN};
+	}
+	
+	@Override
+	int getSwitchCooldown()
+	{
+		return 8;
+	}
+	
 	public String getShotAnimationName()
 	{
-		return "shot";
+		return "shot_core";
 	}
 	
 	public int getPelletCount(ItemStack stack)
 	{
 		return 0;
+	}
+	
+	public int getPrimaryCooldown()
+	{
+		return 27;
+	}
+	
+	@Override
+	protected void onSwitch(PlayerEntity user, World world)
+	{
+		if(!world.isClient)
+		{
+			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), "switch" + (b ? "2" : ""));
+			b = !b;
+		}
 	}
 }

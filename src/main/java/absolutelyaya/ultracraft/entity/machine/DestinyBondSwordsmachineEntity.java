@@ -9,6 +9,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.RevengeGoal;
+import net.minecraft.entity.attribute.AttributeContainer;
+import net.minecraft.entity.attribute.DefaultAttributeContainer;
+import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.data.DataTracker;
@@ -64,6 +67,16 @@ public class DestinyBondSwordsmachineEntity extends SwordsmachineEntity implemen
 		if(variant == 1)
 			addStatusEffect(new StatusEffectInstance(StatusEffects.SPEED, Integer.MAX_VALUE, 1, false, false));
 		actuallyInitGoals();
+	}
+	
+	public static DefaultAttributeContainer.Builder getDefaultAttributes()
+	{
+		return HostileEntity.createMobAttributes()
+					   .add(EntityAttributes.GENERIC_MAX_HEALTH, 90.0d)
+					   .add(EntityAttributes.GENERIC_MOVEMENT_SPEED, 0.3d)
+					   .add(EntityAttributes.GENERIC_ATTACK_DAMAGE, 8.0d)
+					   .add(EntityAttributes.GENERIC_FOLLOW_RANGE, 64.0d)
+					   .add(EntityAttributes.GENERIC_KNOCKBACK_RESISTANCE, 1.0d);
 	}
 	
 	@Override

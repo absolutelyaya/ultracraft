@@ -16,7 +16,7 @@ public class SharpshooterRevolverRenderer extends GeoItemRenderer<SharpshooterRe
 	@Override
 	public Identifier getTextureLocation(SharpshooterRevolverItem animatable)
 	{
-		int charges = animatable.getCharges(currentItemStack);
+		int charges = animatable.getNbt(currentItemStack, "charges");
 		
 		return switch (charges)
 		{

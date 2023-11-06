@@ -1,15 +1,18 @@
 package absolutelyaya.ultracraft.mixin;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
-import absolutelyaya.ultracraft.client.GunCooldownManager;
+import absolutelyaya.ultracraft.block.TerminalBlockEntity;
+import absolutelyaya.ultracraft.components.player.IArmComponent;
+import absolutelyaya.ultracraft.components.player.IProgressionComponent;
+import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
-import absolutelyaya.ultracraft.item.AbstractWeaponItem;
-import absolutelyaya.ultracraft.registry.GameruleRegistry;
-import absolutelyaya.ultracraft.registry.ParticleRegistry;
-import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
+import absolutelyaya.ultracraft.entity.other.BackTank;
+import absolutelyaya.ultracraft.item.IOverrideMeleeDamageType;
+import absolutelyaya.ultracraft.registry.*;
 import com.chocohead.mm.api.ClassTinkerers;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -20,16 +23,18 @@ import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
-import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerAbilities;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
-import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -57,17 +62,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	
 	@Shadow public abstract boolean isSpectator();
 	
-	@Shadow public abstract PlayerInventory getInventory();
+	@Shadow public abstract void incrementStat(Identifier stat);
 	
-	boolean wingsActive, groundPounding, ignoreSlowdown, blocked, primaryFiring;
-	byte wingState, lastState;
-	float wingAnimTime;
-	int dashingTicks = -2, slamDamageCooldown, stamina, wingHintDisplayTicks, bloodHealCooldown, sharpshooterCooldown;
-	GunCooldownManager gunCDM;
 	Multimap<EntityAttribute, EntityAttributeModifier> curSpeedMod;
-	Vec3d[] wingColors = new Vec3d[] { new Vec3d(247f / 255f, 1f, 154f / 255f), new Vec3d(117f / 255f, 154f / 255f, 1f) };
-	String wingPattern = "";
-	AbstractWeaponItem lastPrimaryWeapon;
+	BackTank backtank;
 	
 	private final Vec3d[] curWingPose = new Vec3d[] {new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f), new Vec3d(0.0f, 0.0f, 0.0f)};
 	
@@ -81,7 +79,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	{
 		POSE_DIMENSIONS = new HashMap<>(POSE_DIMENSIONS);
 		POSE_DIMENSIONS.put(ClassTinkerers.getEnum(EntityPose.class, "SLIDE"), EntityDimensions.changing(0.6f, 1f));
-		gunCDM = new GunCooldownManager((PlayerEntity)(Object)this);
 		((EntityAccessor)this).setTargettableSupplier(() -> !isCreative() && !isSpectator());
 	}
 	
@@ -89,10 +86,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	void onUpdatePose(PlayerEntity instance, EntityPose entityPose)
 	{
 		WingedPlayerEntity winged = ((WingedPlayerEntity)instance);
-		boolean hiVelMode = winged.isWingsActive();
+		boolean hiVelMode = UltraComponents.WING_DATA.get(winged).isActive();
 		if(hiVelMode)
 		{
-			if(winged.isDashing())
+			if(UltraComponents.WINGED_ENTITY.get(winged).isDashing())
 				setPose(ClassTinkerers.getEnum(EntityPose.class, "DASH"));
 			else if(isSprinting())
 				setPose(ClassTinkerers.getEnum(EntityPose.class, "SLIDE"));
@@ -115,9 +112,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Inject(method = "damage", at = @At("HEAD"), cancellable = true)
 	void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
 	{
-		if(isDashing() && !source.isIn(DamageTypeTags.UNDODGEABLE))
+		if(UltraComponents.WINGED_ENTITY.get(this).isDashing() && !source.isIn(DamageTypeTags.UNDODGEABLE))
 			cir.setReturnValue(false);
-		if(wingsActive && source.isOf(DamageTypes.FALL) && ((!getWorld().isClient && !getWorld().getGameRules().get(GameruleRegistry.HIVEL_FALLDAMAGE).get()) ||
+		if(isWingsActive() && source.isOf(DamageTypes.FALL) && ((!getWorld().isClient && !getWorld().getGameRules().get(GameruleRegistry.HIVEL_FALLDAMAGE).get()) ||
 				   getSteppingBlockState().getBlock() instanceof FluidBlock))
 			cir.setReturnValue(false);
 	}
@@ -125,63 +122,28 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Inject(method = "damage", at = @At("TAIL"))
 	void afterDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir)
 	{
-		if(wingsActive && !source.isIn(DamageTypeTags.IS_PER_TICK) && !source.isOf(DamageTypes.OUT_OF_WORLD))
+		if(isWingsActive() && !source.isIn(DamageTypeTags.IS_PER_TICK) && !source.isOf(DamageTypes.OUT_OF_WORLD))
 		{
 			if(source.isOf(DamageSources.GUN) || source.isOf(DamageSources.SHOTGUN))
 				timeUntilRegen = 9;
 			else
 				timeUntilRegen = 11 + getWorld().getGameRules().getInt(GameruleRegistry.INVINCIBILITY);
 		}
-		bloodHealCooldown = 4;
+		UltraComponents.WINGED_ENTITY.get(this).setBloodHealCooldown(4);
 	}
 	
 	@Inject(method = "isSwimming", at = @At("HEAD"), cancellable = true)
 	void onIsSwimming(CallbackInfoReturnable<Boolean> cir)
 	{
-		if(wingsActive)
+		if(isWingsActive())
 			cir.setReturnValue(false);
 	}
 	
 	@Inject(method = "shouldSwimInFluids", at = @At("HEAD"), cancellable = true)
 	void onShouldSwimInFluids(CallbackInfoReturnable<Boolean> cir)
 	{
-		if(wingsActive || abilities.flying)
+		if(isWingsActive() || abilities.flying)
 			cir.setReturnValue(false);
-	}
-	
-	@Override
-	public void setWingState(byte state)
-	{
-		if(wingState != state)
-		{
-			setWingAnimTime(0);
-			lastState = wingState;
-			wingState = state;
-		}
-	}
-	
-	@Override
-	public byte getWingState()
-	{
-		if(isDashing())
-			setWingState((byte)0);
-		else if (isSprinting())
-			setWingState((byte)2);
-		else if ((wingState == 0 && isOnGround()) || (wingState == 2 && !isSprinting()))
-			setWingState((byte)1);
-		return wingState;
-	}
-	
-	@Override
-	public float getWingAnimTime()
-	{
-		return wingAnimTime;
-	}
-	
-	@Override
-	public void setWingAnimTime(float f)
-	{
-		wingAnimTime = f;
 	}
 	
 	@Override
@@ -196,67 +158,6 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	public void setWingPose(Vec3d[] pose)
 	{
 		System.arraycopy(pose, 0, curWingPose, 0, 8);
-	}
-	
-	@Override
-	public void onDash()
-	{
-		dashingTicks = 3;
-		getWorld().playSound(null, getBlockPos(), SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.75f, 1.6f);
-	}
-	
-	@Override
-	public void cancelDash()
-	{
-		dashingTicks = -2;
-	}
-	
-	@Override
-	public void onDashJump()
-	{
-		dashingTicks = -2;
-		getWorld().playSound(null, getBlockPos(), SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.75f, 1.8f);
-	}
-	
-	public boolean isDashing()
-	{
-		return dashingTicks > 0;
-	}
-	
-	@Override
-	public boolean wasDashing()
-	{
-		return dashingTicks + 1 >= 0;
-	}
-	
-	@Override
-	public boolean wasDashing(int i)
-	{
-		return dashingTicks + i >= 0;
-	}
-	
-	@Override
-	public int getDashingTicks()
-	{
-		return dashingTicks;
-	}
-	
-	@Override
-	public void setWingsVisible(boolean b)
-	{
-		wingsActive = b;
-		setWingState((byte)(b ? 1 : 0));
-		wingHintDisplayTicks = 60;
-		if(b)
-		{
-			curSpeedMod = getSpeedMod();
-			getAttributes().addTemporaryModifiers(curSpeedMod);
-		}
-		else if(curSpeedMod != null)
-		{
-			getAttributes().removeModifiers(curSpeedMod);
-			curSpeedMod = null;
-		}
 	}
 	
 	Multimap<EntityAttribute, EntityAttributeModifier> getSpeedMod()
@@ -278,102 +179,63 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		}
 	}
 	
-	@Override
 	public boolean isWingsActive()
 	{
-		return wingsActive;
-	}
-	
-	@Override
-	public int getStamina()
-	{
-		return stamina;
-	}
-	
-	@Override
-	public boolean consumeStamina()
-	{
-		if(isCreative())
-			return true;
-		if(stamina >= 30)
-		{
-			stamina = Math.max(stamina - 30, 0);
-			return true;
-		}
-		else
-			playSound(SoundEvents.BLOCK_ANVIL_LAND, 0.5f, 1.8f);
-		return false;
-	}
-	
-	@Override
-	public void replenishStamina(int i)
-	{
-		stamina = Math.min(stamina + 30 * i, 90);
-	}
-	
-	@Override
-	public int getWingHintDisplayTicks()
-	{
-		return wingHintDisplayTicks;
-	}
-	
-	@Override
-	public @NotNull GunCooldownManager getGunCooldownManager()
-	{
-		return gunCDM;
+		return UltraComponents.WING_DATA.get(this).isActive();
 	}
 	
 	@Override
 	public void startSlam()
 	{
-		groundPounding = true;
+		UltraComponents.WINGED_ENTITY.get(this).setSlamming(true);
 	}
 	
 	@Override
 	public void endSlam(boolean strong)
 	{
-		groundPounding = false;
+		IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(this);
+		winged.setSlamming(false);
 		if(!isOnGround())
 			return;
 		getWorld().playSound(null, getBlockPos(), SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.PLAYERS,
 				strong ? 1f : 0.75f, strong ? 0.75f : 1.25f);
 		getWorld().getOtherEntities(this, getBoundingBox().expand(0f, 1f, 0f).offset(0f, -0.5f, 0f)).forEach(e ->
-				e.damage(DamageSources.get(getWorld(), DamageSources.POUND, this), slamDamageCooldown > 0 ? 1 : 6));
-		slamDamageCooldown = 30;
+				e.damage(DamageSources.get(getWorld(), DamageSources.POUND, this), winged.getSlamDamageCooldown() > 0 ? 1 : 6));
+		winged.setSlamDamageCooldown(30);
 		if(!strong)
 			return;
 		getWorld().getOtherEntities(this, getBoundingBox().expand(3f, 0.5f, 3f)).forEach(e -> {
 			if((e instanceof LivingEntityAccessor l) && l.takePunchKnockback())
 				e.addVelocity(0f, 1f, 0f);
 		});
-	}
-	
-	@Override
-	public boolean isGroundPounding()
-	{
-		return groundPounding;
+		World world = getWorld();
+		if(!world.isClient)
+		{
+			for (int x = -1; x <= 1; x++)
+			{
+				for (int z = -1; z <= 1; z++)
+				{
+					BlockPos pos = getSteppingPos().add(new Vec3i(x, 0, z));
+					if(!canModifyAt(world, pos))
+						continue;
+					if(world.getBlockState(pos).isIn(TagRegistry.SLAM_BREAKABLE))
+						world.breakBlock(pos, true, this);
+				}
+			}
+		}
 	}
 	
 	@Inject(method = "tick", at = @At("TAIL"))
 	void onTick(CallbackInfo ci)
 	{
-		gunCDM.tickCooldowns();
-		if(wingHintDisplayTicks > 0)
-			wingHintDisplayTicks--;
-		if(dashingTicks > -60)
-			dashingTicks--;
-		if(slamDamageCooldown > 0)
-			slamDamageCooldown--;
-		if(bloodHealCooldown > 0)
-			bloodHealCooldown--;
-		if(sharpshooterCooldown > 0)
-			sharpshooterCooldown--;
+		if(!getWorld().isClient() && getMainHandStack().isOf(ItemRegistry.FLAMETHROWER) && (backtank == null || backtank.isRemoved()) && isAlive())
+			backtank = BackTank.spawn(getWorld(), this);
 	}
 	
 	@Inject(method = "tickMovement", at = @At("TAIL"))
 	void onTickMovement(CallbackInfo ci)
 	{
-		if(dashingTicks >= -1)
+		if(UltraComponents.WINGED_ENTITY.get(this).getDashingTicks() >= -1)
 		{
 			Vec3d dir = getVelocity();
 			Vec3d particleVel = new Vec3d(-dir.x, 0, -dir.z).multiply(random.nextDouble() * 0.33 + 0.1);
@@ -387,8 +249,9 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			Vec3d particleVel = new Vec3d(-dir.x, -dir.y, -dir.z).multiply(random.nextDouble() * 0.1 + 0.025);
 			Vec3d pos = getPos().add(dir.multiply(1.5));
 			getWorld().addParticle(ParticleRegistry.SLIDE, true, pos.x, pos.y + 0.1, pos.z, particleVel.x, particleVel.y, particleVel.z);
+			incrementStat(StatisticRegistry.SLIDE);
 		}
-		if(groundPounding)
+		if(UltraComponents.WINGED_ENTITY.get(this).isSlamming())
 		{
 			Vec3d particleVel = new Vec3d(0, 1, 0);
 			for (int i = 0; i < random.nextInt(4) + 8; i++)
@@ -398,12 +261,12 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 			}
 			fallDistance = 0f;
 		}
-		StatusEffectInstance chilled = getStatusEffect(StatusEffectRegistry.CHILLED);
-		if(stamina < 90 && !isSprinting() && !(chilled != null && age % (chilled.getAmplifier() + 1) != 0))
+		if(backtank != null)
 		{
-			stamina++;
-			if(stamina % 30 == 0)
-				playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 0.2f, 1f + stamina / 30f * 0.1f);
+			if(backtank.isRemoved())
+				backtank = null;
+			else
+				backtank.positionSelf(this);
 		}
 	}
 	
@@ -417,29 +280,62 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Redirect(method = "increaseTravelMotionStats", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/PlayerEntity;addExhaustion(F)V", ordinal = 3))
 	void addExhaustion(PlayerEntity instance, float exhaustion)
 	{
-		if(!((WingedPlayerEntity)instance).isWingsActive())
+		if(!UltraComponents.WING_DATA.get(instance).isActive())
 			instance.addExhaustion(exhaustion);
 	}
 	
 	@ModifyConstant(method = "getOffGroundSpeed", constant = @Constant(floatValue = 0.02f))
 	float modifyAirControl(float val)
 	{
-		if(isWingsActive() && isAirControlIncreased())
+		if(isWingsActive() && UltraComponents.WINGED_ENTITY.get(this).isAirControlIncreased())
 			return 0.05f;
 		else
 			return val;
 	}
 	
-	@Override
-	public boolean shouldIgnoreSlowdown()
+	@Inject(method = "writeCustomDataToNbt", at = @At("TAIL"))
+	void onWriteCustomData(NbtCompound nbt, CallbackInfo ci)
 	{
-		return ignoreSlowdown;
+		NbtCompound ultra = new NbtCompound();
+		
+		NbtCompound progression = new NbtCompound();
+		UltraComponents.PROGRESSION.get(this).writeToNbt(progression);
+		ultra.put("progression", progression);
+		NbtCompound arms = new NbtCompound();
+		UltraComponents.ARMS.get(this).writeToNbt(arms);
+		ultra.put("arms", arms);
+		
+		nbt.put("ultracraft", ultra);
 	}
 	
-	@Override
-	public void setIgnoreSlowdown(boolean ignoreSlowdown)
+	@Inject(method = "readCustomDataFromNbt", at = @At("TAIL"))
+	void onReadCustomData(NbtCompound nbt, CallbackInfo ci)
 	{
-		this.ignoreSlowdown = ignoreSlowdown;
+		if(!nbt.contains("ultracraft", NbtElement.COMPOUND_TYPE))
+			return;
+		NbtCompound ultra = nbt.getCompound("ultracraft");
+		if(ultra.contains("progression", NbtElement.COMPOUND_TYPE))
+		{
+			NbtCompound progression = ultra.getCompound("progression");
+			IProgressionComponent progressionComponent = UltraComponents.PROGRESSION.get(this);
+			progressionComponent.readFromNbt(progression);
+			progressionComponent.sync();
+		}
+		if(ultra.contains("arms", NbtElement.COMPOUND_TYPE))
+		{
+			NbtCompound arms = ultra.getCompound("arms");
+			IArmComponent armComponent = UltraComponents.ARMS.get(this);
+			armComponent.readFromNbt(arms);
+			armComponent.sync();
+		}
+	}
+	
+	@Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/damage/DamageSources;playerAttack(Lnet/minecraft/entity/player/PlayerEntity;)Lnet/minecraft/entity/damage/DamageSource;"))
+	DamageSource onGetDamageSource(net.minecraft.entity.damage.DamageSources instance, PlayerEntity attacker)
+	{
+		if(attacker.getMainHandStack().getItem() instanceof IOverrideMeleeDamageType weapon)
+			return weapon.getDamageSource(attacker.getWorld(), attacker);
+		return instance.playerAttack(attacker);
 	}
 	
 	@Override
@@ -449,98 +345,32 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	}
 	
 	@Override
-	public Vec3d[] getWingColors()
+	public void setFocusedTerminal(TerminalBlockEntity terminal)
 	{
-		return wingColors;
+	
 	}
 	
 	@Override
-	public void setWingColor(Vec3d val, int idx)
+	public TerminalBlockEntity getFocusedTerminal()
 	{
-		wingColors[idx] = val;
+		return null;
 	}
 	
 	@Override
-	public String getWingPattern()
+	public boolean isOpped()
 	{
-		return wingPattern;
+		return getPermissionLevel() >= 2;
 	}
 	
 	@Override
-	public void setWingPattern(String id)
+	public void setBackTank(BackTank backtank)
 	{
-		wingPattern = id;
-  }
-  
-	@Override
-	public void bloodHeal(float val)
-	{
-		if(bloodHealCooldown == 0)
-			heal(val);
+		this.backtank = backtank;
 	}
 	
 	@Override
-	public void blockBloodHeal(int ticks)
+	public BackTank getBacktank()
 	{
-		bloodHealCooldown = ticks;
-	}
-	
-	@Override
-	public void setBlocked(boolean blocked)
-	{
-		this.blocked = blocked;
-	}
-	
-	@Override
-	public boolean isBlocked()
-	{
-		return blocked;
-	}
-	
-	@Override
-	public boolean isAirControlIncreased()
-	{
-		return true;
-	}
-	
-	@Override
-	public void setSharpshooterCooldown(int sharpshooterCooldown)
-	{
-		this.sharpshooterCooldown = sharpshooterCooldown;
-	}
-	
-	@Override
-	public int getSharpshooterCooldown()
-	{
-		return sharpshooterCooldown;
-	}
-	
-	@Override
-	public void setPrimaryFiring(boolean firing)
-	{
-		primaryFiring = firing;
-		if(firing)
-		{
-			if(getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem w)
-				lastPrimaryWeapon = w;
-		}
-		else
-		{
-			if(lastPrimaryWeapon != null)
-				lastPrimaryWeapon.onPrimaryFireStop();
-			lastPrimaryWeapon = null;
-		}
-	}
-	
-	@Override
-	public boolean isPrimaryFiring()
-	{
-		return primaryFiring;
-	}
-	
-	@Override
-	public AbstractWeaponItem getLastPrimaryWeapon()
-	{
-		return lastPrimaryWeapon;
+		return backtank;
 	}
 }

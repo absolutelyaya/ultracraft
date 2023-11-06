@@ -2,85 +2,25 @@ package absolutelyaya.ultracraft.recipe;
 
 import absolutelyaya.ultracraft.item.PlushieItem;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
-import absolutelyaya.ultracraft.registry.RecipeSerializers;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
-import net.minecraft.inventory.RecipeInputInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.recipe.CraftingRecipe;
 import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.RecipeMatcher;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.world.World;
 
-public class PlushieRecipe implements CraftingRecipe
+public class PlushieRecipe extends AbstractNbtResultRecipe
 {
-	final Identifier id;
-	final String group;
-	final CraftingRecipeCategory category;
-	final ItemStack output;
-	final DefaultedList<Ingredient> input;
 	
 	public PlushieRecipe(Identifier id, String group, CraftingRecipeCategory category, ItemStack output, DefaultedList<Ingredient> input)
 	{
-		this.id = id;
-		this.group = group;
-		this.category = category;
-		this.output = output;
-		this.input = input;
-	}
-	
-	@Override
-	public boolean matches(RecipeInputInventory inventory, World world)
-	{
-		RecipeMatcher recipeMatcher = new RecipeMatcher();
-		int i = 0;
-		for (int j = 0; j < inventory.size(); ++j) {
-			ItemStack itemStack = inventory.getStack(j);
-			if (itemStack.isEmpty()) continue;
-			++i;
-			recipeMatcher.addInput(itemStack, 1);
-		}
-		return i == this.input.size() && recipeMatcher.match(this, null);
-	}
-	
-	@Override
-	public ItemStack craft(RecipeInputInventory inventory, DynamicRegistryManager registryManager)
-	{
-		return output.copy();
-	}
-	
-	@Override
-	public boolean fits(int width, int height)
-	{
-		return true;
-	}
-	
-	@Override
-	public ItemStack getOutput(DynamicRegistryManager registryManager)
-	{
-		return output;
-	}
-	
-	@Override
-	public Identifier getId()
-	{
-		return id;
-	}
-	
-	@Override
-	public DefaultedList<Ingredient> getIngredients()
-	{
-		return input;
+		super(id, group, category, output, input);
 	}
 	
 	@Override
@@ -89,13 +29,7 @@ public class PlushieRecipe implements CraftingRecipe
 		return RecipeSerializers.PLUSHIE_SERIALIZER;
 	}
 	
-	@Override
-	public CraftingRecipeCategory getCategory()
-	{
-		return category;
-	}
-	
-	public static class PlushieRecipeSerializer implements RecipeSerializer<PlushieRecipe>
+	public static class Serializer extends AbstractNbtRecipeSerializer<PlushieRecipe>
 	{
 		@Override
 		public PlushieRecipe read(Identifier id, JsonObject json)
@@ -111,18 +45,7 @@ public class PlushieRecipe implements CraftingRecipe
 			return new PlushieRecipe(id, string, craftingRecipeCategory, itemStack, defaultedList);
 		}
 		
-		private DefaultedList<Ingredient> getIngredients(JsonArray json)
-		{
-			DefaultedList<Ingredient> defaultedList = DefaultedList.of();
-			for (int i = 0; i < json.size(); ++i) {
-				Ingredient ingredient = Ingredient.fromJson(json.get(i));
-				if (ingredient.isEmpty()) continue;
-				defaultedList.add(ingredient);
-			}
-			return defaultedList;
-		}
-		
-		public static ItemStack outputFromJson(JsonObject json)
+		public ItemStack outputFromJson(JsonObject json)
 		{
 			String type = JsonHelper.getString(json, "type");
 			int i = JsonHelper.getInt(json, "count", 1);

@@ -40,7 +40,7 @@ public class IntroScreen extends Screen
 	protected void init()
 	{
 		super.init();
-		config = UltracraftClient.getConfigHolder().getConfig();
+		config = UltracraftClient.getConfig();
 		INSTANCE = this;
 		SEQUENCE_FINISHED = false;
 		retryButton = addDrawableChild(new ButtonWidget.Builder(Text.translatable("message.ultracraft.fixer-button"), (button) -> {
@@ -49,6 +49,8 @@ public class IntroScreen extends Screen
 		}).dimensions(width / 2 - 49, 32 + textRenderer.fontHeight * 5, 98, 20)
 											   .tooltip(Tooltip.of(Text.translatable("message.ultracraft.fixer-button.tooltip"))).build());
 		closeButton = addDrawableChild(new ButtonWidget.Builder(Text.translatable("message.ultracraft.consent"), (button) -> {
+			if(config.lastVersion.equals("ultracraft-1.20.1-1.1.5"))
+				config.BGID = "limbo";
 			config.lastVersion = Ultracraft.VERSION;
 			waitingForButton = false;
 			button.active = false;
@@ -61,7 +63,7 @@ public class IntroScreen extends Screen
 		{
 			options.setKeyCode(options.swapHandsKey, InputUtil.fromKeyCode(InputUtil.GLFW_KEY_R, 19));
 			config.startedBefore = true;
-			UltracraftClient.getConfigHolder().save();
+			UltracraftClient.saveConfig();
 		}
 	}
 	
@@ -134,7 +136,7 @@ public class IntroScreen extends Screen
 		{
 			resourceLoadFinished();
 			config.repeatIntro = false;
-			UltracraftClient.getConfigHolder().save();
+			UltracraftClient.saveConfig();
 		}
 		if(goalText == null)
 			return;

@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
+import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
@@ -90,8 +91,12 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	protected void onEntityHit(EntityHitResult entityHitResult)
 	{
 		Entity entity = entityHitResult.getEntity();
-		if(!entity.getClass().equals(ignore) || ((ProjectileEntityAccessor)this).isParried())
-			entity.damage(DamageSources.get(getWorld(), DamageSources.SHOTGUN, getOwner()), damage);
+		boolean parried = ((ProjectileEntityAccessor)this).isParried();
+		if(!entity.getClass().equals(ignore))
+			entity.damage(DamageSources.get(getWorld(), DamageSources.SHOTGUN, getOwner()),
+					damage * getWorld().getGameRules().getInt(GameruleRegistry.SHOTGUN_DAMAGE));
+		if(parried)
+			onParriedCollision(entityHitResult);
 	}
 	
 	@Override
@@ -146,7 +151,7 @@ public class ShotgunPelletEntity extends HellBulletEntity implements ProjectileE
 	public void setParried(boolean val, PlayerEntity parrier)
 	{
 		if(parrier == getOwner())
-			this.parrier = parrier;
+			super.setParried(val, parrier);
 	}
 	
 	@Override

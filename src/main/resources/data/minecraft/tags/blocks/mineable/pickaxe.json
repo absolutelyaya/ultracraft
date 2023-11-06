@@ -8,6 +8,15 @@
     "ultracraft:secret_elevator_wall",
     "ultracraft:secret_elevator_floor",
     "ultracraft:pedestal",
-    "ultracraft:cerberus_block"
+    "ultracraft:cerberus_block",
+    "ultracraft:terminal",
+    "ultracraft:terminal_display",
+    "ultracraft:vent_cover",
+    "ultracraft:mauerwerk1",
+    "ultracraft:mauerwerk2",
+    "ultracraft:ornate_wainscot",
+    "ultracraft:adorned_railing",
+    "ultracraft:rusty_pipe",
+    "ultracraft:rusty_mesh"
   ]
 }

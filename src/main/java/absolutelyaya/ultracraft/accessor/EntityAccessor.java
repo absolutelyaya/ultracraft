@@ -18,6 +18,5 @@ public interface EntityAccessor
 	
 	Vec3d getRelativeTargetPoint();
 	
-	//TODO: use this to aim for weakpoints, like the Street Cleaners Gas Tank, or Sentries Antenna
 	void setRelativeTargetPointSupplier(Supplier<Vec3d> supplier);
 }

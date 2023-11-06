@@ -20,7 +20,7 @@ public class ShockwaveEntity extends Entity
 {
 	private static final TrackedData<Float> RADIUS = DataTracker.registerData(ShockwaveEntity.class, TrackedDataHandlerRegistry.FLOAT);
 	int duration = 100;
-	float damage = 2f, velocity = 1f;
+	float damage = 2f, velocity = 1f, growRate = 0.25f;
 	Class<?> ignored;
 	Class<?> affectOnly;
 	Entity owner;
@@ -49,6 +49,12 @@ public class ShockwaveEntity extends Entity
 	{
 		if(nbt.contains("duration"))
 			setDuration(nbt.getInt("duration"));
+		if(nbt.contains("growRate"))
+			setGrowRate(nbt.getFloat("growRate"));
+		if(nbt.contains("damage"))
+			setDamage(nbt.getFloat("damage"));
+		if(nbt.contains("velocity"))
+			setThrowVelocity(nbt.getFloat("velocity"));
 	}
 	
 	@Override
@@ -62,7 +68,7 @@ public class ShockwaveEntity extends Entity
 	{
 		if (age > duration)
 			discard();
-		setRadius(getRadius() + 0.25f);
+		setRadius(getRadius() + growRate);
 		
 		if(affectOnly != null)
 		{
@@ -84,7 +90,8 @@ public class ShockwaveEntity extends Entity
 	
 	boolean shouldDamage(Entity entity)
 	{
-		return entity.isAlive() && distanceTo(entity) > getRadius() - 1f && !entity.getClass().equals(ignored) && !hits.contains(entity);
+		float dist = distanceTo(entity);
+		return entity.isAlive() && dist < getRadius() + 1f && dist > getRadius() - 3f && !entity.getClass().equals(ignored) && !hits.contains(entity);
 	}
 	
 	@Override
@@ -100,6 +107,9 @@ public class ShockwaveEntity extends Entity
 		return this.duration;
 	}
 	
+	/**
+	 * default: 100
+	 */
 	public void setDuration(int duration) {
 		this.duration = duration;
 	}
@@ -114,11 +124,17 @@ public class ShockwaveEntity extends Entity
 		return dataTracker.get(RADIUS);
 	}
 	
+	/**
+	 * default: 2
+	 */
 	public void setDamage(float damage)
 	{
 		this.damage = damage;
 	}
 	
+	/**
+	 * default: 1
+	 */
 	public void setThrowVelocity(float velocity)
 	{
 		this.velocity = velocity;
@@ -127,6 +143,14 @@ public class ShockwaveEntity extends Entity
 	public void setOwner(Entity entity)
 	{
 		owner = entity;
+	}
+	
+	/**
+	 * default: 0.25
+	 */
+	public void setGrowRate(float growRate)
+	{
+		this.growRate = growRate;
 	}
 	
 	@Override

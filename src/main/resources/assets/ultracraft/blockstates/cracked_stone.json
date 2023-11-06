@@ -1,0 +1,20 @@
+{
+  "variants": {
+    "": [
+      {
+        "model": "ultracraft:block/cracked_stone"
+      },
+      {
+        "model": "ultracraft:block/cracked_stone_mirrored"
+      },
+      {
+        "model": "ultracraft:block/cracked_stone",
+        "y": 180
+      },
+      {
+        "model": "ultracraft:block/cracked_stone_mirrored",
+        "y": 180
+      }
+    ]
+  }
+}

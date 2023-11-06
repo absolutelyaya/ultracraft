@@ -1,0 +1,11 @@
+{
+  "materials": [
+    { "item": "minecraft:iron_ingot", "count": 32 },
+    { "item": "minecraft:gunpowder", "count": 16 },
+    { "item": "minecraft:diamond", "count": 4 },
+    { "item": "minecraft:netherite_scrap", "count": 1 }
+  ],
+  "result": "ultracraft:core_shotgun",
+  "extra-output": [],
+  "unlocks": ["ultracraft:pump_shotgun"]
+}

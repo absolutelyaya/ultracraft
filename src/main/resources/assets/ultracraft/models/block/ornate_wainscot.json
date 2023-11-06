@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "ultracraft:block/ornate_wainscot_top",
+    "side": "ultracraft:block/ornate_wainscot"
+  }
+}

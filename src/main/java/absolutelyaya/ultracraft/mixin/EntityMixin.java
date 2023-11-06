@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.mixin;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
@@ -63,7 +64,7 @@ public abstract class EntityMixin implements EntityAccessor
 	@ModifyArgs(method = "updateVelocity", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;movementInputToVelocity(Lnet/minecraft/util/math/Vec3d;FF)Lnet/minecraft/util/math/Vec3d;"))
 	public void onConvertMovementInputToVel(Args args)
 	{
-		if(getWorld().isClient() && this instanceof WingedPlayerEntity winged && winged.isWingsActive() &&
+		if(getWorld().isClient() && this instanceof WingedPlayerEntity winged && UltraComponents.WING_DATA.get(winged).isActive() &&
 				   winged instanceof PlayerEntity p && p.isSprinting())
 		{
 			float slideDirRot = (float)Math.toDegrees(Math.atan2(winged.getSlideDir().z, winged.getSlideDir().x));

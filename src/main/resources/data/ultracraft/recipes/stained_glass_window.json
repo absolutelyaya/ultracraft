@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "ultracraft:stained_glass_panes"
+    },
+    {
+      "tag": "ultracraft:stained_glass_panes"
+    },
+    {
+      "tag": "ultracraft:stained_glass_panes"
+    },
+    {
+      "tag": "ultracraft:stained_glass_panes"
+    }
+  ],
+  "result": {
+    "item": "ultracraft:stained_glass_window",
+    "count": 1
+  }
+}

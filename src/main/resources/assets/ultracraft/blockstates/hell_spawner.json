@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "y": 0,
+      "model": "ultracraft:item/hell_spawner"
+    },
+    "facing=east": {
+      "y": 90,
+      "model": "ultracraft:item/hell_spawner"
+    },
+    "facing=south": {
+      "y": 180,
+      "model": "ultracraft:item/hell_spawner"
+    },
+    "facing=west": {
+      "y": 270,
+      "model": "ultracraft:item/hell_spawner"
+    },
+    "facing=up": {
+      "model": "ultracraft:item/hell_spawner"
+    },
+    "facing=down": {
+      "x": 180,
+      "model": "ultracraft:item/hell_spawner"
+    }
+  }
+}

@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.entity.other;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.registry.StatisticRegistry;
 import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -21,7 +22,7 @@ public class SoulOrbEntity extends AbstractOrbEntity
 	@Override
 	public Identifier getTexture()
 	{
-		return new Identifier(Ultracraft.MOD_ID, "textures/entity/soul_orb.png");
+		return new Identifier(Ultracraft.MOD_ID, "textures/item/soul_orb.png");
 	}
 	
 	@Override
@@ -34,6 +35,7 @@ public class SoulOrbEntity extends AbstractOrbEntity
 	public void onPlayerCollision(PlayerEntity player)
 	{
 		player.addStatusEffect(new StatusEffectInstance(StatusEffectRegistry.INSTANT_ENERGY));
+		player.incrementStat(StatisticRegistry.COLLECT_SOUL_ORB);
 		super.onPlayerCollision(player);
 	}
 	

@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:in_fire",
+    "minecraft:on_fire",
+    "minecraft:out_of_world",
+    "minecraft:drown",
+    "minecraft:freeze",
+    "minecraft:lightning_bolt",
+    "minecraft:out_of_world",
+    "minecraft:outside_border",
+    "minecraft:starve",
+    "minecraft:wither",
+    "ultracraft:flamethrower",
+    "ultracraft:short_circuit"
+  ]
+}

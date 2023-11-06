@@ -3,6 +3,8 @@
   "values": [
     "ultracraft:maurice",
     "ultracraft:interrupt",
-    "ultracraft:overcharge_self"
+    "ultracraft:overcharge_self",
+    "ultracraft:short_circuit",
+    "ultracraft:back_tank"
   ]
 }

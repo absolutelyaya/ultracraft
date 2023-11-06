@@ -8,10 +8,10 @@ import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.RotationAxis;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 import software.bernie.geckolib.cache.object.GeoBone;
@@ -38,18 +38,12 @@ public class SwordsmachineRenderer extends GeoEntityRenderer<SwordsmachineEntity
 			}
 			
 			@Override
-			protected ModelTransformationMode getTransformTypeForStack(GeoBone bone, ItemStack stack, SwordsmachineEntity animatable)
-			{
-				return super.getTransformTypeForStack(bone, stack, animatable);
-			}
-			
-			@Override
 			protected void renderStackForBone(MatrixStack poseStack, GeoBone bone, ItemStack stack, SwordsmachineEntity animatable, VertexConsumerProvider bufferSource, float partialTick, int packedLight, int packedOverlay)
 			{
 				poseStack.push();
 				if(bone.getName().equals(SWORD))
 				{
-					poseStack.multiply(new Quaternionf(new AxisAngle4f((float)Math.toRadians(45), 1f, 0f, 0f)));
+					poseStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(45));
 					poseStack.translate(0f, -0.325f, 0f);
 				}
 				super.renderStackForBone(poseStack, bone, stack, animatable, bufferSource, partialTick, packedLight, packedOverlay);

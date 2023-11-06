@@ -1,17 +1,12 @@
 package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.entity.demon.CerberusEntity;
-import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
+import absolutelyaya.ultracraft.entity.demon.*;
 import absolutelyaya.ultracraft.entity.husk.FilthEntity;
 import absolutelyaya.ultracraft.entity.husk.SchismEntity;
 import absolutelyaya.ultracraft.entity.husk.StrayEntity;
-import absolutelyaya.ultracraft.entity.machine.DestinyBondSwordsmachineEntity;
-import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
-import absolutelyaya.ultracraft.entity.other.BloodOrbEntity;
-import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
-import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
-import absolutelyaya.ultracraft.entity.other.SoulOrbEntity;
+import absolutelyaya.ultracraft.entity.machine.*;
+import absolutelyaya.ultracraft.entity.other.*;
 import absolutelyaya.ultracraft.entity.projectile.*;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.entity.EntityType;
@@ -39,12 +34,30 @@ public class EntityRegistry
 	public static final EntityType<CerberusEntity> CERBERUS = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "cerberus"),
 			EntityType.Builder.create(CerberusEntity::new, SpawnGroup.MONSTER).setDimensions(1.75F, 4F).maxTrackingRange(8).build("cerberus"));
+	public static final EntityType<HideousMassEntity> HIDEOUS_MASS = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "hideous_mass"),
+			EntityType.Builder.create(HideousMassEntity::new, SpawnGroup.MONSTER).setDimensions(8F, 7F).maxTrackingRange(8).build("hideous_mass"));
+	public static final EntityType<RetaliationEntity> RETALIATION = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "retaliation"),
+			EntityType.Builder.create(RetaliationEntity::new, SpawnGroup.MONSTER).setDimensions(1F, 2F).maxTrackingRange(8).build("retaliation"));
 	public static final EntityType<SwordsmachineEntity> SWORDSMACHINE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "swordsmachine"),
 			EntityType.Builder.create(SwordsmachineEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2.5F).maxTrackingRange(8).build("swordsmachine"));
 	public static final EntityType<DestinyBondSwordsmachineEntity> DESTINY_SWORDSMACHINE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "destiny_swordsmachine"),
 			EntityType.Builder.create(DestinyBondSwordsmachineEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2.5F).maxTrackingRange(8).build("destiny_swordsmachine"));
+	public static final EntityType<DroneEntity> DRONE = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "drone"),
+			EntityType.Builder.create(DroneEntity::new, SpawnGroup.MONSTER).setDimensions(0.7F, 0.8F).maxTrackingRange(8).build("drone"));
+	public static final EntityType<StreetCleanerEntity> STREET_CLEANER = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "streetcleaner"),
+			EntityType.Builder.create(StreetCleanerEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2F).maxTrackingRange(8).build("streetcleaner"));
+	public static final EntityType<V2Entity> V2 = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "v2"),
+			EntityType.Builder.create(V2Entity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2F).maxTrackingRange(8).build("v2"));
+	public static final EntityType<RodentEntity> RODENT = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "rodent"),
+			EntityType.Builder.create(RodentEntity::new, SpawnGroup.MONSTER).setDimensions(0.25F, 0.25F).maxTrackingRange(8).build("rodent"));
 	
 	public static final EntityType<HellBulletEntity> HELL_BULLET = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "hell_bullet"),
@@ -58,6 +71,10 @@ public class EntityRegistry
 			new Identifier(Ultracraft.MOD_ID, "shotgun_pellet"),
 			EntityType.Builder.create(ShotgunPelletEntity::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
 					.maxTrackingRange(5).trackingTickInterval(1).disableSummon().disableSaving().build("shotgun_pellet"));
+	public static final EntityType<CancerBulletEntity> CANCER_BULLET = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "cancer_bullet"),
+			EntityType.Builder.create(CancerBulletEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
+					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("cancer_bullet"));
 	public static final EntityType<EjectedCoreEntity> EJECTED_CORE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "ejected_core"),
 			EntityType.Builder.create(EjectedCoreEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
@@ -70,14 +87,50 @@ public class EntityRegistry
 			new Identifier(Ultracraft.MOD_ID, "thrown_coin"),
 			EntityType.Builder.create(ThrownCoinEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
 					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("thrown_coin"));
+	public static final EntityType<FlameProjectileEntity> FLAME = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "flame"),
+			EntityType.Builder.create(FlameProjectileEntity::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
+					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().disableSummon().build("flame"));
+	public static final EntityType<HideousMortarEntity> MORTAR = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "mortar"),
+			EntityType.Builder.create(HideousMortarEntity::new, SpawnGroup.MISC).setDimensions(0.75f, 0.75f)
+					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("mortar"));
+	public static final EntityType<HarpoonEntity> HARPOON = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "harpoon"),
+			EntityType.Builder.create(HarpoonEntity::new, SpawnGroup.MISC).setDimensions(0.35f, 0.35f)
+					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("harpoon"));
+	public static final EntityType<ThrownSoapEntity> SOAP = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "soap"),
+			EntityType.Builder.create(ThrownSoapEntity::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
+					.maxTrackingRange(5).trackingTickInterval(1).build("soap"));
+	public static final EntityType<MagnetEntity> MAGNET = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "magnet"),
+			EntityType.Builder.create(MagnetEntity::new, SpawnGroup.MISC).setDimensions(0.35f, 0.35f)
+					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("magnet"));
+	//only tracking interval 3 due to the guaranteed large amount of these and it's not like they're parriable anyways
+	public static final EntityType<NailEntity> NAIL = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "nail"),
+			EntityType.Builder.create(NailEntity::new, SpawnGroup.MISC).setDimensions(0.125f, 0.125f)
+					.maxTrackingRange(5).trackingTickInterval(3).disableSaving().build("nail"));
+	public static final EntityType<BeamProjectileEntity> BEAM = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "beam"),
+			EntityType.Builder.create(BeamProjectileEntity::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
+					.maxTrackingRange(5).trackingTickInterval(1).disableSaving().build("beam"));
 	
 	public static final EntityType<ShockwaveEntity> SHOCKWAVE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "shockwave"),
 			EntityType.Builder.create(ShockwaveEntity::new, SpawnGroup.MISC).maxTrackingRange(5).disableSaving().build("shockwave"));
+	public static final EntityType<VerticalShockwaveEntity> VERICAL_SHOCKWAVE = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "vertical_shockwave"),
+			EntityType.Builder.create(VerticalShockwaveEntity::new, SpawnGroup.MISC).maxTrackingRange(5).disableSaving().build("vertical_shockwave"));
 	public static final EntityType<InterruptableCharge> INTERRUPTABLE_CHARGE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "interruptable_charge"),
 			EntityType.Builder.create(InterruptableCharge::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
-					.disableSummon().maxTrackingRange(5).build("interruptable_charge"));
+					.disableSummon().disableSaving().maxTrackingRange(5).build("interruptable_charge"));
+	public static final EntityType<BackTank> BACK_TANK = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "back_tank"),
+			EntityType.Builder.create(BackTank::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
+					.disableSummon().disableSaving().maxTrackingRange(5).build("back_tank"));
 	public static final EntityType<SoulOrbEntity> SOUL_ORB = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "soul_orb"),
 			EntityType.Builder.create(SoulOrbEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
@@ -86,6 +139,14 @@ public class EntityRegistry
 			new Identifier(Ultracraft.MOD_ID, "blood_orb"),
 			EntityType.Builder.create(BloodOrbEntity::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
 					.maxTrackingRange(5).build("blood_orb"));
+	public static final EntityType<StainedGlassWindow> STAINED_GLASS_WINDOW = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "stained_glass_window"),
+			EntityType.Builder.create(StainedGlassWindow::new, SpawnGroup.MISC).setDimensions(0.5f, 0.5f)
+					.maxTrackingRange(5).build("stained_glass_window"));
+	public static final EntityType<ProgressionItemEntity> PROGRESSION_ITEM = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "progression_item"),
+			EntityType.Builder.create(ProgressionItemEntity::new, SpawnGroup.MISC).setDimensions(0.25f, 0.25f)
+					.maxTrackingRange(5).build("progression_item"));
 	
 	public static final TagKey<EntityType<?>> PROJBOOSTABLE = TagKey.of(RegistryKeys.ENTITY_TYPE, new Identifier(Ultracraft.MOD_ID, "projboostable"));
 	
@@ -96,7 +157,13 @@ public class EntityRegistry
 		FabricDefaultAttributeRegistry.register(SCHISM, SchismEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(MALICIOUS_FACE, MaliciousFaceEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(CERBERUS, CerberusEntity.getDefaultAttributes());
+		FabricDefaultAttributeRegistry.register(HIDEOUS_MASS, HideousMassEntity.getDefaultAttributes());
+		FabricDefaultAttributeRegistry.register(RETALIATION, RetaliationEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(SWORDSMACHINE, SwordsmachineEntity.getDefaultAttributes());
-		FabricDefaultAttributeRegistry.register(DESTINY_SWORDSMACHINE, SwordsmachineEntity.getDefaultAttributes());
+		FabricDefaultAttributeRegistry.register(DESTINY_SWORDSMACHINE, DestinyBondSwordsmachineEntity.getDefaultAttributes());
+		FabricDefaultAttributeRegistry.register(DRONE, DroneEntity.getDefaultAttributes());
+		FabricDefaultAttributeRegistry.register(STREET_CLEANER, StreetCleanerEntity.getDefaultAttributes());
+		FabricDefaultAttributeRegistry.register(V2, V2Entity.getDefaultAttributes());
+		FabricDefaultAttributeRegistry.register(RODENT, RodentEntity.getDefaultAttributes());
 	}
 }

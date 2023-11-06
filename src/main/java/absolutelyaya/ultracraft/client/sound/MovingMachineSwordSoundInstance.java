@@ -7,7 +7,7 @@ public class MovingMachineSwordSoundInstance extends MovingPlayerSoundInstance
 {
 	public MovingMachineSwordSoundInstance(ThrownMachineSwordEntity owner)
 	{
-		super(SoundRegistry.MACHINESWORD_LOOP.value(), owner);
+		super(SoundRegistry.MACHINESWORD_LOOP, owner);
 		pitch = 1.5f;
 		volume = 1f;
 	}

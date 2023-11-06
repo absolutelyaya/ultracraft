@@ -1,11 +1,13 @@
 package absolutelyaya.ultracraft.item;
 
 import absolutelyaya.ultracraft.client.rendering.item.MachineSwordRenderer;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.projectile.ThrownMachineSwordEntity;
 import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -34,7 +36,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class MachineSwordItem extends SwordItem implements GeoItem
+public class MachineSwordItem extends SwordItem implements GeoItem, IOverrideMeleeDamageType
 {
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
@@ -171,6 +173,12 @@ public class MachineSwordItem extends SwordItem implements GeoItem
 			target.addStatusEffect(new StatusEffectInstance(StatusEffectRegistry.CHILLED, (int)(200 * durationMult), 1));
 			target.setFrozenTicks(Math.round(target.getFrozenTicks() + 150 * durationMult));
 		}
+	}
+	
+	@Override
+	public DamageSource getDamageSource(World world, LivingEntity attacker)
+	{
+		return DamageSources.get(world, DamageSources.SWORDSMACHINE, attacker);
 	}
 	
 	public enum Type

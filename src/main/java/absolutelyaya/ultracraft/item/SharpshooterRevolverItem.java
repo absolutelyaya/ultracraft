@@ -1,9 +1,10 @@
 package absolutelyaya.ultracraft.item;
 
 import absolutelyaya.ultracraft.ServerHitscanHandler;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.SharpshooterRevolverRenderer;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
@@ -11,7 +12,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -50,14 +50,14 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	public ItemStack getDefaultStack()
 	{
 		ItemStack stack = new ItemStack(this);
-		setCharges(stack, 3);
+		setNbt(stack, "charges", 3);
 		return stack;
 	}
 	
 	public ItemStack getStackedSharpshooter()
 	{
 		ItemStack stack = getDefaultStack();
-		setCharges(stack, 64);
+		setNbt(stack, "charges", 64);
 		return stack;
 	}
 	
@@ -65,7 +65,7 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand)
 	{
 		ItemStack itemStack = user.getStackInHand(hand);
-		if(hand.equals(Hand.OFF_HAND) || getCharges(itemStack) == 0)
+		if(hand.equals(Hand.OFF_HAND) || getNbt(itemStack, "charges") == 0)
 			return TypedActionResult.fail(itemStack);
 		user.setCurrentHand(hand);
 		itemStack.getOrCreateNbt().putBoolean("charging", true);
@@ -99,17 +99,7 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 			else if(entity instanceof PlayerEntity player)
 				triggerAnim(player, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "spin");
 		}
-		if(!(entity instanceof PlayerEntity player))
-			return;
-		GunCooldownManager cdm = ((WingedPlayerEntity)player).getGunCooldownManager();
 		super.inventoryTick(stack, world, entity, slot, selected);
-		int charges = getCharges(stack);
-		if(charges < 3 && cdm.isUsable(this, GunCooldownManager.SECONDARY))
-		{
-			setCharges(stack, charges + 1);
-			cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
-			player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.5f);
-		}
 	}
 	
 	@Override
@@ -133,8 +123,8 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	@Override
 	public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks)
 	{
-		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
-		int charges = getCharges(stack);
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(user).getGunCooldownManager();
+		int charges = getNbt(stack, "charges");
 		if(remainingUseTicks <= 0)
 		{
 			if(user instanceof PlayerEntity player)
@@ -142,8 +132,8 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 				if(!world.isClient)
 				{
 					if(charges == 3)
-						cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
-					setCharges(stack, charges - 1);
+						cdm.setCooldown(this, 200, GunCooldownManager.TRITARY);
+					setNbt(stack, "charges", charges - 1);
 					triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "discharge");
 					world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, SoundCategory.PLAYERS, 1f,
 							0.85f + (user.getRandom().nextFloat() - 0.5f) * 0.2f);
@@ -152,9 +142,13 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 				onAltFire(world, player);
 			}
 			if(!world.isClient)
-				ServerHitscanHandler.performBouncingHitscan(user, ServerHitscanHandler.SHARPSHOOTER, 3, Integer.MAX_VALUE,
-						(int)Math.ceil(Math.min(Math.abs(remainingUseTicks) / 20f, 1f) * 3),
-						new ServerHitscanHandler.HitscanExplosionData(1.5f, 0f, 0f, true), 45f);
+			{
+				byte type = ServerHitscanHandler.SHARPSHOOTER;
+				int bounces = (int)Math.ceil(Math.min(Math.abs(remainingUseTicks) / 20f, 1f) * 3), maxHits = Integer.MAX_VALUE;
+				float autoAim = 45f;
+				ServerHitscanHandler.performBouncingHitscan(user, type, 3, DamageSources.SHARPSHOOTER, maxHits,
+						bounces, new ServerHitscanHandler.HitscanExplosionData(1.5f, 0f, 0f, true), autoAim);
+			}
 		}
 		else if(!world.isClient && user instanceof PlayerEntity)
 			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "stop");
@@ -211,24 +205,24 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	@Override
 	public boolean isItemBarVisible(ItemStack stack)
 	{
-		GunCooldownManager cdm = ((WingedPlayerEntity) MinecraftClient.getInstance().player).getGunCooldownManager();
-		return !cdm.isUsable(stack.getItem(), GunCooldownManager.PRIMARY) || getCharges(stack) < 3;
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
+		return !cdm.isUsable(getCooldownClass(stack), GunCooldownManager.PRIMARY) || getNbt(stack, "charges") < 3;
 	}
 	
 	@Override
 	public int getItemBarStep(ItemStack stack)
 	{
-		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
 		if(!cdm.isUsable(this, GunCooldownManager.PRIMARY))
-			return (int)(cdm.getCooldownPercent(stack.getItem(), GunCooldownManager.PRIMARY) * 14);
+			return (int)(cdm.getCooldownPercent(getCooldownClass(stack), GunCooldownManager.PRIMARY) * 14);
 		else
-			return (int)((1f - cdm.getCooldownPercent(stack.getItem(), GunCooldownManager.SECONDARY)) * 14);
+			return (int)((1f - cdm.getCooldownPercent(getCooldownClass(stack), GunCooldownManager.TRITARY)) * 14);
 	}
 	
 	@Override
 	public int getItemBarColor(ItemStack stack)
 	{
-		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
 		if(cdm.isUsable(this, GunCooldownManager.PRIMARY))
 			return 0xdfb728;
 		return 0xdf2828;
@@ -241,22 +235,10 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 	}
 	
 	@Override
-	public String getCountString(ItemStack stack)
+	public String getTopOverlayString(ItemStack stack)
 	{
 		if(stack.hasNbt() && stack.getNbt().contains("charges"))
-			return Formatting.GOLD + String.valueOf(getCharges(stack));
+			return Formatting.GOLD + String.valueOf(getNbt(stack, "charges"));
 		return null;
-	}
-	
-	public int getCharges(ItemStack stack)
-	{
-		if(!stack.hasNbt() || !stack.getNbt().contains("charges", NbtElement.INT_TYPE))
-			stack.getOrCreateNbt().putInt("charges", 3);
-		return stack.getNbt().getInt("charges");
-	}
-	
-	public void setCharges(ItemStack stack, int i)
-	{
-		stack.getOrCreateNbt().putInt("charges", i);
 	}
 }

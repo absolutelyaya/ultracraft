@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.entity.other;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.registry.StatisticRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
@@ -21,7 +22,7 @@ public class BloodOrbEntity extends AbstractOrbEntity
 	@Override
 	public Identifier getTexture()
 	{
-		return new Identifier(Ultracraft.MOD_ID, "textures/entity/blood_orb.png");
+		return new Identifier(Ultracraft.MOD_ID, "textures/item/blood_orb.png");
 	}
 	
 	@Override
@@ -35,6 +36,7 @@ public class BloodOrbEntity extends AbstractOrbEntity
 	{
 		player.addStatusEffect(new StatusEffectInstance(StatusEffects.INSTANT_HEALTH, 10, 4));
 		player.addStatusEffect(new StatusEffectInstance(StatusEffects.ABSORPTION, 3600, 4));
+		player.incrementStat(StatisticRegistry.COLLECT_BLOOD_ORB);
 		super.onPlayerCollision(player);
 	}
 	

@@ -1,7 +1,7 @@
 package absolutelyaya.ultracraft.item;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.CoreEjectShotgunRenderer;
 import absolutelyaya.ultracraft.entity.projectile.EjectedCoreEntity;
@@ -40,6 +40,7 @@ public class CoreEjectShotgunItem extends AbstractShotgunItem
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	private final Supplier<Object> renderProvider = GeoItem.makeRenderer(this);
 	final RawAnimation AnimationShot = RawAnimation.begin().thenPlay("shot_core");
+	final RawAnimation AnimationShot2 = RawAnimation.begin().thenPlay("shot_core2");
 	final RawAnimation AnimationAltShot = RawAnimation.begin().thenPlay("altShot");
 	
 	public CoreEjectShotgunItem(Settings settings)
@@ -60,7 +61,7 @@ public class CoreEjectShotgunItem extends AbstractShotgunItem
 		ItemStack itemStack = user.getStackInHand(hand);
 		if(hand.equals(Hand.OFF_HAND))
 			return TypedActionResult.fail(itemStack);
-		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(user).getGunCooldownManager();
 		if(!cdm.isUsable(this, 0))
 			return TypedActionResult.fail(itemStack);
 		user.setCurrentHand(hand);
@@ -87,6 +88,8 @@ public class CoreEjectShotgunItem extends AbstractShotgunItem
 	@Override
 	public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks)
 	{
+		if(remainingUseTicks == 999)
+			return; //pretty much definitely a variant swap - don't core eject
 		NbtCompound nbt = stack.getNbt();
 		if(!world.isClient && user instanceof PlayerEntity player)
 		{
@@ -131,7 +134,10 @@ public class CoreEjectShotgunItem extends AbstractShotgunItem
 	public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar)
 	{
 		controllerRegistrar.add(new AnimationController<>(this, getControllerName(), 1, state -> PlayState.STOP)
+										.triggerableAnim("switch", AnimationSwitch)
+										.triggerableAnim("switch2", AnimationSwitch2)
 										.triggerableAnim("shot_core", AnimationShot)
+										.triggerableAnim("shot_core2", AnimationShot2)
 										.triggerableAnim("altShot", AnimationAltShot));
 	}
 	
@@ -163,15 +169,15 @@ public class CoreEjectShotgunItem extends AbstractShotgunItem
 	}
 	
 	@Override
-	public Supplier<Object> getRenderProvider()
+	public int getPrimaryCooldown()
 	{
-		return renderProvider;
+		return 24;
 	}
 	
 	@Override
-	public String getShotAnimationName()
+	public Supplier<Object> getRenderProvider()
 	{
-		return "shot_core";
+		return renderProvider;
 	}
 	
 	@Override

@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 
 public class TrailRenderer
 {
-	static final Ultraconfig config = UltracraftClient.getConfigHolder().getConfig();
+	static final Ultraconfig config = UltracraftClient.getConfig();
 	static final Map<UUID, Trail> trails = new HashMap<>();
 	static final Map<UUID, Trail> newTrails = new HashMap<>();
 	static final List<UUID> deletionQueue = new ArrayList<>();

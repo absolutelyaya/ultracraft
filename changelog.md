@@ -1,50 +1,155 @@
 ## Major Changes
-- Added Better Combat Support
-  - Install that mod as well to get better Melee Weapons (Only Machinesword atm)!
-- Integrated Player Animator
-  - No extra download required, it's included with the mod
-- Primary Fire can now be held down
-- Guns now have a short cooldown after switching
-- Added Secret Level Elevator blocks
-- Added Recipes to all Elevator Blocks
-- Added Proximity Activated Cerberus Statues
-- Swordsmachine can now Damage its target with melee attacks regardless of type
-- Tundra Machinesword now causes Freezing Damage
-- Blood now turns into Blocks when making contact with other fluids
-  - water -> Netherrack
-  - lava -> Red Netherwart Blocks (Placeholder)
-- Hitscan Improvements
-  - Hitscans cannot hit Spectators anymore
-  - Thrown Machinesword won't get targeted by Sharpshooter auto-aim anymore
-  - Coin Punches now respect PvP being turned off and ignore spectators
-  - Sharpshooter bounces increase in damage each bounce
-    - emulates the "multiple hits" per hitscan thingie
-- Added fatigue to discourage parry spamming
-  - Punches slow down by 75% after performing 3 in quick succession
-- Tundra Machinesword now freezes Targets
-- Fishing Bobber is no longer parriable due to Balance concerns and general weirdness
-  - It can still be Projectile Boosted if the ultra-projBoost Gamerule permits it
+- Added Drone Enemy
+- Added Cosmetic Drone Mask
+- Added Street Cleaner Enemy
+- Added Flamethrower Weapon
+  - Hold Primary fire to shoot a stream of flames
+  - Heats up over time
+    - Enters "Overdrive" at 200°
+    - Overheats at 300°
+  - While held, Players have an Explosive Tank on their Back just like Streetcleaners
+- Added Hideous Mass Enemy
+- Added Harpoons
+- Added "Repulsive Skewer" Weapon
+  - Use Primary Fire to shoot a harpoon like Hideous Mass
+  - Use Alt fire to reel all fired Harpoons back in
+    - Harpoons stuck in non-Heavy enemies fill throw them towards you
+    - Harpoons stuck in Blocks or Heavy Enemies throw you towards them
+- Added V2 Boss Enemy
+- Added Terminals
+  - Right-Click to focus; all parts of the menu that are on the actual display block can also be punched when unfocused though
+  - Added new Weapon Crafting System
+    - Weapon Recipes can be customized via Datapacks
+  - Almost too much Customization
+    - Define Base Hull and Text Color
+    - Paint Graffiti on the Back and Sides (can be disabled via gamerule & Whitelist)
+    - Write your own Text Screensaver (Basically a fancy 11-Line Sign for Map-Makers)
+    - Customize the Main Menu
+    - Add your Own Tabs and Button Actions using the new Termianl GUI API
+- Added Attractor Nailgun Weapon
+  - Hold primary fire to fire a quick stream of Nails.
+  - You have a maximum of 100 Nails; Nails recharge over time.
+  - Press Alt-Fire to fire a Magnet.
+    - Nails are Attracted towards Magnets.
+    - Magnets can get stuck in Blocks and Entities.
+    - Magnets Degrade and Break after a while. The more Nails it's attracting, the more quickly it breaks.
+    - You can have 3 Magnets at a time. They only recharge after breaking.
+    - Magnets have a low chance to attract Lightning (chance increases depending on amount of attracted nails)
+- Added Blocks
+  - Rusty Pipe
+  - Rusty Mesh
+  - F L E S H (not animated with Sodium due to world rendering changes)
+  - Cracked Stone
+  - Vent Cover
+  - Mauerwerk 1//2
+  - Ornate Wainscot
+  - Adorned Railing
+- Added Stained Glass Window
+- Shockwaves are now actually Round (cursed, I know)
+- Added Soap
+- Fully moved Wing Customization and Player Data to Cardinal Components
+- Added Progression System (Which weapons have been crafted and which are unlocked)
+- Added Progression Item Entities. 
+  - When picked up, these unlock and obtain a set Progression Entry. 
+  - Every Client can pick up the Item independantly.
+  - Can be set to not actually give an item but only the Progression Entry.
+- Added Weapon Variant Switching Keybind (Default: `R`)
+- Added Limbo Themed BG to Title Menu
+  - Added Clair de Lune Noteblock Cover + Music Disk
+- Added Hell Observer Block
+  - Detects Players and Entities in a specified area.
+  - Emits a redstone Signal when user-defined threshholds of either or both are met.
+    - This is difficult to explain well in text, just play around with them ¯\\\_(ツ)_/¯
+- Added Hell Spawner Block
+  - Right click with spawn egg to set its entity Type
+  - Power with redstone to spawn an entity at the first free position in the spawners maws direction
+- Added Arm System
+  - Press default Keybind `G` to cycle owned Arms
+  - Feedbacker is owned by default
+  - Once more than one Arm is owned, an element is added to the UltraHUD which indicates what Arm is currently selected
+  - Only the Feedbacker can Parry Projectiles and Interrupt interrupable Attacks
+  - The Knuckleblaster does more Damage per punch. Hold Punch (Default `F`) to cause an explosion.
+- Added Cancerous Rodent
+- Added Slam Block Breaking
+  - Breakable blocks can be customized using the `ultracraft:slam_breakable` Block Tag
+  - Only Strong Groundpounds break blocks
 ## Settings & Gamerules
-- Moved all mod Gamerules to a new Category
-- Added ultra-iFrames Gamerule
-  - Defines how many ticks of Invincibility players in HiVel Mode after getting hit
+- Added ultra-flamethrowerGrief Gamerule
+- Added ultra-graffiti Gamerule
+- Added ultra-terminalProtection Gamerule
+- ultra-iFrames actually works now
+- Renamed ultra-gunDamage to ultra-revolverDamage
+- Added ultra-shotgunDamage Gamerule
+- Added ultra-nailgunDamage Gamerule
+- Added ultra-hellObserverInterval Gamerule
+- Added ULTRACRAFT (world) Category for gamerules mainly important when starting a new world.
+- Added ultra-startWithPiercer Gamerule
+- Added ultra-bloodSaturation Gamerule
+## Commands
+- Added `/ultracraft progression` subcommand (mainly for Debug)
+  - Lets you list, grant or revoke Progression Entries
+- Added `/ultrawhitelist` command
+  - Lets you modify or de-/activate different whitelists
+    - High Velocity mode can be limited to specific Players now
+    - You can allow only specific players to be able to make graffitis on Terminals
+- Added Setting for disabling the new Custom Death Screen
 ## Tweaks
-- Set the default I-Frames for Players in HiVel Mode to 4 (previously 0)
+- Tweaked a Filth Animation
+- Nerfed base projectile parry damage (15 -> 10)
+- Buffed Parry Chaining Modifiers (damage 1 + x * (0.2 -> 0.35) | range 1 + x * (0.1 -> 0.15))
+- Nerfed Coin Ricochet Damage for non-players (5 * chain -> 3 * chain)
+- Halved deadcoin window
+- Changed Projectile Parrying yet again; it *should* be a bit easier now.
+- Made it easier to hit entities using Hitscans
 ## Minor Changes
-- Thrown Machineswords can't afflict their owner with their type effect anymore
-- ??? now greets everyone
-- NBT block-picking Pedestals now saves their Lock State correctly
-- Elevator Blocks now have break particles with a pixel density of x16
-- Fixed Z-Fighting on Swordsmachine entity and plushies
-- Fixed missing wires on Tundra//Agony Plushies
-- Elevator Wall/Floor Blocks are now properly mineable in survival
-- Fixed Broken line breaks in Fishing Popup
-- Improved Special Fishing Reliability
-- Hopefully fixed Cerberus Blocks sometimes being invisible after joining a world
-- Reduced Revolver primary fire visual hitscan lifetime
-- Improved Time Stop VFX slightly
-  - Timestop VFX will now show regardless of Time Stop gamerule
-    - It can still be disabled using the client Setting however
-  - Added slight FoV effect to time stops
-- changed some assets slightly
-- Tundra//Agony is now /summon-able
+- Discontinued Russian Translation
+- Primary Fire can now be held down
+- Fixed weirdness with Tundra//Agony Spawn Egg
+- Added Love
+- Fixed Spectator Gun Bug (again)
+- Increased Weapon Charging Shake (remains the same if SafeVFX is enabled)
+- Fixed a bug which caused the Size 2 to show up despite the requirements not being met
+- Improved Hell Bullets
+- Added Custom Death Screen
+- Added Statistics
+  - Times Dashed
+  - Slide cm
+  - Projectiles Parried
+  - Coins Punched
+  - Soul Orbs Collected
+  - Blood Orbs Collected
+- Pedestal improvements
+  - Pedestals with a block above them aren't punchable anymore
+  - Pickaxes and Weapons can now only be main-hand punched onto a pedestal while sneaking.
+  - Creative Players only break pedestals now when main-hand punching and not sneaking a pedestal.
+  - Item stacks get copied properly now in creative (geckolib animation synching is still funky though, I cannot fix that)
+  - Weapons can't be fired anymore while looking directly at a Pedestal
+- Fixed Parried Hell Bullets applying parry damage twice
+- Added Love
+- Improved Enraged Feature Rendering
+  - Lightning actually starts white
+  - Follows parent mob more smoothly now
+- All Mod entities can now be given a bossbar by giving them the `{boss:1b}` NBT tag
+  - Same tag can be used to remove boss bars from enemies that are otherwise bosses by default
+  - Some entities have different base stats with the boss tag
+## Resource Changes
+- Added new Texture State for fully Charged Pierce Revolver (`pierce_revolver4.png`)
+- To reduce filesize, model translations of weapons now use inheritance. Meaning, you only need to replace `models/item/revolver.json` instead of all three variants. It should be safe to remove those excess files from Resourcepacks completely.
+- Changed almost all Shotgun animations
+  - Most Animations are now shorter. (It's fine if your animations are longer due to the next bullet point)
+  - Shot Animations now have Duplicates to cancel each other while rapid firing / shotgun swapping
+  - Added `switch` animation (+duplicate)
+- Made Preparations to replace a bunch of sounds currently substituted using vanilla ones<br>This means a bunch of sounds were added that you can replace using Resourcepacks. Not all of them are actually implemented yet though. Check ``sounds.json``
+- Added a few new Custom Sound Effects
+## API Changes
+- Added Terminal API Tools
+  - Allows adding fully Custom Coded Tabs and Global Button Actions to Terminals
+  - Premade Rendering GUI Tool Supports:
+    - Text
+    - Buttons
+    - Text Fields
+    - Sprites
+    - Lists (with Selectable Entries)
+  - Other than that you can of course write your own rendering stuff
+
+possibly more I forgor

@@ -1,13 +1,16 @@
 package absolutelyaya.ultracraft.block;
 
+import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.item.TooltipContext;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.PickaxeItem;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.screen.NamedScreenHandlerFactory;
 import net.minecraft.sound.SoundCategory;
@@ -68,14 +71,20 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 	public boolean onPunch(PlayerEntity puncher, BlockPos pos, boolean mainHand)
 	{
 		World world = puncher.getWorld();
+		if(!world.getBlockState(pos.up()).isAir())
+			return false;
+		if(mainHand && !puncher.isSneaking() &&
+				   puncher.getMainHandStack().getItem() instanceof AbstractWeaponItem || puncher.getMainHandStack().getItem() instanceof PickaxeItem)
+			return false;
+		if(puncher.isCreative() && mainHand && !puncher.isSneaking())
+			return false;
 		BlockEntity blockEntity = world.getBlockEntity(pos);
 		if(blockEntity instanceof PedestalBlockEntity pedestal)
 		{
 			boolean result = pedestal.onPunch(puncher, mainHand);
 			if(!world.isClient)
 				world.emitGameEvent(puncher, GameEvent.BLOCK_CHANGE, pos);
-			world.updateNeighbors(pos, this);
-			world.updateNeighbors(pos.down(), this);
+			updateNeighbors(world, pos);
 			return result;
 		}
 		return false;
@@ -98,7 +107,14 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 				ItemScatterer.spawn(world, pos.getX(), pos.getY(), pos.getZ(), pedestal.getHeld());
 			super.onStateReplaced(state, world, pos, newState, moved);
 		}
-		world.updateNeighbors(pos.down(), this);
+		updateNeighbors(world, pos);
+	}
+	
+	@Override
+	public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack)
+	{
+		super.onPlaced(world, pos, state, placer, itemStack);
+		updateNeighbors(world, pos);
 	}
 	
 	public BlockRenderType getRenderType(BlockState state) {
@@ -167,6 +183,7 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 				world.addParticle(ParticleTypes.SPLASH, pos.getX() + ppos.x, pos.getY() + ppos.y, pos.getZ() + ppos.z,
 						0f, 0f, 0f);
 			}
+			updateNeighbors(world, pos);
 			return ActionResult.CONSUME;
 		}
 		else if (!state.get(FANCY) && stack.isOf(Items.GLOWSTONE_DUST))
@@ -181,6 +198,7 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 				Vec3d p = new Vec3d(pos.getX() + rand.nextDouble(), pos.getY() + rand.nextDouble(), pos.getZ() + rand.nextDouble());
 				world.addParticle(ParticleTypes.WAX_ON, p.x, p.y, p.z, 0f, 0f, 0f);
 			}
+			updateNeighbors(world, pos);
 			return ActionResult.CONSUME;
 		}
 		else if(!state.get(LOCKED) && !player.isSneaking())
@@ -191,9 +209,16 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 				if(blockEntity instanceof PedestalBlockEntity)
 					player.openHandledScreen((NamedScreenHandlerFactory)blockEntity);
 			}
+			updateNeighbors(world, pos);
 			return ActionResult.CONSUME;
 		}
 		else return super.onUse(state, world, pos, player, hand, hit);
+	}
+	
+	void updateNeighbors(World world, BlockPos pos)
+	{
+		world.updateNeighbors(pos, this);
+		world.updateNeighbors(pos.down(), this);
 	}
 	
 	void useDye(World world, BlockPos pos, BlockState state, PlayerEntity player, ItemStack dye, Type newType)
@@ -203,6 +228,7 @@ public class PedestalBlock extends BlockWithEntity implements IPunchableBlock, B
 			dye.decrement(1);
 		world.playSound(null, pos, SoundEvents.ENTITY_VILLAGER_WORK_CARTOGRAPHER, SoundCategory.PLAYERS, 1f, 1f);
 		world.addBlockBreakParticles(pos, state.with(TYPE, newType));
+		updateNeighbors(world, pos);
 	}
 	
 	@Override

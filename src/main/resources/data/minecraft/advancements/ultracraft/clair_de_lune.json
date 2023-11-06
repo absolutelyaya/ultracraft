@@ -1,0 +1,44 @@
+{
+  "display": {
+    "icon": {
+      "item": "ultracraft:v2"
+    },
+    "title": {
+      "translate": "advancements.ultracraft.clair_de_lune.title"
+    },
+    "description": {
+      "translate": "advancements.ultracraft.clair_de_lune.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false
+  },
+  "parent": "minecraft:ultracraft/root",
+  "criteria": {
+    "requirement": {
+      "trigger": "minecraft:player_killed_entity",
+      "conditions": {
+        "player": [
+          {
+            "condition": "minecraft:time_check",
+            "value": {
+              "min": 13000,
+              "max": 23000
+            },
+            "period": 192000
+          }
+        ],
+        "entity": [
+          {
+            "condition": "minecraft:entity_properties",
+            "entity": "this",
+            "predicate": {
+              "type": "ultracraft:v2"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

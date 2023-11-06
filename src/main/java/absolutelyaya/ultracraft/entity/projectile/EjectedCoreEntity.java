@@ -6,6 +6,8 @@ import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
+import absolutelyaya.ultracraft.entity.machine.StreetCleanerEntity;
+import absolutelyaya.ultracraft.entity.machine.V2Entity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
@@ -62,13 +64,19 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 	@Override
 	protected void onCollision(HitResult hitResult)
 	{
-		if(hitResult instanceof EntityHitResult entityHit && entityHit.getEntity() instanceof MaliciousFaceEntity)
+		if(hitResult instanceof EntityHitResult entityHit)
 		{
-			Vec3d newVel = getVelocity().multiply(-0.5f, 1f, -0.5f);
-			setVelocity(newVel);
-			Vec3d pos = entityHit.getPos();
-			getWorld().playSound(null, new BlockPos((int)pos.x, (int)pos.y, (int)pos.z), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.HOSTILE, 1f, 1.75f);
-			return;
+			if(entityHit.getEntity() instanceof StreetCleanerEntity cleaner && cleaner.isCanCounter())
+				return;
+			else if(entityHit.getEntity() instanceof MaliciousFaceEntity)
+			{
+				Vec3d newVel = getVelocity().multiply(-0.5f, 1f, -0.5f);
+				setVelocity(newVel);
+				Vec3d pos = entityHit.getPos();
+				getWorld().playSound(null, new BlockPos((int)pos.x, (int)pos.y, (int)pos.z),
+						SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.HOSTILE, 1f, 1.75f);
+				return;
+			}
 		}
 		super.onCollision(hitResult);
 		
@@ -90,7 +98,7 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 		super.tick();
 		if(getWorld().getFluidState(getBlockPos()).isIn(FluidTags.LAVA))
 			explode(getOwner());
-		if(getWorld().isClient && UltracraftClient.getConfigHolder().get().safeVFX)
+		if(getWorld().isClient && UltracraftClient.getConfig().safeVFX)
 			return;
 		if(age % 5 == 0)
 		{

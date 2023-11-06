@@ -1,11 +1,12 @@
 package absolutelyaya.ultracraft.registry;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import absolutelyaya.ultracraft.compat.PlayerAnimator;
+import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -22,6 +23,8 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.util.Arm;
+import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -40,8 +43,14 @@ public class KeybindRegistry
 	public static final KeyBinding WING_CUSTOMIZATION = KeyBindingHelper.registerKeyBinding(
 			new KeyBinding("key.ultracraft.wing_customization", InputUtil.Type.KEYSYM,
 					GLFW.GLFW_KEY_APOSTROPHE, "category.ultracraft"));
+	public static final KeyBinding WEAPON_CYCLE = KeyBindingHelper.registerKeyBinding(
+			new KeyBinding("key.ultracraft.weapon_cycle", InputUtil.Type.KEYSYM,
+					GLFW.GLFW_KEY_R, "category.ultracraft"));
+	public static final KeyBinding ARM_CYCLE = KeyBindingHelper.registerKeyBinding(
+			new KeyBinding("key.ultracraft.arm_cycle", InputUtil.Type.KEYSYM,
+					GLFW.GLFW_KEY_G, "category.ultracraft"));
 	
-	static boolean hivelPressed = false, punchPressed = false, wingCustomizationPressed = false;
+	static boolean hivelPressed = false, punchPressed = false, wingCustomizationPressed = false, weaponCyclePressed = false, armCyclePressed = false;
 	
 	public static void register()
 	{
@@ -49,23 +58,33 @@ public class KeybindRegistry
 			while(HIGH_VELOCITY_TOGGLE.wasPressed() && !hivelPressed)
 			{
 				UltracraftClient.toggleHiVelEnabled();
-				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-				buf.writeBoolean(UltracraftClient.isHiVelEnabled());
-				ClientPlayNetworking.send(PacketRegistry.SEND_WING_STATE_C2S_PACKET_ID, buf);
-				((WingedPlayerEntity)client.player).setWingsVisible(UltracraftClient.isHiVelEnabled());
 				hivelPressed = true;
 			}
 			while(HIGH_VELOCITY_TOGGLE.wasPressed()); //remove stored hivel toggle presses
 			hivelPressed = HIGH_VELOCITY_TOGGLE.isPressed();
 		});
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			if(punchPressed != PUNCH.isPressed())
+			{
+				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+				buf.writeBoolean(PUNCH.isPressed());
+				ClientPlayNetworking.send(PacketRegistry.PUNCH_PRESSED_PACKET_ID, buf);
+			}
 			while(PUNCH.wasPressed() && !punchPressed)
 			{
 				ClientPlayerEntity player = client.player;
 				if(player == null || !((LivingEntityAccessor)player).punch() || player.isSpectator())
 					continue;
 				if(player.isMainPlayer())
-					PlayerAnimator.playAnimation(player, PlayerAnimator.PUNCH, 0, false);
+				{
+					boolean flip = player.getMainArm().equals(Arm.LEFT);
+					int anim;
+					if((UltraComponents.WING_DATA.get(player).isActive() && player.isSprinting()))
+						anim = flip ? PlayerAnimator.SLIDE_PUNCH_FLIPPED : PlayerAnimator.SLIDE_PUNCH;
+					else
+						anim = flip ? PlayerAnimator.PUNCH_FLIPPED : PlayerAnimator.PUNCH;
+					PlayerAnimator.playAnimation(player, anim, 0, false);
+				}
 				
 				HitResult crosshairTarget = client.crosshairTarget;
 				Entity entity = null;
@@ -98,7 +117,7 @@ public class KeybindRegistry
 				if(b)
 					buf.writeInt(entity.getId());
 				buf.writeVector3f(player.getVelocity().toVector3f());
-				buf.writeBoolean(UltracraftClient.getConfigHolder().get().showPunchArea);
+				buf.writeBoolean(UltracraftClient.getConfig().showPunchArea);
 				ClientPlayNetworking.send(PacketRegistry.PUNCH_PACKET_ID, buf);
 				punchPressed = true;
 			}
@@ -108,11 +127,33 @@ public class KeybindRegistry
 		ClientTickEvents.END_CLIENT_TICK.register(client ->
 		{
 			while (WING_CUSTOMIZATION.wasPressed() && !wingCustomizationPressed)
-			{
 				client.setScreen(new WingCustomizationScreen(null));
-			}
-			while(WING_CUSTOMIZATION.wasPressed()); //remove stored punch presses
+			while(WING_CUSTOMIZATION.wasPressed()); //remove stored presses
 			wingCustomizationPressed = WING_CUSTOMIZATION.isPressed();
+		});
+		ClientTickEvents.END_CLIENT_TICK.register(client ->
+		{
+			while (WEAPON_CYCLE.wasPressed() && !weaponCyclePressed)
+			{
+				ClientPlayerEntity player = client.player;
+				if(player.getMainHandStack().getItem() instanceof AbstractWeaponItem)
+					AbstractWeaponItem.cycleVariant(player);
+			}
+			while(WEAPON_CYCLE.wasPressed()); //remove stored presses
+			weaponCyclePressed = WEAPON_CYCLE.isPressed();
+		});
+		ClientTickEvents.END_CLIENT_TICK.register(client ->
+		{
+			while (ARM_CYCLE.wasPressed() && !armCyclePressed)
+			{
+				ClientPlayerEntity player = client.player;
+				UltraComponents.ARMS.get(player).cycleArms();
+				client.gameRenderer.firstPersonRenderer.resetEquipProgress(Hand.OFF_HAND);
+				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+				ClientPlayNetworking.send(PacketRegistry.ARM_CYCLE_PACKET_ID, buf);
+			}
+			while(ARM_CYCLE.wasPressed()); //remove stored presses
+			armCyclePressed = ARM_CYCLE.isPressed();
 		});
 	}
 }

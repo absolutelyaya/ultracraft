@@ -1,18 +1,22 @@
 package absolutelyaya.ultracraft.registry;
 
+import absolutelyaya.goop.api.WaterHandling;
+import absolutelyaya.goop.client.GoopClient;
+import absolutelyaya.goop.particles.GoopDropParticleEffect;
 import absolutelyaya.ultracraft.ExplosionHandler;
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ITrailEnjoyer;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
-import absolutelyaya.ultracraft.client.Ultraconfig;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.client.gui.screen.HellObserverScreen;
 import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.compat.PlayerAnimator;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
-import absolutelyaya.ultracraft.particle.goop.GoopDropParticleEffect;
-import io.netty.buffer.Unpooled;
+import absolutelyaya.ultracraft.recipe.UltraRecipe;
+import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
+import com.google.common.collect.ImmutableMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -24,7 +28,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleTypes;
@@ -33,11 +36,14 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import org.joml.Vector3f;
 
+import java.util.List;
 import java.util.UUID;
 
 import static absolutelyaya.ultracraft.registry.PacketRegistry.*;
@@ -51,7 +57,7 @@ public class ClientPacketRegistry
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.FREEZE_PACKET_ID, ((client, handler, buf, sender) -> {
 			int ticks = buf.readInt();
 			boolean freezePhysicsDisabled = buf.readBoolean();
-			if(!UltracraftClient.getConfigHolder().get().freezeVFX)
+			if(!UltracraftClient.getConfig().freezeVFX)
 				return;
 			if(!freezePhysicsDisabled)
 				Ultracraft.freeze((ServerWorld)null, ticks);
@@ -72,7 +78,7 @@ public class ClientPacketRegistry
 			Vec3d dir = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
 			MinecraftClient.getInstance().execute(() -> {
 				Random rand = client.player.getRandom();
-				((WingedPlayerEntity)player).onDash();
+				UltraComponents.WINGED_ENTITY.get(player).onDash();
 				Vec3d pos;
 				for (int i = 0; i < 5; i++)
 				{
@@ -97,12 +103,12 @@ public class ClientPacketRegistry
 				{
 					if(!water)
 						client.player.getWorld().addParticle(new GoopDropParticleEffect(
-										UltracraftClient.getConfigHolder().get().danganronpa ? new Vec3d(1.0, 0.32, 0.83) : new Vec3d(0.56, 0.09, 0.01),
-										0.6f + rand.nextFloat() * 0.4f * (amount / 10f)), pos.x, pos.y + halfheight, pos.z,
+										new Vec3d(0.56, 0.09, 0.01), 0.6f + rand.nextFloat() * 0.4f * (amount / 10f), true,
+										WaterHandling.REPLACE_WITH_CLOUD_PARTICLE), pos.x, pos.y + halfheight, pos.z,
 								rand.nextDouble() - 0.5, rand.nextDouble() - 0.5, rand.nextDouble() - 0.5);
 					else
 						client.player.getWorld().addParticle(new DustParticleEffect(
-										UltracraftClient.getConfigHolder().get().danganronpa ? new Vector3f(1.0f, 0.32f, 0.83f) : new Vector3f(0.56f, 0.09f, 0.01f),
+										GoopClient.getConfig().censorMature ? Vec3d.unpackRgb(GoopClient.getConfig().censorColor).toVector3f() : new Vector3f(0.56f, 0.09f, 0.01f),
 										3.6f + rand.nextFloat() * 0.4f * (amount / 10f)),
 								pos.x + (rand.nextDouble() - 0.5) * 0.5, pos.y + halfheight + (rand.nextDouble() - 0.5) * halfheight * 1.5, pos.z + (rand.nextDouble() - 0.5) * 0.5,
 								(rand.nextDouble() - 0.5) * 0.05, (rand.nextDouble() - 0.5) * 0.05, (rand.nextDouble() - 0.5) * 0.05);
@@ -110,59 +116,17 @@ public class ClientPacketRegistry
 				if(client.player.squaredDistanceTo(pos) < 10 && !water)
 				{
 					UltracraftClient.addBlood(amount / (shotgun ? 10f : 30f));
-					client.player.playSound(SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.PLAYERS, shotgun ? 0.2f : 0.8f, 1.7f);
+					client.player.playSound(SoundRegistry.BLOOD_HEAL, SoundCategory.PLAYERS, shotgun ? 0.2f : 0.8f, 1.7f);
 				}
 			});
 		})));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.WING_STATE_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
-			if(client.player == null)
-				return;
-			PlayerEntity player = client.player.getWorld().getPlayerByUuid(buf.readUuid());
-			if(player == null)
-				return;
-			boolean b = buf.readBoolean();
-			MinecraftClient.getInstance().execute(() -> {
-				WingedPlayerEntity winged = ((WingedPlayerEntity)player);
-				winged.setWingsVisible(b);
-			});
-		}));
-		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.WING_DATA_S2C_PACKET_ID, ((client, handler, buf, sender) -> {
-			if(client.player == null)
-				return;
-			UUID id = buf.readUuid();
-			PlayerEntity player = client.player.getWorld().getPlayerByUuid(id);
-			if(player == null)
-				return;
-			boolean b = buf.readBoolean();
-			Vector3f wingColor = buf.readVector3f(), metalColor = buf.readVector3f();
-			String pattern = buf.readString();
-			MinecraftClient.getInstance().execute(() -> {
-				Ultraconfig config = UltracraftClient.getConfigHolder().get();
-				WingedPlayerEntity winged = ((WingedPlayerEntity)player);
-				winged.setWingsVisible(b);
-				if(config.blockedPlayers.contains(id))
-				{
-					winged.setBlocked(true);
-					Vec3d[] colors = UltracraftClient.getDefaultWingColors();
-					winged.setWingColor(colors[0], 0);
-					winged.setWingColor(colors[1], 1);
-					winged.setWingPattern("");
-					return;
-				}
-				else
-					winged.setBlocked(false);
-				winged.setWingColor(new Vec3d(wingColor), 0);
-				winged.setWingColor(new Vec3d(metalColor), 1);
-				winged.setWingPattern(UltracraftClient.getConfigHolder().get().safeVFX ? "" : pattern);
-			});
-		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.SET_GUNCD_PACKET_ID, ((client, handler, buf, sender) -> {
 			Item item = buf.readItemStack().getItem();
 			int ticks = buf.readInt();
 			int idx = buf.readInt();
 			MinecraftClient.getInstance().execute(() -> {
-				if(client.player != null)
-					((WingedPlayerEntity)client.player).getGunCooldownManager().setCooldown(item, ticks, idx);
+				if(client.player != null && item instanceof AbstractWeaponItem weapon)
+					UltraComponents.WINGED_ENTITY.get(client.player).getGunCooldownManager().setCooldown(weapon, ticks, idx);
 			});
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(PacketRegistry.CATCH_FISH_PACKET_ID, ((client, handler, buf, sender) -> {
@@ -263,14 +227,11 @@ public class ClientPacketRegistry
 				return;
 			UUID target = buf.readUuid();
 			MinecraftClient.getInstance().execute(() -> {
-				boolean b = UltracraftClient.getConfigHolder().get().blockedPlayers.contains(target);
+				boolean b = UltracraftClient.getConfig().blockedPlayers.contains(target);
 				if(!b)
 				{
-					UltracraftClient.getConfigHolder().get().blockedPlayers.add(target);
-					PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
-					cbuf.writeUuid(target);
-					ClientPlayNetworking.send(PacketRegistry.REQUEST_WINGED_DATA_PACKET_ID, cbuf);
-					UltracraftClient.getConfigHolder().save();
+					UltracraftClient.getConfig().blockedPlayers.add(target);
+					UltracraftClient.saveConfig();
 				}
 				client.player.sendMessage(Text.translatable("command.ultracraft.block.client-" + (b ? "fail" : "success")));
 			});
@@ -280,11 +241,8 @@ public class ClientPacketRegistry
 				return;
 			UUID target = buf.readUuid();
 			MinecraftClient.getInstance().execute(() -> {
-				PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
-				cbuf.writeUuid(target);
-				ClientPlayNetworking.send(PacketRegistry.REQUEST_WINGED_DATA_PACKET_ID, cbuf);
-				boolean b = UltracraftClient.getConfigHolder().get().blockedPlayers.remove(target);
-				UltracraftClient.getConfigHolder().save();
+				boolean b = UltracraftClient.getConfig().blockedPlayers.remove(target);
+				UltracraftClient.saveConfig();
 				client.player.sendMessage(Text.translatable("command.ultracraft.unblock.client-" + (b ? "success" : "fail")));
 			});
 		}));
@@ -312,8 +270,7 @@ public class ClientPacketRegistry
 		ClientPlayNetworking.registerGlobalReceiver(REPLENISH_STAMINA_PACKET_ID, (client, handler, buf, sender) -> {
 			int i = buf.readInt();
 			client.execute(() -> {
-				if(client.player instanceof WingedPlayerEntity winged)
-					winged.replenishStamina(i);
+				UltraComponents.WINGED_ENTITY.get(client.player).replenishStamina(i);
 			});
 		});
 		ClientPlayNetworking.registerGlobalReceiver(ANIMATION_S2C_PACKET_ID, (client, handler, buf, sender) -> {
@@ -328,5 +285,43 @@ public class ClientPacketRegistry
 				PlayerAnimator.playAnimation(target, animID, fade, firstperson, true);
 			});
 		});
+		ClientPlayNetworking.registerGlobalReceiver(SOAP_KILL_PACKET_ID, (((client, handler, buf, responseSender) -> {
+			if(client.player == null)
+				return;
+			Vec3d pos = new Vec3d(buf.readVector3f());
+			double width = buf.readDouble();
+			double height = buf.readDouble();
+			MinecraftClient.getInstance().execute(() -> {
+				Random rand = client.player.getRandom();
+				for (int i = 0; i < 24; i++)
+				{
+					Vec3d pos1 = pos.add((rand.nextFloat() - 0.5f) * width, (rand.nextFloat() - 0.5f) * height, (rand.nextFloat() - 0.5f) * width);
+					Vec3d vel = Vec3d.ZERO.addRandom(rand, 0.2f);
+					client.player.getWorld().addParticle(ParticleRegistry.SOAP_BUBBLE, pos1.x, pos1.y, pos1.z, vel.x, vel.y, vel.z);
+				}
+			});
+		})));
+		ClientPlayNetworking.registerGlobalReceiver(ULTRA_RECIPE_PACKET_ID, (((client, handler, buf, responseSender) -> {
+			List<Pair<Identifier, UltraRecipe>> list = buf.readList(UltraRecipe::deserialize);
+			ImmutableMap.Builder<Identifier, UltraRecipe> builder = ImmutableMap.builder();
+			for(Pair<Identifier, UltraRecipe> pair : list)
+				builder.put(pair.getLeft(), pair.getRight());
+			UltraRecipeManager.setRecipes(builder.build());
+		})));
+		ClientPlayNetworking.registerGlobalReceiver(HIVEL_WHITELIST_PACKET_ID, (((client, handler, buf, responseSender) -> {
+			MinecraftClient.getInstance().execute(UltraHudRenderer::onWhitelistHint);
+		})));
+		ClientPlayNetworking.registerGlobalReceiver(GRAFFITI_WHITELIST_PACKET_ID, (((client, handler, buf, responseSender) -> {
+			boolean b = buf.readBoolean();
+			MinecraftClient.getInstance().execute(() -> {
+				UltracraftClient.GRAFFITI_WHITELISTED = b;
+			});
+		})));
+		ClientPlayNetworking.registerGlobalReceiver(HELL_OBSERVER_PACKET_ID, (((client, handler, buf, responseSender) -> {
+			BlockPos pos = buf.readBlockPos();
+			MinecraftClient.getInstance().execute(() -> {
+				MinecraftClient.getInstance().setScreen(new HellObserverScreen(pos));
+			});
+		})));
 	}
 }

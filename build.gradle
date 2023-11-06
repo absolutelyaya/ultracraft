@@ -42,8 +42,9 @@ repositories {
     maven { url "https://maven.shedaniel.me/" }
     maven { url "https://maven.terraformersmc.com/releases/" }
     maven { url "https://cursemaven.com" }
-    maven {url 'https://maven.kosmx.dev/' }
+    maven { url 'https://maven.kosmx.dev/' }
     maven { url 'https://api.modrinth.com/maven' }
+    maven { url 'https://maven.ladysnake.org/releases'}
 }
 
 configurations {
@@ -84,6 +85,14 @@ dependencies {
 
     //better combat
     modImplementation "maven.modrinth:better-combat:${project.bettercombat_version}-fabric"
+
+    //cadinal components
+    include modApi("dev.onyxstudios.cardinal-components-api:cardinal-components-base:${project.cardinal_components_version}")
+    include modApi("dev.onyxstudios.cardinal-components-api:cardinal-components-entity:${project.cardinal_components_version}")
+    include modApi("dev.onyxstudios.cardinal-components-api:cardinal-components-level:${project.cardinal_components_version}")
+
+    //GOOP
+    modImplementation(include 'com.github.absolutelyaya:goop:fabric-1.20.1-v0.2')
 }
 
 processResources {

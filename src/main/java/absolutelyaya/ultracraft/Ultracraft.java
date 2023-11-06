@@ -1,9 +1,13 @@
 package absolutelyaya.ultracraft;
 
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
-import absolutelyaya.ultracraft.command.UltracraftCommand;
+import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
+import absolutelyaya.ultracraft.command.Commands;
+import absolutelyaya.ultracraft.command.WhitelistCommand;
+import absolutelyaya.ultracraft.item.AbstractNailgunItem;
 import absolutelyaya.ultracraft.item.MarksmanRevolverItem;
 import absolutelyaya.ultracraft.item.SharpshooterRevolverItem;
+import absolutelyaya.ultracraft.recipe.RecipeSerializers;
+import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
 import absolutelyaya.ultracraft.registry.*;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
@@ -17,12 +21,16 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.Item;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.stat.Stats;
 import net.minecraft.util.JsonHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RotationAxis;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -41,6 +49,7 @@ public class Ultracraft implements ModInitializer
 	public static boolean DYN_LIGHTS;
 	static int freezeTicks;
     static Map<UUID, Integer> supporterCache = new HashMap<>(), supporterCacheAdditions = new HashMap<>();
+    public static final UltraRecipeManager RECIPE_MANAGER = new UltraRecipeManager();
     
     @Override
     public void onInitialize()
@@ -59,12 +68,14 @@ public class Ultracraft implements ModInitializer
         CriteriaRegistry.register();
         StatusEffectRegistry.register();
         ScreenHandlerRegistry.registerServer();
+        StatisticRegistry.register();
         
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
         
         });
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-            UltracraftCommand.register(dispatcher);
+            Commands.register(dispatcher);
+            WhitelistCommand.register(dispatcher);
         });
         ServerTickEvents.END_SERVER_TICK.register(server -> {
             tickFreeze();
@@ -76,33 +87,31 @@ public class Ultracraft implements ModInitializer
                     supporterCache.put(uuid, i - 1);
             });
         });
-        ServerPlayerEvents.COPY_FROM.register((oldPlayer, newPlayer, alive) -> {
-            Vec3d[] colors = ((WingedPlayerEntity)oldPlayer).getWingColors();
-            ((WingedPlayerEntity)newPlayer).setWingsVisible(((WingedPlayerEntity)oldPlayer).isWingsActive());
-            ((WingedPlayerEntity)newPlayer).setWingColor(colors[0], 0);
-            ((WingedPlayerEntity)newPlayer).setWingColor(colors[1], 1);
-            ((WingedPlayerEntity)newPlayer).setWingPattern(((WingedPlayerEntity)oldPlayer).getWingPattern());
-            PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
-            buf.writeUuid(newPlayer.getUuid());
-            buf.writeBoolean(((WingedPlayerEntity)oldPlayer).isWingsActive());
-            buf.writeVector3f(colors[0].toVector3f());
-            buf.writeVector3f(colors[1].toVector3f());
-            buf.writeString(((WingedPlayerEntity)oldPlayer).getWingPattern());
-            for (ServerPlayerEntity p : ((ServerWorld)newPlayer.getWorld()).getPlayers())
-                ServerPlayNetworking.send(p, PacketRegistry.WING_DATA_S2C_PACKET_ID, buf);
-        });
         ServerPlayerEvents.AFTER_RESPAWN.register((oldPlayer, newPlayer, alive) -> {
             newPlayer.getInventory().main.forEach(stack -> {
                 Item item = stack.getItem();
-                if(item instanceof MarksmanRevolverItem marksman && marksman.getCoins(stack) < 4)
-                    marksman.setCoins(stack, 4);
-                else if (item instanceof SharpshooterRevolverItem sharpshooter && sharpshooter.getCharges(stack) < 3)
-                    sharpshooter.setCharges(stack, 3);
+                if(item instanceof MarksmanRevolverItem marksman && marksman.getNbt(stack, "coins") < 4)
+                    marksman.setNbt(stack, "coins", 4);
+                else if (item instanceof SharpshooterRevolverItem sharpshooter && sharpshooter.getNbt(stack, "charges") < 3)
+                    sharpshooter.setNbt(stack, "charges", 3);
+                else if (item instanceof AbstractNailgunItem nailgun && nailgun.getNbt(stack, "nails") < 100)
+                    nailgun.setNbt(stack, "nails", 100);
             });
         });
         
-        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((serverPlayer, lastWorld, newWorld) -> GameruleRegistry.SyncAll(serverPlayer));
-        ServerPlayConnectionEvents.JOIN.register((networkHandler, sender, server) -> GameruleRegistry.SyncAll(networkHandler.player));
+        ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((serverPlayer, lastWorld, newWorld) -> GameruleRegistry.syncAll(serverPlayer));
+        ServerPlayConnectionEvents.JOIN.register((networkHandler, sender, server) -> {
+            ServerPlayerEntity player = networkHandler.player;
+            GameruleRegistry.syncAll(player);
+            UltraRecipeManager.sync(player);
+        });
+        ServerPlayConnectionEvents.INIT.register(((handler, server) -> {
+            ServerPlayerEntity player = handler.player;
+            //detect first spawn; probably a scuffed way to do this, but hey, it works :3
+            if(player.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(Stats.PLAY_TIME)) == 0)
+                if(player.getWorld().getGameRules().getBoolean(GameruleRegistry.START_WITH_PIERCER))
+                    player.giveItemStack(ItemRegistry.PIERCE_REVOLVER.getDefaultStack());
+        }));
         
         FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer -> VERSION = modContainer.getMetadata().getVersion().getFriendlyString());
         FabricLoader.getInstance().getModContainer("lambdynlights").ifPresent(container -> DYN_LIGHTS = true);
@@ -119,7 +128,7 @@ public class Ultracraft implements ModInitializer
         if(player != null)
         {
             boolean freezeDisabled = player.getServer().isRemote() &&
-                                             player.getWorld().getGameRules().get(GameruleRegistry.TIME_STOP).get().equals(GameruleRegistry.Option.FORCE_OFF);
+                                             player.getWorld().getGameRules().get(GameruleRegistry.TIME_STOP).get().equals(GameruleRegistry.Setting.FORCE_OFF);
             PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
             buf.writeInt(ticks);
             buf.writeBoolean(freezeDisabled);
@@ -140,7 +149,7 @@ public class Ultracraft implements ModInitializer
         if(world != null)
         {
             boolean freezeDisabled = world.getServer().isRemote() &&
-                                             world.getGameRules().get(GameruleRegistry.TIME_STOP).get().equals(GameruleRegistry.Option.FORCE_OFF);
+                                             world.getGameRules().get(GameruleRegistry.TIME_STOP).get().equals(GameruleRegistry.Setting.FORCE_OFF);
             PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
             buf.writeInt(ticks);
             buf.writeBoolean(freezeDisabled);
@@ -189,5 +198,28 @@ public class Ultracraft implements ModInitializer
             Ultracraft.LOGGER.error("[ULTRACRAFT] Failed to fetch Supporters.", e);
         }
         return supporter;
+    }
+    
+    public static void positionKnuckleBlast(MatrixStack matrices, float equipProgress, boolean flipped)
+    {
+        if (!(MinecraftClient.getInstance().player instanceof LivingEntityAccessor living))
+            return;
+        float blast = living.getKnuckleBlastProgress(MinecraftClient.getInstance().getTickDelta());
+        int flip = flipped ? 1 : -1;
+        float swing = MathHelper.sqrt(blast);
+        float x = 0.1f * Math.min(MathHelper.sin(swing * (float)Math.PI + 0.25f), 0.5f) * 2f;
+        float y = -0.05f * (MathHelper.sin(swing * (float)Math.PI + 0.25f));
+        float z = 0.4f * Math.min(MathHelper.sin(blast * (float)Math.PI + 0.25f), 0.5f) * 2f;
+        matrices.translate(flip * (x + 0.64000005f), y - 0.6f + equipProgress * -0.6f, z - 0.71999997f);
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(flip * 45.0f));
+        float roll = MathHelper.sin(blast * blast * (float)Math.PI) / 2f;
+        float yaw = MathHelper.sin(swing * (float)Math.PI) / 1.5f;
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(flip * yaw * 30.0f));
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(flip * roll * -20.0f));
+        matrices.translate(flip * -1.0f, 3.6f, 3.5f);
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(flip * 120.0f));
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(200.0f));
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(flip * -135.0f));
+        matrices.translate(flip * 5.6f, 0.0f, 0.0f);
     }
 }

@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.client.rendering.item;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
@@ -21,7 +22,7 @@ public class PumpShotgunRenderer extends GeoItemRenderer<PumpShotgunItem>
 	@Override
 	public Identifier getTextureLocation(PumpShotgunItem animatable)
 	{
-		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
 		float primaryCD = cdm.getCooldownPercent(animatable, 0);
 		if(primaryCD > 0.6f)
 			return new Identifier(Ultracraft.MOD_ID, "textures/item/pump_shotgun0.png");

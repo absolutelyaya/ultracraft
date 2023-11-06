@@ -24,6 +24,8 @@ public class OrbRenderer extends EntityRenderer<AbstractOrbEntity>
 	@Override
 	public void render(AbstractOrbEntity entity, float yaw, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light)
 	{
+		if(entity.isInvisible())
+			return;
 		matrices.push();
 		RenderSystem.setShaderTexture(0, getTexture(entity));
 		RenderSystem.setShader(GameRenderer::getPositionTexProgram);

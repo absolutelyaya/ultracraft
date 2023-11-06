@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.damage;
 
+import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.Ultracraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.damage.DamageSource;
@@ -26,6 +27,20 @@ public class DamageSources
 	public static final RegistryKey<DamageType> CHARGEBACK = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "chargeback"));
 	public static final RegistryKey<DamageType> OVERCHARGE = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "overcharge"));
 	public static final RegistryKey<DamageType> OVERCHARGE_SELF = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "overcharge_self"));
+	public static final RegistryKey<DamageType> FLAMETHROWER = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "flamethrower"));
+	public static final RegistryKey<DamageType> SHORT_CIRCUIT = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "short_circuit"));
+	public static final RegistryKey<DamageType> BACK_TANK = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "back_tank"));
+	public static final RegistryKey<DamageType> HARPOON = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "harpoon"));
+	public static final RegistryKey<DamageType> HARPOON_RIP = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "harpoon_rip"));
+	public static final RegistryKey<DamageType> SOAP = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "soap"));
+	public static final RegistryKey<DamageType> NAIL = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "nail"));
+	public static final RegistryKey<DamageType> MAGNET = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "magnet"));
+	public static final RegistryKey<DamageType> SHARPSHOOTER = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "sharpshooter"));
+	public static final RegistryKey<DamageType> RETALIATION = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "retaliation"));
+	public static final RegistryKey<DamageType> KNUCKLE_BLAST = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "knuckle_blast"));
+	public static final RegistryKey<DamageType> PUNCH = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "punch"));
+	public static final RegistryKey<DamageType> KNUCKLE_PUNCH = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "knuckle_punch"));
+	public static final RegistryKey<DamageType> CANCER = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "cancer"));
 	
 	public static DamageSource get(World world, RegistryKey<DamageType> type)
 	{
@@ -37,8 +52,18 @@ public class DamageSources
 		return new DamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type), attacker);
 	}
 	
+	public static HitscanDamageSource getHitscan(World world, RegistryKey<DamageType> type, Entity attacker, ServerHitscanHandler.Hitscan hitscan)
+	{
+		return new HitscanDamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type), attacker, hitscan);
+	}
+	
 	public static DamageSource get(World world, RegistryKey<DamageType> type, Entity source, Entity attacker)
 	{
 		return new DamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type), source, attacker);
+	}
+	
+	public static HitscanDamageSource getHitscan(World world, RegistryKey<DamageType> type, Entity source, Entity attacker, ServerHitscanHandler.Hitscan hitscan)
+	{
+		return new HitscanDamageSource(world.getRegistryManager().get(RegistryKeys.DAMAGE_TYPE).entryOf(type), source, attacker, hitscan);
 	}
 }

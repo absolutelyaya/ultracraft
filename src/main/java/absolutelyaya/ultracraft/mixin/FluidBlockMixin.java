@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.mixin;
 
+import absolutelyaya.ultracraft.registry.BlockRegistry;
 import absolutelyaya.ultracraft.registry.TagRegistry;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.block.*;
@@ -51,11 +52,7 @@ public abstract class FluidBlockMixin
 			FLOW_DIRECTIONS.forEach(dir -> {
 				BlockPos pos1 = pos.offset(dir);
 				if(world.getFluidState(pos1).isIn(TagRegistry.BLOOD_FLUID))
-				{
-					world.setBlockState(pos1, Blocks.NETHER_WART_BLOCK.getDefaultState()); //TODO: Replace with flesh
-					playExtinguishSound(world, pos);
-					cir.setReturnValue(false);
-				}
+					bloodReaction(world, pos1, BlockRegistry.FLESH, cir);
 			});
 		}
 		else if(self.isIn(FluidTags.WATER) && !self.isIn(TagRegistry.BLOOD_FLUID))
@@ -63,12 +60,24 @@ public abstract class FluidBlockMixin
 			FLOW_DIRECTIONS.forEach(dir -> {
 				BlockPos pos1 = pos.offset(dir);
 				if(world.getFluidState(pos1).isIn(TagRegistry.BLOOD_FLUID))
-				{
-					world.setBlockState(pos1, Blocks.NETHERRACK.getDefaultState());
-					playExtinguishSound(world, pos);
-					cir.setReturnValue(false);
-				}
+					bloodReaction(world, pos1, Blocks.NETHERRACK, cir);
 			});
 		}
+		else if (self.isIn(TagRegistry.BLOOD_FLUID))
+		{
+			BlockPos pos1 = pos.down();
+			FluidState fluid = world.getFluidState(pos1);
+			if(fluid.isIn(FluidTags.LAVA))
+				bloodReaction(world, pos1, BlockRegistry.FLESH, cir);
+			else if(fluid.isIn(FluidTags.WATER) && !fluid.isIn(TagRegistry.BLOOD_FLUID))
+				bloodReaction(world, pos1, Blocks.NETHERRACK, cir);
+		}
+	}
+	
+	void bloodReaction(World world, BlockPos pos1, Block block, CallbackInfoReturnable<Boolean> cir)
+	{
+		world.setBlockState(pos1, block.getDefaultState());
+		playExtinguishSound(world, pos1);
+		cir.setReturnValue(false);
 	}
 }

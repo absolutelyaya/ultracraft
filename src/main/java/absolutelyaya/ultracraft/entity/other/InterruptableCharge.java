@@ -13,7 +13,6 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -99,11 +98,6 @@ public class InterruptableCharge extends Entity
 	{
 		this.owner = owner;
 		dataTracker.set(OWNER, ((LivingEntity)owner).getId());
-	}
-	
-	public void setBounds(Box box)
-	{
-		setBoundingBox(box);
 	}
 	
 	public void setLifetime(int lifetime, float startSize, float finalSize)

@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.client.rendering.item;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.PierceRevolverItem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -39,7 +40,7 @@ public class PierceRevolverRenderer extends GeoItemRenderer<PierceRevolverItem>
 		
 		float useTime = 1f - (animatable.getMaxUseTime(null) - animatable.getApproxUseTime()) / (float)(animatable.getMaxUseTime(null));
 		if(useTime > 0.99f)
-			return new Identifier(Ultracraft.MOD_ID, "textures/item/pierce_revolver.png");
+			return new Identifier(Ultracraft.MOD_ID, "textures/item/pierce_revolver4.png");
 		else if(useTime > 0.5f)
 			return new Identifier(Ultracraft.MOD_ID, "textures/item/pierce_revolver3.png");
 		else if(useTime > 0f)
@@ -59,7 +60,8 @@ public class PierceRevolverRenderer extends GeoItemRenderer<PierceRevolverItem>
 		poseStack.push();
 		float useTime = 1f - (stack.getItem().getMaxUseTime(stack) - ((PierceRevolverItem)stack.getItem()).getApproxUseTime()) / (float)(stack.getItem().getMaxUseTime(stack));
 		useTime = MathHelper.clamp(useTime, 0f, 1f);
-		poseStack.translate((random.nextFloat() - 0.5f) * useTime * 0.01f, (random.nextFloat() - 0.5f) * useTime * 0.01f, (random.nextFloat() - 0.5f) * useTime * 0.01f);
+		float f = UltracraftClient.getConfig().safeVFX ? 0.01f : 0.025f;
+		poseStack.translate((random.nextFloat() - 0.5f) * useTime * f, (random.nextFloat() - 0.5f) * useTime * f, (random.nextFloat() - 0.5f) * useTime * f);
 		super.render(stack, transformType, poseStack, bufferSource, packedLight, packedOverlay);
 		poseStack.pop();
 	}

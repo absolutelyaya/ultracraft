@@ -15,6 +15,18 @@
     "ultracraft:coin_punch",
     "ultracraft:chargeback",
     "ultracraft:overcharge",
-    "ultracraft:overcharge_self"
+    "ultracraft:overcharge_self",
+    "ultracraft:flamethrower",
+    "ultracraft:short_circuit",
+    "ultracraft:back_tank",
+    "ultracraft:harpoon",
+    "ultracraft:harpoon_rip",
+    "ultracraft:nail",
+    "ultracraft:magnet",
+    "ultracraft:sharpshooter",
+    "ultracraft:retaliation",
+    "ultracraft:knuckle_blast",
+    "ultracraft:punch",
+    "ultracraft:knuckle_punch"
   ]
 }

@@ -1,8 +1,9 @@
 package absolutelyaya.ultracraft.client.rendering.item;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.item.CoreEjectShotgunItem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -40,7 +41,7 @@ public class CoreEjectShotgunRenderer extends GeoItemRenderer<CoreEjectShotgunIt
 		else if(useTime > 0f)
 			return new Identifier(Ultracraft.MOD_ID, "textures/item/core_shotgun3.png");
 		
-		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
 		float primaryCD = cdm.getCooldownPercent(animatable, 0);
 		if(primaryCD < 0.45f)
 			return new Identifier(Ultracraft.MOD_ID, "textures/item/core_shotgun2.png");
@@ -63,7 +64,8 @@ public class CoreEjectShotgunRenderer extends GeoItemRenderer<CoreEjectShotgunIt
 		poseStack.push();
 		float useTime = 1f - (stack.getItem().getMaxUseTime(stack) - ((CoreEjectShotgunItem)stack.getItem()).getApproxUseTime()) / (float)(stack.getItem().getMaxUseTime(stack));
 		useTime = MathHelper.clamp(useTime, 0f, 1f);
-		poseStack.translate((random.nextFloat() - 0.5f) * useTime * 0.01f, (random.nextFloat() - 0.5f) * useTime * 0.01f, (random.nextFloat() - 0.5f) * useTime * 0.01f);
+		float f = UltracraftClient.getConfig().safeVFX ? 0.01f : 0.025f;
+		poseStack.translate((random.nextFloat() - 0.5f) * useTime * f, (random.nextFloat() - 0.5f) * useTime * f, (random.nextFloat() - 0.5f) * useTime * f);
 		super.render(stack, transformType, poseStack, bufferSource, packedLight, packedOverlay);
 		poseStack.pop();
 	}

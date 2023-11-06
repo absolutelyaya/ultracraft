@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 public class WingColorPresetManager
 {
 	private static final Map<String, WingColorPreset> presets = new HashMap<>();
-	static final String PresetFolderName = "UltraWingPresets";
+	static final String PresetFolderName = "Ultracraft/UltraWingPresets";
 	
 	public static void restoreDefaults()
 	{

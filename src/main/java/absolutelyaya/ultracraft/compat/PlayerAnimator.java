@@ -8,7 +8,6 @@ import dev.kosmx.playerAnim.api.layered.IAnimation;
 import dev.kosmx.playerAnim.api.layered.KeyframeAnimationPlayer;
 import dev.kosmx.playerAnim.api.layered.ModifierLayer;
 import dev.kosmx.playerAnim.api.layered.modifier.AbstractFadeModifier;
-import dev.kosmx.playerAnim.api.layered.modifier.MirrorModifier;
 import dev.kosmx.playerAnim.core.data.KeyframeAnimation;
 import dev.kosmx.playerAnim.core.data.gson.AnimationJson;
 import dev.kosmx.playerAnim.core.util.Ease;
@@ -20,13 +19,12 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.resource.Resource;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.resource.ResourceType;
-import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 
@@ -49,17 +47,18 @@ public class PlayerAnimator
 	public static final int SLAM_DIVE = 10;
 	public static final int SLAMSTORE_DIVE = 11;
 	public static final int PUNCH = 12;
+	public static final int KNUCKLE_BLAST = 13;
+	public static final int PUNCH_FLIPPED = 14;
+	public static final int KNUCKLE_BLAST_FLIPPED = 15;
+	public static final int SLIDE_PUNCH = 16;
+	public static final int SLIDE_PUNCH_FLIPPED = 17;
 	
 	static List<KeyframeAnimation> ANIMATIONS;
 	static boolean DISABLED = false;
 	
 	public static void init()
 	{
-		PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(new Identifier(Ultracraft.MOD_ID, "animation"), 42, (player) -> {
-			ModifierLayer<IAnimation> animationLayer = new ModifierLayer<>();
-			animationLayer.addModifierBefore(new MirrorModifier(player.getMainArm().equals(Arm.LEFT)));
-			return animationLayer;
-		});
+		PlayerAnimationFactory.ANIMATION_DATA_FACTORY.registerFactory(new Identifier(Ultracraft.MOD_ID, "animation"), 42, (player) -> new ModifierLayer<>());
 		
 		PlayerAnimationAccess.REGISTER_ANIMATION_EVENT.register((player, animationStack) -> {
 			ModifierLayer<IAnimation> layer = new ModifierLayer<>();
@@ -104,7 +103,7 @@ public class PlayerAnimator
 		playAnimation(player, animID, fade, firstPerson, false);
 	}
 	
-	public static void playAnimation(AbstractClientPlayerEntity player, int animID, int fade, boolean firstPerson, boolean fromServer)
+	public static void playAnimation(PlayerEntity player, int animID, int fade, boolean firstPerson, boolean fromServer)
 	{
 		if(player == null)
 			return;
@@ -118,9 +117,9 @@ public class PlayerAnimator
 		}
 		if(DISABLED)
 			return;
-		if(!firstPerson && player.isMainPlayer() && !MinecraftClient.getInstance().gameRenderer.getCamera().isThirdPerson())
+		if(!(player instanceof AbstractClientPlayerEntity clientPlayer))
 			return;
-		ModifierLayer<IAnimation> animationLayer = (ModifierLayer<IAnimation>)PlayerAnimationAccess.getPlayerAssociatedData(player)
+		ModifierLayer<IAnimation> animationLayer = (ModifierLayer<IAnimation>)PlayerAnimationAccess.getPlayerAssociatedData(clientPlayer)
 															   .get(new Identifier(Ultracraft.MOD_ID, "animation"));
 		
 		KeyframeAnimation anim;
@@ -134,7 +133,7 @@ public class PlayerAnimator
 		else if(anim != null)
 		{
 			animationLayer.replaceAnimationWithFade(AbstractFadeModifier.functionalFadeIn(fade, (modelName, type, value) -> value),
-					new KeyframeAnimationPlayer(anim).setFirstPersonMode(FirstPersonMode.THIRD_PERSON_MODEL)
+					new KeyframeAnimationPlayer(anim).setFirstPersonMode(FirstPersonMode.NONE)
 							.setFirstPersonConfiguration(new FirstPersonConfiguration())
 			);
 		}

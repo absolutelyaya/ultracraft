@@ -1,0 +1,10 @@
+{
+  "materials": [
+    { "item": "minecraft:iron_nugget", "count": 100 },
+    { "item": "minecraft:iron_ingot", "count": 64 },
+    { "item": "minecraft:diamond", "count": 8 }
+  ],
+  "result": "ultracraft:attractor_nailgun",
+  "extra-output": [],
+  "unlocks": []
+}

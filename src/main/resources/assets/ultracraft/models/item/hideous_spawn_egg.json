@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "ultracraft:item/hideous_spawn_egg"
+  }
+}

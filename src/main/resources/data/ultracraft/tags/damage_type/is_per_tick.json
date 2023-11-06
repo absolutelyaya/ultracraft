@@ -5,7 +5,12 @@
     "minecraft:cactus",
     "minecraft:hot_floor",
     "minecraft:in_fire",
+    "minecraft:on_fire",
     "minecraft:sweet_berry_bush",
-    "minecraft:in_wall"
+    "minecraft:in_wall",
+    "minecraft:lightning_bolt",
+    "minecraft:out_of_world",
+    "minecraft:outside_border",
+    "ultracraft:flamethrower"
   ]
 }

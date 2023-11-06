@@ -60,16 +60,7 @@ public class Ultraconfig implements ConfigData
 	public boolean movementSounds = true;
 	@ConfigEntry.Category("blood")
 	@ConfigEntry.Gui.Tooltip
-	public boolean fancyGoop = false;
-	@ConfigEntry.Category("blood")
-	@ConfigEntry.Gui.Tooltip
-	public boolean wrapToEdges = false;
-	@ConfigEntry.Category("blood")
-	@ConfigEntry.Gui.Tooltip
 	public boolean bloodOverlay = true;
-	@ConfigEntry.Category("blood")
-	@ConfigEntry.Gui.Tooltip
-	public boolean danganronpa = false;
 	@ConfigEntry.Gui.Excluded
 	public String BGID = "ultracraft";
 	@ConfigEntry.Category("debug")
@@ -77,12 +68,11 @@ public class Ultraconfig implements ConfigData
 	public boolean trailLines = false;
 	@ConfigEntry.Category("debug")
 	@ConfigEntry.Gui.Tooltip
-	public boolean goopDebug = false;
-	@ConfigEntry.Category("debug")
-	@ConfigEntry.Gui.Tooltip
 	public boolean showPunchArea = false;
 	@ConfigEntry.Gui.Tooltip
 	public boolean safeVFX = true;
+	@ConfigEntry.Gui.Tooltip
+	public boolean deathScreen = false;
 	public boolean repeatIntro = false;
 	public boolean neverIntro = false;
 	
@@ -100,4 +90,6 @@ public class Ultraconfig implements ConfigData
 	public boolean showEpilepsyWarning = true;
 	@ConfigEntry.Gui.Excluded
 	public List<UUID> blockedPlayers = new ArrayList<>();
+	@ConfigEntry.Gui.Excluded
+	public boolean armVisible = true;
 }

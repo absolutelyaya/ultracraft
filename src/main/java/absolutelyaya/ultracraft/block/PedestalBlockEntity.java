@@ -13,7 +13,6 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtType;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
@@ -43,7 +42,7 @@ public class PedestalBlockEntity extends BlockEntity implements NamedScreenHandl
 		{
 			if(!held.isEmpty())
 			{
-				(mainHand ? playerInventory.main : playerInventory.offHand).set(mainHand ? playerInventory.selectedSlot : 0, held);
+				(mainHand ? playerInventory.main : playerInventory.offHand).set(mainHand ? playerInventory.selectedSlot : 0, held.copy());
 				inventory.setStack(0, ItemStack.EMPTY);
 			}
 			else
@@ -51,7 +50,7 @@ public class PedestalBlockEntity extends BlockEntity implements NamedScreenHandl
 		}
 		else if(held.isEmpty())
 		{
-			inventory.setStack(0, mainHand ? player.getMainHandStack() : player.getOffHandStack());
+			inventory.setStack(0, mainHand ? player.getMainHandStack().copy() : player.getOffHandStack().copy());
 			if(!player.isCreative())
 				(mainHand ? playerInventory.main : playerInventory.offHand).set(mainHand ? playerInventory.selectedSlot : 0, ItemStack.EMPTY);
 		}

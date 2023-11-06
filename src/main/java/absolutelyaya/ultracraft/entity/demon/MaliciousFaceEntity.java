@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.entity.demon;
 
+import absolutelyaya.goop.particles.GoopStringParticleEffect;
 import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.accessor.Enrageable;
@@ -10,10 +11,10 @@ import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraFlyingEntity;
 import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
-import absolutelyaya.ultracraft.particle.goop.GoopStringParticleEffect;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ParticleRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
@@ -35,16 +36,13 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.BlockStateParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.DamageTypeTags;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.TypeFilter;
-import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.Heightmap;
-import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
 import java.util.EnumSet;
@@ -119,7 +117,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 						x, y, z, 0f, 0f, 0f);
 			}
 			if(getWorld().getDifficulty().equals(Difficulty.HARD) || getWorld().getGameRules().getBoolean(GameruleRegistry.EFFECTIVELY_VIOLENT))
-				playSound(SoundEvents.ENTITY_ZOMBIE_VILLAGER_CURE, 1.5f, 0.9f);
+				playSound(SoundRegistry.GENERIC_ENRAGE, 1.5f, 0.9f);
 		}
 		else if(data.equals(LANDED) && dataTracker.get(LANDED))
 		{
@@ -135,7 +133,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 		else if (data.equals(DEAD) && dataTracker.get(DEAD))
 		{
 			deathRotation = new Vec2f(getPitch(), getYaw());
-			((LivingEntityAccessor)this).SetCanBleedSupplier(() -> false); //disable bleeding
+			((LivingEntityAccessor)this).setCanBleedSupplier(() -> false); //disable bleeding
 		}
 	}
 	
@@ -237,7 +235,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 			double z = random.nextDouble() * dimensions.width - dimensions.width / 2 + getZ();
 			if(rand.nextFloat() > 0.5f + getHealth() / getMaxHealth())
 				getWorld().addParticle(new GoopStringParticleEffect(new Vec3d(0.56, 0.09, 0.01),
-								0.4f + rand.nextFloat() * 0.2f), x, y, z,
+								0.4f + rand.nextFloat() * 0.2f, true), x, y, z,
 						0f, 0f, 0f);
 		}
 		//TODO: add tendrils
@@ -322,12 +320,13 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 		{
 			if(!getWorld().isClient)
 			{
-				ShockwaveEntity shockwave = EntityRegistry.SHOCKWAVE.spawn((ServerWorld)getWorld(), getBlockPos(), SpawnReason.EVENT);
-				if(shockwave != null)
-				{
-					shockwave.setIgnored(getClass());
-					shockwave.setDamage(0f);
-				}
+				ShockwaveEntity shockwave = new ShockwaveEntity(EntityRegistry.SHOCKWAVE, getWorld());
+				shockwave.setPosition(getBlockPos().toCenterPos().add(0, 0.5, 0));
+				shockwave.setIgnored(getClass());
+				shockwave.setDamage(0f);
+				shockwave.setDuration(60);
+				shockwave.setGrowRate(0.5f);
+				getWorld().spawnEntity(shockwave);
 			}
 			List<Entity> entities = getWorld().getOtherEntities(this, getBoundingBox(), Entity::isLiving);
 			for (Entity e : entities)
@@ -444,13 +443,6 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 					getDamageSources().explosion(parrier, parrier), 10f, 0f, 5.5f, true));
 		damage(getDamageSources().mobAttack(parrier), 10);
 		dataTracker.set(WAS_INTERRUPTED, true);
-	}
-	
-	public float getDistanceToGround()
-	{
-		BlockHitResult hit = getWorld().raycast(new RaycastContext(getPos(), getPos().add(0, -25, 0),
-				RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
-		return getBlockY() - (float)hit.getPos().y;
 	}
 	
 	@Override

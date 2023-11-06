@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "ultracraft:mauerwerk2"
+  },
+  "result": "minecraft:cobblestone",
+  "count": 1
+}

@@ -1,0 +1,52 @@
+{
+  "variants": {
+    "facing=north,active=0": {
+      "y": 0,
+      "model": "ultracraft:block/hell_observer_inactive0"
+    },
+    "facing=east,active=0": {
+      "y": 90,
+      "model": "ultracraft:block/hell_observer_inactive0"
+    },
+    "facing=south,active=0": {
+      "y": 180,
+      "model": "ultracraft:block/hell_observer_inactive0"
+    },
+    "facing=west,active=0": {
+      "y": 270,
+      "model": "ultracraft:block/hell_observer_inactive0"
+    },
+    "facing=north,active=1": {
+      "y": 0,
+      "model": "ultracraft:block/hell_observer_inactive1"
+    },
+    "facing=east,active=1": {
+      "y": 90,
+      "model": "ultracraft:block/hell_observer_inactive1"
+    },
+    "facing=south,active=1": {
+      "y": 180,
+      "model": "ultracraft:block/hell_observer_inactive1"
+    },
+    "facing=west,active=1": {
+      "y": 270,
+      "model": "ultracraft:block/hell_observer_inactive1"
+    },
+    "facing=north,active=2": {
+      "y": 0,
+      "model": "ultracraft:block/hell_observer_active"
+    },
+    "facing=east,active=2": {
+      "y": 90,
+      "model": "ultracraft:block/hell_observer_active"
+    },
+    "facing=south,active=2": {
+      "y": 180,
+      "model": "ultracraft:block/hell_observer_active"
+    },
+    "facing=west,active=2": {
+      "y": 270,
+      "model": "ultracraft:block/hell_observer_active"
+    }
+  }
+}

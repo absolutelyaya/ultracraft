@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.item;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
@@ -9,12 +10,9 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.TypedActionResult;
@@ -48,14 +46,14 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 	public ItemStack getDefaultStack()
 	{
 		ItemStack stack = new ItemStack(this);
-		setCoins(stack, 4);
+		setNbt(stack, "coins", 4);
 		return stack;
 	}
 	
 	public ItemStack getStackedMarksman()
 	{
 		ItemStack stack = getDefaultStack();
-		setCoins(stack, 64);
+		setNbt(stack, "coins", 64);
 		return stack;
 	}
 	
@@ -65,9 +63,9 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 		ItemStack itemStack = user.getStackInHand(hand);
 		if(hand.equals(Hand.OFF_HAND))
 			return TypedActionResult.fail(itemStack);
-		GunCooldownManager cdm = ((WingedPlayerEntity)user).getGunCooldownManager();
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(user).getGunCooldownManager();
 		user.setCurrentHand(hand);
-		int coins = getCoins(itemStack);
+		int coins = getNbt(itemStack, "coins");
 		if(coins <= 0)
 			return TypedActionResult.pass(itemStack);
 		((LivingEntityAccessor)user).punch();
@@ -75,7 +73,7 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 		{
 			if(coins == 4)
 				cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
-			setCoins(itemStack, coins - 1);
+			setNbt(itemStack, "coins", coins - 1);
 		}
 		if(world.isClient && coins > 0)
 		{
@@ -86,23 +84,6 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 			ClientPlayNetworking.send(PacketRegistry.THROW_COIN_PACKET_ID, buf);
 		}
 		return TypedActionResult.pass(itemStack);
-	}
-	
-	@Override
-	public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected)
-	{
-		if(!(entity instanceof PlayerEntity player))
-			return;
-		GunCooldownManager cdm = ((WingedPlayerEntity)player).getGunCooldownManager();
-		super.inventoryTick(stack, world, entity, slot, selected);
-		int coins = getCoins(stack);
-		if(coins < 4 && cdm.isUsable(this, GunCooldownManager.SECONDARY))
-		{
-			setCoins(stack, coins + 1);
-			if(coins + 1 < 4)
-				cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
-			player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.75f);
-		}
 	}
 	
 	@Override
@@ -162,44 +143,32 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 	@Override
 	public boolean isItemBarVisible(ItemStack stack)
 	{
-		GunCooldownManager cdm = ((WingedPlayerEntity) MinecraftClient.getInstance().player).getGunCooldownManager();
-		return !cdm.isUsable(stack.getItem(), GunCooldownManager.PRIMARY) || getCoins(stack) < 4;
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
+		return !cdm.isUsable(getCooldownClass(stack), GunCooldownManager.PRIMARY) || getNbt(stack, "coins") < 4;
 	}
 	
 	@Override
 	public int getItemBarStep(ItemStack stack)
 	{
-		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
 		if(!cdm.isUsable(this, GunCooldownManager.PRIMARY))
-			return (int)(cdm.getCooldownPercent(stack.getItem(), GunCooldownManager.PRIMARY) * 14);
+			return (int)(cdm.getCooldownPercent(getCooldownClass(stack), GunCooldownManager.PRIMARY) * 14);
 		else
-			return (int)((1f - cdm.getCooldownPercent(stack.getItem(), GunCooldownManager.SECONDARY)) * 14);
+			return (int)((1f - cdm.getCooldownPercent(getCooldownClass(stack), GunCooldownManager.SECONDARY)) * 14);
 	}
 	
 	@Override
 	public int getItemBarColor(ItemStack stack)
 	{
-		GunCooldownManager cdm = ((WingedPlayerEntity)MinecraftClient.getInstance().player).getGunCooldownManager();
+		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(MinecraftClient.getInstance().player).getGunCooldownManager();
 		if(cdm.isUsable(this, GunCooldownManager.PRIMARY))
 			return 0xdfb728;
 		return 0x28df53;
 	}
 	
 	@Override
-	public String getCountString(ItemStack stack)
+	public String getTopOverlayString(ItemStack stack)
 	{
-		return Formatting.GOLD + String.valueOf(getCoins(stack));
-	}
-	
-	public int getCoins(ItemStack stack)
-	{
-		if(!stack.hasNbt() || !stack.getNbt().contains("coins", NbtElement.INT_TYPE))
-			stack.getOrCreateNbt().putInt("coins", 4);
-		return stack.getNbt().getInt("coins");
-	}
-	
-	public void setCoins(ItemStack stack, int i)
-	{
-		stack.getOrCreateNbt().putInt("coins", i);
+		return Formatting.GOLD + String.valueOf(getNbt(stack, "coins"));
 	}
 }

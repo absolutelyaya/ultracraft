@@ -1,0 +1,11 @@
+{
+  "materials": [
+    { "item": "minecraft:iron_ingot", "count": 32 },
+    { "item": "minecraft:gunpowder", "count": 24 },
+    { "item": "minecraft:redstone", "count": 16 },
+    { "item": "minecraft:diamond", "count": 4 }
+  ],
+  "result": "ultracraft:pump_shotgun",
+  "extra-output": [],
+  "unlocks": []
+}

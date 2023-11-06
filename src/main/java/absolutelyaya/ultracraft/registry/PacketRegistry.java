@@ -1,22 +1,36 @@
 package absolutelyaya.ultracraft.registry;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.*;
+import absolutelyaya.ultracraft.block.HellObserverBlockEntity;
 import absolutelyaya.ultracraft.block.IPunchableBlock;
 import absolutelyaya.ultracraft.block.PedestalBlock;
+import absolutelyaya.ultracraft.block.TerminalBlockEntity;
+import absolutelyaya.ultracraft.components.level.IUltraLevelComponent;
+import absolutelyaya.ultracraft.components.player.IArmComponent;
+import absolutelyaya.ultracraft.components.player.IWingDataComponent;
+import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
+import absolutelyaya.ultracraft.item.SoapItem;
+import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
 import io.netty.buffer.Unpooled;
+import it.unimi.dsi.fastutil.bytes.ByteArrayList;
+import net.bettercombat.utils.MathHelper;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BellBlock;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -26,9 +40,12 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.ArrayUtils;
 import org.joml.Vector3f;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,7 +55,7 @@ public class PacketRegistry
 	public static final Identifier PUNCH_BLOCK_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_block");
 	public static final Identifier PRIMARY_SHOT_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "primary_shot_c2s");
 	public static final Identifier SEND_WING_STATE_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_winged_state_c2s");
-	public static final Identifier SEND_WINGED_DATA_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_winged_data_c2s");
+	public static final Identifier SEND_WING_DATA_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_winged_data_c2s");
 	public static final Identifier DASH_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_c2s");
 	public static final Identifier GROUND_POUND_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ground_pound_c2s");
 	public static final Identifier REQUEST_WINGED_DATA_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "request_wing_data");
@@ -47,13 +64,22 @@ public class PacketRegistry
 	public static final Identifier LOCK_PEDESTAL_ID = new Identifier(Ultracraft.MOD_ID, "lock_pedestal");
 	public static final Identifier ANIMATION_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "animation_c2s");
 	public static final Identifier KILLER_FISH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "killerfish");
+	public static final Identifier TERMINAL_SYNC_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "terminal_c2s");
+	public static final Identifier GRAFFITI_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "graffiti_c2s");
+	public static final Identifier TERMINAL_REDSTONE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "terminal_redstone");
+	public static final Identifier TERMINAL_WEAPON_CRAFT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "terminal_weapon_craft");
+	public static final Identifier TERMINAL_WEAPON_DISPENSE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "terminal_weapon_dispense");
+	public static final Identifier CYCLE_WEAPON_VARIANT_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "cycle_weapon_variant");
+	public static final Identifier HELL_OBSERVER_C2S_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hell_observer_c2s");
+	public static final Identifier REQUEST_GRAFFITI_WHITELIST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "request_graffiti_whitelist");
+	public static final Identifier ARM_CYCLE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "arm_cycle");
+	public static final Identifier ARM_VISIBLE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "arm_visible");
+	public static final Identifier PUNCH_PRESSED_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "punch_pressed");
 	
 	public static final Identifier FREEZE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "freeze");
-	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hitscan");
+	public static final Identifier HITSCAN_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "scan");
 	public static final Identifier DASH_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "dash_s2c");
 	public static final Identifier BLEED_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "bleed");
-	public static final Identifier WING_STATE_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "wing_state_s2c");
-	public static final Identifier WING_DATA_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "wing_data_s2c");
 	public static final Identifier SET_GUNCD_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "set_gcd");
 	public static final Identifier CATCH_FISH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "fish");
 	public static final Identifier SYNC_RULE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "sync_rule");
@@ -64,13 +90,18 @@ public class PacketRegistry
 	public static final Identifier DEBUG_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "debug");
 	public static final Identifier SKIM_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "skim_s2c");
 	public static final Identifier COIN_PUNCH_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "coinpunch");
-	public static final Identifier WORLD_INFO_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "world-info");
+	public static final Identifier WORLD_INFO_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "world_info");
 	public static final Identifier BLOCK_PLAYER_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "block");
 	public static final Identifier UNBLOCK_PLAYER_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "unblock");
 	public static final Identifier OPEN_SERVER_CONFIG_MENU_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "server_config");
 	public static final Identifier RICOCHET_WARNING_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "warn_ricochet");
 	public static final Identifier REPLENISH_STAMINA_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "replenish_stamina");
 	public static final Identifier ANIMATION_S2C_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "animation_s2c");
+	public static final Identifier SOAP_KILL_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "soapkill");
+	public static final Identifier ULTRA_RECIPE_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "ultra_recipe");
+	public static final Identifier HIVEL_WHITELIST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hivel_whitelist");
+	public static final Identifier GRAFFITI_WHITELIST_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "graffiti_whitelist");
+	public static final Identifier HELL_OBSERVER_PACKET_ID = new Identifier(Ultracraft.MOD_ID, "hell_observer");
 	
 	public static void registerC2S()
 	{
@@ -85,15 +116,24 @@ public class PacketRegistry
 			boolean debug = buf.readBoolean();
 			
 			server.execute(() -> {
+				if(player instanceof LivingEntityAccessor accessor)
+					accessor.punch();
 				Vec3d forward = player.getRotationVector().normalize();
 				player.swingHand(Hand.OFF_HAND, true);
+				IArmComponent arm = UltraComponents.ARMS.get(player);
+				
+				if(player.getOffHandStack().getItem() instanceof SoapItem soap)
+				{
+					soap.onOffhandThrow(world, player);
+					return;
+				}
 				
 				//Punch Entity; Takes Priority over Projectile Parries
 				if(target != null)
 				{
 					if(player.getOffHandStack().isIn(TagRegistry.PUNCH_FLAMES))
 						target.setFireTicks(100);
-					if (target instanceof MeleeInterruptable mp && (!(mp instanceof MobEntity) || ((MobEntity)mp).isAttacking()))
+					if (arm.isFeedbacker() && target instanceof MeleeInterruptable mp && (!(mp instanceof MobEntity) || ((MobEntity)mp).isAttacking()))
 					{
 						Ultracraft.freeze(player, 10);
 						target.damage(DamageSources.get(world, DamageSources.INTERRUPT, player), 6);
@@ -104,15 +144,20 @@ public class PacketRegistry
 					else
 					{
 						world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.75f, 0.5f);
-						target.damage(world.getDamageSources().mobAttack(player), 1);
+						boolean knuckle = arm.isKnuckleblaster();
+						target.damage(DamageSources.get(world, knuckle ? DamageSources.KNUCKLE_PUNCH : DamageSources.PUNCH, player), knuckle ? 2.5f : 1f);
 					}
 					boolean fatal = !target.isAlive();
 					Vec3d vel = forward.multiply(fatal ? 1.5f : 0.75f);
+					if(arm.isKnuckleblaster())
+						vel = vel.multiply(1.5f);
 					if(target instanceof ProjectileEntity || (target instanceof LivingEntityAccessor && ((LivingEntityAccessor)target).takePunchKnockback()))
 						target.setVelocity(vel);
 					return;
 				}
 				
+				if(!arm.isFeedbacker())
+					return;
 				//Projectile Parry
 				//Fetch all Parry Candidate Projectiles
 				boolean chainingAllowed = world.getGameRules().getBoolean(GameruleRegistry.PARRY_CHAINING);
@@ -129,18 +174,11 @@ public class PacketRegistry
 						e -> (!((ProjectileEntityAccessor)e).isParried() || chainingAllowed) && !projectiles.contains(e));
 				for (ProjectileEntity proj : potentialProjectiles)
 				{
-					//Predict position within the last 1 and next 3 ticks. If it is or was within the parry check, then the parry is successful
-					//This is mainly intended for combatting latency and shit
-					for (int i = 0; i < 4; i++)
+					Vec3d vel = proj.getVelocity();
+					if (check.intersects(proj.getBoundingBox().expand(vel.x, vel.y, vel.z)))
 					{
-						Vec3d predictedPos = proj.getLerpedPos(i);
-						if (check.contains(predictedPos))
-						{
-							if(debug)
-								addDebugParticle(player, predictedPos);
-							projectiles.add(proj);
-							break;
-						}
+						projectiles.add(proj);
+						break;
 					}
 				}
 				
@@ -183,6 +221,7 @@ public class PacketRegistry
 				parried.setVelocity(forward.multiply(chainingAllowed ? 2f + 0.2f * ((ChainParryAccessor)pa).getParryCount() : 2.5f));
 				if(heal && !(parried instanceof ThrownCoinEntity))
 					player.heal(6f);
+				player.incrementStat(StatisticRegistry.PARRY);
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(PUNCH_BLOCK_PACKET_ID, (server, player, handler, buf, sender) -> {
@@ -206,9 +245,10 @@ public class PacketRegistry
 			byte action = buf.readByte();
 			Vec3d velocity = action > 0 ? new Vec3d(buf.readVector3f()) : Vec3d.ZERO;
 			server.execute(() -> {
+				IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(player);
 				if (player.getMainHandStack().getItem() instanceof AbstractWeaponItem gun)
 				{
-					((WingedPlayerEntity)player).setPrimaryFiring(action > 0);
+					winged.setPrimaryFiring(action > 0);
 					if (action == 0 || !gun.onPrimaryFire(player.getWorld(), player, velocity))
 						return;
 					for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers(p -> player.distanceTo(p) < 128f))
@@ -219,48 +259,40 @@ public class PacketRegistry
 					}
 				}
 				else if(action == 0)
-					((WingedPlayerEntity)player).setPrimaryFiring(false);
+					winged.setPrimaryFiring(false);
 				else
 					Ultracraft.LOGGER.warn(player + " tried to use primary fire action but is holding a non-weapon Item!");
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(SEND_WING_STATE_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
-			WingedPlayerEntity winged = (WingedPlayerEntity)player;
-			if(winged == null)
-				return;
-			boolean wingsActive = buf.readBoolean();
-			server.execute(() -> winged.setWingsVisible(wingsActive));
-			for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers())
+			IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
+			IUltraLevelComponent level = UltraComponents.GLOBAL.get(player.getWorld().getLevelProperties());
+			boolean whitelisted = level.isPlayerAllowedToHivel(player);
+			boolean wingsActive = buf.readBoolean() && whitelisted;
+			server.execute(() ->
 			{
-				buf = new PacketByteBuf(Unpooled.buffer());
-				buf.writeUuid(player.getUuid());
-				buf.writeBoolean(wingsActive);
-				ServerPlayNetworking.send(p, WING_STATE_S2C_PACKET_ID, buf);
-			}
+				wings.setVisible(wingsActive);
+				wings.sync();
+				if(whitelisted)
+					return;
+				PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
+				ServerPlayNetworking.send(player, PacketRegistry.HIVEL_WHITELIST_PACKET_ID, cbuf);
+			});
 		});
-		ServerPlayNetworking.registerGlobalReceiver(SEND_WINGED_DATA_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
-			WingedPlayerEntity winged = (WingedPlayerEntity)player;
-			if(winged == null)
+		ServerPlayNetworking.registerGlobalReceiver(SEND_WING_DATA_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
+			IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
+			if(wings == null)
 				return;
 			boolean wingsActive = buf.readBoolean();
 			Vector3f wingColor = buf.readVector3f(), metalColor = buf.readVector3f();
 			String pattern = Ultracraft.checkSupporter(player.getUuid(), false) ? buf.readString() : "";
 			server.execute(() -> {
-				winged.setWingsVisible(wingsActive);
-				winged.setWingColor(new Vec3d(wingColor), 0);
-				winged.setWingColor(new Vec3d(metalColor), 1);
-				winged.setWingPattern(pattern);
+				wings.setVisible(wingsActive);
+				wings.setColor(wingColor, 0);
+				wings.setColor(metalColor, 1);
+				wings.setPattern(pattern);
+				wings.sync();
 			});
-			for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers())
-			{
-				buf = new PacketByteBuf(Unpooled.buffer());
-				buf.writeUuid(player.getUuid());
-				buf.writeBoolean(wingsActive);
-				buf.writeVector3f(wingColor);
-				buf.writeVector3f(metalColor);
-				buf.writeString(pattern);
-				ServerPlayNetworking.send(p, WING_DATA_S2C_PACKET_ID, buf);
-			}
 		});
 		ServerPlayNetworking.registerGlobalReceiver(DASH_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			Vec3d dir = new Vec3d(buf.readDouble(), buf.readDouble(), buf.readDouble());
@@ -271,7 +303,10 @@ public class PacketRegistry
 			buf.writeDouble(dir.z);
 			for (ServerPlayerEntity p : ((ServerWorld)player.getWorld()).getPlayers())
 				ServerPlayNetworking.send(p, DASH_S2C_PACKET_ID, buf);
-			server.execute(() -> ((WingedPlayerEntity)player).onDash());
+			server.execute(() -> {
+				UltraComponents.WINGED_ENTITY.get(player).onDash();
+				player.incrementStat(StatisticRegistry.DASH);
+			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(GROUND_POUND_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			boolean start = buf.readBoolean();
@@ -281,7 +316,10 @@ public class PacketRegistry
 				if(start)
 					winged.startSlam();
 				else
+				{
 					winged.endSlam(strong);
+					player.incrementStat(StatisticRegistry.SLAM);
+				}
 				if(start)
 					return;
 				PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
@@ -297,14 +335,14 @@ public class PacketRegistry
 			PlayerEntity target = server.getPlayerManager().getPlayer(targetID);
 			if(target == null)
 				return;
-			WingedPlayerEntity winged = (WingedPlayerEntity)target;
-			buf = new PacketByteBuf(Unpooled.buffer());
-			buf.writeUuid(targetID);
-			buf.writeBoolean(winged.isWingsActive());
-			buf.writeVector3f(winged.getWingColors()[0].toVector3f());
-			buf.writeVector3f(winged.getWingColors()[1].toVector3f());
-			buf.writeString(winged.getWingPattern());
-			ServerPlayNetworking.send(player, WING_DATA_S2C_PACKET_ID, buf);
+			UltraComponents.WING_DATA.get(player).sync();
+			//buf = new PacketByteBuf(Unpooled.buffer());
+			//buf.writeUuid(targetID);
+			//buf.writeBoolean(wings.isVisible());
+			//buf.writeVector3f(wings.getColors()[0]);
+			//buf.writeVector3f(wings.getColors()[1]);
+			//buf.writeString(wings.getPattern());
+			//ServerPlayNetworking.send(player, WING_DATA_S2C_PACKET_ID, buf);
 		});
 		ServerPlayNetworking.registerGlobalReceiver(SKIM_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			if(player == null)
@@ -358,7 +396,94 @@ public class PacketRegistry
 		});
 		ServerPlayNetworking.registerGlobalReceiver(KILLER_FISH_PACKET_ID, (server, player, handler, buf, sender) -> {
 			server.execute(() -> player.getWorld().playSound(null, player.getBlockPos(),
-					SoundRegistry.KILLERFISH_SELECT.value(), SoundCategory.PLAYERS, 1f, 1f));
+					SoundRegistry.KILLERFISH_SELECT, SoundCategory.PLAYERS, 1f, 1f));
+		});
+		ServerPlayNetworking.registerGlobalReceiver(TERMINAL_SYNC_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
+			BlockPos pos = buf.readBlockPos();
+			int textColor = buf.readInt();
+			int base = buf.readInt();
+			NbtCompound screenSaver = buf.readNbt();
+			NbtCompound mainMenu = buf.readNbt();
+			server.execute(() ->  {
+				BlockEntity be = player.getWorld().getBlockEntity(pos);
+				if(be instanceof TerminalBlockEntity terminal)
+					terminal.applyCustomization(textColor, base, screenSaver, mainMenu);
+			});
+		});
+		ServerPlayNetworking.registerGlobalReceiver(GRAFFITI_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
+			BlockPos pos = buf.readBlockPos();
+			int[] palette = buf.readIntArray(15);
+			byte[] pixels = buf.readByteArray();
+			int revision = buf.readInt();
+			server.execute(() -> {
+				BlockEntity be = player.getWorld().getBlockEntity(pos);
+				if(be instanceof TerminalBlockEntity terminal)
+				{
+					terminal.setPalette(Arrays.asList(ArrayUtils.toObject(palette)));
+					terminal.setGraffiti(ByteArrayList.of(pixels));
+					terminal.setGraffitiRevision(revision);
+				}
+			});
+		});
+		ServerPlayNetworking.registerGlobalReceiver(TERMINAL_REDSTONE_PACKET_ID, (server, player, handler, buf, sender) -> {
+			BlockPos pos = buf.readBlockPos();
+			int strength = buf.readInt();
+			server.execute(() -> {
+				BlockEntity be = player.getWorld().getBlockEntity(pos);
+				if(be instanceof TerminalBlockEntity terminal)
+					terminal.redstoneImpulse((int)MathHelper.clamp(strength, 0, 15));
+			});
+		});
+		ServerPlayNetworking.registerGlobalReceiver(TERMINAL_WEAPON_CRAFT_PACKET_ID, (server, player, handler, buf, sender) -> {
+			Identifier recipe = buf.readIdentifier();
+			server.execute(() -> UltraRecipeManager.getRecipe(recipe).craft(player));
+		});
+		ServerPlayNetworking.registerGlobalReceiver(TERMINAL_WEAPON_DISPENSE_PACKET_ID, (server, player, handler, buf, sender) -> {
+			Identifier weapon = buf.readIdentifier();
+			server.execute(() ->
+			{
+				if(UltraComponents.PROGRESSION.get(player).isOwned(weapon))
+					player.giveItemStack(Registries.ITEM.get(weapon).getDefaultStack());
+			});
+		});
+		ServerPlayNetworking.registerGlobalReceiver(CYCLE_WEAPON_VARIANT_PACKET_ID, (server, player, handler, buf, sender) -> {
+			server.execute(() -> AbstractWeaponItem.cycleVariant(player));
+		});
+		ServerPlayNetworking.registerGlobalReceiver(HELL_OBSERVER_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
+			BlockPos pos = buf.readBlockPos();
+			int playerCount = buf.readInt();
+			int playerOperator = buf.readInt();
+			int enemyCount = buf.readInt();
+			int enemyOperator = buf.readInt();
+			boolean requireBoth = buf.readBoolean();
+			Vector3f offset = buf.readVector3f();
+			Vector3f size = buf.readVector3f();
+			boolean previewArea = buf.readBoolean();
+			server.execute(() -> {
+				if(!(player.getWorld().getBlockEntity(pos) instanceof HellObserverBlockEntity observer))
+					return;
+				observer.sync(playerCount, playerOperator, enemyCount, enemyOperator, requireBoth,
+						new Vec3i((int)offset.x, (int)offset.y, (int)offset.z), new Vec3i((int)size.x, (int)size.y, (int)size.z), previewArea);
+			});
+		});
+		ServerPlayNetworking.registerGlobalReceiver(REQUEST_GRAFFITI_WHITELIST_PACKET_ID, (server, player, handler, buf, sender) -> {
+			server.execute(() ->
+			{
+				PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
+				cbuf.writeBoolean(UltraComponents.GLOBAL.get(player.getWorld().getLevelProperties()).isPlayerAllowedToGraffiti(player));
+				ServerPlayNetworking.send(player, GRAFFITI_WHITELIST_PACKET_ID, cbuf);
+			});
+		});
+		ServerPlayNetworking.registerGlobalReceiver(ARM_CYCLE_PACKET_ID, (server, player, handler, buf, sender) -> {
+			server.execute(() -> UltraComponents.ARMS.get(player).cycleArms());
+		});
+		ServerPlayNetworking.registerGlobalReceiver(ARM_VISIBLE_PACKET_ID, (server, player, handler, buf, sender) -> {
+			boolean v = buf.readBoolean();
+			server.execute(() -> UltraComponents.ARMS.get(player).setArmVisible(v));
+		});
+		ServerPlayNetworking.registerGlobalReceiver(PUNCH_PRESSED_PACKET_ID, (server, player, handler, buf, sender) -> {
+			boolean v = buf.readBoolean();
+			server.execute(() -> UltraComponents.ARMS.get(player).setPunchPressed(v));
 		});
 	}
 	
