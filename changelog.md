@@ -41,6 +41,10 @@
   - F L E S H (not animated with Sodium due to world rendering changes)
   - Cracked Stone
   - Vent Cover
+  - Mauerwerk 1//2
+  - Ornate Wainscot
+  - Adorned Railing
+- Added Stained Glass Window
 - Shockwaves are now actually Round (cursed, I know)
 - Added Soap
 - Fully moved Wing Customization and Player Data to Cardinal Components
@@ -51,11 +55,14 @@
   - Can be set to not actually give an item but only the Progression Entry.
 - Added Weapon Variant Switching Keybind (Default: `R`)
 - Added Limbo Themed BG to Title Menu
-  - Added Clair de Lune Noteblock Cover
+  - Added Clair de Lune Noteblock Cover + Music Disk
 - Added Hell Observer Block
   - Detects Players and Entities in a specified area.
   - Emits a redstone Signal when user-defined threshholds of either or both are met.
     - This is difficult to explain well in text, just play around with them ¯\\\_(ツ)_/¯
+- Added Hell Spawner Block
+  - Right click with spawn egg to set its entity Type
+  - Power with redstone to spawn an entity at the first free position in the spawners maws direction
 - Added Arm System
   - Press default Keybind `G` to cycle owned Arms
   - Feedbacker is owned by default
@@ -101,6 +108,7 @@
 - Added Love
 - Fixed Spectator Gun Bug (again)
 - Increased Weapon Charging Shake (remains the same if SafeVFX is enabled)
+- Fixed a bug which caused the Size 2 to show up despite the requirements not being met
 - Improved Hell Bullets
 - Added Custom Death Screen
 - Added Statistics
@@ -121,6 +129,9 @@
 - Improved Enraged Feature Rendering
   - Lightning actually starts white
   - Follows parent mob more smoothly now
+- All Mod entities can now be given a bossbar by giving them the `{boss:1b}` NBT tag
+  - Same tag can be used to remove boss bars from enemies that are otherwise bosses by default
+  - Some entities have different base stats with the boss tag
 ## Resource Changes
 - Added new Texture State for fully Charged Pierce Revolver (`pierce_revolver4.png`)
 - To reduce filesize, model translations of weapons now use inheritance. Meaning, you only need to replace `models/item/revolver.json` instead of all three variants. It should be safe to remove those excess files from Resourcepacks completely.
@@ -129,6 +140,7 @@
   - Shot Animations now have Duplicates to cancel each other while rapid firing / shotgun swapping
   - Added `switch` animation (+duplicate)
 - Made Preparations to replace a bunch of sounds currently substituted using vanilla ones<br>This means a bunch of sounds were added that you can replace using Resourcepacks. Not all of them are actually implemented yet though. Check ``sounds.json``
+- Added a few new Custom Sound Effects
 ## API Changes
 - Added Terminal API Tools
   - Allows adding fully Custom Coded Tabs and Global Button Actions to Terminals
@@ -139,3 +151,5 @@
     - Sprites
     - Lists (with Selectable Entries)
   - Other than that you can of course write your own rendering stuff
+
+possibly more I forgor
