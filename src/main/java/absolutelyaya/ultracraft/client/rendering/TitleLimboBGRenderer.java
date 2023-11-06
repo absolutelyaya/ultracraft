@@ -2,13 +2,13 @@ package absolutelyaya.ultracraft.client.rendering;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.bettercombat.utils.MathHelper;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.CubeMapRenderer;
 import net.minecraft.client.gui.RotatingCubeMapRenderer;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.MathHelper;
 import org.joml.Matrix4f;
 
 public class TitleLimboBGRenderer extends RotatingCubeMapRenderer
