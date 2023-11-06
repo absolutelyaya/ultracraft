@@ -262,7 +262,7 @@ public class ServerHitscanHandler
 				world.raycast(new RaycastContext(from, modifiedTo, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, owner));
 				EntityHitResult eHit = raycast(owner, from, modifiedTo, box,
 						(entity) -> !entities.contains(entity) && isValidTarget(entity, type), 0.25f, 64f);
-				if(eHit == null)
+				if(eHit == null || eHit.getEntity() == null)
 					break;
 				searchForEntities = eHit.getType() != HitResult.Type.MISS && maxHits > 0;
 				if(eHit.getType() != HitResult.Type.MISS)
