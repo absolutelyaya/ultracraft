@@ -18,7 +18,6 @@ import absolutelyaya.ultracraft.item.SoapItem;
 import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
-import net.bettercombat.utils.MathHelper;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BellBlock;
 import net.minecraft.block.BlockState;
@@ -37,10 +36,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.ArrayUtils;
 import org.joml.Vector3f;
@@ -431,7 +427,7 @@ public class PacketRegistry
 			server.execute(() -> {
 				BlockEntity be = player.getWorld().getBlockEntity(pos);
 				if(be instanceof TerminalBlockEntity terminal)
-					terminal.redstoneImpulse((int)MathHelper.clamp(strength, 0, 15));
+					terminal.redstoneImpulse(MathHelper.clamp(strength, 0, 15));
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(TERMINAL_WEAPON_CRAFT_PACKET_ID, (server, player, handler, buf, sender) -> {
