@@ -36,8 +36,7 @@ public abstract class AbstractWeaponItem extends Item
 	protected boolean isCanFirePrimary(PlayerEntity user)
 	{
 		GunCooldownManager cdm = UltraComponents.WINGED_ENTITY.get(user).getGunCooldownManager();
-		return /*user.getAttackCooldownProgress(0.3f) >= 1f &&*/
-					   (user instanceof WingedPlayerEntity && cdm.isUsable(this, GunCooldownManager.PRIMARY));
+		return (user instanceof WingedPlayerEntity && cdm.isUsable(this, GunCooldownManager.PRIMARY)) && user.isAlive();
 	}
 	
 	public boolean onPrimaryFire(World world, PlayerEntity user, Vec3d userVelocity)

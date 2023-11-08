@@ -11,7 +11,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
@@ -82,18 +81,13 @@ public class PumpShotgunItem extends AbstractShotgunItem
 			stack.getOrCreateNbt();
 		if(!world.isClient)
 		{
-			int charge = 0;
-			if(stack.getNbt().contains("charge", NbtElement.INT_TYPE))
-				charge = stack.getNbt().getInt("charge");
-			stack.getNbt().putInt("charge", Math.min(charge + 1, 3));
+			setNbt(stack, "charge", Math.min(getNbt(stack, "charge") + 1, 3));
 			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), b ? "pump" : "pump2");
 			b = !b;
 		}
 		else
 		{
-			int charge = 0;
-			if(stack.getNbt().contains("charge", NbtElement.INT_TYPE))
-				charge = stack.getNbt().getInt("charge");
+			int charge = getNbt(stack, "charge");
 			user.playSound(SoundEvents.BLOCK_PISTON_CONTRACT, 0.5f, 0.8f + 0.1f * Math.min(charge + 1, 3));
 		}
 		cdm.setCooldown(this, cooldown, GunCooldownManager.SECONDARY);
@@ -120,8 +114,7 @@ public class PumpShotgunItem extends AbstractShotgunItem
 		IWingedPlayerComponent winged = UltraComponents.WINGED_ENTITY.get(user);
 		if(!b)
 			return false;
-		if(itemStack.hasNbt() && itemStack.getNbt().contains("charge"))
-			itemStack.getNbt().putInt("charge", 0);
+		setNbt(itemStack, "charge", 0);
 		if(overcharge && !world.isClient)
 		{
 			winged.setBloodHealCooldown(10);
@@ -138,7 +131,7 @@ public class PumpShotgunItem extends AbstractShotgunItem
 		super.inventoryTick(stack, world, entity, slot, selected);
 		if(!selected && stack.hasNbt() && stack.getNbt().contains("charge"))
 			stack.getNbt().remove("charge");
-		else if(stack.hasNbt() && stack.getNbt().getInt("charge") == 3 && entity.age % 6 == 4)
+		else if(stack.hasNbt() && getNbt(stack, "charge") == 3 && entity.age % 6 == 4)
 			entity.playSound(SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), 0.3f, 0.78f);
 	}
 	
@@ -197,9 +190,7 @@ public class PumpShotgunItem extends AbstractShotgunItem
 	@Override
 	public int getPelletCount(ItemStack stack)
 	{
-		if(!stack.hasNbt() || !stack.getNbt().contains("charge"))
-			return 10;
-		int charge = stack.getNbt().getInt("charge");
+		int charge = getNbt(stack, "charge");
 		if(charge == 0)
 			return 10;
 		else if(charge == 1)
@@ -219,5 +210,20 @@ public class PumpShotgunItem extends AbstractShotgunItem
 	public int getPrimaryCooldown()
 	{
 		return 16;
+	}
+	
+	@Override
+	protected int getNbtDefault(String nbt)
+	{
+		if(nbt.equals("charge"))
+			return 0;
+		return super.getNbtDefault(nbt);
+	}
+	
+	@Override
+	protected void onSwitch(PlayerEntity user, World world)
+	{
+		setNbt(user.getMainHandStack(), "charge", getNbtDefault("charge"));
+		super.onSwitch(user, world);
 	}
 }

@@ -113,6 +113,15 @@ public class CoreEjectShotgunItem extends AbstractShotgunItem
 	}
 	
 	@Override
+	protected boolean isCanFirePrimary(PlayerEntity user)
+	{
+		ItemStack stack = user.getMainHandStack();
+		if(stack.hasNbt() && stack.getNbt().contains("charging"))
+			return false;
+		return super.isCanFirePrimary(user);
+	}
+	
+	@Override
 	public boolean isUsedOnRelease(ItemStack stack)
 	{
 		return true;

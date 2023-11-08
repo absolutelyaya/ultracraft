@@ -5,6 +5,9 @@
 - Fixed Knuckleblast death message
 - Fixed "hitscan" damagetype Tag not working
   - This means, `core ejects` and `interruptable charges` now explode again when shot
+- Fixed primary fire being usable while charging alt fire
+- Fixed bug that let you continue firing a weapon after death
+- Fixed Pump shotgun keeping Pumps after switching variants
 ## Settings & Gamerules
 ## Commands
 - `/ultracraft progression` subcommands now support multiple targets
