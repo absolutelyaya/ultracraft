@@ -12,5 +12,7 @@
   - This means harpoon damage doesn't get multiplied by 2.5 when applied to non-mod entities
 ## Minor Changes
 - Fixed the missing Translation Entry for the Arm Cycle Hotkey
+- Added a few splash texts to the non-essential resourcepack
+- Fixed the typo in "SRIMP"
 ## Resource Changes
 ## API Changes
