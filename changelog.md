@@ -12,6 +12,8 @@
   - Yes, "Projectiles" includes Soap
 - Fixed Cancer Bullet Item spawning a normal Hell Bullet on use
 - Improved cancer bullet behavior
+- Fixed Cancerous Rodents with Size > 0 taking knockback
+  - also made them solid
 ## Settings & Gamerules
 ## Commands
 - `/ultracraft progression` subcommands now support multiple targets

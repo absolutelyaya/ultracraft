@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.entity.demon;
 
+import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.projectile.CancerBulletEntity;
 import net.minecraft.entity.Entity;
@@ -34,6 +35,7 @@ public class RodentEntity extends AbstractUltraHostileEntity implements GeoEntit
 	public RodentEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
 		super(entityType, world);
+		((LivingEntityAccessor)this).setTakePunchKnockbackSupplier(() -> false); //disable knockback
 	}
 	
 	public static DefaultAttributeContainer.Builder getDefaultAttributes()
@@ -178,6 +180,19 @@ public class RodentEntity extends AbstractUltraHostileEntity implements GeoEntit
 		if(entity.isPlayer() && getSize() == 0)
 			return;
 		super.pushAway(entity);
+	}
+	
+	@Override
+	public boolean isCollidable()
+	{
+		return getSize() > 0;
+	}
+	
+	@Override
+	public void takeKnockback(double strength, double x, double z)
+	{
+		if(getSize() == 0)
+			super.takeKnockback(strength, x, z);
 	}
 	
 	static class RodentAttackGoal extends Goal
