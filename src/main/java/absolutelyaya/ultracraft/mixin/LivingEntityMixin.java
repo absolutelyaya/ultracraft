@@ -436,7 +436,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			return;
 		if(!getWorld().isClient)
 			ExplosionHandler.explosion(player, player.getWorld(), player.getPos(), DamageSources.get(player.getWorld(),
-					DamageSources.KNUCKLE_BLAST), 1f, 0.75f, 6, false);
+					DamageSources.KNUCKLE_BLAST, player), 1f, 0.75f, 6, false);
 		else
 			PlayerAnimator.playAnimation(player, player.getMainArm().equals(Arm.LEFT) ? PlayerAnimator.KNUCKLE_BLAST_FLIPPED : PlayerAnimator.KNUCKLE_BLAST,
 					0, false, false);
