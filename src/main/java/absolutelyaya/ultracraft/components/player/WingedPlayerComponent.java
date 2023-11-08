@@ -19,7 +19,8 @@ public class WingedPlayerComponent implements IWingedPlayerComponent, AutoSynced
 	GunCooldownManager gunCDM;
 	boolean slamming, ignoreSlowdown, primaryFiring, airControlIncreased;
 	byte wingState, lastState;
-	int dashingTicks = -2, slamDamageCooldown, stamina, bloodHealCooldown, sharpshooterCooldown, magnets;
+	int dashingTicks = -2, slamDamageCooldown, bloodHealCooldown, sharpshooterCooldown, magnets;
+	float stamina, lastStamina;
 	AbstractWeaponItem lastPrimaryWeapon;
 	
 	public WingedPlayerComponent(PlayerEntity provider)
@@ -100,7 +101,7 @@ public class WingedPlayerComponent implements IWingedPlayerComponent, AutoSynced
 	}
 	
 	@Override
-	public int getStamina()
+	public float getStamina()
 	{
 		return stamina;
 	}
@@ -290,8 +291,9 @@ public class WingedPlayerComponent implements IWingedPlayerComponent, AutoSynced
 		StatusEffectInstance chilled = provider.getStatusEffect(StatusEffectRegistry.CHILLED);
 		if(stamina < 90 && !provider.isSprinting() && !(chilled != null && provider.age % (chilled.getAmplifier() + 1) != 0))
 		{
-			stamina++;
-			if(stamina % 30 == 0)
+			lastStamina = stamina;
+			stamina += 1.5f; // TODO: make this configurable
+			if(lastStamina % 30f > stamina % 30f)
 				provider.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 0.2f, 1f + stamina / 30f * 0.1f);
 		}
 	}

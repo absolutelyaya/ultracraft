@@ -16,6 +16,7 @@
 - Nerfed Nails (Damage 0.4 -> 0.35)
 - Added Harpoon Damage to `ultracraft:unboosted` damagetype Tag
   - This means harpoon damage doesn't get multiplied by 2.5 when applied to non-mod entities
+- Buffed Stamina regen (1 -> 1.5 per tick)
 ## Minor Changes
 - Fixed the missing Translation Entry for the Arm Cycle Hotkey
 - Added a few splash texts to the non-essential resourcepack

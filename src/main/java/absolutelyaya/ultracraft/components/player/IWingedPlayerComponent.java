@@ -29,7 +29,7 @@ public interface IWingedPlayerComponent extends ComponentV3, CommonTickingCompon
 	
 	int getDashingTicks();
 	
-	int getStamina();
+	float getStamina();
 	
 	boolean consumeStamina();
 	
