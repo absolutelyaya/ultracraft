@@ -3,6 +3,8 @@
 - Fixed Crash when using Terminal redstone buttons without having `better combat` installed
 - Fixed Nail damage not referencing the Nails Owner properly
 - Fixed Knuckleblast death message
+- Fixed "hitscan" damagetype Tag not working
+  - This means, `core ejects` and `interruptable charges` now explode again when shot
 ## Settings & Gamerules
 ## Commands
 - `/ultracraft progression` subcommands now support multiple targets
