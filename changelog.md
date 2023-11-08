@@ -14,6 +14,7 @@
 - Improved cancer bullet behavior
 - Fixed Cancerous Rodents with Size > 0 taking knockback
   - also made them solid
+- magnets now break from damagetypes in the tag `ultracraft:break_magnet`
 ## Settings & Gamerules
 ## Commands
 - `/ultracraft progression` subcommands now support multiple targets
