@@ -11,5 +11,6 @@
 - Added Harpoon Damage to `ultracraft:unboosted` damagetype Tag
   - This means harpoon damage doesn't get multiplied by 2.5 when applied to non-mod entities
 ## Minor Changes
+- Fixed the missing Translation Entry for the Arm Cycle Hotkey
 ## Resource Changes
 ## API Changes
