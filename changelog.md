@@ -5,6 +5,10 @@
 - Fixed Knuckleblast death message
 ## Settings & Gamerules
 ## Commands
+- `/ultracraft progression` subcommands now support multiple targets
+  - only exception is `list`
+- added `/ultracraft progression grant-all`
+  - grants all progression entries to a given list (shocker)
 ## Tweaks
 - Buffed V2 (Max Health 40 -> 80)
 - Nerfed Nails (Damage 0.4 -> 0.35)

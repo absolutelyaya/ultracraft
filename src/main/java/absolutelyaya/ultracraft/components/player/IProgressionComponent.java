@@ -11,6 +11,7 @@ public interface IProgressionComponent extends ComponentV3, AutoSyncedComponent
 	void lock(Identifier id);
 	
 	void unlock(Identifier id);
+	void unlockAll();
 	
 	boolean isUnlocked(Identifier id);
 	
@@ -19,6 +20,8 @@ public interface IProgressionComponent extends ComponentV3, AutoSyncedComponent
 	void disown(Identifier id);
 	
 	void obtain(Identifier id);
+	
+	void obtainAll();
 	
 	boolean isOwned(Identifier id);
 	

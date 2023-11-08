@@ -20,6 +20,19 @@ import java.util.List;
 
 public class ProgressionComponent implements IProgressionComponent, AutoSyncedComponent
 {
+	static final List<Identifier> ENTRIES = new ArrayList<>() {
+		{
+			add(new Identifier(Ultracraft.MOD_ID, "pierce_revolver"));
+			add(new Identifier(Ultracraft.MOD_ID, "marksman_revolver"));
+			add(new Identifier(Ultracraft.MOD_ID, "sharpshooter_revolver"));
+			add(new Identifier(Ultracraft.MOD_ID, "core_shotgun"));
+			add(new Identifier(Ultracraft.MOD_ID, "pump_shotgun"));
+			add(new Identifier(Ultracraft.MOD_ID, "attractor_nailgun"));
+			add(new Identifier(Ultracraft.MOD_ID, "feedbacker"));
+			add(new Identifier(Ultracraft.MOD_ID, "knuckleblaster"));
+		}
+	};
+	
 	PlayerEntity provider;
 	List<Identifier> unlocked = new ArrayList<>();
 	List<Identifier> owned = new ArrayList<>();
@@ -36,7 +49,7 @@ public class ProgressionComponent implements IProgressionComponent, AutoSyncedCo
 		}
 		unlocked.add(new Identifier(Ultracraft.MOD_ID, "feedbacker"));
 		owned.add(new Identifier(Ultracraft.MOD_ID, "feedbacker"));
-		//TODO: remove once enemies spawn in the world and weapons get obtainable through them
+		//TODO: remove once enemies spawn in the world and weapon recipe unlocks get obtainable through them
 		unlocked.add(new Identifier(Ultracraft.MOD_ID, "core_shotgun"));
 		unlocked.add(new Identifier(Ultracraft.MOD_ID, "attractor_nailgun"));
 	}
@@ -52,6 +65,13 @@ public class ProgressionComponent implements IProgressionComponent, AutoSyncedCo
 	{
 		if(!unlocked.contains(id))
 			unlocked.add(id);
+	}
+	
+	@Override
+	public void unlockAll()
+	{
+		for (Identifier id : ENTRIES)
+			unlock(id);
 	}
 	
 	@Override
@@ -82,6 +102,13 @@ public class ProgressionComponent implements IProgressionComponent, AutoSyncedCo
 	}
 	
 	@Override
+	public void obtainAll()
+	{
+		for (Identifier id : ENTRIES)
+			obtain(id);
+	}
+	
+	@Override
 	public boolean isOwned(Identifier id)
 	{
 		return owned.contains(id);
@@ -99,6 +126,9 @@ public class ProgressionComponent implements IProgressionComponent, AutoSyncedCo
 		unlocked = new ArrayList<>();
 		owned = new ArrayList<>();
 		unlocked.add(new Identifier(Ultracraft.MOD_ID, "pierce_revolver"));
+		unlocked.add(new Identifier(Ultracraft.MOD_ID, "core_shotgun"));
+		unlocked.add(new Identifier(Ultracraft.MOD_ID, "attractor_nailgun"));
+		unlocked.add(new Identifier(Ultracraft.MOD_ID, "feedbacker"));
 	}
 	
 	public void sync()
