@@ -7,6 +7,7 @@ import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
 import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
@@ -24,6 +25,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharpshooter
@@ -71,7 +73,8 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 		if(getOwner() != null && getOwner().isPlayer() && distanceTo(getOwner()) > 32)
 		{
 			getOwner().playSound(SoundRegistry.SKEWER_DISOWN, 1, 1);
-			UltracraftClient.HITSCAN_HANDLER.removeMoving(getUuid());
+			if(getWorld().isClient)
+				UltracraftClient.HITSCAN_HANDLER.removeMoving(getUuid());
 			owner = null;
 		}
 		if(victim == null && dataTracker.get(GROUND_TIME) > 20 && getOwner() != null && !getOwner().isPlayer())
@@ -105,6 +108,14 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 			}
 			victim.addStatusEffect(new StatusEffectInstance(StatusEffectRegistry.IMPALED, 10, 1), this);
 		}
+	}
+	
+	@Override
+	public void setOwner(@Nullable Entity entity)
+	{
+		owner = entity;
+		if(entity != null)
+			pickupType = entity instanceof PlayerEntity player && !player.isCreative() ? PickupPermission.ALLOWED : PickupPermission.CREATIVE_ONLY;
 	}
 	
 	protected void despawn()

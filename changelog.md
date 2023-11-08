@@ -8,6 +8,10 @@
 - Fixed primary fire being usable while charging alt fire
 - Fixed bug that let you continue firing a weapon after death
 - Fixed Pump shotgun keeping Pumps after switching variants
+- Added Dispenser Behavior to Projectiles and Soul//Blood Orbs
+  - Yes, "Projectiles" includes Soap
+- Fixed Cancer Bullet Item spawning a normal Hell Bullet on use
+- Improved cancer bullet behavior
 ## Settings & Gamerules
 ## Commands
 - `/ultracraft progression` subcommands now support multiple targets

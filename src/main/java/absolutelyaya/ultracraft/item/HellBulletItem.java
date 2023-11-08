@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.item;
 
+import absolutelyaya.ultracraft.entity.projectile.CancerBulletEntity;
 import absolutelyaya.ultracraft.entity.projectile.CerberusBallEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
@@ -35,7 +36,7 @@ public class HellBulletItem extends Item
 		if (!world.isClient)
 		{
 			boolean cerb = itemStack.isOf(ItemRegistry.CERBERUS_BALL);
-			HellBulletEntity hellBullet = cerb ? CerberusBallEntity.spawn(user, world) : HellBulletEntity.spawn(user, world);
+			HellBulletEntity hellBullet = entityFromItem(itemStack, user, world);
 			hellBullet.setItem(itemStack);
 			hellBullet.setVelocity(user, user.getPitch(), user.getYaw(), 0f, cerb ? 2.5f : 1.5f, 0f);
 			world.spawnEntity(hellBullet);
@@ -46,6 +47,15 @@ public class HellBulletItem extends Item
 		if(itemStack.isOf(ItemRegistry.CERBERUS_BALL))
 			user.getItemCooldownManager().set(this, 40);
 		return TypedActionResult.success(itemStack, world.isClient());
+	}
+	
+	HellBulletEntity entityFromItem(ItemStack stack, PlayerEntity user, World world)
+	{
+		if(stack.isOf(ItemRegistry.CERBERUS_BALL))
+			return CerberusBallEntity.spawn(user, world);
+		else if(stack.isOf(ItemRegistry.CANCER_BULLET))
+			return CancerBulletEntity.spawn(user, world, null);
+		return HellBulletEntity.spawn(user, world);
 	}
 	
 	@Override
