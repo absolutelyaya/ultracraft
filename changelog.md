@@ -41,5 +41,6 @@
 - Glass is no longer breakable by slams per default
 - Blood Fluid is no longer pushable with pistons
 - Fixed Z-Fighting on Cerberus Block
+- Beam Projectiles get discarded more quickly now
 ## Resource Changes
 ## API Changes
