@@ -186,4 +186,11 @@ public class PierceRevolverItem extends AbstractRevolverItem
 	{
 		return renderProvider;
 	}
+	
+	@Override
+	protected void onSwitch(PlayerEntity user, World world)
+	{
+		super.onSwitch(user, world);
+		approxUseTime = -1;
+	}
 }

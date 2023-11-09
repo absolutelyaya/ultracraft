@@ -42,5 +42,6 @@
 - Blood Fluid is no longer pushable with pistons
 - Fixed Z-Fighting on Cerberus Block
 - Beam Projectiles get discarded more quickly now
+- Fixed Chargeable Weapons (like pierce Revolver) still shaking after switching variants
 ## Resource Changes
 ## API Changes

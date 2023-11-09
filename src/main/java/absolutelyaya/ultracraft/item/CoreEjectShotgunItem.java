@@ -194,4 +194,11 @@ public class CoreEjectShotgunItem extends AbstractShotgunItem
 	{
 		return 12;
 	}
+	
+	@Override
+	protected void onSwitch(PlayerEntity user, World world)
+	{
+		super.onSwitch(user, world);
+		approxUseTime = -1;
+	}
 }
