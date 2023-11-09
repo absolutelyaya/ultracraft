@@ -38,5 +38,6 @@
 - Made Vent Cover Slits transparent
 - Glass is no longer breakable by slams per default
 - Blood Fluid is no longer pushable with pistons
+- Fixed Z-Fighting on Cerberus Block
 ## Resource Changes
 ## API Changes
