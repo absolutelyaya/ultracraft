@@ -29,6 +29,8 @@ public abstract class AbstractSkewerEntity extends PersistentProjectileEntity
 	protected AbstractSkewerEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world)
 	{
 		super(entityType, world);
+		if(this instanceof ProjectileEntityAccessor proj)
+			proj.setIsParriable(() -> !(isInGround() || victim != null));
 	}
 	
 	@Override

@@ -18,6 +18,7 @@
 - Vent Covers can now be oriented vertically
 - Added Recipe for Vent Covers
 - Cerberus is now guaranteed to drop a golden Apple if a Cerberus Ball was parried back at it
+- Skewer Entities (harpoon & magnet) cannot be parried anymore while stuck in an entity
 ## Settings & Gamerules
 ## Commands
 - `/ultracraft progression` subcommands now support multiple targets
@@ -36,5 +37,6 @@
 - Fixed the typo in "SRIMP"
 - Made Vent Cover Slits transparent
 - Glass is no longer breakable by slams per default
+- Blood Fluid is no longer pushable with pistons
 ## Resource Changes
 ## API Changes

@@ -6,7 +6,6 @@ import absolutelyaya.ultracraft.client.gui.screen.WingCustomizationScreen;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.option.GameOptionsScreen;
 import net.minecraft.client.gui.screen.option.SkinOptionsScreen;

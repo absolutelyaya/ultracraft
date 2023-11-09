@@ -31,12 +31,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 @Mixin(ProjectileEntity.class)
 public abstract class ProjectileEntityMixin extends Entity implements ProjectileEntityAccessor, ChainParryAccessor
 {
-	@Shadow @Nullable private Entity owner;
-	
+	@Shadow @Nullable public Entity owner;
 	@Shadow protected abstract boolean canHit(Entity entity);
 	
 	@Shadow private boolean leftOwner;
@@ -48,6 +48,7 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	boolean frozen;
 	Vec3d preFreezeVel;
 	Consumer<Integer> onParried;
+	Supplier<Boolean> isParriable = () -> true;
 	
 	public ProjectileEntityMixin(EntityType<?> type, World world)
 	{
@@ -176,7 +177,7 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	@Override
 	public boolean isParriable()
 	{
-		return true;
+		return isParriable.get();
 	}
 	
 	public PlayerEntity getParrier()
@@ -218,5 +219,11 @@ public abstract class ProjectileEntityMixin extends Entity implements Projectile
 	public void setOnParried(Consumer<Integer> onParried)
 	{
 		this.onParried = onParried;
+	}
+	
+	@Override
+	public void setIsParriable(Supplier<Boolean> supplier)
+	{
+		isParriable = supplier;
 	}
 }

@@ -4,6 +4,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.hit.HitResult;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public interface ProjectileEntityAccessor
 {
@@ -24,4 +25,6 @@ public interface ProjectileEntityAccessor
 	void setParrier(PlayerEntity p);
 	
 	default void setOnParried(Consumer<Integer> consumer) {}
+	
+	default void setIsParriable(Supplier<Boolean> supplier) {}
 }

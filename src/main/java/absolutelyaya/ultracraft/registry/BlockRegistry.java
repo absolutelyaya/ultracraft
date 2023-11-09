@@ -6,6 +6,7 @@ import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.registry.FlammableBlockRegistry;
 import net.minecraft.block.*;
+import net.minecraft.block.piston.PistonBehavior;
 import net.minecraft.item.BlockItem;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -39,7 +40,7 @@ public class BlockRegistry
 			new CerberusBlock(AbstractBlock.Settings.copy(Blocks.COBBLESTONE).mapColor(MapColor.DEEPSLATE_GRAY).nonOpaque()
 									  .requiresTool().strength(5f, 6f).luminance(b -> 6)), true);
 	public static final Block BLOOD = register("blood", new FluidBlock(FluidRegistry.STILL_BLOOD,
-			FabricBlockSettings.copyOf(Blocks.WATER).replaceable()), false);
+			FabricBlockSettings.copyOf(Blocks.WATER).replaceable().pistonBehavior(PistonBehavior.DESTROY)), false);
 	public static final Block FLESH = register("flesh",
 			new FleshBlock(AbstractBlock.Settings.copy(Blocks.NETHERRACK).sounds(BlockSoundGroup.MUD).mapColor(MapColor.DARK_RED).nonOpaque()), true);
 	public static final Block RUSTY_PIPE = register("rusty_pipe",
@@ -68,7 +69,7 @@ public class BlockRegistry
 	public static final Block HELL_SPAWNER = register("hell_spawner",
 			new HellSpawnerBlock(AbstractBlock.Settings.copy(Blocks.NETHERRACK).sounds(BlockSoundGroup.MUD).mapColor(MapColor.DARK_CRIMSON).nonOpaque()), false);
 	public static final Block SKY_BLOCK = register("sky_block",
-			new SkyBlock(AbstractBlock.Settings.copy(Blocks.BEDROCK).sounds(BlockSoundGroup.GLASS).mapColor(MapColor.BLACK)), true);
+			new SkyBlock(AbstractBlock.Settings.copy(Blocks.BEDROCK).sounds(BlockSoundGroup.GLASS).mapColor(MapColor.BLACK).pistonBehavior(PistonBehavior.BLOCK)), true);
 	
 	@SuppressWarnings("SameParameterValue")
 	private static Block register(String name, Block block, boolean item, int burn, int spread)
