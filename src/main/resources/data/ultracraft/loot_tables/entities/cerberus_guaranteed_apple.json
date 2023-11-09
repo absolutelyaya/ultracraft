@@ -37,13 +37,6 @@
           "type": "minecraft:item",
           "name": "minecraft:golden_apple"
         }
-      ],
-      "conditions": [
-        {
-          "condition": "minecraft:random_chance_with_looting",
-          "chance": 0.2,
-          "looting_multiplier": 0.2
-        }
       ]
     }
   ]

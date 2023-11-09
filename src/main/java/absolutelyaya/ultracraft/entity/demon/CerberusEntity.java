@@ -1,8 +1,10 @@
 package absolutelyaya.ultracraft.entity.demon;
 
+import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.Enrageable;
 import absolutelyaya.ultracraft.accessor.IAnimatedEnemy;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.entity.goal.TimedAttackGoal;
 import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
@@ -24,6 +26,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -50,6 +53,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 	private static final RawAnimation STOMP_ANIM = RawAnimation.begin().thenLoop("stomp");
 	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 	protected static final TrackedData<Boolean> ENRAGED = DataTracker.registerData(CerberusEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	protected static final TrackedData<Boolean> DROP_APPLE = DataTracker.registerData(CerberusEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	private static final byte ANIMATION_IDLE = 0;
 	private static final byte ANIMATION_THROW = 1;
 	private static final byte ANIMATION_RAM = 2;
@@ -89,6 +93,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 		super.initDataTracker();
 		dataTracker.startTracking(ATTACK_COOLDOWN, 10);
 		dataTracker.startTracking(ENRAGED, false);
+		dataTracker.startTracking(DROP_APPLE, false);
 	}
 	
 	private <E extends GeoEntity> PlayState predicate(AnimationState<E> event)
@@ -262,6 +267,20 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 		super.onDeath(damageSource);
 		getWorld().getEntitiesByType(TypeFilter.instanceOf(CerberusEntity.class), getBoundingBox().expand(64),
 						e -> !e.isEnraged() && e != this).forEach(CerberusEntity::enrage);
+	}
+	
+	@Override
+	public boolean damage(DamageSource source, float amount)
+	{
+		if(source.isOf(DamageSources.PARRY) && source.getSource() instanceof CerberusBallEntity ball && this.equals(ball.getOwner()) && ball.isParried())
+			dataTracker.set(DROP_APPLE, true);
+		return super.damage(source, amount);
+	}
+	
+	@Override
+	protected Identifier getLootTableId()
+	{
+		return dataTracker.get(DROP_APPLE) ? new Identifier(Ultracraft.MOD_ID, "cerberus_guaranteed_apple") : super.getLootTableId();
 	}
 	
 	static class ApproachTargetGoal extends Goal
