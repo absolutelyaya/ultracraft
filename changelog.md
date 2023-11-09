@@ -35,5 +35,6 @@
 - Added a few splash texts to the non-essential resourcepack
 - Fixed the typo in "SRIMP"
 - Made Vent Cover Slits transparent
+- Glass is no longer breakable by slams per default
 ## Resource Changes
 ## API Changes

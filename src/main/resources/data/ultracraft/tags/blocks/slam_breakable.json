@@ -1,6 +1,8 @@
 {
   "replace": false,
   "values": [
-    "#ultracraft:fragile"
+    "#minecraft:leaves",
+    "ultracraft:vent_cover",
+    "minecraft:ice"
   ]
 }
