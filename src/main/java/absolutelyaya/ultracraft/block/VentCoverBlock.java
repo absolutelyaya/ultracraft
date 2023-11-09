@@ -1,9 +1,6 @@
 package absolutelyaya.ultracraft.block;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.HorizontalFacingBlock;
-import net.minecraft.block.ShapeContext;
+import net.minecraft.block.*;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.state.StateManager;
 import net.minecraft.util.math.BlockPos;
@@ -12,7 +9,7 @@ import net.minecraft.util.shape.VoxelShapes;
 import net.minecraft.world.BlockView;
 import org.jetbrains.annotations.Nullable;
 
-public class VentCoverBlock extends HorizontalFacingBlock
+public class VentCoverBlock extends FacingBlock
 {
 	public VentCoverBlock(Settings settings)
 	{
@@ -35,7 +32,7 @@ public class VentCoverBlock extends HorizontalFacingBlock
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx)
 	{
-		return super.getPlacementState(ctx).with(FACING, ctx.getHorizontalPlayerFacing().getOpposite());
+		return super.getPlacementState(ctx).with(FACING, ctx.getPlayerLookDirection().getOpposite());
 	}
 	
 	@Override
@@ -47,7 +44,8 @@ public class VentCoverBlock extends HorizontalFacingBlock
 			case EAST -> VoxelShapes.cuboid(12f / 16f, 0f, 0f, 14f / 16f, 1f, 1f);
 			case SOUTH -> VoxelShapes.cuboid(0f, 0f, 12f / 16f, 1f, 1f, 14f / 16f);
 			case WEST -> VoxelShapes.cuboid(2f / 16f, 0f, 0f, 4f / 16f, 1f, 1f);
-			default -> VoxelShapes.empty();
+			case UP -> VoxelShapes.cuboid(0f, 12f / 16f, 0f, 1f, 14f / 16f, 1f);
+			case DOWN -> VoxelShapes.cuboid(0f, 2f / 16f, 0f, 1f, 4f / 16f, 1f);
 		};
 	}
 }

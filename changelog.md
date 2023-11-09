@@ -15,6 +15,8 @@
 - Fixed Cancerous Rodents with Size > 0 taking knockback
   - also made them solid
 - magnets now break from damagetypes in the tag `ultracraft:break_magnet`
+- Vent Covers can now be oriented vertically
+- Added Recipe for Vent Covers
 ## Settings & Gamerules
 ## Commands
 - `/ultracraft progression` subcommands now support multiple targets
@@ -31,5 +33,6 @@
 - Fixed the missing Translation Entry for the Arm Cycle Hotkey
 - Added a few splash texts to the non-essential resourcepack
 - Fixed the typo in "SRIMP"
+- Made Vent Cover Slits transparent
 ## Resource Changes
 ## API Changes

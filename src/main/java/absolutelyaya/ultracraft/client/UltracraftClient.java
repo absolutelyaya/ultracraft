@@ -335,6 +335,7 @@ public class UltracraftClient implements ClientModInitializer
 		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.FLESH, //prevent Sodium from crashing when trying to render Flesh Blocks
 				SODIUM ? RenderLayers.getSolid() : RenderLayers.getFlesh());
 		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.ADORNED_RAILING, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.VENT_COVER, RenderLayer.getCutout());
 		
 		TerminalCodeRegistry.registerCode("florp", t -> t.setTab(new PetTab()));
 		TerminalCodeRegistry.registerCode("somethingwicked", new TerminalCodeRegistry.Result(t -> {
