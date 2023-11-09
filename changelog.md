@@ -16,9 +16,11 @@
   - also made them solid
 - magnets now break from damagetypes in the tag `ultracraft:break_magnet`
 - Vent Covers can now be oriented vertically
+- Hell Observers can now be oriented vertically
 - Added Recipe for Vent Covers
 - Cerberus is now guaranteed to drop a golden Apple if a Cerberus Ball was parried back at it
 - Skewer Entities (harpoon & magnet) cannot be parried anymore while stuck in an entity
+- Fixed Hell Observer Area Offset nbt block picking
 ## Settings & Gamerules
 ## Commands
 - `/ultracraft progression` subcommands now support multiple targets

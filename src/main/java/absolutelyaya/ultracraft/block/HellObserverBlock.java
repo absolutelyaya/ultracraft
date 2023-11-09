@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class HellObserverBlock extends BlockWithEntity implements BlockEntityProvider
 {
-	public static final DirectionProperty FACING = HorizontalFacingBlock.FACING;
+	public static final DirectionProperty FACING = FacingBlock.FACING;
 	public static final IntProperty ACTIVE = IntProperty.of("active", 0, 2);
 	
 	public HellObserverBlock(Settings settings)
@@ -54,7 +54,7 @@ public class HellObserverBlock extends BlockWithEntity implements BlockEntityPro
 	@Override
 	public BlockState getPlacementState(ItemPlacementContext ctx)
 	{
-		return super.getDefaultState().with(FACING, ctx.getHorizontalPlayerFacing().getOpposite()).with(ACTIVE, 0);
+		return super.getDefaultState().with(FACING, ctx.getPlayerLookDirection().getOpposite()).with(ACTIVE, 0);
 	}
 	
 	@Override
@@ -80,7 +80,7 @@ public class HellObserverBlock extends BlockWithEntity implements BlockEntityPro
 	public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack)
 	{
 		super.onPlaced(world, pos, state, placer, itemStack);
-		if(world.getBlockEntity(pos) instanceof HellObserverBlockEntity hellObserver)
+		if(world.getBlockEntity(pos) instanceof HellObserverBlockEntity hellObserver && !itemStack.hasNbt())
 			hellObserver.checkOffset = hellObserver.getCheckOffset().add(state.get(FACING).getVector().multiply(2));
 	}
 	

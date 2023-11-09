@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.client.rendering.block.entity;
 import absolutelyaya.ultracraft.block.HellObserverBlockEntity;
 import absolutelyaya.ultracraft.client.gui.screen.HellObserverScreen;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -28,7 +29,8 @@ public class HellObserverRenderer implements BlockEntityRenderer<HellObserverBlo
 		}
 		else if(client.crosshairTarget instanceof BlockHitResult bHit && client.world.getBlockState(bHit.getBlockPos()).isOf(BlockRegistry.HELL_OBSERVER))
 		{
-			if(!entity.shouldPreviewArea())
+			BlockEntity entity1 = client.world.getBlockEntity(bHit.getBlockPos());
+			if(entity1 instanceof HellObserverBlockEntity hellObserver && !hellObserver.shouldPreviewArea())
 				return;
 			focused = entity.getPos().equals(bHit.getBlockPos());
 			distance = bHit.getBlockPos().getManhattanDistance(entity.getPos());
