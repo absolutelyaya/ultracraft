@@ -105,13 +105,12 @@ public class PacketRegistry
 		ServerPlayNetworking.registerGlobalReceiver(PUNCH_PACKET_ID, (server, player, handler, buf, sender) -> {
 			World world = player.getWorld();
 			Entity target;
-			if(buf.readBoolean())
-				target = world.getEntityById(buf.readInt());
+			if(buf.readBoolean() && world instanceof ServerWorld serverWorld)
+				target = serverWorld.getDragonPart(buf.readVarInt());
 			else
 				target = null;
 			Vector3f clientVel = buf.readVector3f(); //velocity the player has on the client
 			boolean debug = buf.readBoolean();
-			
 			server.execute(() -> {
 				if(player instanceof LivingEntityAccessor accessor)
 					accessor.punch();

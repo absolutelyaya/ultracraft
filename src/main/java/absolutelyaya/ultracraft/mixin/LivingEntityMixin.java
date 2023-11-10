@@ -83,7 +83,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	int punchDuration = 60;
 	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
 	int punchTicks, knuckleTicks, ticksSincePunch = Integer.MAX_VALUE, ricochetCooldown, fatique, firecooldown;
-	boolean punching, blasting, timeFrozen;
+	boolean punching, blasting, timeFrozen, punchCancelled;
 	float punchProgress, prevPunchProgress, knuckleProgress, prevKnuckleProgress, recoil, lastHealth;
 	
 	public LivingEntityMixin(EntityType<?> type, World world)
@@ -342,14 +342,17 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 				punchTicks = 1;
 		}
 		else
+		{
 			punchTicks = 0;
+			punchCancelled = false;
+		}
 		if((Object)this instanceof PlayerEntity)
 		{
 			IArmComponent arm = UltraComponents.ARMS.get(this);
 			if(ticksSincePunch < 8)
 			{
 				ticksSincePunch++;
-				if(ticksSincePunch == 8 && arm.isKnuckleblaster() && arm.isPunchPressed())
+				if(!punchCancelled && ticksSincePunch == 8 && arm.isKnuckleblaster() && arm.isPunchPressed())
 				{
 					knuckleBlast();
 					playSound(SoundRegistry.KNUCKLEBLASTER_RELOAD, 1f, 1f);
@@ -458,6 +461,12 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			return knuckleProgress;
 		else
 			return prevKnuckleProgress + f * tickDelta;
+	}
+	
+	@Override
+	public void cancelPunch()
+	{
+		punchCancelled = true;
 	}
 	
 	@Override

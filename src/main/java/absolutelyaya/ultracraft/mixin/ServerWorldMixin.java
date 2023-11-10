@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,5 +33,12 @@ public class ServerWorldMixin implements ServerWorldAccessor
 	public Int2ObjectMap<HideousPart> getHideousParts()
 	{
 		return hideousParts;
+	}
+	
+	@Inject(method = "getDragonPart", at = @At("TAIL"), cancellable = true)
+	void onGetDragonPart(int id, CallbackInfoReturnable<Entity> cir)
+	{
+		if(cir.getReturnValue() == null)
+			cir.setReturnValue(hideousParts.get(id));
 	}
 }

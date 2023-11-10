@@ -27,6 +27,8 @@
 - Harpoons now drop as an item instead of disappearing when broken/discarded
 - The Knuckleblaster can now break more things (`ultracraft:knuckle_breakable` blocktag)
 - Fixed Hell Observers not syncing their data correctly
+- Fixed Hideous Mass not being damaged by punches
+- Switching arms while punching now cancels the punch
 ## Settings & Gamerules
 ## Commands
 - `/ultracraft progression` subcommands now support multiple targets
