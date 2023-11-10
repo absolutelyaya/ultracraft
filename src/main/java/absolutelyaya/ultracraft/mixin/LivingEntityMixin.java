@@ -438,8 +438,14 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			ExplosionHandler.explosion(player, player.getWorld(), player.getPos(), DamageSources.get(player.getWorld(),
 					DamageSources.KNUCKLE_BLAST, player), 1f, 0.75f, 6, false);
 		else
-			PlayerAnimator.playAnimation(player, player.getMainArm().equals(Arm.LEFT) ? PlayerAnimator.KNUCKLE_BLAST_FLIPPED : PlayerAnimator.KNUCKLE_BLAST,
-					0, false, false);
+		{
+			if((UltraComponents.WING_DATA.get(player).isActive() && player.isSprinting()))
+				PlayerAnimator.playAnimation(player, player.getMainArm().equals(Arm.LEFT) ? PlayerAnimator.SLIDE_KNUCKLE_BLAST_FLIPPED : PlayerAnimator.SLIDE_KNUCKLE_BLAST,
+						0, false, false);
+			else
+				PlayerAnimator.playAnimation(player, player.getMainArm().equals(Arm.LEFT) ? PlayerAnimator.KNUCKLE_BLAST_FLIPPED : PlayerAnimator.KNUCKLE_BLAST,
+						0, false, false);
+		}
 	}
 	
 	@Override

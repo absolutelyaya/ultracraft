@@ -47,5 +47,6 @@
 - Fixed Z-Fighting on Cerberus Block
 - Beam Projectiles get discarded more quickly now
 - Fixed Chargeable Weapons (like pierce Revolver) still shaking after switching variants
+- Fixed Knuckle blasting while sliding breaking the slide animation
 ## Resource Changes
 ## API Changes

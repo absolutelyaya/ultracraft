@@ -52,6 +52,8 @@ public class PlayerAnimator
 	public static final int KNUCKLE_BLAST_FLIPPED = 15;
 	public static final int SLIDE_PUNCH = 16;
 	public static final int SLIDE_PUNCH_FLIPPED = 17;
+	public static final int SLIDE_KNUCKLE_BLAST = 18;
+	public static final int SLIDE_KNUCKLE_BLAST_FLIPPED = 19;
 	
 	static List<KeyframeAnimation> ANIMATIONS;
 	static boolean DISABLED = false;
