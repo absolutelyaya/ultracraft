@@ -2,6 +2,9 @@
   "replace": false,
   "values": [
     "#minecraft:is_explosion",
-    "ultracraft:groundpound"
+    "ultracraft:groundpound",
+    "ultracraft:punch",
+    "ultracraft:knuckle_punch",
+    "#ultracraft:hitscan"
   ]
 }

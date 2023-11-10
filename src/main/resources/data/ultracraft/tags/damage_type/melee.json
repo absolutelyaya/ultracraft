@@ -5,6 +5,8 @@
     "minecraft:mob_attack_no_aggro",
     "minecraft:player_attack",
     "minecraft:generic",
-    "ultracraft:swordsmachine"
+    "ultracraft:swordsmachine",
+    "ultracraft:punch",
+    "ultracraft:knuckle_punch"
   ]
 }

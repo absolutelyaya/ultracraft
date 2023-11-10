@@ -1,5 +1,5 @@
 ## Major Changes
-- Fixed FPS tanking when rendering Player Wings
+- Fixed FPS tanking when rendering Player Wings (thanks for helping me figure this one out BunnyHaver)
 - Fixed Crash when using Terminal redstone buttons without having `better combat` installed
 - Fixed Nail damage not referencing the Nails Owner properly
 - Fixed Knuckleblast death message
@@ -21,6 +21,10 @@
 - Cerberus is now guaranteed to drop a golden Apple if a Cerberus Ball was parried back at it
 - Skewer Entities (harpoon & magnet) cannot be parried anymore while stuck in an entity
 - Fixed Hell Observer Area Offset nbt block picking
+- Harpoons don't replenish Durability anymore when picked up
+- Skewer Entities can now be punched to be broken
+  - Harpoons return to their owner when broken
+- Harpoons now drop as an item instead of disappearing when broken/discarded
 ## Settings & Gamerules
 ## Commands
 - `/ultracraft progression` subcommands now support multiple targets

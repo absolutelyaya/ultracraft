@@ -173,4 +173,10 @@ public class MagnetEntity extends AbstractSkewerEntity implements GeoEntity, IIg
 			despawn();
 		return super.damage(source, amount);
 	}
+	
+	@Override
+	void onPunchBroken()
+	{
+		despawn();
+	}
 }

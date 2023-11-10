@@ -12,6 +12,7 @@ import absolutelyaya.ultracraft.components.player.IArmComponent;
 import absolutelyaya.ultracraft.components.player.IWingDataComponent;
 import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.entity.projectile.AbstractSkewerEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.item.SoapItem;
@@ -142,6 +143,7 @@ public class PacketRegistry
 						world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.75f, 0.5f);
 						boolean knuckle = arm.isKnuckleblaster();
 						target.damage(DamageSources.get(world, knuckle ? DamageSources.KNUCKLE_PUNCH : DamageSources.PUNCH, player), knuckle ? 2.5f : 1f);
+						//TODO: make punch damage configurable
 					}
 					boolean fatal = !target.isAlive();
 					Vec3d vel = forward.multiply(fatal ? 1.5f : 0.75f);
@@ -152,8 +154,6 @@ public class PacketRegistry
 					return;
 				}
 				
-				if(!arm.isFeedbacker())
-					return;
 				//Projectile Parry
 				//Fetch all Parry Candidate Projectiles
 				boolean chainingAllowed = world.getGameRules().getBoolean(GameruleRegistry.PARRY_CHAINING);
@@ -195,6 +195,14 @@ public class PacketRegistry
 				if(projectiles.size() > 0)
 					parried = getNearestProjectile(projectiles, pos);
 				else
+					return;
+				boolean feedbacker = arm.isFeedbacker();
+				if(parried instanceof AbstractSkewerEntity skewer)
+				{
+					skewer.damage(DamageSources.get(world, feedbacker ? DamageSources.PUNCH : DamageSources.KNUCKLE_PUNCH), 1f);
+					return;
+				}
+				if(!arm.isFeedbacker())
 					return;
 				if(!((ProjectileEntityAccessor)parried).isParriable())
 					return;

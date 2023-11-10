@@ -24,6 +24,7 @@ import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -45,7 +46,7 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 		super.initDataTracker();
 		dataTracker.startTracking(START_POSITION, new Vector3f());
 		dataTracker.startTracking(RETURNING, false);
-		dataTracker.startTracking(STACK, ItemStack.EMPTY);
+		dataTracker.startTracking(STACK, ItemRegistry.HARPOON.getDefaultStack());
 	}
 	
 	public static HarpoonEntity spawn(LivingEntity owner, Vec3d pos, Vec3d vel)
@@ -61,7 +62,7 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 	@Override
 	protected ItemStack asItemStack()
 	{
-		return ItemRegistry.HARPOON.getDefaultStack();
+		return dataTracker.get(STACK);
 	}
 	
 	@Override
@@ -122,6 +123,8 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 	{
 		getWorld().addParticle(new ItemStackParticleEffect(ParticleTypes.ITEM, asItemStack()),
 				getX(), getY(), getZ(), 0f, 0f, 0f);
+		if(!(owner instanceof PlayerEntity player && player.isCreative()) && getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT))
+			dropStack(asItemStack());
 		if(!getWorld().isClient())
 			discard();
 	}
@@ -207,5 +210,23 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 	public void setStack(ItemStack ammoStack)
 	{
 		dataTracker.set(STACK, ammoStack);
+	}
+	
+	@Override
+	protected boolean tryPickup(PlayerEntity player)
+	{
+		if(isOwner(player))
+			return super.tryPickup(player);
+		else
+			return false;
+	}
+	
+	@Override
+	void onPunchBroken()
+	{
+		if(owner != null)
+			setReturning(true);
+		else
+			despawn();
 	}
 }
