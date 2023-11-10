@@ -14,14 +14,19 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
 
 public class HarpoonEntityRenderer extends ProjectileEntityRenderer<HarpoonEntity>
 {
+	final Random random;
+	
 	public HarpoonEntityRenderer(EntityRendererFactory.Context context)
 	{
 		super(context);
+		random = Random.create();
 	}
 	
 	@Override
@@ -37,6 +42,9 @@ public class HarpoonEntityRenderer extends ProjectileEntityRenderer<HarpoonEntit
 		matrices.multiply(new Quaternionf(new AxisAngle4f((harpoon.getYaw(delta) + 182.5f) * MathHelper.RADIANS_PER_DEGREE, 0f, 1f, 0f)));
 		matrices.multiply(new Quaternionf(new AxisAngle4f((harpoon.getPitch(delta) + 15f) * MathHelper.RADIANS_PER_DEGREE, 1f, 0f, 0f)));
 		matrices.translate(0f, 0f, 0.5f);
+		float f = harpoon.getShaking() / 40f;
+		Vec3d v = Vec3d.ZERO.addRandom(random, f);
+		matrices.translate(v.x, v.y, v.z);
 		MinecraftClient client = MinecraftClient.getInstance();
 		ItemRenderer renderer = client.getItemRenderer();
 		ItemStack stack = ItemRegistry.HARPOON.getDefaultStack();

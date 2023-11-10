@@ -81,6 +81,12 @@ public class BeamProjectileEntity extends ProjectileEntity
 		}
 		else
 			setPosition(getPos().add(getVelocity()));
+		if(age > 20)
+		{
+			if(getWorld().isClient)
+				UltracraftClient.HITSCAN_HANDLER.removeMoving(getUuid());
+			discard();
+		}
 	}
 	
 	@Override
@@ -126,8 +132,8 @@ public class BeamProjectileEntity extends ProjectileEntity
 	protected void readCustomDataFromNbt(NbtCompound nbt)
 	{
 		super.readCustomDataFromNbt(nbt);
-		if(nbt.contains("type", NbtElement.BYTE_TYPE))
-			setHitscanType(nbt.getByte("type"));
+		if(nbt.contains("Type", NbtElement.BYTE_TYPE))
+			setHitscanType(nbt.getByte("Type"));
 	}
 	
 	@Override

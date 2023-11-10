@@ -12,13 +12,13 @@ import absolutelyaya.ultracraft.components.player.IArmComponent;
 import absolutelyaya.ultracraft.components.player.IWingDataComponent;
 import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.entity.projectile.AbstractSkewerEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.item.SoapItem;
 import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
-import net.bettercombat.utils.MathHelper;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BellBlock;
 import net.minecraft.block.BlockState;
@@ -37,10 +37,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.ArrayUtils;
 import org.joml.Vector3f;
@@ -108,13 +105,12 @@ public class PacketRegistry
 		ServerPlayNetworking.registerGlobalReceiver(PUNCH_PACKET_ID, (server, player, handler, buf, sender) -> {
 			World world = player.getWorld();
 			Entity target;
-			if(buf.readBoolean())
-				target = world.getEntityById(buf.readInt());
+			if(buf.readBoolean() && world instanceof ServerWorld serverWorld)
+				target = serverWorld.getDragonPart(buf.readVarInt());
 			else
 				target = null;
 			Vector3f clientVel = buf.readVector3f(); //velocity the player has on the client
 			boolean debug = buf.readBoolean();
-			
 			server.execute(() -> {
 				if(player instanceof LivingEntityAccessor accessor)
 					accessor.punch();
@@ -146,6 +142,7 @@ public class PacketRegistry
 						world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.75f, 0.5f);
 						boolean knuckle = arm.isKnuckleblaster();
 						target.damage(DamageSources.get(world, knuckle ? DamageSources.KNUCKLE_PUNCH : DamageSources.PUNCH, player), knuckle ? 2.5f : 1f);
+						//TODO: make punch damage configurable
 					}
 					boolean fatal = !target.isAlive();
 					Vec3d vel = forward.multiply(fatal ? 1.5f : 0.75f);
@@ -156,8 +153,6 @@ public class PacketRegistry
 					return;
 				}
 				
-				if(!arm.isFeedbacker())
-					return;
 				//Projectile Parry
 				//Fetch all Parry Candidate Projectiles
 				boolean chainingAllowed = world.getGameRules().getBoolean(GameruleRegistry.PARRY_CHAINING);
@@ -200,6 +195,14 @@ public class PacketRegistry
 					parried = getNearestProjectile(projectiles, pos);
 				else
 					return;
+				boolean feedbacker = arm.isFeedbacker();
+				if(parried instanceof AbstractSkewerEntity skewer)
+				{
+					skewer.damage(DamageSources.get(world, feedbacker ? DamageSources.PUNCH : DamageSources.KNUCKLE_PUNCH), 1f);
+					return;
+				}
+				if(!arm.isFeedbacker())
+					return;
 				if(!((ProjectileEntityAccessor)parried).isParriable())
 					return;
 				boolean heal = true;
@@ -236,7 +239,9 @@ public class PacketRegistry
 						punchable.onPunch(player, target, mainHand);
 					if(state.getBlock() instanceof BellBlock bell)
 						bell.ring(player, player.getWorld(), target, player.getHorizontalFacing().getOpposite());
-					if(state.isIn(TagRegistry.PUNCH_BREAKABLE) && player.canModifyAt(world, target))
+					IArmComponent arm = UltraComponents.ARMS.get(player);
+					if(state.isIn(TagRegistry.PUNCH_BREAKABLE) || (arm.isKnuckleblaster() && state.isIn(TagRegistry.KNUCKLE_BREAKABLE)) &&
+																		  player.canModifyAt(world, target))
 						player.getWorld().breakBlock(target, true, player);
 				}
 			});
@@ -431,7 +436,7 @@ public class PacketRegistry
 			server.execute(() -> {
 				BlockEntity be = player.getWorld().getBlockEntity(pos);
 				if(be instanceof TerminalBlockEntity terminal)
-					terminal.redstoneImpulse((int)MathHelper.clamp(strength, 0, 15));
+					terminal.redstoneImpulse(MathHelper.clamp(strength, 0, 15));
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(TERMINAL_WEAPON_CRAFT_PACKET_ID, (server, player, handler, buf, sender) -> {

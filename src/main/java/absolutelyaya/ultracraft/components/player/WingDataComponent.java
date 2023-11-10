@@ -38,7 +38,7 @@ public class WingDataComponent implements IWingDataComponent, AutoSyncedComponen
 	@Override
 	public String getPattern()
 	{
-		return Ultracraft.checkSupporter(provider.getUuid(), provider.getWorld().isClient) ? wingPattern : "";
+		return wingPattern;
 	}
 	
 	@Override
@@ -86,7 +86,7 @@ public class WingDataComponent implements IWingDataComponent, AutoSyncedComponen
 		NbtCompound colors = tag.getCompound("colors");
 		wingColors[0] = deserializeColor(colors.getCompound("wings"));
 		wingColors[1] = deserializeColor(colors.getCompound("metal"));
-		wingPattern = tag.getString("pattern");
+		wingPattern = Ultracraft.checkSupporter(provider.getUuid(), provider.getWorld().isClient) ? tag.getString("pattern") : "";
 		visible = tag.getBoolean("visible");
 	}
 	

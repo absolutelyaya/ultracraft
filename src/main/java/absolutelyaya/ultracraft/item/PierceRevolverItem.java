@@ -123,6 +123,15 @@ public class PierceRevolverItem extends AbstractRevolverItem
 	}
 	
 	@Override
+	protected boolean isCanFirePrimary(PlayerEntity user)
+	{
+		ItemStack stack = user.getMainHandStack();
+		if(stack.hasNbt() && stack.getNbt().contains("charging"))
+			return false;
+		return super.isCanFirePrimary(user);
+	}
+	
+	@Override
 	public boolean isUsedOnRelease(ItemStack stack)
 	{
 		return true;
@@ -176,5 +185,12 @@ public class PierceRevolverItem extends AbstractRevolverItem
 	public Supplier<Object> getRenderProvider()
 	{
 		return renderProvider;
+	}
+	
+	@Override
+	protected void onSwitch(PlayerEntity user, World world)
+	{
+		super.onSwitch(user, world);
+		approxUseTime = -1;
 	}
 }

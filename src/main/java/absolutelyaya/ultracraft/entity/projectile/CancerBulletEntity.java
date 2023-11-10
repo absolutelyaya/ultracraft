@@ -51,7 +51,17 @@ public class CancerBulletEntity extends HellBulletEntity implements ProjectileEn
 	public void tick()
 	{
 		super.tick();
-		if(target != null)
+		if(target != null && target.isAlive())
 			setVelocity(getVelocity().lerp(target.getEyePos().subtract(getPos()).normalize(), 0.05f));
+		else if(age % 10 == 0)
+		{
+			getWorld().getOtherEntities(owner, getBoundingBox().expand(8), i -> i instanceof LivingEntity)
+					.forEach(i -> {
+						if(target != null)
+							return;
+						if(i instanceof LivingEntity living)
+							target = living;
+					});
+		}
 	}
 }

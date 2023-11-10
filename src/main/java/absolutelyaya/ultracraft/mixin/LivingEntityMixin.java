@@ -83,7 +83,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 	int punchDuration = 60;
 	Supplier<Boolean> canBleedSupplier = () -> true, takePunchKnockpackSupplier = this::isPushable; //TODO: add Sandy Enemies (eventually)
 	int punchTicks, knuckleTicks, ticksSincePunch = Integer.MAX_VALUE, ricochetCooldown, fatique, firecooldown;
-	boolean punching, blasting, timeFrozen;
+	boolean punching, blasting, timeFrozen, punchCancelled;
 	float punchProgress, prevPunchProgress, knuckleProgress, prevKnuckleProgress, recoil, lastHealth;
 	
 	public LivingEntityMixin(EntityType<?> type, World world)
@@ -342,14 +342,17 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 				punchTicks = 1;
 		}
 		else
+		{
 			punchTicks = 0;
+			punchCancelled = false;
+		}
 		if((Object)this instanceof PlayerEntity)
 		{
 			IArmComponent arm = UltraComponents.ARMS.get(this);
 			if(ticksSincePunch < 8)
 			{
 				ticksSincePunch++;
-				if(ticksSincePunch == 8 && arm.isKnuckleblaster() && arm.isPunchPressed())
+				if(!punchCancelled && ticksSincePunch == 8 && arm.isKnuckleblaster() && arm.isPunchPressed())
 				{
 					knuckleBlast();
 					playSound(SoundRegistry.KNUCKLEBLASTER_RELOAD, 1f, 1f);
@@ -436,10 +439,16 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			return;
 		if(!getWorld().isClient)
 			ExplosionHandler.explosion(player, player.getWorld(), player.getPos(), DamageSources.get(player.getWorld(),
-					DamageSources.KNUCKLE_BLAST), 1f, 0.75f, 6, false);
+					DamageSources.KNUCKLE_BLAST, player), 1f, 0.75f, 6, false);
 		else
-			PlayerAnimator.playAnimation(player, player.getMainArm().equals(Arm.LEFT) ? PlayerAnimator.KNUCKLE_BLAST_FLIPPED : PlayerAnimator.KNUCKLE_BLAST,
-					0, false, false);
+		{
+			if((UltraComponents.WING_DATA.get(player).isActive() && player.isSprinting()))
+				PlayerAnimator.playAnimation(player, player.getMainArm().equals(Arm.LEFT) ? PlayerAnimator.SLIDE_KNUCKLE_BLAST_FLIPPED : PlayerAnimator.SLIDE_KNUCKLE_BLAST,
+						0, false, false);
+			else
+				PlayerAnimator.playAnimation(player, player.getMainArm().equals(Arm.LEFT) ? PlayerAnimator.KNUCKLE_BLAST_FLIPPED : PlayerAnimator.KNUCKLE_BLAST,
+						0, false, false);
+		}
 	}
 	
 	@Override
@@ -452,6 +461,12 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityAc
 			return knuckleProgress;
 		else
 			return prevKnuckleProgress + f * tickDelta;
+	}
+	
+	@Override
+	public void cancelPunch()
+	{
+		punchCancelled = true;
 	}
 	
 	@Override

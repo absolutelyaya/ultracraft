@@ -17,6 +17,8 @@ public interface LivingEntityAccessor
 	
 	float getKnuckleBlastProgress(float tickDelta);
 	
+	void cancelPunch();
+	
 	boolean IsCanBleed();
 	
 	void setCanBleedSupplier(Supplier<Boolean> supplier);

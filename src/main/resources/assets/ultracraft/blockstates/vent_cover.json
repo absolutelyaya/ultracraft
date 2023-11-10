@@ -15,6 +15,14 @@
     "facing=west": {
       "y": 270,
       "model": "ultracraft:block/vent_cover"
+    },
+    "facing=up": {
+      "x": -90,
+      "model": "ultracraft:block/vent_cover"
+    },
+    "facing=down": {
+      "x": 90,
+      "model": "ultracraft:block/vent_cover"
     }
   }
 }

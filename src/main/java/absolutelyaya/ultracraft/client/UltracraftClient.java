@@ -210,7 +210,7 @@ public class UltracraftClient implements ClientModInitializer
 			wings.setColor(wingColors[0], 0);
 			wings.setColor(wingColors[1], 1);
 			wings.setPattern(wingPattern);
-			wings.setVisible(false);
+			wings.setVisible(config.get().hivel);
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeBoolean(wings.isActive());
 			buf.writeVector3f(wings.getColors()[0]);
@@ -335,6 +335,7 @@ public class UltracraftClient implements ClientModInitializer
 		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.FLESH, //prevent Sodium from crashing when trying to render Flesh Blocks
 				SODIUM ? RenderLayers.getSolid() : RenderLayers.getFlesh());
 		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.ADORNED_RAILING, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.VENT_COVER, RenderLayer.getCutout());
 		
 		TerminalCodeRegistry.registerCode("florp", t -> t.setTab(new PetTab()));
 		TerminalCodeRegistry.registerCode("somethingwicked", new TerminalCodeRegistry.Result(t -> {
@@ -397,15 +398,6 @@ public class UltracraftClient implements ClientModInitializer
 		screenblood = 0f;
 	}
 	
-	//if no Server override, return client setting
-	public static boolean isFreezeEnabled()
-	{
-		if(MinecraftClient.getInstance().isInSingleplayer())
-			return config.get().freezeVFX;
-		else
-			return TimeFreezeOption.equals(GameruleRegistry.Setting.FORCE_ON);
-	}
-	
 	public static boolean isHandSwapEnabled()
 	{
 		return disableHandswap;
@@ -424,6 +416,8 @@ public class UltracraftClient implements ClientModInitializer
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeBoolean(wings.isActive());
 			ClientPlayNetworking.send(PacketRegistry.SEND_WING_STATE_C2S_PACKET_ID, buf);
+			config.get().hivel = wings.isActive();
+			config.save();
 		}
 		else
 			player.sendMessage(

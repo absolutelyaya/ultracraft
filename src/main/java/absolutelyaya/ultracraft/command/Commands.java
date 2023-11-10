@@ -33,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
 import static net.minecraft.command.argument.EntityArgumentType.player;
+import static net.minecraft.command.argument.EntityArgumentType.players;
 import static net.minecraft.command.argument.IdentifierArgumentType.identifier;
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
@@ -53,9 +54,10 @@ public class Commands
 			.then(literal("progression").requires(source -> source.hasPermissionLevel(2))
 				.then(argument("list", string()).suggests(Commands::progressionListTypeProvider)
 					.then(literal("list").then(argument("target", player()).executes(Commands::executeProgressionList)))
-					.then(literal("grant").then(argument("target", player()).then(argument("entry", identifier()).executes(Commands::executeProgressionGrant))))
-					.then(literal("revoke").then(argument("target", player()).then(argument("entry", identifier()).suggests(Commands::progressionListProvider).executes(Commands::executeProgressionRevoke)))))
-				.then(literal("reset").then(argument("target", player()).executes(Commands::executeProgressionReset)))));
+					.then(literal("grant").then(argument("target", players()).then(argument("entry", identifier()).executes(Commands::executeProgressionGrant))))
+					.then(literal("grant-all").then(argument("target", players()).executes(Commands::executeProgressionGrantAll)))
+					.then(literal("revoke").then(argument("target", players()).then(argument("entry", identifier()).suggests(Commands::progressionListProvider).executes(Commands::executeProgressionRevoke)))))
+				.then(literal("reset").then(argument("target", players()).executes(Commands::executeProgressionReset)))));
 		dispatcher.register(literal("ultrasummon").requires(source -> source.hasPermissionLevel(2)).then(argument("type", string()).suggests((context, builder) -> CommandSource.suggestMatching(List.of("\"tundra//agony\""), builder)).then(argument("pos", Vec3ArgumentType.vec3()).then(argument("yaw", DoubleArgumentType.doubleArg()).executes(Commands::executeSpecialSpawn)))));
 	}
 	
@@ -202,51 +204,103 @@ public class Commands
 	
 	private static int executeProgressionGrant(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
 	{
-		ServerPlayerEntity target = EntityArgumentType.getPlayer(context, "target");
+		Collection<ServerPlayerEntity> targets = EntityArgumentType.getPlayers(context, "target");
 		String type = context.getArgument("list", String.class);
 		Identifier entry = IdentifierArgumentType.getIdentifier(context, "entry");
-		IProgressionComponent progression = UltraComponents.PROGRESSION.get(target);
-		switch(type)
+		for (ServerPlayerEntity target : targets)
 		{
-			case "unlocked" -> progression.unlock(entry);
-			case "obtained" -> progression.obtain(entry);
-			default -> {
-				context.getSource().sendError(Text.translatable("command.ultracraft.progression.invalid_list"));
-				return Command.SINGLE_SUCCESS;
+			IProgressionComponent progression = UltraComponents.PROGRESSION.get(target);
+			switch(type)
+			{
+				case "unlocked" -> progression.unlock(entry);
+				case "obtained" -> progression.obtain(entry);
+				default -> {
+					context.getSource().sendError(Text.translatable("command.ultracraft.progression.invalid_list"));
+					return Command.SINGLE_SUCCESS;
+				}
 			}
+			progression.sync();
 		}
-		progression.sync();
-		context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.grant-success", entry, type, target.getName().getString()));
+		int size = targets.size();
+		if(size == 1)
+			context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.grant-success", entry, type,
+					((ServerPlayerEntity)targets.toArray()[0]).getName()));
+		else
+			context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.grant-multi-success", entry, type, size));
 		return Command.SINGLE_SUCCESS;
 	}
 	
 	private static int executeProgressionRevoke(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
 	{
-		ServerPlayerEntity target = EntityArgumentType.getPlayer(context, "target");
+		Collection<ServerPlayerEntity> targets = EntityArgumentType.getPlayers(context, "target");
 		String type = context.getArgument("list", String.class);
 		Identifier entry = IdentifierArgumentType.getIdentifier(context, "entry");
-		IProgressionComponent progression = UltraComponents.PROGRESSION.get(target);
-		switch(type)
+		for (ServerPlayerEntity target : targets)
 		{
-			case "unlocked" -> progression.lock(entry);
-			case "obtained" -> progression.disown(entry);
-			default -> {
-				context.getSource().sendError(Text.translatable("command.ultracraft.progression.invalid_list"));
-				return Command.SINGLE_SUCCESS;
+			IProgressionComponent progression = UltraComponents.PROGRESSION.get(target);
+			switch (type)
+			{
+				case "unlocked" -> progression.lock(entry);
+				case "obtained" -> progression.disown(entry);
+				default ->
+				{
+					context.getSource().sendError(Text.translatable("command.ultracraft.progression.invalid_list"));
+					return Command.SINGLE_SUCCESS;
+				}
 			}
+			progression.sync();
 		}
-		progression.sync();
-		context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.revoke-success", entry, type, target.getName().getString()));
+		int size = targets.size();
+		if(size == 1)
+			context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.revoke-success", entry, type,
+					((ServerPlayerEntity)targets.toArray()[0]).getName()));
+		else
+			context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.revoke-multi-success", entry, type, size));
 		return Command.SINGLE_SUCCESS;
 	}
 	
 	private static int executeProgressionReset(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
 	{
-		ServerPlayerEntity target = EntityArgumentType.getPlayer(context, "target");
-		IProgressionComponent progression = UltraComponents.PROGRESSION.get(target);
-		progression.reset();
-		progression.sync();
-		context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.reset-success", target.getName()));
+		Collection<ServerPlayerEntity> targets = EntityArgumentType.getPlayers(context, "target");
+		for (ServerPlayerEntity target : targets)
+		{
+			IProgressionComponent progression = UltraComponents.PROGRESSION.get(target);
+			progression.reset();
+			progression.sync();
+		}
+		int size = targets.size();
+		if(size == 1)
+			context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.reset-success",
+					((ServerPlayerEntity)targets.toArray()[0]).getName()));
+		else
+			context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.reset-multi-success", size));
+		return Command.SINGLE_SUCCESS;
+	}
+	
+	private static int executeProgressionGrantAll(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
+	{
+		Collection<ServerPlayerEntity> targets = EntityArgumentType.getPlayers(context, "target");
+		String type = context.getArgument("list", String.class);
+		for (ServerPlayerEntity target : targets)
+		{
+			IProgressionComponent progression = UltraComponents.PROGRESSION.get(target);
+			switch(type)
+			{
+				case "unlocked" -> progression.unlockAll();
+				case "obtained" -> progression.obtainAll();
+				default -> {
+					context.getSource().sendError(Text.translatable("command.ultracraft.progression.invalid_list"));
+					return Command.SINGLE_SUCCESS;
+				}
+			}
+			progression.sync();
+		}
+		int size = targets.size();
+		if(size == 1)
+			context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.grant-all-success", type,
+					((ServerPlayerEntity)targets.toArray()[0]).getName()));
+		else
+			context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.grant-all-multi-success", type, size));
 		return Command.SINGLE_SUCCESS;
 	}
 }

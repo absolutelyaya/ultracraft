@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.components.player;
 
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -50,6 +51,8 @@ public class ArmComponent implements IArmComponent
 	@Override
 	public void cycleArms()
 	{
+		if(provider instanceof LivingEntityAccessor living)
+			living.cancelPunch();
 		IProgressionComponent progression = UltraComponents.PROGRESSION.get(provider);
 		byte start = activeArm;
 		for (int i = 1; i < armIDs.length; i++)

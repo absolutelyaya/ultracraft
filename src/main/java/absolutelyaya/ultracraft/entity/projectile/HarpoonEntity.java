@@ -7,6 +7,7 @@ import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
 import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
@@ -23,7 +24,9 @@ import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharpshooter
@@ -43,7 +46,7 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 		super.initDataTracker();
 		dataTracker.startTracking(START_POSITION, new Vector3f());
 		dataTracker.startTracking(RETURNING, false);
-		dataTracker.startTracking(STACK, ItemStack.EMPTY);
+		dataTracker.startTracking(STACK, ItemRegistry.HARPOON.getDefaultStack());
 	}
 	
 	public static HarpoonEntity spawn(LivingEntity owner, Vec3d pos, Vec3d vel)
@@ -59,7 +62,7 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 	@Override
 	protected ItemStack asItemStack()
 	{
-		return ItemRegistry.HARPOON.getDefaultStack();
+		return dataTracker.get(STACK);
 	}
 	
 	@Override
@@ -71,7 +74,8 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 		if(getOwner() != null && getOwner().isPlayer() && distanceTo(getOwner()) > 32)
 		{
 			getOwner().playSound(SoundRegistry.SKEWER_DISOWN, 1, 1);
-			UltracraftClient.HITSCAN_HANDLER.removeMoving(getUuid());
+			if(getWorld().isClient)
+				UltracraftClient.HITSCAN_HANDLER.removeMoving(getUuid());
 			owner = null;
 		}
 		if(victim == null && dataTracker.get(GROUND_TIME) > 20 && getOwner() != null && !getOwner().isPlayer())
@@ -107,10 +111,20 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 		}
 	}
 	
+	@Override
+	public void setOwner(@Nullable Entity entity)
+	{
+		owner = entity;
+		if(entity != null)
+			pickupType = entity instanceof PlayerEntity player && !player.isCreative() ? PickupPermission.ALLOWED : PickupPermission.CREATIVE_ONLY;
+	}
+	
 	protected void despawn()
 	{
 		getWorld().addParticle(new ItemStackParticleEffect(ParticleTypes.ITEM, asItemStack()),
 				getX(), getY(), getZ(), 0f, 0f, 0f);
+		if(!(owner instanceof PlayerEntity player && player.isCreative()) && getWorld().getGameRules().getBoolean(GameRules.DO_MOB_LOOT))
+			dropStack(asItemStack());
 		if(!getWorld().isClient())
 			discard();
 	}
@@ -196,5 +210,23 @@ public class HarpoonEntity extends AbstractSkewerEntity implements IIgnoreSharps
 	public void setStack(ItemStack ammoStack)
 	{
 		dataTracker.set(STACK, ammoStack);
+	}
+	
+	@Override
+	protected boolean tryPickup(PlayerEntity player)
+	{
+		if(isOwner(player))
+			return super.tryPickup(player);
+		else
+			return false;
+	}
+	
+	@Override
+	void onPunchBroken()
+	{
+		if(owner != null)
+			setReturning(true);
+		else
+			despawn();
 	}
 }

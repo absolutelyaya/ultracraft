@@ -115,7 +115,7 @@ public class KeybindRegistry
 				PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 				buf.writeBoolean(b);
 				if(b)
-					buf.writeInt(entity.getId());
+					buf.writeVarInt(entity.getId());
 				buf.writeVector3f(player.getVelocity().toVector3f());
 				buf.writeBoolean(UltracraftClient.getConfig().showPunchArea);
 				ClientPlayNetworking.send(PacketRegistry.PUNCH_PACKET_ID, buf);

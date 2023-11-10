@@ -3,13 +3,24 @@ package absolutelyaya.ultracraft.registry;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.block.CerberusBlock;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
+import absolutelyaya.ultracraft.entity.other.BloodOrbEntity;
+import absolutelyaya.ultracraft.entity.other.SoulOrbEntity;
+import absolutelyaya.ultracraft.entity.projectile.CancerBulletEntity;
+import absolutelyaya.ultracraft.entity.projectile.CerberusBallEntity;
+import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
+import absolutelyaya.ultracraft.entity.projectile.ThrownSoapEntity;
 import absolutelyaya.ultracraft.item.SkullItem;
 import absolutelyaya.ultracraft.item.*;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
+import net.minecraft.block.DispenserBlock;
+import net.minecraft.block.dispenser.ItemDispenserBehavior;
+import net.minecraft.block.dispenser.ProjectileDispenserBehavior;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
@@ -18,6 +29,11 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
+import net.minecraft.util.math.BlockPointer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Position;
+import net.minecraft.world.World;
 
 public class ItemRegistry
 {
@@ -254,6 +270,68 @@ public class ItemRegistry
 			content.add(BlockRegistry.HELL_OBSERVER.asItem());
 			content.add(BlockRegistry.HELL_SPAWNER.asItem());
 			content.add(HELL_MASS);
+		});
+		//Dispenser Behaviors
+		DispenserBlock.registerBehavior(HELL_BULLET, new ProjectileDispenserBehavior(){
+			@Override
+			protected ProjectileEntity createProjectile(World world, Position position, ItemStack stack) {
+				HellBulletEntity bullet = new HellBulletEntity(EntityRegistry.HELL_BULLET, world);
+				bullet.setItem(stack);
+				bullet.setPos(position.getX(), position.getY(), position.getZ());
+				return bullet;
+			}
+		});
+		DispenserBlock.registerBehavior(CERBERUS_BALL, new ProjectileDispenserBehavior(){
+			@Override
+			protected ProjectileEntity createProjectile(World world, Position position, ItemStack stack) {
+				CerberusBallEntity bullet = new CerberusBallEntity(EntityRegistry.CERBERUS_BALL, world);
+				bullet.setItem(stack);
+				bullet.setPos(position.getX(), position.getY(), position.getZ());
+				return bullet;
+			}
+		});
+		DispenserBlock.registerBehavior(CANCER_BULLET, new ProjectileDispenserBehavior(){
+			@Override
+			protected ProjectileEntity createProjectile(World world, Position position, ItemStack stack) {
+				CancerBulletEntity bullet = new CancerBulletEntity(EntityRegistry.CANCER_BULLET, world);
+				bullet.setItem(stack);
+				bullet.setPos(position.getX(), position.getY(), position.getZ());
+				return bullet;
+			}
+		});
+		DispenserBlock.registerBehavior(SOAP, new ProjectileDispenserBehavior(){
+			@Override
+			protected ProjectileEntity createProjectile(World world, Position position, ItemStack stack) {
+				ThrownSoapEntity bullet = new ThrownSoapEntity(EntityRegistry.SOAP, world);
+				bullet.setPos(position.getX(), position.getY(), position.getZ());
+				return bullet;
+			}
+		});
+		DispenserBlock.registerBehavior(SOUL_ORB, new ItemDispenserBehavior(){
+			@Override
+			protected ItemStack dispenseSilently(BlockPointer pointer, ItemStack stack)
+			{
+				Direction direction = pointer.getBlockState().get(DispenserBlock.FACING);
+				BlockPos blockPos = pointer.getPos().offset(direction);
+				SoulOrbEntity orb = EntityRegistry.SOUL_ORB.spawn(pointer.getWorld(), stack.getNbt(), i -> {}, blockPos,
+						SpawnReason.DISPENSER, false, false);
+				if (orb != null)
+					stack.decrement(1);
+				return stack;
+			}
+		});
+		DispenserBlock.registerBehavior(BLOOD_ORB, new ItemDispenserBehavior(){
+			@Override
+			protected ItemStack dispenseSilently(BlockPointer pointer, ItemStack stack)
+			{
+				Direction direction = pointer.getBlockState().get(DispenserBlock.FACING);
+				BlockPos blockPos = pointer.getPos().offset(direction);
+				BloodOrbEntity orb = EntityRegistry.BLOOD_ORB.spawn(pointer.getWorld(), stack.getNbt(), i -> {}, blockPos,
+						SpawnReason.DISPENSER, false, false);
+				if (orb != null)
+					stack.decrement(1);
+				return stack;
+			}
 		});
 	}
 }

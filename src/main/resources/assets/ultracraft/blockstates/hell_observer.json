@@ -16,6 +16,14 @@
       "y": 270,
       "model": "ultracraft:block/hell_observer_inactive0"
     },
+    "facing=up,active=0": {
+      "x": -90,
+      "model": "ultracraft:block/hell_observer_inactive0"
+    },
+    "facing=down,active=0": {
+      "x": 90,
+      "model": "ultracraft:block/hell_observer_inactive0"
+    },
     "facing=north,active=1": {
       "y": 0,
       "model": "ultracraft:block/hell_observer_inactive1"
@@ -32,6 +40,14 @@
       "y": 270,
       "model": "ultracraft:block/hell_observer_inactive1"
     },
+    "facing=up,active=1": {
+      "x": -90,
+      "model": "ultracraft:block/hell_observer_inactive1"
+    },
+    "facing=down,active=1": {
+      "x": 90,
+      "model": "ultracraft:block/hell_observer_inactive1"
+    },
     "facing=north,active=2": {
       "y": 0,
       "model": "ultracraft:block/hell_observer_active"
@@ -46,6 +62,14 @@
     },
     "facing=west,active=2": {
       "y": 270,
+      "model": "ultracraft:block/hell_observer_active"
+    },
+    "facing=up,active=2": {
+      "x": -90,
+      "model": "ultracraft:block/hell_observer_active"
+    },
+    "facing=down,active=2": {
+      "x": 90,
       "model": "ultracraft:block/hell_observer_active"
     }
   }

@@ -83,7 +83,8 @@ public class HarpoonGunItem extends AbstractWeaponItem implements GeoItem
 				harpoon.setStack(ammoStack.copy());
 				ammoStack.decrement(1);
 			}
-				else harpoon.setStack(ItemRegistry.HARPOON.getDefaultStack());
+			else
+				harpoon.setStack(ItemRegistry.HARPOON.getDefaultStack());
 			world.spawnEntity(harpoon);
 			cdm.setCooldown(this, 15, GunCooldownManager.PRIMARY);
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), "fire");

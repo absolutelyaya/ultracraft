@@ -26,6 +26,7 @@ public class HeavyEntities
 		registerEntity(EntityRegistry.SWORDSMACHINE);
 		registerEntity(EntityRegistry.DESTINY_SWORDSMACHINE);
 		registerEntity(EntityRegistry.HIDEOUS_MASS);
+		registerEntity(EntityRegistry.RODENT);
 		
 		registerEntity(EntityType.ENDER_DRAGON);
 		registerEntity(EntityType.IRON_GOLEM);

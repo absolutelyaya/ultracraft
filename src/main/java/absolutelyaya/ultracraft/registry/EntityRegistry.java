@@ -39,7 +39,7 @@ public class EntityRegistry
 			EntityType.Builder.create(HideousMassEntity::new, SpawnGroup.MONSTER).setDimensions(8F, 7F).maxTrackingRange(8).build("hideous_mass"));
 	public static final EntityType<RetaliationEntity> RETALIATION = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "retaliation"),
-			EntityType.Builder.create(RetaliationEntity::new, SpawnGroup.MONSTER).setDimensions(1F, 2F).maxTrackingRange(8).build("retaliation"));
+			EntityType.Builder.create(RetaliationEntity::new, SpawnGroup.MONSTER).setDimensions(1F, 2F).maxTrackingRange(8).disableSummon().build("retaliation"));
 	public static final EntityType<SwordsmachineEntity> SWORDSMACHINE = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "swordsmachine"),
 			EntityType.Builder.create(SwordsmachineEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 2.5F).maxTrackingRange(8).build("swordsmachine"));
