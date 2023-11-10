@@ -33,7 +33,7 @@
   - grants all progression entries to a given list (shocker)
 ## Tweaks
 - Buffed V2 (Max Health 40 -> 80)
-- Nerfed Nails (Damage 0.4 -> 0.35)
+- Nerfed Nails (Damage 0.4 -> 0.3)
 - Added Harpoon Damage to `ultracraft:unboosted` damagetype Tag
   - This means harpoon damage doesn't get multiplied by 2.5 when applied to non-mod entities
 - Buffed Stamina regen (1 -> 1.5 per tick)
