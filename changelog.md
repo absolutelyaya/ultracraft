@@ -26,6 +26,7 @@
   - Harpoons return to their owner when broken
 - Harpoons now drop as an item instead of disappearing when broken/discarded
 - The Knuckleblaster can now break more things (`ultracraft:knuckle_breakable` blocktag)
+- Fixed Hell Observers not syncing their data correctly
 ## Settings & Gamerules
 ## Commands
 - `/ultracraft progression` subcommands now support multiple targets
@@ -46,6 +47,7 @@
 - Glass is no longer breakable by slams per default
 - Blood Fluid is no longer pushable with pistons
 - Fixed Z-Fighting on Cerberus Block
+- Made ███████████ unsummonable
 - Beam Projectiles get discarded more quickly now
 - Fixed Chargeable Weapons (like pierce Revolver) still shaking after switching variants
 - Fixed Knuckle blasting while sliding breaking the slide animation

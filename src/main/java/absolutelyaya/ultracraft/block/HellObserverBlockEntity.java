@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.block;
 import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -150,6 +151,7 @@ public class HellObserverBlockEntity extends BlockEntity
 		this.checkDimensions = size;
 		this.previewArea = previewArea;
 		markDirty();
+		world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_ALL);
 	}
 	
 	@Override
