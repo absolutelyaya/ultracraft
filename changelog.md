@@ -49,5 +49,6 @@
 - Fixed Chargeable Weapons (like pierce Revolver) still shaking after switching variants
 - Fixed Knuckle blasting while sliding breaking the slide animation
 - Hivel State is now saved in client settings
+- Fixed a minor rendering issue with the Hell Observers area preview
 ## Resource Changes
 ## API Changes

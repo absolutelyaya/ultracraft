@@ -29,13 +29,12 @@ public class HellObserverRenderer implements BlockEntityRenderer<HellObserverBlo
 		}
 		else if(client.crosshairTarget instanceof BlockHitResult bHit && client.world.getBlockState(bHit.getBlockPos()).isOf(BlockRegistry.HELL_OBSERVER))
 		{
-			BlockEntity entity1 = client.world.getBlockEntity(bHit.getBlockPos());
-			if(entity1 instanceof HellObserverBlockEntity hellObserver && !hellObserver.shouldPreviewArea())
-				return;
 			focused = entity.getPos().equals(bHit.getBlockPos());
 			distance = bHit.getBlockPos().getManhattanDistance(entity.getPos());
 		}
 		else return;
+		if(!entity.shouldPreviewArea())
+			return;
 		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayer.LINES); //POSITION COLOR NORMAL PADDING
 		Vec3i size = entity.getCheckDimensions();
 		Vec3i offset = entity.getCheckOffset();
