@@ -25,6 +25,7 @@
 - Skewer Entities can now be punched to be broken
   - Harpoons return to their owner when broken
 - Harpoons now drop as an item instead of disappearing when broken/discarded
+- The Knuckleblaster can now break more things (`ultracraft:knuckle_breakable` blocktag)
 ## Settings & Gamerules
 ## Commands
 - `/ultracraft progression` subcommands now support multiple targets
