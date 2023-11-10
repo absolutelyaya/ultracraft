@@ -48,5 +48,6 @@
 - Beam Projectiles get discarded more quickly now
 - Fixed Chargeable Weapons (like pierce Revolver) still shaking after switching variants
 - Fixed Knuckle blasting while sliding breaking the slide animation
+- Hivel State is now saved in client settings
 ## Resource Changes
 ## API Changes

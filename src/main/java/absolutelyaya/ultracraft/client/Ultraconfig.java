@@ -92,4 +92,6 @@ public class Ultraconfig implements ConfigData
 	public List<UUID> blockedPlayers = new ArrayList<>();
 	@ConfigEntry.Gui.Excluded
 	public boolean armVisible = true;
+	@ConfigEntry.Gui.Excluded
+	public boolean hivel = false;
 }
