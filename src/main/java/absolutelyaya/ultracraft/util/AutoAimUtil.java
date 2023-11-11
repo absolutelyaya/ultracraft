@@ -7,10 +7,7 @@ import absolutelyaya.ultracraft.entity.other.BackTank;
 import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
 import absolutelyaya.ultracraft.entity.projectile.EjectedCoreEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.ExperienceOrbEntity;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -76,7 +73,8 @@ public class AutoAimUtil
 	{
 		boolean isSourceCoin = source instanceof ThrownCoinEntity;
 		return world.getOtherEntities(attacker, source.getBoundingBox().expand(32f),
-						e -> !e.equals(source) && (isSourceCoin && isMarksmanHittable(e)) ||
-									 (!isSourceCoin && !(e instanceof IIgnoreSharpshooter) && ((EntityAccessor)e).isTargettable()) && !e.isTeammate(attacker));
+						e -> !e.equals(source) && ((isSourceCoin && isMarksmanHittable(e)) ||
+									 (!isSourceCoin && !(e instanceof IIgnoreSharpshooter) && ((EntityAccessor)e).isTargettable())) && !e.isTeammate(attacker) &&
+									 !(e instanceof Tameable tameable && tameable.getOwner().equals(attacker)));
 	}
 }
