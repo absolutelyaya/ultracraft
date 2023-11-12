@@ -171,9 +171,10 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Override
 	public void updateSpeedGamerule()
 	{
-		if(isWingsActive() && curSpeedMod != null)
-		{
+		if(curSpeedMod != null)
 			getAttributes().removeModifiers(curSpeedMod);
+		if(isWingsActive())
+		{
 			curSpeedMod = getSpeedMod();
 			getAttributes().addTemporaryModifiers(curSpeedMod);
 		}

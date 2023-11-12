@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft;
 
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
+import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.command.Commands;
 import absolutelyaya.ultracraft.command.WhitelistCommand;
 import absolutelyaya.ultracraft.item.AbstractNailgunItem;
@@ -111,6 +112,7 @@ public class Ultracraft implements ModInitializer
             if(player.getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(Stats.PLAY_TIME)) == 0)
                 if(player.getWorld().getGameRules().getBoolean(GameruleRegistry.START_WITH_PIERCER))
                     player.giveItemStack(ItemRegistry.PIERCE_REVOLVER.getDefaultStack());
+            ((WingedPlayerEntity)player).updateSpeedGamerule();
         }));
         
         FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent(modContainer -> VERSION = modContainer.getMetadata().getVersion().getFriendlyString());

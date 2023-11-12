@@ -1,4 +1,5 @@
 ## Major Changes
+- Fixed ultra-speed gamerule not affecting walk speed
 ## Settings & Gamerules
 ## Commands
 ## Tweaks

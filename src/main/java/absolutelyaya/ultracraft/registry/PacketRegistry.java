@@ -278,6 +278,7 @@ public class PacketRegistry
 			{
 				wings.setVisible(wingsActive);
 				wings.sync();
+				((WingedPlayerEntity)player).updateSpeedGamerule();
 				if(whitelisted)
 					return;
 				PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
