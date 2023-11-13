@@ -441,7 +441,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 		if(!getWorld().isClient && getServer() != null)
 			getServer().execute(() -> ExplosionHandler.explosion(parrier, getWorld(), new Vec3d(getX(), getY(), getZ()),
 					getDamageSources().explosion(parrier, parrier), 10f, 0f, 5.5f, true));
-		damage(getDamageSources().mobAttack(parrier), 10);
+		damage(DamageSources.get(getWorld(), DamageSources.INTERRUPT, parrier), 10);
 		dataTracker.set(WAS_INTERRUPTED, true);
 	}
 	
