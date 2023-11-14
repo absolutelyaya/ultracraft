@@ -12,6 +12,7 @@ import net.minecraft.entity.ai.goal.ActiveTargetGoal;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -142,6 +143,14 @@ public class SchismEntity extends AbstractHuskEntity implements GeoEntity, Inter
 		damage(DamageSources.get(getWorld(), DamageSources.INTERRUPT, interruptor), 5f);
 		ExplosionHandler.explosion(interruptor, getWorld(), new Vec3d(getX(), getY(), getZ()),
 				getDamageSources().explosion(this, interruptor), 5f, 2f, 3f, true);
+	}
+	
+	@Override
+	public boolean damage(DamageSource source, float amount)
+	{
+		if(source.isOf(DamageSources.NAIL))
+			amount *= 1.5f;
+		return super.damage(source, amount);
 	}
 	
 	@Override

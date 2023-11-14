@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.entity.husk;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -10,6 +11,7 @@ import net.minecraft.entity.ai.goal.*;
 import net.minecraft.entity.ai.pathing.PathNodeType;
 import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -126,6 +128,14 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 				lookAtEntity(getTarget(), 180, 180);
 			setBodyYaw(headYaw);
 		}
+	}
+	
+	@Override
+	public boolean damage(DamageSource source, float amount)
+	{
+		if(source.isOf(DamageSources.NAIL))
+			amount *= 2f;
+		return super.damage(source, amount);
 	}
 	
 	@Override

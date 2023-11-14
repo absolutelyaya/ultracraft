@@ -83,6 +83,8 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 	{
 		if(fallDistance > 0f && !source.isOf(DamageTypes.FALL))
 			amount *= 1.5;
+		if(source.isOf(DamageSources.NAIL))
+			amount *= 2f;
 		return super.damage(source, amount);
 	}
 	
