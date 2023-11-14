@@ -77,6 +77,7 @@ import net.minecraft.world.World;
 import org.joml.Vector3f;
 import software.bernie.geckolib.network.GeckoLibNetwork;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Environment(EnvType.CLIENT)
@@ -102,6 +103,7 @@ public class UltracraftClient implements ClientModInitializer
 	static Vector3f[] wingColors = new Vector3f[] { new Vector3f(247f, 255f, 154f), new Vector3f(117f, 154f, 255f) };
 	static final Vector3f[] defaultWingColors = new Vector3f[] { new Vector3f(247f, 255f, 154f), new Vector3f(117f, 154f, 255f) };
 	static int visualFreezeTicks;
+	static Optional<Boolean> forcedHivel = Optional.empty();
 	
 	static UltraHudRenderer hudRenderer;
 	static ConfigHolder<Ultraconfig> config;
@@ -210,7 +212,8 @@ public class UltracraftClient implements ClientModInitializer
 			wings.setColor(wingColors[0], 0);
 			wings.setColor(wingColors[1], 1);
 			wings.setPattern(wingPattern);
-			wings.setVisible(config.get().hivel);
+			if(forcedHivel.isEmpty())
+				wings.setVisible(config.get().hivel);
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeBoolean(wings.isActive());
 			buf.writeVector3f(wings.getColors()[0]);
@@ -437,10 +440,14 @@ public class UltracraftClient implements ClientModInitializer
 	
 	public static void setHiVel(boolean b, boolean fromServer)
 	{
+		if(forcedHivel.isPresent())
+			b = forcedHivel.get();
 		PlayerEntity player = MinecraftClient.getInstance().player;
+		if(player == null)
+			return;
 		IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
 		wings.setVisible(b);
-		if(!fromServer && player != null)
+		if(!fromServer)
 		{
 			PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 			buf.writeBoolean(b);
@@ -467,7 +474,9 @@ public class UltracraftClient implements ClientModInitializer
 			{
 				onExternalRuleUpdate(GameruleRegistry.HIVEL_MODE, (HiVelOption = GameruleRegistry.Setting.values()[value]).name());
 				if(HiVelOption != GameruleRegistry.Setting.FREE)
-					setHiVel(HiVelOption == GameruleRegistry.Setting.FORCE_ON, false);
+					forcedHivel = Optional.of(HiVelOption == GameruleRegistry.Setting.FORCE_ON);
+				else
+					forcedHivel = Optional.empty();
 			}
 			case 2 -> onExternalRuleUpdate(GameruleRegistry.TIME_STOP, (TimeFreezeOption = GameruleRegistry.Setting.values()[value]).name());
 			case 3 -> onExternalRuleUpdate(GameruleRegistry.DISABLE_HANDSWAP, disableHandswap = value == 1);

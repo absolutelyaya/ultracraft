@@ -293,7 +293,6 @@ public class PacketRegistry
 			Vector3f wingColor = buf.readVector3f(), metalColor = buf.readVector3f();
 			String pattern = Ultracraft.checkSupporter(player.getUuid(), false) ? buf.readString() : "";
 			server.execute(() -> {
-				wings.setVisible(wingsActive);
 				wings.setColor(wingColor, 0);
 				wings.setColor(metalColor, 1);
 				wings.setPattern(pattern);
