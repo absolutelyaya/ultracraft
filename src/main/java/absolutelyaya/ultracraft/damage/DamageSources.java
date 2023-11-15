@@ -41,6 +41,8 @@ public class DamageSources
 	public static final RegistryKey<DamageType> PUNCH = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "punch"));
 	public static final RegistryKey<DamageType> KNUCKLE_PUNCH = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "knuckle_punch"));
 	public static final RegistryKey<DamageType> CANCER = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "cancer"));
+	public static final RegistryKey<DamageType> PIERCER = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "piercer"));
+	public static final RegistryKey<DamageType> CORE_EJECT = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, new Identifier(Ultracraft.MOD_ID, "core_eject"));
 	
 	public static DamageSource get(World world, RegistryKey<DamageType> type)
 	{

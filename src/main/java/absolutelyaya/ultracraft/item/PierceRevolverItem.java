@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.PierceRevolverRenderer;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
@@ -113,7 +114,7 @@ public class PierceRevolverItem extends AbstractRevolverItem
 				onAltFire(world, player);
 			}
 			if(!world.isClient)
-				ServerHitscanHandler.performHitscan(user, ServerHitscanHandler.REVOLVER_PIERCE, 2, 3, true);
+				ServerHitscanHandler.performHitscan(user, ServerHitscanHandler.REVOLVER_PIERCE, 2, 3, true, DamageSources.PIERCER);
 		}
 		else if(!world.isClient && user instanceof PlayerEntity)
 			triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "stop");

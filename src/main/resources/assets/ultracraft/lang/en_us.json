@@ -235,6 +235,10 @@
   "death.attack.cancer": "%1$s got ultracancer from %2$s",
   "death.attack.cancer.player": "%1$s got ultracancer from %2$s",
   "death.attack.cancer.item": "%1$s got ultracancer from %2$s using %3$s",
+  "death.attack.piercer": "%1$s was pierced by %2$s",
+  "death.attack.piercer.item": "%1$s was pierced by %2$s using %3$s",
+  "death.attack.core_eject": "%1$s was Core-Ejected by %2$s",
+  "death.attack.core_eject.item": "%1$s was Core-Ejected by %2$s using %3$s",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 
