@@ -7,6 +7,7 @@
 - Added Piercer Alt-Fire Damage Type
 - Terminal improvements
   - Terminals are now automatically unfocused when out of reach
+- Fixed issue with Soap visually disappearing after picking it up
 ## Settings & Gamerules
 ## Commands
 - Added `ultrabossbar <bossbar-id>` subcommand to `/ultracraft`

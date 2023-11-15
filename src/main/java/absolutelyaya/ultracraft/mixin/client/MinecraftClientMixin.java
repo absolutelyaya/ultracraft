@@ -119,6 +119,8 @@ public abstract class MinecraftClientMixin
 				isShooting = options.attackKey.isPressed();
 				UltraComponents.WINGED_ENTITY.get(player).setPrimaryFiring(isShooting);
 			}
+			if(isShooting && !(player.getInventory().getMainHandStack().getItem() instanceof AbstractWeaponItem))
+				stopShooting();
 		}
 		else if(isShooting)
 			stopShooting();
