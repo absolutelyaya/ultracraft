@@ -22,5 +22,6 @@
 - Added Trails to Coins
 - Added Flowers and Tall Flowers to fragile Block Tag
   - Nothing pure is allowed to exist in this cruel world :pensive:
+- Fixed Machinesword Attack sounds for `Better Combat` not playing
 ## Resource Changes
 ## API Changes

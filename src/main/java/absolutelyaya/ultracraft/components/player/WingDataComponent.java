@@ -64,7 +64,6 @@ public class WingDataComponent implements IWingDataComponent, AutoSyncedComponen
 			UltraHudRenderer.onUpdateWingsActive();
 		if(provider instanceof WingedPlayerEntity winged)
 			winged.updateSpeedGamerule(b);
-		System.out.println("set visisble " + b);
 	}
 	
 	public void sync()

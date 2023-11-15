@@ -12,7 +12,7 @@
         "animation": "bettercombat:two_handed_slash_horizontal_right",
         "upswing": 0.25,
         "swing_sound": {
-          "id": "ultracraft:item.machinesword_attack"
+          "id": "ultracraft:item.machinesword.attack"
         }
       },
       {
@@ -21,7 +21,7 @@
         "animation": "bettercombat:two_handed_slash_horizontal_left",
         "upswing": 0.25,
         "swing_sound": {
-          "id": "ultracraft:item.machinesword_attack"
+          "id": "ultracraft:item.machinesword.attack"
         }
       },
       {
@@ -31,7 +31,7 @@
         "animation": "bettercombat:two_handed_slam",
         "upswing": 0.5,
         "swing_sound": {
-          "id": "ultracraft:item.machinesword_attack"
+          "id": "ultracraft:item.machinesword.attack"
         }
       }
     ]
