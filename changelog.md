@@ -5,6 +5,8 @@
 - Fixed ultra-speed Gamerule
 - Added Core Eject Damage Type
 - Added Piercer Alt-Fire Damage Type
+- Terminal improvements
+  - Terminals are now automatically unfocused when out of reach
 ## Settings & Gamerules
 ## Commands
 - Added `ultrabossbar <bossbar-id>` subcommand to `/ultracraft`

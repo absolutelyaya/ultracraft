@@ -185,6 +185,8 @@ public abstract class CameraMixin
 			curOffset = curOffset.lerp(offset, tickDelta / 4f);
 			setPos(curOffset);
 		}
+		if(focusedEntity instanceof WingedPlayerEntity winged && focusedEntity.squaredDistanceTo(winged.getFocusedTerminal().getPos().toCenterPos()) > 4*4)
+			winged.setFocusedTerminal(null);
 	}
 	
 	void hellObserverAreaEditorUpdate(HellObserverBlockEntity observer, HellObserverScreen screen, float tickDelta)
