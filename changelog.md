@@ -7,6 +7,9 @@
 - Added Piercer Alt-Fire Damage Type
 ## Settings & Gamerules
 ## Commands
+- Added `ultrabossbar <bossbar-id>` subcommand to `/ultracraft`
+  - changes a chosen bossbars style to the ultracraft one
+    - why are the bossbar styles hard coded into the `/bossbar` command Mojang, even if you're not planning on it, for the pure possibility that you (OR SOMEONE ELSE \*WINKS\*) ever want to add another style, they can without much trouble. Like,, bruh
 ## Tweaks
 ## Minor Changes
 - Fixed logic error in auto aiming
