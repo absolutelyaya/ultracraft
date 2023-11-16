@@ -145,22 +145,22 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 		Matrix3f normalMatrix = new Matrix3f(matrices.peek().getNormalMatrix());
 		
 		poseMatrix.rotate(rotStep);
-		consumer.vertex(poseMatrix, 8f, -11f, 8.01f).color(c).texture(0.25f, 22f / 32f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, 8f, 11f, 8.01f).color(c).texture(0.25f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, 0f, 11f, 8.01f).color(c).texture(0f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, 0f, -11f, 8.01f).color(c).texture(0f, 22f / 32f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 8f, -24f, 8.01f).color(c).texture(0.2f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 8f, 16f, 8.01f).color(c).texture(0.2f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 0f, 16f, 8.01f).color(c).texture(0f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 0f, -24f, 8.01f).color(c).texture(0f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
 		
 		poseMatrix.rotate(rotStep);
-		consumer.vertex(poseMatrix, -8f, -21f, -8.01f).color(c).texture(0.75f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, -8f, 11f, -8.01f).color(c).texture(0.75f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, 8f, 11f, -8.01f).color(c).texture(0.25f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, 8f, -21f, -8.01f).color(c).texture(0.25f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, -8f, -24f, -8.01f).color(c).texture(0.6f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, -8f, 16f, -8.01f).color(c).texture(0.6f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 8f, 16f, -8.01f).color(c).texture(0.2f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 8f, -24f, -8.01f).color(c).texture(0.2f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
 		
 		poseMatrix.rotate(rotStep);
-		consumer.vertex(poseMatrix, -8f, 11f, 8.01f).color(c).texture(0.75f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, -8f, -11f, 8.01f).color(c).texture(0.75f, 22f / 32f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, 0f, -11f, 8.01f).color(c).texture(1f, 22f / 32f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, 0f, 11f, 8.01f).color(c).texture(1f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, -8f, 16f, 8.01f).color(c).texture(0.6f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, -8f, -24f, 8.01f).color(c).texture(0.6f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 0f, -24f, 8.01f).color(c).texture(0.8f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 0f, 16f, 8.01f).color(c).texture(0.8f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
 		
 		matrices.pop();
 	}

@@ -161,24 +161,24 @@ public class TerminalScreen extends Screen
 			if(terminal.getGraffitiTexture() != null)
 			{
 				int scale = client.options.getGuiScale().getValue();
-				int x = 64, y = height / 2 - (scale == 0 || scale == 4 ? 96 : 64);
+				int x = 48, y = height / 2 - (scale == 0 || scale == 4 ? 96 : 64);
+				y= 80;
 				graffitiTexturePos = new Vector2i(x, y);
 				context.getMatrices().push();
 				context.getMatrices().translate(x, y, 0f);
-				context.getMatrices().scale(0.5f, 0.5f, 0.5f);
-				context.drawTexture(CHECKERS, 0, 0, 0, 0, 256, 256);
-				context.drawTexture(terminal.getGraffitiTexture(), 0, 0, 0, 0, 256, 256);
+				context.getMatrices().scale(4f, 4f, 4f);
+				context.drawTexture(CHECKERS, 0, 0, 0, 0, 40, 40, 40, 40);
+				context.drawTexture(terminal.getGraffitiTexture(), 0, 0, 0, 0, 40, 40, 40, 40);
 				context.getMatrices().pop();
-				context.drawBorder(x - 1, y - 1, 34, 90, 0xffffffff);
-				context.drawBorder(x + 96 - 1, y - 1, 34, 90, 0xffffffff);
-				context.drawBorder(x + 32, y - 1, 64, 130, 0xffffffff);
-				context.fill(x, y + 89, x + 32, y + 128, 0x88000000);
-				context.fill(x + 96, y + 89, x + 32 + 96, y + 128, 0x88000000);
-				context.drawBorder(x - 1, y - 1, 130, 130, 0xffffffff);
-				if(mouseX > graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 128 && mouseY > graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 128)
+				context.drawBorder(x - 1, y - 1, 34, 162, 0xffffffff); //left
+				context.drawBorder(x + 96 - 1, y - 1, 34, 162, 0xffffffff); //right
+				context.drawBorder(x + 32, y - 1, 64, 162, 0xffffffff); //back
+				context.fill(x + 96 + 33, y, x + 160, y + 160, 0x88000000);
+				context.drawBorder(x - 1, y - 1, 162, 162, 0xffffffff);
+				if(mouseX >= graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 160 && mouseY >= graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 160)
 				{
-					int mx = Math.round(mouseX / 4f) * 4;
-					int my = Math.round(mouseY / 4f) * 4;
+					int mx = Math.round((mouseX - 2) / 4f) * 4;
+					int my = Math.round((mouseY - 2) / 4f) * 4;
 					int c = paletteWidget.getSelectedColor();
 					if(c != 0)
 						context.fill(mx, my, mx + 4, my + 4, terminal.getPaletteColor(c));
@@ -208,10 +208,10 @@ public class TerminalScreen extends Screen
 		if(paletteColorPicker.mouseDragged(mouseX, mouseY, button, deltaX, deltaY))
 			return true;
 		if(!editPalleteCheckbox.isChecked() && terminal.getTab().id.equals(Tab.GRAFFITI_ID) &&
-				   mouseX > graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 128 && mouseY > graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 128)
+				   mouseX >= graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 160 && mouseY >= graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 160)
 		{
-			int x = (int)Math.round((mouseX - graffitiTexturePos.x) / 128f * 32f);
-			int y = (int)Math.round((mouseY - graffitiTexturePos.y) / 128f * 32f);
+			int x = (int)Math.round((mouseX - graffitiTexturePos.x - 2) / 160f * 40f);
+			int y = (int)Math.round((mouseY - graffitiTexturePos.y - 2) / 160f * 40f);
 			terminal.setPixel(x, y, (byte)paletteWidget.getSelectedColor());
 			return true;
 		}
@@ -225,10 +225,10 @@ public class TerminalScreen extends Screen
 		if(!exportName.isMouseOver(mouseX, mouseY))
 			exportName.setFocused(false);
 		if(!editPalleteCheckbox.isChecked() && terminal.getTab().id.equals(Tab.GRAFFITI_ID) &&
-				   mouseX > graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 128 && mouseY > graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 128)
+				   mouseX >= graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 160 && mouseY >= graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 160)
 		{
-			int x = (int)Math.round((mouseX - graffitiTexturePos.x) / 128f * 32f);
-			int y = (int)Math.round((mouseY - graffitiTexturePos.y) / 128f * 32f);
+			int x = (int)Math.round((mouseX - graffitiTexturePos.x - 2) / 160f * 40f);
+			int y = (int)Math.round((mouseY - graffitiTexturePos.y - 2) / 160f * 40f);
 			terminal.setPixel(x, y, (byte)paletteWidget.getSelectedColor());
 			return true;
 		}

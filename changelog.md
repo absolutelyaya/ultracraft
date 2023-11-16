@@ -7,6 +7,9 @@
 - Added Piercer Alt-Fire Damage Type
 - Terminal improvements
   - Terminals are now automatically unfocused when out of reach
+  - Graffiti cursor is now more accurate
+  - Graffiti now spans the entire back of Terminals
+    - This also means Graffitis texture size has been increased (32x32 -> 40x40)
 - Fixed issue with Soap visually disappearing after picking it up
 ## Settings & Gamerules
 ## Commands

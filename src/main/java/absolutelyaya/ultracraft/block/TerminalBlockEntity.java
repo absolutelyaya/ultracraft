@@ -352,6 +352,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		buf.writeIntArray(ArrayUtils.toPrimitive(palette));
 		buf.writeByteArray(ArrayUtils.toPrimitive(pixels));
 		buf.writeInt(getGraffitiRevision());
+		buf.writeByte(1);
 		ClientPlayNetworking.send(PacketRegistry.GRAFFITI_C2S_PACKET_ID, buf);
 		graffitiCamRotation = 0f;
 		
@@ -669,7 +670,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public void setPixel(int x, int y, byte color)
 	{
-		int i = x + y * 32;
+		int i = x + y * 40;
 		while(graffiti.size() <= i)
 			graffiti.add((byte)0);
 		graffiti.set(i, color);
