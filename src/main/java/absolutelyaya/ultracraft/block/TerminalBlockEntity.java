@@ -49,21 +49,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	//Persistent
 	Base base = Base.YELLOW;
 	UUID owner = null;
-	java.util.List<String> lines = new ArrayList<>() {
-		{
-			add("+--------------+");
-			add("   Tip of the Day");
-			add("");
-			add("     be there or");
-			add("      be square");
-			add("");
-			add("");
-			add("");
-			add("");
-			add("");
-			add("+--------------+");
-		}
-	};
+	java.util.List<String> lines;
 	int textColor = 0xffffffff;
 	java.util.List<Integer> palette = new ArrayList<>() {
 		{
@@ -526,7 +512,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			}
 			default -> {
 				sizeOverride = tab.getSizeOverride();
-				colorOverride = tab.getColorOverride();
+				setColorOverride(tab.getColorOverride());
 			}
 		}
 		if(focusedTextbox != null)
