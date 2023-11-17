@@ -16,7 +16,7 @@ import absolutelyaya.ultracraft.entity.projectile.AbstractSkewerEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.item.SoapItem;
-import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
+import absolutelyaya.ultracraft.data.UltraRecipeManager;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;

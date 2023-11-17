@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.api.terminal.GlobalButtonActions;
 import absolutelyaya.ultracraft.client.gui.terminal.DefaultTabs;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.*;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.ListElement;
+import absolutelyaya.ultracraft.data.TerminalScreensaverManager;
 import absolutelyaya.ultracraft.item.TerminalItem;
 import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
@@ -111,6 +112,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public TerminalBlockEntity(BlockPos pos, BlockState state)
 	{
 		super(BlockEntityRegistry.TERMINAL, pos, state);
+		lines = new ArrayList<>(List.of(TerminalScreensaverManager.getRandomScreensaver()));
 	}
 	
 	@Override
@@ -195,13 +197,20 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		if(!stack.hasNbt())
 			return;
 		NbtCompound nbt = stack.getNbt().getCompound("terminalData");
-		textColor = nbt.getInt("txt-clr");
+		if(nbt.contains("txt-clr"))
+			textColor = nbt.getInt("txt-clr");
 		if(nbt.containsUuid("owner"))
 			owner = nbt.getUuid("owner");
-		applyScreensaver(nbt.getCompound("screensaver"));
-		terminalID = nbt.getUuid("terminal-id");
-		applyGraffiti(nbt.getCompound("graffiti"));
-		applyMainMenu(nbt.getCompound("mainmenu"));
+		if(nbt.contains("screensaver"))
+			applyScreensaver(nbt.getCompound("screensaver"));
+		else
+			lines = (List.of(TerminalScreensaverManager.getRandomScreensaver()));
+		if(nbt.containsUuid("terminal-id"))
+			terminalID = nbt.getUuid("terminal-id");
+		if(nbt.contains("graffiti"))
+			applyGraffiti(nbt.getCompound("graffiti"));
+		if(nbt.contains("mainmenu"))
+			applyMainMenu(nbt.getCompound("mainmenu"));
 	}
 	
 	@Override
@@ -221,10 +230,9 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		if(nbt.containsUuid("owner"))
 			owner = nbt.getUuid("owner");
 		if(nbt.contains("screensaver", NbtElement.COMPOUND_TYPE))
-		{
-			NbtCompound screensaver = nbt.getCompound("screensaver");
-			applyScreensaver(screensaver);
-		}
+			applyScreensaver(nbt.getCompound("screensaver"));
+		else
+			lines = (List.of(TerminalScreensaverManager.getRandomScreensaver()));
 		if(nbt.containsUuid("terminal-id"))
 			terminalID = nbt.getUuid("terminal-id");
 		else

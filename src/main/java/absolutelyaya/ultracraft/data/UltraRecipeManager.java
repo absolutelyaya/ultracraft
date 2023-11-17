@@ -1,6 +1,7 @@
-package absolutelyaya.ultracraft.recipe;
+package absolutelyaya.ultracraft.data;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.recipe.UltraRecipe;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.*;
@@ -58,7 +59,7 @@ public class UltraRecipeManager extends JsonDataLoader
 			}
 			catch (JsonParseException | IllegalArgumentException exception)
 			{
-				Ultracraft.LOGGER.error("Failed to parse UltraRecipe", exception);
+				Ultracraft.LOGGER.error("Failed to parse UltraRecipe '" + id + "'", exception);
 			}
 		}
 		recipes = builder.build();

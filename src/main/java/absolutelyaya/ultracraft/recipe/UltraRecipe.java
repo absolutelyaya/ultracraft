@@ -164,37 +164,11 @@ public class UltraRecipe
 		return json;
 	}
 	
-	public static Pair<Identifier, UltraRecipe> deserialize(PacketByteBuf buf)
-	{
-		Identifier id = buf.readIdentifier();
-		NbtCompound nbt = buf.readNbt();
-		NbtList materialsIn = nbt.getList("materials", NbtElement.COMPOUND_TYPE);
-		ImmutableMap.Builder<Item, Integer> materialsBuilder = ImmutableMap.builder();
-		materialsIn.forEach(i -> {
-			NbtCompound object = (NbtCompound)i;
-			if(object.contains("item") && object.contains("count"))
-				materialsBuilder.put(Registries.ITEM.get(Identifier.tryParse(object.getString("item"))), object.getInt("count"));
-		});
-		Identifier result = Identifier.tryParse(nbt.getString("result"));
-		NbtList extraOutputsIn = nbt.getList("extra-outputs", NbtElement.COMPOUND_TYPE);
-		ImmutableList.Builder<ItemStack> extraOutputsBuilder = ImmutableList.builder();
-		extraOutputsIn.forEach(i -> {
-			NbtCompound object = (NbtCompound)i;
-			if(object.contains("item"))
-				extraOutputsBuilder.add(ItemStack.fromNbt(object.getCompound("item")));
-		});
-		NbtList unlocksIn = nbt.getList("unlocks", NbtElement.STRING_TYPE);
-		ImmutableList.Builder<Identifier> unlocksBuilder = ImmutableList.builder();
-		if(unlocksIn != null)
-			unlocksIn.forEach(i -> unlocksBuilder.add(Identifier.tryParse(i.asString())));
-		return new Pair<>(id, new UltraRecipe(id, materialsBuilder.build(), result, extraOutputsBuilder.build(), unlocksBuilder.build()));
-	}
-	
 	public static void serialize(PacketByteBuf buf, Pair<Identifier, UltraRecipe> pair)
 	{
-		buf.writeIdentifier(pair.getLeft());
 		UltraRecipe recipe = pair.getRight();
 		NbtCompound nbt = new NbtCompound();
+		nbt.putString("id", pair.getLeft().toString());
 		NbtList materials = new NbtList();
 		for (Map.Entry<Item, Integer> entry : recipe.material.entrySet())
 		{
@@ -218,6 +192,32 @@ public class UltraRecipe
 			unlocks.add(NbtString.of(entry.toString()));
 		nbt.put("unlocks", unlocks);
 		buf.writeNbt(nbt);
+	}
+	
+	public static Pair<Identifier, UltraRecipe> deserialize(PacketByteBuf buf)
+	{
+		NbtCompound nbt = buf.readNbt();
+		Identifier id = Identifier.tryParse(nbt.getString("id"));
+		NbtList materialsIn = nbt.getList("materials", NbtElement.COMPOUND_TYPE);
+		ImmutableMap.Builder<Item, Integer> materialsBuilder = ImmutableMap.builder();
+		materialsIn.forEach(i -> {
+			NbtCompound object = (NbtCompound)i;
+			if(object.contains("item") && object.contains("count"))
+				materialsBuilder.put(Registries.ITEM.get(Identifier.tryParse(object.getString("item"))), object.getInt("count"));
+		});
+		Identifier result = Identifier.tryParse(nbt.getString("result"));
+		NbtList extraOutputsIn = nbt.getList("extra-outputs", NbtElement.COMPOUND_TYPE);
+		ImmutableList.Builder<ItemStack> extraOutputsBuilder = ImmutableList.builder();
+		extraOutputsIn.forEach(i -> {
+			NbtCompound object = (NbtCompound)i;
+			if(object.contains("item"))
+				extraOutputsBuilder.add(ItemStack.fromNbt(object.getCompound("item")));
+		});
+		NbtList unlocksIn = nbt.getList("unlocks", NbtElement.STRING_TYPE);
+		ImmutableList.Builder<Identifier> unlocksBuilder = ImmutableList.builder();
+		if(unlocksIn != null)
+			unlocksIn.forEach(i -> unlocksBuilder.add(Identifier.tryParse(i.asString())));
+		return new Pair<>(id, new UltraRecipe(id, materialsBuilder.build(), result, extraOutputsBuilder.build(), unlocksBuilder.build()));
 	}
 	
 	public Map<Item, Integer> getMaterials()

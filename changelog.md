@@ -10,7 +10,11 @@
   - Graffiti cursor is now more accurate
   - Graffiti now spans the entire back of Terminals
     - This also means Graffitis texture size has been increased (32x32 -> 40x40)
+  - Added Random initial Screensavers
+    - Custom ones can be added using datapacks
+  - Made Terminal Item NBT less volatile
 - Fixed issue with Soap visually disappearing after picking it up
+- Fixed Recipe Syncing from Server to Client
 ## Settings & Gamerules
 ## Commands
 - Added `ultrabossbar <bossbar-id>` subcommand to `/ultracraft`
