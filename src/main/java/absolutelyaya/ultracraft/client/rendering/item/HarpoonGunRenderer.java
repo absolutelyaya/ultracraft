@@ -2,10 +2,9 @@ package absolutelyaya.ultracraft.client.rendering.item;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.item.HarpoonGunItem;
-import absolutelyaya.ultracraft.item.MachineSwordItem;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib.model.DefaultedItemGeoModel;
-import software.bernie.geckolib.renderer.GeoItemRenderer;
+import mod.azure.azurelib.model.DefaultedItemGeoModel;
+import mod.azure.azurelib.renderer.GeoItemRenderer;
 
 public class HarpoonGunRenderer extends GeoItemRenderer<HarpoonGunItem>
 {

@@ -75,7 +75,6 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import org.joml.Vector3f;
-import software.bernie.geckolib.network.GeckoLibNetwork;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -315,7 +314,6 @@ public class UltracraftClient implements ClientModInitializer
 		});
 		
 		ClientPacketRegistry.registerS2C();
-		GeckoLibNetwork.registerClientReceiverPackets();
 		
 		ClientTickEvents.END_WORLD_TICK.register(minecraft -> {
 			Ultracraft.tickFreeze();

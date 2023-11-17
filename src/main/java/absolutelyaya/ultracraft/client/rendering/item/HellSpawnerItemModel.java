@@ -3,7 +3,7 @@ package absolutelyaya.ultracraft.client.rendering.item;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.item.HellSpawnerItem;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib.model.GeoModel;
+import mod.azure.azurelib.model.GeoModel;
 
 public class HellSpawnerItemModel extends GeoModel<HellSpawnerItem>
 {

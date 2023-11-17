@@ -2,9 +2,9 @@ package absolutelyaya.ultracraft.client.rendering.block.entity;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.block.CerberusBlockEntity;
+import mod.azure.azurelib.model.DefaultedBlockGeoModel;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib.model.DefaultedBlockGeoModel;
 
 public class CerberusBlockModel extends DefaultedBlockGeoModel<CerberusBlockEntity>
 {

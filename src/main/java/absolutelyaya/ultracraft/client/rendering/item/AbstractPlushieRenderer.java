@@ -3,9 +3,9 @@ package absolutelyaya.ultracraft.client.rendering.item;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.item.PlushieItem;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.model.DefaultedItemGeoModel;
-import software.bernie.geckolib.renderer.GeoItemRenderer;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.model.DefaultedItemGeoModel;
+import mod.azure.azurelib.renderer.GeoItemRenderer;
 
 public abstract class AbstractPlushieRenderer<P extends PlushieItem & GeoAnimatable> extends GeoItemRenderer<P>
 {

@@ -4,7 +4,7 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib.model.DefaultedBlockGeoModel;
+import mod.azure.azurelib.model.DefaultedBlockGeoModel;
 
 public class TerminalBlockEntityModel extends DefaultedBlockGeoModel<TerminalBlockEntity>
 {

@@ -2,15 +2,14 @@ package absolutelyaya.ultracraft.client.rendering.item;
 
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.item.PumpShotgunItem;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib.model.DefaultedItemGeoModel;
-import software.bernie.geckolib.renderer.GeoItemRenderer;
+import mod.azure.azurelib.model.DefaultedItemGeoModel;
+import mod.azure.azurelib.renderer.GeoItemRenderer;
 
 public class PumpShotgunRenderer extends GeoItemRenderer<PumpShotgunItem>
 {

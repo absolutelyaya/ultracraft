@@ -3,7 +3,7 @@ package absolutelyaya.ultracraft.client.rendering.entity.husk;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.entity.husk.SchismEntity;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib.model.GeoModel;
+import mod.azure.azurelib.model.GeoModel;
 
 public class SchismModel extends GeoModel<SchismEntity>
 {

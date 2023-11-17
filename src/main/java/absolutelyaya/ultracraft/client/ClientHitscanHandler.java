@@ -9,6 +9,7 @@ import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 
 import java.awt.*;
+import java.util.Queue;
 import java.util.*;
 import java.util.function.Function;
 
@@ -71,9 +72,9 @@ public class ClientHitscanHandler
 	
 	public void render(MatrixStack matrices, Camera camera, float delta)
 	{
-		hitscans.iterator().forEachRemaining((shot) -> renderer.render(shot, matrices, camera, delta));
+		hitscans.iterator().forEachRemaining((shot) -> HitscanRenderer.render(shot, matrices, camera, delta));
 		for (MovingHitscan moving : movingHitscans.values())
-			renderer.render(moving, matrices, camera, delta);
+			HitscanRenderer.render(moving, matrices, camera, delta);
 	}
 	
 	public static class Hitscan

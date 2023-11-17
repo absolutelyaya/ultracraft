@@ -4,7 +4,7 @@ import absolutelyaya.ultracraft.entity.demon.RodentEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.util.math.MatrixStack;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import mod.azure.azurelib.renderer.GeoEntityRenderer;
 
 public class RodentRenderer extends GeoEntityRenderer<RodentEntity>
 {

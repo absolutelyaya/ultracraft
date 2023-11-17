@@ -22,10 +22,10 @@ import net.minecraft.util.TypeFilter;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
+import mod.azure.azurelib.animatable.GeoEntity;
+import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
+import mod.azure.azurelib.core.animatable.instance.InstancedAnimatableInstanceCache;
+import mod.azure.azurelib.core.animation.AnimatableManager;
 
 import java.util.List;
 

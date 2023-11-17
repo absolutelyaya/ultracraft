@@ -12,11 +12,9 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
-import org.joml.AxisAngle4f;
-import org.joml.Quaternionf;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
-import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
+import mod.azure.azurelib.cache.object.GeoBone;
+import mod.azure.azurelib.renderer.GeoEntityRenderer;
+import mod.azure.azurelib.renderer.layer.BlockAndItemGeoLayer;
 
 public class SwordsmachineRenderer extends GeoEntityRenderer<SwordsmachineEntity>
 {
@@ -30,7 +28,7 @@ public class SwordsmachineRenderer extends GeoEntityRenderer<SwordsmachineEntity
 		addRenderLayer(new BlockAndItemGeoLayer<>(this)
 		{
 			@Override
-			protected ItemStack getStackForBone(GeoBone bone, SwordsmachineEntity animatable)
+			public ItemStack getStackForBone(GeoBone bone, SwordsmachineEntity animatable)
 			{
 				if(bone.getName().equals(SWORD) && animatable.isHasSword())
 					return animatable.getSwordStack();
@@ -38,7 +36,7 @@ public class SwordsmachineRenderer extends GeoEntityRenderer<SwordsmachineEntity
 			}
 			
 			@Override
-			protected void renderStackForBone(MatrixStack poseStack, GeoBone bone, ItemStack stack, SwordsmachineEntity animatable, VertexConsumerProvider bufferSource, float partialTick, int packedLight, int packedOverlay)
+			public void renderStackForBone(MatrixStack poseStack, GeoBone bone, ItemStack stack, SwordsmachineEntity animatable, VertexConsumerProvider bufferSource, float partialTick, int packedLight, int packedOverlay)
 			{
 				poseStack.push();
 				if(bone.getName().equals(SWORD))

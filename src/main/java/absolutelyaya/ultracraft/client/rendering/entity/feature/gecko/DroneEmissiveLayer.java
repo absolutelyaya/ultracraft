@@ -1,18 +1,16 @@
 package absolutelyaya.ultracraft.client.rendering.entity.feature.gecko;
 
 import absolutelyaya.ultracraft.Ultracraft;
-import absolutelyaya.ultracraft.entity.machine.DestinyBondSwordsmachineEntity;
 import absolutelyaya.ultracraft.entity.machine.DroneEntity;
-import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.renderer.GeoRenderer;
-import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
+import mod.azure.azurelib.cache.object.BakedGeoModel;
+import mod.azure.azurelib.renderer.GeoRenderer;
+import mod.azure.azurelib.renderer.layer.GeoRenderLayer;
 
 public class DroneEmissiveLayer extends GeoRenderLayer<DroneEntity>
 {

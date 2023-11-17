@@ -10,8 +10,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import org.joml.Vector3f;
 
-import java.util.Optional;
-
 public class WingDataComponent implements IWingDataComponent, AutoSyncedComponent
 {
 	Vector3f[] wingColors = new Vector3f[] { new Vector3f(247f / 255f, 1f, 154f / 255f), new Vector3f(117f / 255f, 154f / 255f, 1f) };

@@ -2,10 +2,10 @@ package absolutelyaya.ultracraft.util;
 
 import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
-import absolutelyaya.ultracraft.entity.projectile.IIgnoreSharpshooter;
 import absolutelyaya.ultracraft.entity.other.BackTank;
 import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
 import absolutelyaya.ultracraft.entity.projectile.EjectedCoreEntity;
+import absolutelyaya.ultracraft.entity.projectile.IIgnoreSharpshooter;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import net.minecraft.entity.*;
 import net.minecraft.entity.player.PlayerEntity;

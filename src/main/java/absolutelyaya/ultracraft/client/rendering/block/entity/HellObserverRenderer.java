@@ -3,7 +3,6 @@ package absolutelyaya.ultracraft.client.rendering.block.entity;
 import absolutelyaya.ultracraft.block.HellObserverBlockEntity;
 import absolutelyaya.ultracraft.client.gui.screen.HellObserverScreen;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;

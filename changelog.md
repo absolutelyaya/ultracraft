@@ -1,4 +1,5 @@
 ## Major Changes
+- Switched from Geckolib to Aurelib. **Geckolib is no longer required to run the mod**.
 - Fixed ultra-speed gamerule not affecting walk speed
 - Hell Observers now detect *ALL* Hostile entities and not just those added by ultracraft.
 - Fixed ultra-Hivel Gamerule

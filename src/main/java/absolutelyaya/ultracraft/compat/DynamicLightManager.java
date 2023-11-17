@@ -1,7 +1,6 @@
 package absolutelyaya.ultracraft.compat;
 
 import absolutelyaya.ultracraft.registry.EntityRegistry;
-import dev.lambdaurora.lambdynlights.api.DynamicLightHandler;
 import dev.lambdaurora.lambdynlights.api.DynamicLightHandlers;
 import dev.lambdaurora.lambdynlights.api.DynamicLightsInitializer;
 
