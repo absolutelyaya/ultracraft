@@ -121,7 +121,7 @@ public class ClientGraffitiManager
 		NativeImage image = makeGraffitiImage(terminal);
 		AbstractTexture texture = new NativeImageBackedTexture(image);
 		if(terminal.getGraffitiTexture() == null)
-			terminal.setGraffitiTexture(new Identifier(Ultracraft.MOD_ID, "graffiti/" + terminal.getTerminalID().toString()));
+			terminal.setGraffitiTexture(new Identifier(Ultracraft.MOD_ID, "procedural/graffiti/" + terminal.getTerminalID().toString()));
 		MinecraftClient.getInstance().getTextureManager().registerTexture(terminal.getGraffitiTexture(), texture);
 	}
 	

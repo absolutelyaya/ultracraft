@@ -4,8 +4,10 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.api.terminal.GlobalButtonActions;
 import absolutelyaya.ultracraft.client.ClientGraffitiManager;
+import absolutelyaya.ultracraft.client.ProceduralTextureManager;
 import absolutelyaya.ultracraft.client.gui.terminal.DefaultTabs;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.*;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
 import absolutelyaya.ultracraft.data.TerminalScreensaverManager;
 import absolutelyaya.ultracraft.item.TerminalItem;
 import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
@@ -43,6 +45,7 @@ import org.joml.Vector2f;
 import org.joml.Vector2i;
 
 import java.util.*;
+import java.util.List;
 
 public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 {
@@ -50,7 +53,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	Base base = Base.YELLOW;
 	UUID owner = null;
 	java.util.List<String> lines;
-	int textColor = 0xffffffff;
+	int textColor = 0xffffffff, baseColor = 0xfffcc330;
 	java.util.List<Integer> palette = new ArrayList<>() {
 		{
 			//0 is reserved for transparency
@@ -168,6 +171,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		ItemStack stack = TerminalItem.getStack(base);
 		NbtCompound terminalData = new NbtCompound();
 		terminalData.putInt("txt-clr", textColor);
+		terminalData.putInt("base-clr", baseColor);
 		if(owner != null)
 			terminalData.putUuid("owner", owner);
 		terminalData.put("screensaver", serializeScreensaver());
@@ -200,6 +204,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			applyGraffiti(nbt.getCompound("graffiti"));
 		if(nbt.contains("mainmenu"))
 			applyMainMenu(nbt.getCompound("mainmenu"));
+		if(nbt.contains("base-clr"))
+			setBaseColor(nbt.getInt("base-clr"));
 	}
 	
 	@Override
@@ -234,6 +240,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		}
 		if(nbt.contains("mainmenu", NbtElement.COMPOUND_TYPE))
 			applyMainMenu(nbt.getCompound("mainmenu"));
+		if(nbt.contains("base-clr", NbtElement.INT_TYPE))
+			setBaseColor(nbt.getInt("base-clr"));
 	}
 	
 	@Override
@@ -242,6 +250,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		super.writeNbt(nbt);
 		nbt.putInt("base", base.ordinal());
 		nbt.putInt("txt-clr", textColor);
+		nbt.putInt("base-clr", baseColor);
 		if(owner != null)
 			nbt.putUuid("owner", owner);
 		nbt.put("screensaver", serializeScreensaver());
@@ -332,6 +341,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeBlockPos(pos);
 		buf.writeInt(textColor);
+		buf.writeInt(baseColor);
 		buf.writeInt(base.ordinal());
 		buf.writeNbt(serializeScreensaver());
 		buf.writeNbt(serializeMainMenu());
@@ -357,9 +367,10 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		markDirty();
 	}
 	
-	public void applyCustomization(int c, int base, NbtCompound screensaver, NbtCompound mainMenu)
+	public void applyCustomization(int tc, int bc, int base, NbtCompound screensaver, NbtCompound mainMenu)
 	{
-		textColor = c;
+		textColor = tc;
+		setBaseColor(bc);
 		if(base >= 0 && base < Base.values().length)
 			this.base = Base.values()[base];
 		applyScreensaver(screensaver);
@@ -415,6 +426,22 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public void setColorOverride(int colorOverride)
 	{
 		this.colorOverride = colorOverride;
+	}
+	
+	public int getBaseColor()
+	{
+		return baseColor;
+	}
+	
+	public void setBaseColor(int col)
+	{
+		baseColor = col;
+		if(col != 0xfffcc330 && !getBase().equals(Base.RGB))
+			setBase(Base.RGB);
+		if(getTerminalID() == null)
+			terminalID = UUID.randomUUID();
+		ProceduralTextureManager.createHsvMappedTexture(new Identifier(Ultracraft.MOD_ID, "textures/block/terminal/c.png"),
+				Base.YELLOW.getTexture(), new Identifier(Ultracraft.MOD_ID, "procedural/terminal_base/" + getTerminalID().toString()), baseColor);
 	}
 	
 	public float getInactivity()
@@ -724,7 +751,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public enum Base
 	{
 		WHITE, LIGHT_GRAY, GRAY, BLACK, BROWN, RED, ORANGE, YELLOW,
-		LIME, GREEN, CYAN, LIGHT_BLUE, BLUE, PURPLE, MAGENTA, PINK;
+		LIME, GREEN, CYAN, LIGHT_BLUE, BLUE, PURPLE, MAGENTA, PINK, RGB;
 		
 		public Identifier getTexture()
 		{

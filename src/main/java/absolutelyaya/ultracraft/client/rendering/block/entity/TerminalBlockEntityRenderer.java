@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.client.rendering.block.entity;
 
+import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
@@ -47,7 +48,10 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	@Override
 	public Identifier getTextureLocation(TerminalBlockEntity animatable)
 	{
-		return animatable.getBase().getTexture();
+		TerminalBlockEntity.Base base = animatable.getBase();
+		if(base.equals(TerminalBlockEntity.Base.RGB))
+			return new Identifier(Ultracraft.MOD_ID, "procedural/terminal_base/" + animatable.getTerminalID().toString());
+		return base.getTexture();
 	}
 	
 	@Override

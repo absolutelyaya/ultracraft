@@ -406,13 +406,14 @@ public class PacketRegistry
 		ServerPlayNetworking.registerGlobalReceiver(TERMINAL_SYNC_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			BlockPos pos = buf.readBlockPos();
 			int textColor = buf.readInt();
+			int baseColor = buf.readInt();
 			int base = buf.readInt();
 			NbtCompound screenSaver = buf.readNbt();
 			NbtCompound mainMenu = buf.readNbt();
 			server.execute(() ->  {
 				BlockEntity be = player.getWorld().getBlockEntity(pos);
 				if(be instanceof TerminalBlockEntity terminal)
-					terminal.applyCustomization(textColor, base, screenSaver, mainMenu);
+					terminal.applyCustomization(textColor, baseColor, base, screenSaver, mainMenu);
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(GRAFFITI_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
