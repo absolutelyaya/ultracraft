@@ -87,7 +87,7 @@ public class UltracraftClient implements ClientModInitializer
 	public static final EntityModelLayer ENRAGE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "enraged"), "main");
 	public static final EntityModelLayer INTERRUPTABLE_CHARGE_LAYER = new EntityModelLayer(new Identifier(Ultracraft.MOD_ID, "interruptable_charge"), "main");
 	public static String wingPreset = "", wingPattern = "";
-	private static ShaderProgram wingsColoredProgram, wingsColoredUIProgram, texPosFade, flesh;
+	private static ShaderProgram wingsColoredProgram, wingsColoredUIProgram, texPosFade, flesh, sky;
 	public static ClientHitscanHandler HITSCAN_HANDLER;
 	public static TrailRenderer TRAIL_RENDERER;
 	public static boolean REPLACE_MENU_MUSIC = true, APPLY_ENTITY_POSES, GRAFFITI_WHITELISTED = true, SODIUM = true, IRIS = false;
@@ -181,6 +181,7 @@ public class UltracraftClient implements ClientModInitializer
 		BlockEntityRendererFactories.register(BlockEntityRegistry.TERMINAL, context -> new TerminalBlockEntityRenderer());
 		BlockEntityRendererFactories.register(BlockEntityRegistry.HELL_OBSERVER, context -> new HellObserverRenderer());
 		BlockEntityRendererFactories.register(BlockEntityRegistry.HELL_SPAWNER, context -> new HellSpawnerBlockRenderer());
+		BlockEntityRendererFactories.register(BlockEntityRegistry.SKY, context -> new SkyBlockRenderer());
 		//Player Animations
 		PlayerAnimator.init();
 		
@@ -311,6 +312,11 @@ public class UltracraftClient implements ClientModInitializer
 				texPosFade = program;
 			});
 			callback.register(new Identifier(Ultracraft.MOD_ID, "flesh"), VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL, (program) -> flesh = program);
+			callback.register(new Identifier(Ultracraft.MOD_ID, "sky"), VertexFormats.POSITION_TEXTURE, (program) -> {
+				program.getUniform("RotMat");
+				program.markUniformsDirty();
+				sky = program;
+			});
 		});
 		
 		ClientPacketRegistry.registerS2C();
@@ -337,6 +343,7 @@ public class UltracraftClient implements ClientModInitializer
 				SODIUM ? RenderLayers.getSolid() : RenderLayers.getFlesh());
 		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.ADORNED_RAILING, RenderLayer.getCutout());
 		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.VENT_COVER, RenderLayer.getCutout());
+		BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.SKY_BLOCK, RenderLayer.getTranslucent());
 		
 		TerminalCodeRegistry.registerCode("florp", t -> t.setTab(new PetTab()));
 		TerminalCodeRegistry.registerCode("somethingwicked", new TerminalCodeRegistry.Result(t -> {
@@ -536,6 +543,11 @@ public class UltracraftClient implements ClientModInitializer
 	public static ShaderProgram getFleshProgram()
 	{
 		return flesh;
+	}
+	
+	public static ShaderProgram getDaySkyProgram()
+	{
+		return sky;
 	}
 	
 	public static void setWingColor(Vector3f val, int idx)

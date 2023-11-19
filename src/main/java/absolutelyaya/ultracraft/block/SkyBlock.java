@@ -1,9 +1,10 @@
 package absolutelyaya.ultracraft.block;
 
 import absolutelyaya.ultracraft.registry.BlockRegistry;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.BlockWithEntity;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.item.ItemStack;
@@ -19,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class SkyBlock extends Block //TODO: actually render a skybox
+public class SkyBlock extends BlockWithEntity
 {
 	public SkyBlock(Settings settings)
 	{
@@ -27,15 +28,9 @@ public class SkyBlock extends Block //TODO: actually render a skybox
 	}
 	
 	@Override
-	public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options)
-	{
-		tooltip.add(Text.translatable("block.ultracraft.sky_block.lore"));
-	}
-	
-	@Override
 	public BlockRenderType getRenderType(BlockState state)
 	{
-		return BlockRenderType.INVISIBLE;
+		return BlockRenderType.MODEL;
 	}
 	
 	@Override
@@ -45,18 +40,15 @@ public class SkyBlock extends Block //TODO: actually render a skybox
 	}
 	
 	@Override
-	public void randomDisplayTick(BlockState state, World world, BlockPos blockPos, Random random)
-	{
-		if(world.isClient && MinecraftClient.getInstance().player.getMainHandStack().isOf(BlockRegistry.SKY_BLOCK.asItem()))
-		{
-			Vec3d pos = blockPos.toCenterPos();
-			world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK_MARKER, state), pos.x, pos.y, pos.z, 0, 0, 0);
-		}
-	}
-	
-	@Override
 	public int getOpacity(BlockState state, BlockView world, BlockPos pos)
 	{
 		return 0;
+	}
+	
+	@Nullable
+	@Override
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state)
+	{
+		return new SkyBlockEntity(pos, state);
 	}
 }

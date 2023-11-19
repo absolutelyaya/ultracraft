@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 public class RenderLayers extends RenderLayer
 {
 	public static final ShaderProgram WINGS_COLORED_PROGRAM = new ShaderProgram(UltracraftClient::getWingsColoredShaderProgram);
-	public static final RenderLayer FLESH;
+	public static final RenderLayer FLESH, SKY;
 	
 	public RenderLayers(String name, VertexFormat vertexFormat, VertexFormat.DrawMode drawMode, int expectedBufferSize, boolean hasCrumbling, boolean translucent, Runnable startAction, Runnable endAction)
 	{
@@ -39,6 +39,11 @@ public class RenderLayers extends RenderLayer
 	public static RenderLayer getFlesh()
 	{
 		return FLESH;
+	}
+	
+	public static RenderLayer getSky()
+	{
+		return SKY;
 	}
 	
 	public static RenderLayer getGuiTexture(Identifier texture)
@@ -79,5 +84,6 @@ public class RenderLayers extends RenderLayer
 	
 	static {
 		FLESH = of("flesh", VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL, VertexFormat.DrawMode.QUADS, 2048, true, false, RenderLayer.MultiPhaseParameters.builder().program(new ShaderProgram(UltracraftClient::getFleshProgram)).texture(RenderPhase.BLOCK_ATLAS_TEXTURE).lightmap(ENABLE_LIGHTMAP).build(true));
+		SKY = of("sky", VertexFormats.POSITION, VertexFormat.DrawMode.QUADS, 2048, true, false, RenderLayer.MultiPhaseParameters.builder().program(new ShaderProgram(UltracraftClient::getDaySkyProgram)).build(true));
 	}
 }

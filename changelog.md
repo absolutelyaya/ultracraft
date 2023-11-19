@@ -19,6 +19,7 @@
   - Fixed Crash that occurs when opening the Weapons Tab without the Piercer recipe unlocked
 - Fixed issue with Soap visually disappearing after picking it up
 - Fixed Recipe Syncing from Server to Client
+- Added Functionality to Sky Blocks
 ## Settings & Gamerules
 ## Commands
 - Added `ultrabossbar <bossbar-id>` subcommand to `/ultracraft`

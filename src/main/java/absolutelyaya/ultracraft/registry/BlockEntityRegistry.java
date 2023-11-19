@@ -15,6 +15,7 @@ public class BlockEntityRegistry
 	public static final BlockEntityType<TerminalBlockEntity> TERMINAL;
 	public static final BlockEntityType<HellObserverBlockEntity> HELL_OBSERVER;
 	public static final BlockEntityType<HellSpawnerBlockEntity> HELL_SPAWNER;
+	public static final BlockEntityType<SkyBlockEntity> SKY;
 	
 	public static void register() {
 	}
@@ -36,5 +37,8 @@ public class BlockEntityRegistry
 		HELL_SPAWNER = Registry.register(Registries.BLOCK_ENTITY_TYPE,
 				new Identifier(Ultracraft.MOD_ID, "hell_spawner"),
 				FabricBlockEntityTypeBuilder.create(HellSpawnerBlockEntity::new, BlockRegistry.HELL_SPAWNER).build());
+		SKY = Registry.register(Registries.BLOCK_ENTITY_TYPE,
+				new Identifier(Ultracraft.MOD_ID, "sky_block"),
+				FabricBlockEntityTypeBuilder.create(SkyBlockEntity::new, BlockRegistry.SKY_BLOCK).build());
 	}
 }
