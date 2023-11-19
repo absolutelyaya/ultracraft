@@ -82,6 +82,7 @@
   "item.ultracraft.terminal.flavor.purple": "Grimace",
   "item.ultracraft.terminal.flavor.magenta": "Flower Blossoms",
   "item.ultracraft.terminal.flavor.pink": "Strawberries",
+  "item.ultracraft.terminal.flavor.rgb": "Creativity",
   "item.ultracraft.harpoon": "Harpoon",
   "item.ultracraft.harpoon_gun": "Repulsive Skewer",
   "item.ultracraft.soap": "Soap",
@@ -93,6 +94,8 @@
   "item.ultracraft.florp": "Florp",
   "item.ultracraft.florp.hiddenlore": "Hampter",
   "item.ultracraft.cancer_bullet": "Cancer Bullet",
+
+  "color.minecraft.rgb": "Custom",
 
   "rei-group.ultracraft.terminals": "Terminal Variants",
 

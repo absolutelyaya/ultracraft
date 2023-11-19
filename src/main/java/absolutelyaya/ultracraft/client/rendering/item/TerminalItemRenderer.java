@@ -1,6 +1,7 @@
 package absolutelyaya.ultracraft.client.rendering.item;
 
 import absolutelyaya.ultracraft.Ultracraft;
+import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.item.TerminalItem;
 import net.minecraft.util.Identifier;
 import mod.azure.azurelib.model.DefaultedItemGeoModel;
@@ -16,6 +17,10 @@ public class TerminalItemRenderer extends GeoItemRenderer<TerminalItem>
 	@Override
 	public Identifier getTextureLocation(TerminalItem animatable)
 	{
-		return TerminalItem.getBase(getCurrentItemStack()).getTexture();
+		TerminalBlockEntity.Base base = TerminalItem.getBase(getCurrentItemStack());
+		if(base.equals(TerminalBlockEntity.Base.RGB))
+			return TerminalBlockEntity.Base.YELLOW.getTexture();
+		else
+			return base.getTexture();
 	}
 }

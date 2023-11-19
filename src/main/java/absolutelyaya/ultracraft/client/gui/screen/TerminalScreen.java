@@ -168,8 +168,7 @@ public class TerminalScreen extends Screen
 			if(terminal.getGraffitiTexture() != null)
 			{
 				int scale = client.options.getGuiScale().getValue();
-				int x = 48, y = height / 2 - (scale == 0 || scale == 4 ? 96 : 64);
-				y= 80;
+				int x = 48, y = height / 2 - (scale == 0 || scale == 4 ? 128 : 96);
 				graffitiTexturePos = new Vector2i(x, y);
 				context.getMatrices().push();
 				context.getMatrices().translate(x, y, 0f);

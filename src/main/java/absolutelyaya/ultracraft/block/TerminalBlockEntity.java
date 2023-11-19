@@ -204,7 +204,9 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			applyGraffiti(nbt.getCompound("graffiti"));
 		if(nbt.contains("mainmenu"))
 			applyMainMenu(nbt.getCompound("mainmenu"));
-		if(nbt.contains("base-clr"))
+		if(nbt.contains("base", NbtElement.INT_TYPE))
+			setBase(Base.values()[nbt.getInt("base")]);
+		if(base.equals(Base.RGB) && nbt.contains("base-clr"))
 			setBaseColor(nbt.getInt("base-clr"));
 	}
 	
@@ -218,8 +220,6 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public void readNbt(NbtCompound nbt)
 	{
 		super.readNbt(nbt);
-		if(nbt.contains("base", NbtElement.INT_TYPE))
-			base = Base.values()[nbt.getInt("base")];
 		if(nbt.contains("txt-clr", NbtElement.INT_TYPE))
 			textColor = nbt.getInt("txt-clr");
 		if(nbt.containsUuid("owner"))
@@ -240,7 +240,9 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		}
 		if(nbt.contains("mainmenu", NbtElement.COMPOUND_TYPE))
 			applyMainMenu(nbt.getCompound("mainmenu"));
-		if(nbt.contains("base-clr", NbtElement.INT_TYPE))
+		if(nbt.contains("base", NbtElement.INT_TYPE))
+			setBase(Base.values()[nbt.getInt("base")]);
+		if(base.equals(Base.RGB) && nbt.contains("base-clr", NbtElement.INT_TYPE))
 			setBaseColor(nbt.getInt("base-clr"));
 	}
 	
@@ -370,9 +372,10 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public void applyCustomization(int tc, int bc, int base, NbtCompound screensaver, NbtCompound mainMenu)
 	{
 		textColor = tc;
-		setBaseColor(bc);
 		if(base >= 0 && base < Base.values().length)
-			this.base = Base.values()[base];
+			setBase(Base.values()[base]);
+		if(this.base.equals(Base.RGB))
+			setBaseColor(bc);
 		applyScreensaver(screensaver);
 		applyMainMenu(mainMenu);
 		markDirty();
@@ -436,7 +439,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public void setBaseColor(int col)
 	{
 		baseColor = col;
-		if(col != 0xfffcc330 && !getBase().equals(Base.RGB))
+		if(col != base.color && !getBase().equals(Base.RGB))
 			setBase(Base.RGB);
 		if(getTerminalID() == null)
 			terminalID = UUID.randomUUID();
@@ -579,6 +582,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public void setBase(Base base)
 	{
 		this.base = base;
+		if(!base.equals(Base.RGB))
+			setBaseColor(base.color);
 	}
 	
 	public Base getBase()
@@ -750,12 +755,26 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public enum Base
 	{
-		WHITE, LIGHT_GRAY, GRAY, BLACK, BROWN, RED, ORANGE, YELLOW,
-		LIME, GREEN, CYAN, LIGHT_BLUE, BLUE, PURPLE, MAGENTA, PINK, RGB;
+		WHITE(0xd7f6fa), LIGHT_GRAY(0xcfc6b8), GRAY(0x7d7071), BLACK(0x282235), BROWN(0x994f51),
+		RED(0xbc2f27), ORANGE(0xf47e1b), YELLOW(0xfcc330), LIME(0xb6d53c), GREEN(0x397b44),
+		CYAN(0x4ae6bf), LIGHT_BLUE(0x28ccdf), BLUE(0x3978a8), PURPLE(0x6e3696), MAGENTA(0xaf3ca7),
+		PINK(0xe98cd1), RGB(0);
+		
+		final int color;
+		
+		Base(int color)
+		{
+			this.color = color;
+		}
 		
 		public Identifier getTexture()
 		{
 			return new Identifier(Ultracraft.MOD_ID, String.format("textures/block/terminal/%s.png", name().toLowerCase()));
+		}
+		
+		public int getColor()
+		{
+			return color;
 		}
 		
 		public String translationKey()

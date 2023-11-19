@@ -42,6 +42,7 @@ public class TerminalItem extends BlockItem implements GeoItem
 		ItemStack stack = new ItemStack(ItemRegistry.TERMINAL);
 		NbtCompound nbt = stack.getOrCreateNbt();
 		nbt.putInt("base", base.ordinal());
+		nbt.putInt("base-clr", base.getColor());
 		stack.setNbt(nbt);
 		return stack;
 	}

@@ -266,7 +266,8 @@ public class ItemRegistry
 			content.add(DRONE_MASK);
 			content.add(CLAIR_DE_LUNE_DISK);
 			for (TerminalBlockEntity.Base b : TerminalBlockEntity.Base.values())
-				content.add(TerminalItem.getStack(b));
+				if(!b.equals(TerminalBlockEntity.Base.RGB))
+					content.add(TerminalItem.getStack(b));
 			content.add(BlockRegistry.HELL_OBSERVER.asItem());
 			content.add(BlockRegistry.HELL_SPAWNER.asItem());
 			content.add(HELL_MASS);
