@@ -37,12 +37,19 @@ public class TerminalItem extends BlockItem implements GeoItem
 		SingletonGeoAnimatable.registerSyncedAnimatable(this);
 	}
 	
+	@Override
+	public ItemStack getDefaultStack()
+	{
+		return getStack(TerminalBlockEntity.Base.YELLOW);
+	}
+	
 	public static ItemStack getStack(TerminalBlockEntity.Base base)
 	{
 		ItemStack stack = new ItemStack(ItemRegistry.TERMINAL);
 		NbtCompound nbt = stack.getOrCreateNbt();
 		nbt.putInt("base", base.ordinal());
 		nbt.putInt("base-clr", base.getColor());
+		nbt.putByte("graffiti-version", (byte)1);
 		stack.setNbt(nbt);
 		return stack;
 	}

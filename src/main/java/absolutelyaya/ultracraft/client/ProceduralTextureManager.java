@@ -58,7 +58,6 @@ public class ProceduralTextureManager
 		NativeImage img = mapHSV(mapTexture, baseTexture, col);
 		if(img == null)
 			return;
-		AbstractTexture texture = new NativeImageBackedTexture(img);
-		MinecraftClient.getInstance().getTextureManager().registerTexture(id, texture);
+		MinecraftClient.getInstance().getTextureManager().registerTexture(id, new NativeImageBackedTexture(img));
 	}
 }

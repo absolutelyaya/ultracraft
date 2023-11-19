@@ -421,6 +421,7 @@ public class PacketRegistry
 			int[] palette = buf.readIntArray(15);
 			byte[] pixels = buf.readByteArray();
 			int revision = buf.readInt();
+			byte version = buf.readByte();
 			server.execute(() -> {
 				BlockEntity be = player.getWorld().getBlockEntity(pos);
 				if(be instanceof TerminalBlockEntity terminal)
@@ -428,6 +429,7 @@ public class PacketRegistry
 					terminal.setPalette(Arrays.asList(ArrayUtils.toObject(palette)));
 					terminal.setGraffiti(ByteArrayList.of(pixels));
 					terminal.setGraffitiRevision(revision);
+					terminal.setGraffitiVersion(version);
 				}
 			});
 		});

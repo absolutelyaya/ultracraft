@@ -119,6 +119,8 @@ public class ClientGraffitiManager
 	public static void refreshGraffitiTexture(TerminalBlockEntity terminal)
 	{
 		NativeImage image = makeGraffitiImage(terminal);
+		if(image == null)
+			return;
 		AbstractTexture texture = new NativeImageBackedTexture(image);
 		if(terminal.getGraffitiTexture() == null)
 			terminal.setGraffitiTexture(new Identifier(Ultracraft.MOD_ID, "procedural/graffiti/" + terminal.getTerminalID().toString()));
