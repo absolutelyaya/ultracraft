@@ -16,6 +16,7 @@
     - Custom ones can be added using datapacks
   - Made Terminal Item NBT less volatile
   - Base Color can now be set to any Hex Color
+  - Fixed Crash that occurs when opening the Weapons Tab without the Piercer recipe unlocked
 - Fixed issue with Soap visually disappearing after picking it up
 - Fixed Recipe Syncing from Server to Client
 ## Settings & Gamerules
