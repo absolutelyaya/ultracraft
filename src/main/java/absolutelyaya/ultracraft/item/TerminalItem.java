@@ -47,9 +47,11 @@ public class TerminalItem extends BlockItem implements GeoItem
 	{
 		ItemStack stack = new ItemStack(ItemRegistry.TERMINAL);
 		NbtCompound nbt = stack.getOrCreateNbt();
-		nbt.putInt("base", base.ordinal());
-		nbt.putInt("base-clr", base.getColor());
-		nbt.putByte("graffiti-version", (byte)1);
+		NbtCompound terminalData = new NbtCompound();
+		terminalData.putInt("base", base.ordinal());
+		terminalData.putInt("base-clr", base.getColor());
+		terminalData.putByte("graffiti-version", (byte)1);
+		nbt.put("terminalData", terminalData);
 		stack.setNbt(nbt);
 		return stack;
 	}
@@ -88,9 +90,12 @@ public class TerminalItem extends BlockItem implements GeoItem
 	
 	public static TerminalBlockEntity.Base getBase(ItemStack stack)
 	{
-		if(!stack.isOf(ItemRegistry.TERMINAL) || !stack.hasNbt() || !stack.getNbt().contains("base", NbtElement.INT_TYPE))
+		if(!stack.isOf(ItemRegistry.TERMINAL) || !stack.hasNbt())
 			return TerminalBlockEntity.Base.YELLOW;
-		int i = stack.getNbt().getInt("base");
+		NbtCompound nbt = stack.getNbt();
+		if(!nbt.contains("terminalData") || !nbt.getCompound("terminalData").contains("base"))
+			return TerminalBlockEntity.Base.YELLOW;
+		int i = nbt.getCompound("terminalData").getInt("base");
 		if(i >= 0 && i < TerminalBlockEntity.Base.values().length)
 			return TerminalBlockEntity.Base.values()[i];
 		else

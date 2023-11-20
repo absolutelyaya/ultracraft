@@ -180,6 +180,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		terminalData.put("graffiti", serializeGraffiti());
 		terminalData.putByte("graffiti-version", graffitiVersion);
 		terminalData.put("mainmenu", serializeMainMenu());
+		terminalData.putInt("base", base.ordinal());
 		
 		NbtCompound base = stack.getOrCreateNbt();
 		base.put("terminalData", terminalData);
@@ -263,10 +264,10 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			nbt.putUuid("owner", owner);
 		nbt.put("screensaver", serializeScreensaver());
 		nbt.putUuid("terminal-id", Objects.requireNonNullElseGet(terminalID, () -> terminalID = UUID.randomUUID()));
-		nbt.put("graffiti", serializeGraffiti());
-		nbt.put("mainmenu", serializeMainMenu());
 		if(graffitiVersion >= 0)
 			nbt.putByte("graffiti-version", graffitiVersion);
+		nbt.put("graffiti", serializeGraffiti());
+		nbt.put("mainmenu", serializeMainMenu());
 	}
 	
 	public static <T extends BlockEntity> void tick(World world, BlockPos blockPos, BlockState state, T t)
@@ -324,7 +325,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	{
 		if(graffitiVersion == -1)
 		{
-			Ultracraft.LOGGER.info("Legacy Graffiti Found (" + getTerminalID() + " )! Converting Texture from 32x32 to 40x40...");
+			Ultracraft.LOGGER.info("Legacy Graffiti Found (" + getTerminalID() + ")! Converting Texture from 32x32 to 40x40...");
 			String pixelString = nbt.getString("pixels");
 			StringBuilder builder = new StringBuilder();
 			for (int i = 0; i < pixelString.length() - 1; i++)
@@ -474,8 +475,9 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			setBase(Base.RGB);
 		if(getTerminalID() == null)
 			terminalID = UUID.randomUUID();
-		ProceduralTextureManager.createHsvMappedTexture(new Identifier(Ultracraft.MOD_ID, "textures/block/terminal/c.png"),
-				Base.YELLOW.getTexture(), new Identifier(Ultracraft.MOD_ID, "procedural/terminal_base/" + getTerminalID().toString()), baseColor);
+		if(world != null && world.isClient)
+			ProceduralTextureManager.createHsvMappedTexture(new Identifier(Ultracraft.MOD_ID, "textures/block/terminal/c.png"),
+					Base.YELLOW.getTexture(), new Identifier(Ultracraft.MOD_ID, "procedural/terminal_base/" + getTerminalID().toString()), baseColor);
 	}
 	
 	public float getInactivity()
