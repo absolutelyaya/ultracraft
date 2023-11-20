@@ -9,6 +9,7 @@ import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.ShaderProgram;
 import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.DimensionEffects;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -24,9 +25,10 @@ public class SkyBlockRenderer implements BlockEntityRenderer<SkyBlockEntity>
 	@Override
 	public void render(SkyBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay)
 	{
-		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayers.getSky());
+		SkyBlockEntity.SkyType type = entity.getSkyType();
+		VertexConsumer consumer = vertexConsumers.getBuffer(RenderLayers.getSky(type));
 		for (int i = 0; i < 6; i++)
-			RenderSystem.setShaderTexture(i, new Identifier(Ultracraft.MOD_ID, "textures/sky/" + entity.getSkyType() + i + ".png"));
+			RenderSystem.setShaderTexture(i, new Identifier(Ultracraft.MOD_ID, "textures/sky/" + type + i + ".png"));
 		Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
 		Matrix4f matrix = new Matrix4f(new MatrixStack().peek().getPositionMatrix());
 		Vec3d offset = camera.getPos().subtract(entity.getPos().getX(), entity.getPos().getY(), entity.getPos().getZ());

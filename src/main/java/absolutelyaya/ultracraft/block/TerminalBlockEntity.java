@@ -52,7 +52,21 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	//Persistent
 	Base base = Base.YELLOW;
 	UUID owner = null;
-	java.util.List<String> lines;
+	java.util.List<String> lines = new ArrayList<>() {
+		{
+			add("+--------------+");
+			add("   Tip of the Day");
+			add("");
+			add("");
+			add("");
+			add("");
+			add("");
+			add("");
+			add("");
+			add("");
+			add("+--------------+");
+		}
+	};
 	int textColor = 0xffffffff, baseColor = 0xfffcc330;
 	byte graffitiVersion = -1;
 	java.util.List<Integer> palette = new ArrayList<>() {
@@ -105,7 +119,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public TerminalBlockEntity(BlockPos pos, BlockState state)
 	{
 		super(BlockEntityRegistry.TERMINAL, pos, state);
-		lines = new ArrayList<>(List.of(TerminalScreensaverManager.getRandomScreensaver()));
+		if(getWorld() != null && !getWorld().isClient)
+			lines = new ArrayList<>(List.of(TerminalScreensaverManager.getRandomScreensaver()));
 	}
 	
 	@Override
@@ -199,8 +214,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			owner = nbt.getUuid("owner");
 		if(nbt.contains("screensaver"))
 			applyScreensaver(nbt.getCompound("screensaver"));
-		else
-			lines = (List.of(TerminalScreensaverManager.getRandomScreensaver()));
+		else if(getWorld() != null && !getWorld().isClient)
+			lines = new ArrayList<>(List.of(TerminalScreensaverManager.getRandomScreensaver()));
 		if(nbt.containsUuid("terminal-id"))
 			terminalID = nbt.getUuid("terminal-id");
 		if(nbt.contains("graffiti-version", NbtElement.BYTE_TYPE))
@@ -231,7 +246,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			owner = nbt.getUuid("owner");
 		if(nbt.contains("screensaver", NbtElement.COMPOUND_TYPE) && lines instanceof ArrayList<String>)
 			applyScreensaver(nbt.getCompound("screensaver"));
-		else
+		else if(getWorld() != null && !getWorld().isClient)
 			lines = new ArrayList<>(List.of(TerminalScreensaverManager.getRandomScreensaver()));
 		if(nbt.containsUuid("terminal-id"))
 			terminalID = nbt.getUuid("terminal-id");

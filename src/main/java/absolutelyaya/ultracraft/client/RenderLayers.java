@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.client;
 
+import absolutelyaya.ultracraft.block.SkyBlockEntity;
 import absolutelyaya.ultracraft.registry.WingPatterns;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.RenderPhase;
@@ -8,6 +9,8 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -15,7 +18,8 @@ import java.util.function.Supplier;
 public class RenderLayers extends RenderLayer
 {
 	public static final ShaderProgram WINGS_COLORED_PROGRAM = new ShaderProgram(UltracraftClient::getWingsColoredShaderProgram);
-	public static final RenderLayer FLESH, SKY;
+	public static final RenderLayer FLESH;
+	public static List<RenderLayer> SKIES = new ArrayList<>();
 	
 	public RenderLayers(String name, VertexFormat vertexFormat, VertexFormat.DrawMode drawMode, int expectedBufferSize, boolean hasCrumbling, boolean translucent, Runnable startAction, Runnable endAction)
 	{
@@ -41,9 +45,9 @@ public class RenderLayers extends RenderLayer
 		return FLESH;
 	}
 	
-	public static RenderLayer getSky()
+	public static RenderLayer getSky(SkyBlockEntity.SkyType type)
 	{
-		return SKY;
+		return SKIES.get(type.ordinal());
 	}
 	
 	public static RenderLayer getGuiTexture(Identifier texture)
@@ -84,6 +88,7 @@ public class RenderLayers extends RenderLayer
 	
 	static {
 		FLESH = of("flesh", VertexFormats.POSITION_COLOR_TEXTURE_LIGHT_NORMAL, VertexFormat.DrawMode.QUADS, 2048, true, false, RenderLayer.MultiPhaseParameters.builder().program(new ShaderProgram(UltracraftClient::getFleshProgram)).texture(RenderPhase.BLOCK_ATLAS_TEXTURE).lightmap(ENABLE_LIGHTMAP).build(true));
-		SKY = of("sky", VertexFormats.POSITION, VertexFormat.DrawMode.QUADS, 2048, true, false, RenderLayer.MultiPhaseParameters.builder().program(new ShaderProgram(UltracraftClient::getDaySkyProgram)).build(true));
+		for (int i = 0; i < SkyBlockEntity.SkyType.values().length; i++)
+			SKIES.add(of("sky", VertexFormats.POSITION, VertexFormat.DrawMode.QUADS, 2048, true, false, RenderLayer.MultiPhaseParameters.builder().program(new ShaderProgram(UltracraftClient::getDaySkyProgram)).build(true)));
 	}
 }

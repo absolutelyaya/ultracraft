@@ -2,6 +2,7 @@ package absolutelyaya.ultracraft.registry;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.block.CerberusBlock;
+import absolutelyaya.ultracraft.block.SkyBlockEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.entity.other.BloodOrbEntity;
 import absolutelyaya.ultracraft.entity.other.SoulOrbEntity;
@@ -171,6 +172,8 @@ public class ItemRegistry
 	public static final FlorpItem FLORP = (FlorpItem)Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "florp"), new FlorpItem(new FabricItemSettings().rarity(Rarity.EPIC).maxCount(1))
 																.putLore(true, new String[] { "item.ultracraft.florp.hiddenlore" }));
+	public static final SkyBlockItem SKY = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "sky_block"), new SkyBlockItem(new FabricItemSettings().rarity(Rarity.EPIC)));
 	
 	//Animated Blocks
 	public static final HellSpawnerItem HELL_SPAWNER = Registry.register(Registries.ITEM,
@@ -273,6 +276,9 @@ public class ItemRegistry
 			content.add(BlockRegistry.HELL_OBSERVER.asItem());
 			content.add(BlockRegistry.HELL_SPAWNER.asItem());
 			content.add(HELL_MASS);
+			content.add(SkyBlockItem.getStack(SkyBlockEntity.SkyType.DAY));
+			content.add(SkyBlockItem.getStack(SkyBlockEntity.SkyType.EVENING));
+			content.add(SkyBlockItem.getStack(SkyBlockEntity.SkyType.NIGHT));
 		});
 		//Dispenser Behaviors
 		DispenserBlock.registerBehavior(HELL_BULLET, new ProjectileDispenserBehavior(){

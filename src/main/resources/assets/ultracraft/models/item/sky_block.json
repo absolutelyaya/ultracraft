@@ -1,3 +1,17 @@
 {
-  "parent": "ultracraft:item/placeholder"
+  "parent": "ultracraft:item/placeholder",
+  "overrides": [
+    {
+      "predicate": {"custom_model_data": 1},
+      "model": "ultracraft:item/sky_day"
+    },
+    {
+      "predicate": {"custom_model_data": 2},
+      "model": "ultracraft:item/sky_evening"
+    },
+    {
+      "predicate": {"custom_model_data": 3},
+      "model": "ultracraft:item/sky_night"
+    }
+  ]
 }

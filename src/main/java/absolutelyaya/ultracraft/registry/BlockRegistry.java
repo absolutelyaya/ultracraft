@@ -69,7 +69,7 @@ public class BlockRegistry
 	public static final Block HELL_SPAWNER = register("hell_spawner",
 			new HellSpawnerBlock(AbstractBlock.Settings.copy(Blocks.NETHERRACK).sounds(BlockSoundGroup.MUD).mapColor(MapColor.DARK_CRIMSON).nonOpaque()), false);
 	public static final Block SKY_BLOCK = register("sky_block",
-			new SkyBlock(AbstractBlock.Settings.copy(Blocks.BEDROCK).sounds(BlockSoundGroup.GLASS).mapColor(MapColor.BLACK).pistonBehavior(PistonBehavior.BLOCK)), true);
+			new SkyBlock(AbstractBlock.Settings.copy(Blocks.BEDROCK).sounds(BlockSoundGroup.GLASS).mapColor(MapColor.BLACK).pistonBehavior(PistonBehavior.BLOCK)), false);
 	
 	@SuppressWarnings("SameParameterValue")
 	private static Block register(String name, Block block, boolean item, int burn, int spread)
