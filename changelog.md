@@ -21,6 +21,7 @@
 - Fixed Recipe Syncing from Server to Client
 - Added Functionality to Sky Blocks
 - Drones no longer wander off into the stratosphere if left unattended
+- A lot more Sounds are now customizable
 ## Settings & Gamerules
 ## Commands
 - Added `ultrabossbar <bossbar-id>` subcommand to `/ultracraft`

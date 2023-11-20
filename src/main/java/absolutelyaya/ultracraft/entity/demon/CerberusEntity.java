@@ -215,7 +215,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 		double g = target.getZ() - getZ();
 		bullet.setVelocity(e, f, g, 2.5f, 0.0f);
 		bullet.setNoGravity(true);
-		playSound(SoundEvents.ENTITY_SNOW_GOLEM_SHOOT, 1.0f, 0.2f / (getRandom().nextFloat() * 0.2f + 0.4f));
+		playSound(SoundRegistry.GENERIC_FIRE, 1.0f, 0.2f / (getRandom().nextFloat() * 0.2f + 0.4f));
 		getWorld().spawnEntity(bullet);
 	}
 	

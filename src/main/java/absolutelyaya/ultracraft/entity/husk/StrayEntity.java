@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.accessor.Interruptable;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.entity.other.InterruptableCharge;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.TargetPredicate;
@@ -129,7 +130,7 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 		bullet.setVelocity(e, f, g, 1f, 0.0f);
 		bullet.setNoGravity(true);
 		bullet.setIgnored(getClass());
-		playSound(SoundEvents.ENTITY_SNOW_GOLEM_SHOOT, 1.0f, 0.4f / (getRandom().nextFloat() * 0.4f + 0.8f));
+		playSound(SoundRegistry.GENERIC_FIRE, 1.0f, 0.4f / (getRandom().nextFloat() * 0.4f + 0.8f));
 		getWorld().spawnEntity(bullet);
 	}
 	
@@ -158,7 +159,7 @@ public class StrayEntity extends AbstractHuskEntity implements GeoEntity, Interr
 	@Override
 	public void onInterrupted(PlayerEntity interruptor)
 	{
-		getWorld().playSound(null, interruptor.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
+		getWorld().playSound(null, interruptor.getBlockPos(), SoundRegistry.GENERIC_INTERRUPT, SoundCategory.PLAYERS, 0.75f, 2f);
 		Ultracraft.freeze((ServerWorld)getWorld(), 10);
 		damage(DamageSources.get(getWorld(), DamageSources.INTERRUPT, interruptor), 5f);
 		ExplosionHandler.explosion(interruptor, getWorld(), new Vec3d(getX(), getY(), getZ()), getDamageSources().explosion(this, interruptor), 5f, 2f, 3f, true);

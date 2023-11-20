@@ -9,10 +9,7 @@ import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.HitscanDamageSource;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.item.CoinItem;
-import absolutelyaya.ultracraft.registry.CriteriaRegistry;
-import absolutelyaya.ultracraft.registry.EntityRegistry;
-import absolutelyaya.ultracraft.registry.PacketRegistry;
-import absolutelyaya.ultracraft.registry.StatisticRegistry;
+import absolutelyaya.ultracraft.registry.*;
 import absolutelyaya.ultracraft.util.AutoAimUtil;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -211,7 +208,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		if (getWorld().isClient)
 			return true;
 		else
-			playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 0.1f, 1.2f + (isDamageRicochet ? 0.05f * amount : 0f));
+			playSound(SoundRegistry.COIN_HIT_NEXT, 0.1f, 1.2f + (isDamageRicochet ? 0.05f * amount : 0f));
 		List<ThrownCoinEntity> coins = getWorld().getEntitiesByType(TypeFilter.instanceOf(ThrownCoinEntity.class), getBoundingBox().expand(16f),
 				e -> e.isUnused() && !e.isRemoved() && !(isDamageChargeback && e.age <= 2));
 		if (coins.size() > 1 && !splitting)

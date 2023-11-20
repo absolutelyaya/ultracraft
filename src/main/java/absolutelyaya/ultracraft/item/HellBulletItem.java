@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.entity.projectile.CancerBulletEntity;
 import absolutelyaya.ultracraft.entity.projectile.CerberusBallEntity;
 import absolutelyaya.ultracraft.entity.projectile.HellBulletEntity;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -32,7 +33,7 @@ public class HellBulletItem extends Item
 		ItemStack itemStack = user.getStackInHand(hand);
 		if (user.getItemCooldownManager().isCoolingDown(this))
 			return TypedActionResult.fail(itemStack);
-		world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ENTITY_SNOWBALL_THROW, SoundCategory.NEUTRAL, 0.5f, 0.4f / (world.getRandom().nextFloat() * 0.4f + 0.8f));
+		world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundRegistry.GENERIC_FIRE, SoundCategory.NEUTRAL, 0.5f, 0.4f / (world.getRandom().nextFloat() * 0.4f + 0.8f));
 		if (!world.isClient)
 		{
 			boolean cerb = itemStack.isOf(ItemRegistry.CERBERUS_BALL);

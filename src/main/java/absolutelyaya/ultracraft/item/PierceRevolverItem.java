@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.PierceRevolverRenderer;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
@@ -107,7 +108,7 @@ public class PierceRevolverItem extends AbstractRevolverItem
 				{
 					cdm.setCooldown(this, 50, GunCooldownManager.SECONDARY);
 					triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "discharge");
-					world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, SoundCategory.PLAYERS, 1f,
+					world.playSound(null, user.getBlockPos(), SoundRegistry.PIERCER_FIRE, SoundCategory.PLAYERS, 1f,
 							0.85f + (user.getRandom().nextFloat() - 0.5f) * 0.2f);
 				}
 				player.getItemCooldownManager().set(this, 50);

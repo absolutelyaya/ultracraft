@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.entity.husk;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.MeleeInterruptable;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.command.argument.EntityAnchorArgumentType;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -288,7 +289,7 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 				mob.dataTracker.set(ANIMATION, animationID);
 			if (time == getApplyVelocityFrame())
 			{
-				mob.playSound(SoundEvents.ENTITY_EVOKER_FANGS_ATTACK, 1f, 1f);
+				mob.playSound(SoundRegistry.FILTH_ATTACK, 1f, 1f);
 				if(target != null)
 				{
 					Vec3d vec3d2 = new Vec3d(target.getX() - mob.getX(), 0.0, target.getZ() - mob.getZ());

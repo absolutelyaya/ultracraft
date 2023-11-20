@@ -38,6 +38,23 @@
       {"name":"ultracraft:placeholder","type":"event"}
     ]
   },
+  "entity.generic.interrupt": {
+    "sounds": [
+      {"name": "block.anvil.land", "type": "event"}
+    ]
+  },
+
+  "entity.filth.attack": {
+    "sounds": [
+      {"name":"entity.evoker_fangs.attack","type":"event"}
+    ]
+  },
+
+  "entity.malicious_face.tell.beam": {
+    "sounds": [
+      {"name":"block.note_block.pling","type":"event"}
+    ]
+  },
 
   "entity.cerberus.rise": {
     "sounds": [
@@ -175,12 +192,72 @@
   },
 
 
+  "item.revolver.fire": {
+    "sounds": [
+      {"name":"entity.firework_rocket.blast","type":"event"}
+    ]
+  },
+  "item.revolver.alt_charge": {
+    "sounds": [
+      {"name":"block.note_block.pling","type":"event"}
+    ]
+  },
   "item.piercer.charge": {
     "sounds": [
       {"name":"ultracraft:placeholder","type":"event"}
     ]
   },
+  "item.piercer.fire": {
+    "sounds": [
+      {"name":"entity.firework_rocket.large_blast","type":"event"}
+    ]
+  },
+  "item.marksman.coin_toss": {
+    "sounds": [
+      {"name":"ultracraft:placeholder","type":"event"}
+    ]
+  },
+  "entity.coin.hit_next": {
+    "sounds": [
+      {"name":"entity.experience_orb.pickup","type":"event"}
+    ]
+  },
+  "entity.coin.warning": {
+    "sounds": [
+      {"name":"entity.warden.sonic_charge","type":"event"}
+    ]
+  },
+  "item.sharpshooter.spin": {
+    "sounds": [
+      {"name":"entity.player.attack.sweep","type":"event"}
+    ]
+  },
+  "item.sharpshooter.fire": {
+    "sounds": [
+      {"name":"entity.firework_rocket.large_blast","type":"event"}
+    ]
+  },
 
+  "item.shotgun.fire": {
+    "sounds": [
+      {"name":"entity.firework_rocket.large_blast","type":"event"}
+    ]
+  },
+  "item.shotgun.parry": {
+    "sounds": [
+      {"name":"entity.item.break","type":"event"}
+    ]
+  },
+  "item.shotgun.pump": {
+    "sounds": [
+      {"name":"block.piston.contract","type":"event"}
+    ]
+  },
+  "item.shotgun.overpump_beep": {
+    "sounds": [
+      {"name":"block.note_block.bit","type":"event"}
+    ]
+  },
   "item.shotgun.core_charge": {
     "sounds": [
       {"name":"ultracraft:placeholder","type":"event"}
@@ -263,6 +340,18 @@
   },
 
 
+  "blocks.stained_glass_window.place": {
+    "sounds": [
+      {"name": "block.glass.place", "type": "event"}
+    ]
+  },
+  "blocks.stained_glass_window.break": {
+    "sounds": [
+      {"name": "block.glass.break", "type": "event"}
+    ]
+  },
+
+
   "misc.elevator_fall": {
     "sounds": [
       "ultracraft:misc/elevator_fall"
@@ -293,6 +382,11 @@
       "ultracraft:item/killer_fish1"
     ]
   },
+  "entity.orb.ambient": {
+    "sounds": [
+      {"name": "block.beacon.ambient", "type": "event"}
+    ]
+  },
   "entity.barrier_break": {
     "sounds": [
       "ultracraft:entity/barrier_break"
@@ -301,6 +395,46 @@
   "entity.blood_heal": {
     "sounds": [
       "ultracraft:misc/bloodheal"
+    ]
+  },
+  "entity.dash": {
+    "sounds": [
+      {"name": "entity.ender_dragon.flap", "type": "event"}
+    ]
+  },
+  "entity.dash_jump": {
+    "sounds": [
+      {"name": "entity.ender_dragon.flap", "type": "event"}
+    ]
+  },
+  "misc.insufficient_stamina": {
+    "sounds": [
+      {"name": "block.anvil.land", "type": "event"}
+    ]
+  },
+  "misc.stamina_regen": {
+    "sounds": [
+      {"name": "entity.experience_orb.pickup", "type": "event"}
+    ]
+  },
+  "misc.slam": {
+    "sounds": [
+      {"name": "entity.generic.explode", "type": "event"}
+    ]
+  },
+  "misc.parry": {
+    "sounds": [
+      {"name": "block.anvil.land", "type": "event"}
+    ]
+  },
+  "misc.water_skim": {
+    "sounds": [
+      {"name": "entity.salmon.ambient", "type": "event"}
+    ]
+  },
+  "misc.laugh": {
+    "sounds": [
+      {"name": "ultracraft:placeholder", "type": "event"}
     ]
   },
   "placeholder": {

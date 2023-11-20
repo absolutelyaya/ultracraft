@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.MarksmanRevolverRenderer;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
@@ -74,6 +75,7 @@ public class MarksmanRevolverItem extends AbstractRevolverItem
 			if(coins == 4)
 				cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
 			setNbt(itemStack, "coins", coins - 1);
+			user.playSound(SoundRegistry.COIN_TOSS, 0.1f, 1.75f);
 		}
 		if(world.isClient && coins > 0)
 		{

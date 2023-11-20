@@ -398,7 +398,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 		double g = target.getZ() - getZ();
 		bullet.setVelocity(e, f, g, 1f, 0.0f);
 		bullet.setNoGravity(true);
-		this.playSound(SoundEvents.ENTITY_SNOW_GOLEM_SHOOT, 1.0f, 0.4f / (this.getRandom().nextFloat() * 0.4f + 0.8f));
+		this.playSound(SoundRegistry.GENERIC_FIRE, 1.0f, 0.4f / (this.getRandom().nextFloat() * 0.4f + 0.8f));
 		this.getWorld().spawnEntity(bullet);
 	}
 	
@@ -739,7 +739,7 @@ public class MaliciousFaceEntity extends AbstractUltraFlyingEntity implements Me
 				targetPos = target.getPos().add(dir.normalize().multiply(3)).add(0, target.getHeight() / 4, 0);
 				face.setAttacking(true);
 				face.addParryIndicatorParticle(face.getRotationVector().multiply(1.5f), false, false);
-				face.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 2f, 1.75f);
+				face.playSound(SoundRegistry.MAURICE_BEAM_TELL, 2f, 1.75f);
 			}
 			if(timer < 20)
 			{

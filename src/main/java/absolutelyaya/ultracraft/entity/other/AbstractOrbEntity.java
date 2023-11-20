@@ -57,7 +57,7 @@ public abstract class AbstractOrbEntity extends Entity
 			if(age % 50 == 0)
 				getWorld().addParticle(ParticleRegistry.BIG_CIRCLE, getX(), getY() + 0.5, getZ(), 0, 0, 0);
 			if(age % 70 == 0)
-				playSound(SoundEvents.BLOCK_BEACON_AMBIENT, 1f, 1.25f);
+				playSound(SoundRegistry.ORB_AMBIENT, 1f, 1.25f);
 		}
 		if(getPos().distanceTo(getBlockPos().toCenterPos()) > 0.05f)
 		{

@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.PumpShotgunRenderer;
 import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -88,7 +89,7 @@ public class PumpShotgunItem extends AbstractShotgunItem
 		else
 		{
 			int charge = getNbt(stack, "charge");
-			user.playSound(SoundEvents.BLOCK_PISTON_CONTRACT, 0.5f, 0.8f + 0.1f * Math.min(charge + 1, 3));
+			user.playSound(SoundRegistry.SHOTGUN_PUMP, 0.5f, 0.8f + 0.1f * Math.min(charge + 1, 3));
 		}
 		cdm.setCooldown(this, cooldown, GunCooldownManager.SECONDARY);
 	}
@@ -132,7 +133,7 @@ public class PumpShotgunItem extends AbstractShotgunItem
 		if(!selected && stack.hasNbt() && stack.getNbt().contains("charge"))
 			stack.getNbt().remove("charge");
 		else if(stack.hasNbt() && getNbt(stack, "charge") == 3 && entity.age % 6 == 4)
-			entity.playSound(SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), 0.3f, 0.78f);
+			entity.playSound(SoundRegistry.SHOTGUN_OVERPUMP_BEEP, 0.3f, 0.78f);
 	}
 	
 	@Override

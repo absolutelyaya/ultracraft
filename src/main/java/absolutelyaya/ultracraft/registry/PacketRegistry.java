@@ -134,13 +134,14 @@ public class PacketRegistry
 						Ultracraft.freeze(player, 10);
 						target.damage(DamageSources.get(world, DamageSources.INTERRUPT, player), 6);
 						mp.onInterrupt(player);
-						world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
+						world.playSound(null, player.getBlockPos(), SoundRegistry.GENERIC_INTERRUPT, SoundCategory.PLAYERS, 0.75f, 2f);
 						player.heal(4);
 					}
 					else
 					{
-						world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.75f, 0.5f);
 						boolean knuckle = arm.isKnuckleblaster();
+						world.playSound(null, player.getBlockPos(), knuckle ? SoundRegistry.KNUCKLEBLASTER_PUNCH : SoundRegistry.FEEDBACKER_PUNCH ,
+								SoundCategory.PLAYERS, 0.75f, 0.5f);
 						target.damage(DamageSources.get(world, knuckle ? DamageSources.KNUCKLE_PUNCH : DamageSources.PUNCH, player), knuckle ? 2.5f : 1f);
 						//TODO: make punch damage configurable
 					}
@@ -218,7 +219,7 @@ public class PacketRegistry
 				}
 				else if(!(parried instanceof ThrownCoinEntity))
 					Ultracraft.freeze(player, 10);
-				world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
+				world.playSound(null, player.getBlockPos(), SoundRegistry.PARRY, SoundCategory.PLAYERS, 0.75f, 2f);
 				ProjectileEntityAccessor pa = (ProjectileEntityAccessor)parried;
 				pa.setParried(true, player);
 				parried.setVelocity(forward.multiply(chainingAllowed ? 2f + 0.2f * ((ChainParryAccessor)pa).getParryCount() : 2.5f));
@@ -360,7 +361,7 @@ public class PacketRegistry
 					ServerPlayNetworking.send((ServerPlayerEntity)p, SKIM_S2C_PACKET_ID, cbuf);
 			});
 			server.execute(() -> {
-				player.playSound(SoundEvents.ENTITY_SALMON_FLOP, SoundCategory.PLAYERS, 1f, 0.8f + player.getRandom().nextFloat() * 0.4f);
+				player.playSound(SoundRegistry.WATER_SKIM, SoundCategory.PLAYERS, 1f, 0.8f + player.getRandom().nextFloat() * 0.4f);
 				player.getWorld().addParticle(ParticleRegistry.RIPPLE, pos.x, pos.y, pos.z, 0, 0, 0);
 			});
 		});

@@ -5,6 +5,7 @@ import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.client.rendering.item.SharpshooterRevolverRenderer;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
@@ -81,7 +82,7 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 			float pitch = MathHelper.lerp(f, 0.1f, 1.4f);
 			int frequency = MathHelper.lerp(f, 8, 3);
 			if((approxUseTime - 2) % frequency == 0)
-				entity.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 0.6f, pitch);
+				entity.playSound(SoundRegistry.SHARPSHOOTER_SPIN, 0.6f, pitch);
 		}
 		if(stack.hasNbt() && stack.getNbt().contains("charging"))
 		{
@@ -135,7 +136,7 @@ public class SharpshooterRevolverItem extends AbstractRevolverItem
 						cdm.setCooldown(this, 200, GunCooldownManager.TRITARY);
 					setNbt(stack, "charges", charges - 1);
 					triggerAnim(user, GeoItem.getOrAssignId(stack, (ServerWorld)world), getControllerName(), "discharge");
-					world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, SoundCategory.PLAYERS, 1f,
+					world.playSound(null, user.getBlockPos(), SoundRegistry.SHARPSHOOTER_FIRE, SoundCategory.PLAYERS, 1f,
 							0.85f + (user.getRandom().nextFloat() - 0.5f) * 0.2f);
 				}
 				player.getItemCooldownManager().set(this, 10);

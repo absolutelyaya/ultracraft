@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.components.player;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import absolutelyaya.ultracraft.registry.StatusEffectRegistry;
 import dev.onyxstudios.cca.api.v3.component.sync.AutoSyncedComponent;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -60,7 +61,7 @@ public class WingedPlayerComponent implements IWingedPlayerComponent, AutoSynced
 	public void onDash()
 	{
 		dashingTicks = 3;
-		provider.getWorld().playSound(null, provider.getBlockPos(), SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.75f, 1.6f);
+		provider.getWorld().playSound(null, provider.getBlockPos(), SoundRegistry.DASH, SoundCategory.PLAYERS, 0.75f, 1.6f);
 	}
 	
 	@Override
@@ -73,7 +74,7 @@ public class WingedPlayerComponent implements IWingedPlayerComponent, AutoSynced
 	public void onDashJump()
 	{
 		dashingTicks = -2;
-		provider.getWorld().playSound(null, provider.getBlockPos(), SoundEvents.ENTITY_ENDER_DRAGON_FLAP, SoundCategory.PLAYERS, 0.75f, 1.6f);
+		provider.getWorld().playSound(null, provider.getBlockPos(), SoundRegistry.DASH_JUMP, SoundCategory.PLAYERS, 0.75f, 1.6f);
 	}
 	
 	@Override
@@ -117,7 +118,7 @@ public class WingedPlayerComponent implements IWingedPlayerComponent, AutoSynced
 			return true;
 		}
 		else
-			provider.playSound(SoundEvents.BLOCK_ANVIL_LAND, 0.5f, 1.8f);
+			provider.playSound(SoundRegistry.NO_STAMINA, 0.5f, 1.8f);
 		return false;
 	}
 	
@@ -294,7 +295,7 @@ public class WingedPlayerComponent implements IWingedPlayerComponent, AutoSynced
 			lastStamina = stamina;
 			stamina += 1.5f; // TODO: make this configurable
 			if(lastStamina % 30f > stamina % 30f)
-				provider.playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 0.2f, 1f + stamina / 30f * 0.1f);
+				provider.playSound(SoundRegistry.STAMINA_REGEN, 0.2f, 1f + stamina / 30f * 0.1f);
 		}
 	}
 }

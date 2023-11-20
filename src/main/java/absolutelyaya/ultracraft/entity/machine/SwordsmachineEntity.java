@@ -488,7 +488,7 @@ public class SwordsmachineEntity extends AbstractUltraHostileEntity implements G
 			bullet.setIgnored(getClass());
 			getWorld().spawnEntity(bullet);
 		}
-		playSound(SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 1.0f, 0.2f / (getRandom().nextFloat() * 0.2f + 0.6f));
+		playSound(SoundRegistry.SHOTGUN_FIRE, 1.0f, 0.2f / (getRandom().nextFloat() * 0.2f + 0.6f));
 	}
 	
 	private void throwSword(LivingEntity target)
