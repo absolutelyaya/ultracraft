@@ -355,6 +355,8 @@ public class UltraHudRenderer
 				stack = ItemRegistry.FAKE_CHEST.getDefaultStack();
 			else if(stack.isOf(Items.ENDER_CHEST))
 				stack = ItemRegistry.FAKE_ENDER_CHEST.getDefaultStack();
+			else if(stack.isOf(ItemRegistry.HELL_SPAWNER))
+				stack = ItemRegistry.FAKE_HELL_SPAWNER.getDefaultStack();
 			else if(client.getItemRenderer().getModel(stack, client.world, client.player, 0).isBuiltin())
 				stack = ItemRegistry.PLACEHOLDER.getDefaultStack();
 			RenderSystem.disableDepthTest();

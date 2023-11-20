@@ -187,6 +187,8 @@ public class ItemRegistry
 			new Identifier(Ultracraft.MOD_ID, "fake_chest"), new Item(new FabricItemSettings().maxCount(0)));
 	public static final Item FAKE_ENDER_CHEST = Registry.register(Registries.ITEM,
 			new Identifier(Ultracraft.MOD_ID, "fake_ender_chest"), new Item(new FabricItemSettings().maxCount(0)));
+	public static final Item FAKE_HELL_SPAWNER = Registry.register(Registries.ITEM,
+			new Identifier(Ultracraft.MOD_ID, "fake_hell_spawner"), new Item(new FabricItemSettings().maxCount(0)));
 	
 	public static final RegistryKey<ItemGroup> ULTRACRAFT_TAB = RegistryKey.of(RegistryKeys.ITEM_GROUP, new Identifier(Ultracraft.MOD_ID, "item"));
 	
