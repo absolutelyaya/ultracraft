@@ -4,22 +4,28 @@ This mod is a tribute to the game ULTRAKILL (by Arsi "Hakita" Patala)
 Curseforge: https://legacy.curseforge.com/minecraft/mc-mods/absolute-ultracraft <br>
 Modrinth: https://modrinth.com/mod/absolute-ultracraft
 
-You need to install Geckolib for this Mod to work. I recommend also installing Mod Menu, so you can access the Settings.<br>
+I recommend installing Mod Menu, so you can access the Settings.<br>
 To get dynamic Lighting on skulls, projectiles and appropriate enemies, install LambDynamicLights as well. (this is optional)
 
 ## Content/Featues
 - UltraHUD
-- All Prologue Enemies
-- Six weapons (Piercer Revolver & Core Eject Shotgun)
+- All Prologue and Limbo Enemies
+- 13 weapons
   - Piercer Revolver
   - Marksman Revolver
   - Sharpshooter Revolver
   - Core Eject Shotgun
   - Pump Shotgun
-  - Machine Sword
+  - Machine Sword (+ TUNDRA//AGONY Variants)
+  - Attractor Nailgun
+  - Flamethrower
+  - Soap
+  - Repulsive Skewer (Original)
 - Parry mechanic
 - Ultrakill Movement tech (in a separate "High Velocity" Mode that can be toggled using a Keybind (standard: V)) <br>(**NOTE: Whiplash is NOT in the mod currently**)
 - Customizable High Velocity Mode Wings
+- Almost too Customizable Terminals
+- Intro sequence and Custom Main Menu Backgrounds (toggleable)
 - A few Blocks and Items for Decoration and Map-Making
 - A few Secrets and Jokes
 
