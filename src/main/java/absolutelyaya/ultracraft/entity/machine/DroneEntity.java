@@ -28,6 +28,7 @@ import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.Heightmap;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 import org.joml.Vector3f;
@@ -402,6 +403,8 @@ public class DroneEntity extends AbstractUltraFlyingEntity implements GeoEntity,
 					}
 					else
 						dest = drone.getPos().addRandom(drone.random, 15f);
+					if(drone.getDistanceToGround() > 20f)
+						dest = dest.subtract(0, drone.getDistanceToGround() - 20, 0);
 					HitResult hit = drone.getWorld().raycast(new RaycastContext(dest, drone.getPos(), RaycastContext.ShapeType.COLLIDER,
 							RaycastContext.FluidHandling.ANY, drone));
 					if(hit == null || hit.getType().equals(HitResult.Type.MISS))

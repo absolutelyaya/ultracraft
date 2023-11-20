@@ -20,6 +20,7 @@
 - Fixed issue with Soap visually disappearing after picking it up
 - Fixed Recipe Syncing from Server to Client
 - Added Functionality to Sky Blocks
+- Drones no longer wander off into the stratosphere if left unattended
 ## Settings & Gamerules
 ## Commands
 - Added `ultrabossbar <bossbar-id>` subcommand to `/ultracraft`
