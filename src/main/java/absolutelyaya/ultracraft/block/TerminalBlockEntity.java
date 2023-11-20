@@ -229,10 +229,10 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			textColor = nbt.getInt("txt-clr");
 		if(nbt.containsUuid("owner"))
 			owner = nbt.getUuid("owner");
-		if(nbt.contains("screensaver", NbtElement.COMPOUND_TYPE))
+		if(nbt.contains("screensaver", NbtElement.COMPOUND_TYPE) && lines instanceof ArrayList<String>)
 			applyScreensaver(nbt.getCompound("screensaver"));
 		else
-			lines = (List.of(TerminalScreensaverManager.getRandomScreensaver()));
+			lines = new ArrayList<>(List.of(TerminalScreensaverManager.getRandomScreensaver()));
 		if(nbt.containsUuid("terminal-id"))
 			terminalID = nbt.getUuid("terminal-id");
 		else
