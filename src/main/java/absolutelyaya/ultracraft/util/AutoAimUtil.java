@@ -75,6 +75,6 @@ public class AutoAimUtil
 		return world.getOtherEntities(attacker, source.getBoundingBox().expand(32f),
 						e -> !e.equals(source) && ((isSourceCoin && isMarksmanHittable(e)) ||
 									 (!isSourceCoin && !(e instanceof IIgnoreSharpshooter) && ((EntityAccessor)e).isTargettable())) && !e.isTeammate(attacker) &&
-									 !(e instanceof Tameable tameable && tameable.getOwner().equals(attacker)));
+									 !(e instanceof Tameable tameable && tameable.getOwner() != null && tameable.getOwner().equals(attacker)));
 	}
 }
