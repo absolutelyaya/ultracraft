@@ -125,10 +125,19 @@ public class ProgressionComponent implements IProgressionComponent, AutoSyncedCo
 	{
 		unlocked = new ArrayList<>();
 		owned = new ArrayList<>();
-		unlocked.add(new Identifier(Ultracraft.MOD_ID, "pierce_revolver"));
+		
+		if(provider.getWorld().getGameRules().getBoolean(GameruleRegistry.START_WITH_PIERCER))
+		{
+			owned.add(new Identifier(Ultracraft.MOD_ID, "pierce_revolver"));
+			unlocked.add(new Identifier(Ultracraft.MOD_ID, "marksman_revolver"));
+			unlocked.add(new Identifier(Ultracraft.MOD_ID, "sharpshooter_revolver"));
+		}
+		else
+			unlocked.add(new Identifier(Ultracraft.MOD_ID, "pierce_revolver"));
 		unlocked.add(new Identifier(Ultracraft.MOD_ID, "core_shotgun"));
 		unlocked.add(new Identifier(Ultracraft.MOD_ID, "attractor_nailgun"));
 		unlocked.add(new Identifier(Ultracraft.MOD_ID, "feedbacker"));
+		owned.add(new Identifier(Ultracraft.MOD_ID, "feedbacker"));
 	}
 	
 	public void sync()

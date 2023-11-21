@@ -171,9 +171,16 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 	@Override
 	public void updateSpeedGamerule()
 	{
-		if(isWingsActive() && curSpeedMod != null)
-		{
+		updateSpeedGamerule(isWingsActive());
+	}
+	
+	@Override
+	public void updateSpeedGamerule(boolean wingsActive)
+	{
+		if(curSpeedMod != null)
 			getAttributes().removeModifiers(curSpeedMod);
+		if(wingsActive)
+		{
 			curSpeedMod = getSpeedMod();
 			getAttributes().addTemporaryModifiers(curSpeedMod);
 		}
@@ -197,7 +204,7 @@ public abstract class PlayerEntityMixin extends LivingEntity implements WingedPl
 		winged.setSlamming(false);
 		if(!isOnGround())
 			return;
-		getWorld().playSound(null, getBlockPos(), SoundEvents.ENTITY_GENERIC_EXPLODE, SoundCategory.PLAYERS,
+		getWorld().playSound(null, getBlockPos(), SoundRegistry.SLAM, SoundCategory.PLAYERS,
 				strong ? 1f : 0.75f, strong ? 0.75f : 1.25f);
 		getWorld().getOtherEntities(this, getBoundingBox().expand(0f, 1f, 0f).offset(0f, -0.5f, 0f)).forEach(e ->
 				e.damage(DamageSources.get(getWorld(), DamageSources.POUND, this), winged.getSlamDamageCooldown() > 0 ? 1 : 6));

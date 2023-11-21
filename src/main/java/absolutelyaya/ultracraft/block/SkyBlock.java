@@ -1,25 +1,20 @@
 package absolutelyaya.ultracraft.block;
 
-import absolutelyaya.ultracraft.registry.BlockRegistry;
-import net.minecraft.block.Block;
+import absolutelyaya.ultracraft.item.SkyBlockItem;
 import net.minecraft.block.BlockRenderType;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.block.BlockWithEntity;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.particle.BlockStateParticleEffect;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.text.Text;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
-public class SkyBlock extends Block //TODO: actually render a skybox
+public class SkyBlock extends BlockWithEntity
 {
 	public SkyBlock(Settings settings)
 	{
@@ -27,15 +22,9 @@ public class SkyBlock extends Block //TODO: actually render a skybox
 	}
 	
 	@Override
-	public void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options)
-	{
-		tooltip.add(Text.translatable("block.ultracraft.sky_block.lore"));
-	}
-	
-	@Override
 	public BlockRenderType getRenderType(BlockState state)
 	{
-		return BlockRenderType.INVISIBLE;
+		return BlockRenderType.MODEL;
 	}
 	
 	@Override
@@ -45,18 +34,35 @@ public class SkyBlock extends Block //TODO: actually render a skybox
 	}
 	
 	@Override
-	public void randomDisplayTick(BlockState state, World world, BlockPos blockPos, Random random)
+	public int getOpacity(BlockState state, BlockView world, BlockPos pos)
 	{
-		if(world.isClient && MinecraftClient.getInstance().player.getMainHandStack().isOf(BlockRegistry.SKY_BLOCK.asItem()))
+		return 0;
+	}
+	
+	@Nullable
+	@Override
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state)
+	{
+		return new SkyBlockEntity(pos, state);
+	}
+	
+	@Override
+	public void onPlaced(World world, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack itemStack)
+	{
+		super.onPlaced(world, pos, state, placer, itemStack);
+		if(world.getBlockEntity(pos) instanceof SkyBlockEntity sky && itemStack.hasNbt())
 		{
-			Vec3d pos = blockPos.toCenterPos();
-			world.addParticle(new BlockStateParticleEffect(ParticleTypes.BLOCK_MARKER, state), pos.x, pos.y, pos.z, 0, 0, 0);
+			NbtCompound nbt = itemStack.getNbt();
+			if(nbt.contains("type", NbtElement.STRING_TYPE))
+				sky.type = SkyBlockEntity.SkyType.valueOf(nbt.getString("type").toUpperCase());
 		}
 	}
 	
 	@Override
-	public int getOpacity(BlockState state, BlockView world, BlockPos pos)
+	public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state)
 	{
-		return 0;
+		if(world.getBlockEntity(pos) instanceof SkyBlockEntity sky)
+			return SkyBlockItem.getStack(sky.type);
+		return super.getPickStack(world, pos, state);
 	}
 }

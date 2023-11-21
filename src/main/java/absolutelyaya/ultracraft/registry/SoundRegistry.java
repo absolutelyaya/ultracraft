@@ -18,6 +18,11 @@ public class SoundRegistry
 	public static final SoundEvent HUSK_DEATH = register("entity.generic.husk.death");
 	public static final SoundEvent GENERIC_ENRAGE = register("entity.generic.enrage");
 	public static final SoundEvent ENRAGED_LOOP = register("entity.generic.enraged_loop");
+	public static final SoundEvent GENERIC_INTERRUPT = register("entity.generic.interrupt");
+	
+	public static final SoundEvent FILTH_ATTACK = register("entity.filth.attack");
+	
+	public static final SoundEvent MAURICE_BEAM_TELL = register("entity.malicious_face.tell.beam");
 	
 	public static final SoundEvent CERB_RISE = register("entity.cerberus.rise");
 	public static final SoundEvent CERB_RAM_TELL = register("entity.cerberus.tell.ram");
@@ -47,8 +52,20 @@ public class SoundRegistry
 	public static final SoundEvent V2_DEATH = register("entity.v2.death");
 	
 	//WEAPONS
+	public static final SoundEvent REVOLVER_FIRE = register("item.revolver.fire");
+	public static final SoundEvent REVOLVER_ALT_CHARGE = register("item.revolver.alt_charge");
 	public static final SoundEvent PIERCER_CHARGE = register("item.piercer.charge");
+	public static final SoundEvent PIERCER_FIRE = register("item.piercer.fire");
+	public static final SoundEvent COIN_TOSS = register("item.marksman.coin_toss");
+	public static final SoundEvent COIN_HIT_NEXT = register("entity.coin.hit_next");
+	public static final SoundEvent COIN_WARNING = register("entity.coin.warning");
+	public static final SoundEvent SHARPSHOOTER_SPIN = register("item.sharpshooter.spin");
+	public static final SoundEvent SHARPSHOOTER_FIRE = register("item.sharpshooter.fire");
 	
+	public static final SoundEvent SHOTGUN_FIRE = register("item.shotgun.fire");
+	public static final SoundEvent SHOTGUN_PARRY = register("item.shotgun.parry");
+	public static final SoundEvent SHOTGUN_PUMP = register("item.shotgun.pump");
+	public static final SoundEvent SHOTGUN_OVERPUMP_BEEP = register("item.shotgun.overpump_beep");
 	public static final SoundEvent SHOTGUN_CORE_CHARGE = register("item.shotgun.core_charge");
 	
 	public static final SoundEvent MACHINESWORD_ATTACK = register("item.machinesword.attack");
@@ -74,6 +91,10 @@ public class SoundRegistry
 	public static final SoundEvent KNUCKLEBLASTER_PUNCH = register("arm.knuckleblaster.punch");
 	public static final SoundEvent KNUCKLEBLASTER_RELOAD = register("arm.knuckleblaster.reload");
 	
+	//BLOCKS
+	public static final SoundEvent STAINED_GLASS_WINDOW_PLACE = register("blocks.stained_glass_window.place");
+	public static final SoundEvent STAINED_GLASS_WINDOW_BREAK = register("blocks.stained_glass_window.break");
+	
 	//MISC
 	public static final SoundEvent ELEVATOR_FALL = register("misc.elevator_fall");
 	public static final SoundEvent WIND_LOOP = register("misc.wind_loop");
@@ -81,8 +102,17 @@ public class SoundRegistry
 	public static final SoundEvent MACHINESWORD_LOOP = register("entity.machinesword_loop");
 	public static final SoundEvent KILLERFISH_SELECT = register("item.killerfish.select");
 	public static final SoundEvent KILLERFISH_USE = register("item.killerfish.use");
+	public static final SoundEvent ORB_AMBIENT = register("entity.orb.ambient");
 	public static final SoundEvent BARRIER_BREAK = register("entity.barrier_break");
 	public static final SoundEvent BLOOD_HEAL = register("entity.blood_heal");
+	public static final SoundEvent DASH = register("entity.dash");
+	public static final SoundEvent DASH_JUMP = register("entity.dash-jump");
+	public static final SoundEvent NO_STAMINA = register("misc.insufficient_stamina");
+	public static final SoundEvent STAMINA_REGEN = register("misc.stamina_regen");
+	public static final SoundEvent SLAM = register("misc.slam");
+	public static final SoundEvent PARRY = register("misc.parry");
+	public static final SoundEvent WATER_SKIM = register("misc.water_skim");
+	public static final SoundEvent LAUGH = register("misc.laugh");
 	public static final SoundEvent PLACEHOLDER = register("placeholder");
 	
 	//MUSIC

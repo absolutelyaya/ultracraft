@@ -19,6 +19,8 @@ public interface WingedPlayerEntity
 	
 	void updateSpeedGamerule();
 	
+	void updateSpeedGamerule(boolean wingsActive);
+	
 	boolean hasJustJumped();
 	
 	void setFocusedTerminal(TerminalBlockEntity terminal);

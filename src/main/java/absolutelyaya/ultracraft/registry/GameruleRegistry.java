@@ -1,6 +1,8 @@
 package absolutelyaya.ultracraft.registry;
 
+import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
+import absolutelyaya.ultracraft.components.player.IWingDataComponent;
 import com.chocohead.mm.api.ClassTinkerers;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.gamerule.v1.GameRuleFactory;
@@ -33,9 +35,15 @@ public class GameruleRegistry
 	public static final GameRules.Key<EnumRule<Setting>> HIVEL_MODE =
 			GameRuleRegistry.register("ultra-hiVelMode", ULTRACATEGORY, GameRuleFactory.createEnumRule(Setting.FREE,
 					(server, rule) -> {
-						if(server.isRemote() && rule.get().equals(Setting.FORCE_ON))
-							sendAdminMessage(server, Text.translatable("message.ultracraft.server.freeze-enable-warning"));
 						OnChanged(server, (byte)1, rule.get().ordinal());
+						server.getPlayerManager().getPlayerList().forEach(p -> {
+							IWingDataComponent wings = UltraComponents.WING_DATA.get(p);
+							if(!rule.get().equals(Setting.FREE))
+							{
+								wings.setVisible(rule.get().equals(Setting.FORCE_ON));
+								wings.sync();
+							}
+						});
 					}));
 	public static final GameRules.Key<EnumRule<Setting>> TIME_STOP =
 			GameRuleRegistry.register("ultra-timeStopEffect", ULTRACATEGORY,

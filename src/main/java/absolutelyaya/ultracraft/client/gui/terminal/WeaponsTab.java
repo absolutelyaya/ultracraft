@@ -8,8 +8,8 @@ import absolutelyaya.ultracraft.client.gui.terminal.elements.Sprite;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.SpriteListElement;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
 import absolutelyaya.ultracraft.components.player.IProgressionComponent;
+import absolutelyaya.ultracraft.data.UltraRecipeManager;
 import absolutelyaya.ultracraft.recipe.UltraRecipe;
-import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import absolutelyaya.ultracraft.util.InventoryUtil;
 import io.netty.buffer.Unpooled;
@@ -253,7 +253,8 @@ public class WeaponsTab extends Tab
 		{
 			if(!progression.isUnlocked(selectedWeaponTypeIds[idx]))
 			{
-				refreshTab();
+				if(!selectedWeaponTypeIds[idx].equals(REVOLVERS[0]))
+					refreshTab();
 				craftButton.setClickable(selectedRecipe != null);
 				return true;
 			}

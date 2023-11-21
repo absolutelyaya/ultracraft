@@ -2,7 +2,6 @@ package absolutelyaya.ultracraft.mixin;
 
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
-import absolutelyaya.ultracraft.item.FlorpItem;
 import absolutelyaya.ultracraft.item.PlushieItem;
 import absolutelyaya.ultracraft.particle.ExplosionParticleEffect;
 import absolutelyaya.ultracraft.registry.SoundRegistry;

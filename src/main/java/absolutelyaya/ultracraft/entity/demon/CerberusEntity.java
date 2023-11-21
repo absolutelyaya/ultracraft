@@ -11,6 +11,8 @@ import absolutelyaya.ultracraft.entity.other.ShockwaveEntity;
 import absolutelyaya.ultracraft.entity.projectile.CerberusBallEntity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.SoundRegistry;
+import mod.azure.azurelib.animatable.GeoEntity;
+import mod.azure.azurelib.util.AzureLibUtil;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.SpawnReason;
@@ -30,14 +32,12 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.core.animation.RawAnimation;
-import software.bernie.geckolib.core.object.PlayState;
-import software.bernie.geckolib.util.GeckoLibUtil;
+import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
+import mod.azure.azurelib.core.animation.AnimatableManager;
+import mod.azure.azurelib.core.animation.AnimationController;
+import mod.azure.azurelib.core.animation.AnimationState;
+import mod.azure.azurelib.core.animation.RawAnimation;
+import mod.azure.azurelib.core.object.PlayState;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
@@ -51,7 +51,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 	private static final RawAnimation THROW_ANIM = RawAnimation.begin().thenLoop("throw");
 	private static final RawAnimation RAM_ANIM = RawAnimation.begin().thenLoop("ram");
 	private static final RawAnimation STOMP_ANIM = RawAnimation.begin().thenLoop("stomp");
-	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+	private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
 	protected static final TrackedData<Boolean> ENRAGED = DataTracker.registerData(CerberusEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	protected static final TrackedData<Boolean> DROP_APPLE = DataTracker.registerData(CerberusEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	private static final byte ANIMATION_IDLE = 0;
@@ -215,7 +215,7 @@ public class CerberusEntity extends AbstractUltraHostileEntity implements GeoEnt
 		double g = target.getZ() - getZ();
 		bullet.setVelocity(e, f, g, 2.5f, 0.0f);
 		bullet.setNoGravity(true);
-		playSound(SoundEvents.ENTITY_SNOW_GOLEM_SHOOT, 1.0f, 0.2f / (getRandom().nextFloat() * 0.2f + 0.4f));
+		playSound(SoundRegistry.GENERIC_FIRE, 1.0f, 0.2f / (getRandom().nextFloat() * 0.2f + 0.4f));
 		getWorld().spawnEntity(bullet);
 	}
 	

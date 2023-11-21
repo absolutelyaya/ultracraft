@@ -6,6 +6,7 @@ import absolutelyaya.ultracraft.components.player.IProgressionComponent;
 import absolutelyaya.ultracraft.entity.machine.DestinyBondSwordsmachineEntity;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
+import com.chocohead.mm.api.ClassTinkerers;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
@@ -16,9 +17,15 @@ import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.command.CommandSource;
-import net.minecraft.command.argument.*;
+import net.minecraft.command.argument.EntityArgumentType;
+import net.minecraft.command.argument.IdentifierArgumentType;
+import net.minecraft.command.argument.PosArgument;
+import net.minecraft.command.argument.Vec3ArgumentType;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.boss.BossBar;
+import net.minecraft.entity.boss.CommandBossBar;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.command.BossBarCommand;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
@@ -27,7 +34,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.function.TriFunction;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
@@ -57,7 +66,8 @@ public class Commands
 					.then(literal("grant").then(argument("target", players()).then(argument("entry", identifier()).executes(Commands::executeProgressionGrant))))
 					.then(literal("grant-all").then(argument("target", players()).executes(Commands::executeProgressionGrantAll)))
 					.then(literal("revoke").then(argument("target", players()).then(argument("entry", identifier()).suggests(Commands::progressionListProvider).executes(Commands::executeProgressionRevoke)))))
-				.then(literal("reset").then(argument("target", players()).executes(Commands::executeProgressionReset)))));
+				.then(literal("reset").then(argument("target", players()).executes(Commands::executeProgressionReset))))
+			.then(literal("ultrabossbar").requires(source -> source.hasPermissionLevel(2)).then(argument("id", identifier()).executes(Commands::executeUltraBossbar))));
 		dispatcher.register(literal("ultrasummon").requires(source -> source.hasPermissionLevel(2)).then(argument("type", string()).suggests((context, builder) -> CommandSource.suggestMatching(List.of("\"tundra//agony\""), builder)).then(argument("pos", Vec3ArgumentType.vec3()).then(argument("yaw", DoubleArgumentType.doubleArg()).executes(Commands::executeSpecialSpawn)))));
 	}
 	
@@ -198,7 +208,7 @@ public class Commands
 		}
 		if(list.size() == 0)
 			builder.append(Text.translatable("command.ultracraft.progression.list-empty").getString());
-		context.getSource().sendMessage(Text.of(builder.toString()));
+		context.getSource().sendFeedback(() -> Text.of(builder.toString()), true);
 		return Command.SINGLE_SUCCESS;
 	}
 	
@@ -223,10 +233,10 @@ public class Commands
 		}
 		int size = targets.size();
 		if(size == 1)
-			context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.grant-success", entry, type,
-					((ServerPlayerEntity)targets.toArray()[0]).getName()));
+			context.getSource().sendFeedback(() -> Text.translatable("command.ultracraft.progression.grant-success", entry, type,
+					((ServerPlayerEntity)targets.toArray()[0]).getName()), true);
 		else
-			context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.grant-multi-success", entry, type, size));
+			context.getSource().sendFeedback(() -> Text.translatable("command.ultracraft.progression.grant-multi-success", entry, type, size), true);
 		return Command.SINGLE_SUCCESS;
 	}
 	
@@ -252,10 +262,10 @@ public class Commands
 		}
 		int size = targets.size();
 		if(size == 1)
-			context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.revoke-success", entry, type,
-					((ServerPlayerEntity)targets.toArray()[0]).getName()));
+			context.getSource().sendFeedback(() -> Text.translatable("command.ultracraft.progression.revoke-success", entry, type,
+					((ServerPlayerEntity)targets.toArray()[0]).getName()), true);
 		else
-			context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.revoke-multi-success", entry, type, size));
+			context.getSource().sendFeedback(() -> Text.translatable("command.ultracraft.progression.revoke-multi-success", entry, type, size), true);
 		return Command.SINGLE_SUCCESS;
 	}
 	
@@ -270,10 +280,10 @@ public class Commands
 		}
 		int size = targets.size();
 		if(size == 1)
-			context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.reset-success",
-					((ServerPlayerEntity)targets.toArray()[0]).getName()));
+			context.getSource().sendFeedback(() -> Text.translatable("command.ultracraft.progression.reset-success",
+					((ServerPlayerEntity)targets.toArray()[0]).getName()), true);
 		else
-			context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.reset-multi-success", size));
+			context.getSource().sendFeedback(() -> Text.translatable("command.ultracraft.progression.reset-multi-success", size), true);
 		return Command.SINGLE_SUCCESS;
 	}
 	
@@ -297,10 +307,18 @@ public class Commands
 		}
 		int size = targets.size();
 		if(size == 1)
-			context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.grant-all-success", type,
-					((ServerPlayerEntity)targets.toArray()[0]).getName()));
+			context.getSource().sendFeedback(() -> Text.translatable("command.ultracraft.progression.grant-all-success", type,
+					((ServerPlayerEntity)targets.toArray()[0]).getName()), true);
 		else
-			context.getSource().sendMessage(Text.translatable("command.ultracraft.progression.grant-all-multi-success", type, size));
+			context.getSource().sendFeedback(() -> Text.translatable("command.ultracraft.progression.grant-all-multi-success", type, size), true);
+		return Command.SINGLE_SUCCESS;
+	}
+	
+	private static int executeUltraBossbar(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
+	{
+		CommandBossBar bossBar = BossBarCommand.getBossBar(context);
+		bossBar.setStyle(ClassTinkerers.getEnum(BossBar.Style.class, "ULTRA"));
+		context.getSource().sendFeedback(() -> Text.translatable("commands.bossbar.set.style.success", bossBar.toHoverableText()), true);
 		return Command.SINGLE_SUCCESS;
 	}
 }

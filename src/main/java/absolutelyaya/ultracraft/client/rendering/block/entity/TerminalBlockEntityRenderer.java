@@ -1,5 +1,6 @@
 package absolutelyaya.ultracraft.client.rendering.block.entity;
 
+import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
@@ -18,8 +19,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.joml.*;
-import software.bernie.geckolib.cache.object.BakedGeoModel;
-import software.bernie.geckolib.renderer.GeoBlockRenderer;
+import mod.azure.azurelib.cache.object.BakedGeoModel;
+import mod.azure.azurelib.renderer.GeoBlockRenderer;
 
 import java.lang.Math;
 import java.util.List;
@@ -47,7 +48,10 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 	@Override
 	public Identifier getTextureLocation(TerminalBlockEntity animatable)
 	{
-		return animatable.getBase().getTexture();
+		TerminalBlockEntity.Base base = animatable.getBase();
+		if(base.equals(TerminalBlockEntity.Base.RGB))
+			return new Identifier(Ultracraft.MOD_ID, "procedural/terminal_base/" + animatable.getTerminalID().toString());
+		return base.getTexture();
 	}
 	
 	@Override
@@ -145,22 +149,22 @@ public class TerminalBlockEntityRenderer extends GeoBlockRenderer<TerminalBlockE
 		Matrix3f normalMatrix = new Matrix3f(matrices.peek().getNormalMatrix());
 		
 		poseMatrix.rotate(rotStep);
-		consumer.vertex(poseMatrix, 8f, -11f, 8.01f).color(c).texture(0.25f, 22f / 32f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, 8f, 11f, 8.01f).color(c).texture(0.25f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, 0f, 11f, 8.01f).color(c).texture(0f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, 0f, -11f, 8.01f).color(c).texture(0f, 22f / 32f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 8f, -24f, 8.01f).color(c).texture(0.2f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 8f, 16f, 8.01f).color(c).texture(0.2f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 0f, 16f, 8.01f).color(c).texture(0f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 0f, -24f, 8.01f).color(c).texture(0f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
 		
 		poseMatrix.rotate(rotStep);
-		consumer.vertex(poseMatrix, -8f, -21f, -8.01f).color(c).texture(0.75f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, -8f, 11f, -8.01f).color(c).texture(0.75f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, 8f, 11f, -8.01f).color(c).texture(0.25f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, 8f, -21f, -8.01f).color(c).texture(0.25f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, -8f, -24f, -8.01f).color(c).texture(0.6f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, -8f, 16f, -8.01f).color(c).texture(0.6f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 8f, 16f, -8.01f).color(c).texture(0.2f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 8f, -24f, -8.01f).color(c).texture(0.2f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
 		
 		poseMatrix.rotate(rotStep);
-		consumer.vertex(poseMatrix, -8f, 11f, 8.01f).color(c).texture(0.75f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, -8f, -11f, 8.01f).color(c).texture(0.75f, 22f / 32f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, 0f, -11f, 8.01f).color(c).texture(1f, 22f / 32f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
-		consumer.vertex(poseMatrix, 0f, 11f, 8.01f).color(c).texture(1f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, -8f, 16f, 8.01f).color(c).texture(0.6f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, -8f, -24f, 8.01f).color(c).texture(0.6f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 0f, -24f, 8.01f).color(c).texture(0.8f, 1f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
+		consumer.vertex(poseMatrix, 0f, 16f, 8.01f).color(c).texture(0.8f, 0f).overlay(o).light(LIGHT).normal(normalMatrix, 0f, 0f, -1f).next();
 		
 		matrices.pop();
 	}

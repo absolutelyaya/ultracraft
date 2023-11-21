@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.UltraComponents;
 import absolutelyaya.ultracraft.client.GunCooldownManager;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -13,9 +14,9 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import software.bernie.geckolib.animatable.GeoItem;
-import software.bernie.geckolib.core.animation.Animation;
-import software.bernie.geckolib.core.animation.RawAnimation;
+import mod.azure.azurelib.animatable.GeoItem;
+import mod.azure.azurelib.core.animation.Animation;
+import mod.azure.azurelib.core.animation.RawAnimation;
 
 public abstract class AbstractRevolverItem extends AbstractWeaponItem implements GeoItem
 {
@@ -43,7 +44,7 @@ public abstract class AbstractRevolverItem extends AbstractWeaponItem implements
 				super.onPrimaryFire(world, user, userVelocity);
 				return true;
 			}
-			world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_BLAST, SoundCategory.PLAYERS, 0.75f,
+			world.playSound(null, user.getBlockPos(), SoundRegistry.REVOLVER_FIRE, SoundCategory.PLAYERS, 0.75f,
 					0.9f + (user.getRandom().nextFloat() - 0.5f) * 0.2f);
 			triggerAnim(user, GeoItem.getOrAssignId(user.getMainHandStack(), (ServerWorld)world), getControllerName(), b ? "shot" : "shot2");
 			ServerHitscanHandler.performHitscan(user, ServerHitscanHandler.NORMAL, 1f);
@@ -69,7 +70,7 @@ public abstract class AbstractRevolverItem extends AbstractWeaponItem implements
 			setNbt(stack, "coins", coins + 1);
 			if(coins + 1 < 4)
 				cdm.setCooldown(this, 200, GunCooldownManager.SECONDARY);
-			player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.75f);
+			player.playSound(SoundRegistry.REVOLVER_ALT_CHARGE, 0.1f, 1.75f);
 		}
 		//Sharpshooter Charges Tick
 		int charges = getNbt(stack, "charges");
@@ -77,7 +78,7 @@ public abstract class AbstractRevolverItem extends AbstractWeaponItem implements
 		{
 			setNbt(stack, "charges", charges + 1);
 			cdm.setCooldown(this, 200, GunCooldownManager.TRITARY);
-			player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 0.1f, 1.5f);
+			player.playSound(SoundRegistry.REVOLVER_ALT_CHARGE, 0.1f, 1.5f);
 		}
 	}
 	

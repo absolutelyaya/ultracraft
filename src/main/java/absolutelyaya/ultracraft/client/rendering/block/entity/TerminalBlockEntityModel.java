@@ -4,7 +4,7 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib.model.DefaultedBlockGeoModel;
+import mod.azure.azurelib.model.DefaultedBlockGeoModel;
 
 public class TerminalBlockEntityModel extends DefaultedBlockGeoModel<TerminalBlockEntity>
 {
@@ -16,6 +16,8 @@ public class TerminalBlockEntityModel extends DefaultedBlockGeoModel<TerminalBlo
 	@Override
 	public Identifier getTextureResource(TerminalBlockEntity animatable)
 	{
+		if(animatable.getBase().equals(TerminalBlockEntity.Base.RGB))
+			return new Identifier(Ultracraft.MOD_ID, "procedural/terminal_base/" + animatable.getTerminalID().toString());
 		return animatable.getBase().getTexture();
 	}
 	

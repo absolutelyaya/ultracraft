@@ -1,7 +1,6 @@
 package absolutelyaya.ultracraft.client.rendering;
 
 import absolutelyaya.ultracraft.client.ClientHitscanHandler;
-import absolutelyaya.ultracraft.client.RenderLayers;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;

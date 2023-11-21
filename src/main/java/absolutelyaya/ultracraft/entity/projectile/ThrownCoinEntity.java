@@ -4,17 +4,16 @@ import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.ServerHitscanHandler;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
+import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.HitscanDamageSource;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.item.CoinItem;
-import absolutelyaya.ultracraft.registry.CriteriaRegistry;
-import absolutelyaya.ultracraft.registry.EntityRegistry;
-import absolutelyaya.ultracraft.registry.PacketRegistry;
-import absolutelyaya.ultracraft.registry.StatisticRegistry;
+import absolutelyaya.ultracraft.registry.*;
 import absolutelyaya.ultracraft.util.AutoAimUtil;
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -35,6 +34,7 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.Pair;
 import net.minecraft.util.TypeFilter;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
@@ -42,6 +42,8 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 
 import java.util.List;
 
@@ -136,6 +138,8 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	{
 		if(hitResult.getType().equals(HitResult.Type.ENTITY))
 			return;
+		if(getWorld().isClient && !isRemoved())
+			UltracraftClient.TRAIL_RENDERER.removeTrail(uuid);
 		super.onCollision(hitResult);
 		if (!getWorld().isClient)
 		{
@@ -149,6 +153,14 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 				discard();
 			}
 		}
+	}
+	
+	@Override
+	public void onRemoved()
+	{
+		if(getWorld().isClient)
+			UltracraftClient.TRAIL_RENDERER.removeTrail(uuid);
+		super.onRemoved();
 	}
 	
 	@Override
@@ -196,7 +208,7 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		if (getWorld().isClient)
 			return true;
 		else
-			playSound(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 0.1f, 1.2f + (isDamageRicochet ? 0.05f * amount : 0f));
+			playSound(SoundRegistry.COIN_HIT_NEXT, 0.1f, 1.2f + (isDamageRicochet ? 0.05f * amount : 0f));
 		List<ThrownCoinEntity> coins = getWorld().getEntitiesByType(TypeFilter.instanceOf(ThrownCoinEntity.class), getBoundingBox().expand(16f),
 				e -> e.isUnused() && !e.isRemoved() && !(isDamageChargeback && e.age <= 2));
 		if (coins.size() > 1 && !splitting)
@@ -328,6 +340,9 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 	@Override
 	public void tick()
 	{
+		if(age == 1 && !isRemoved())
+			if(getWorld().isClient)
+				UltracraftClient.TRAIL_RENDERER.createTrail(uuid, this::getPoint, new Vector4f(1f, 1f, 0f, 0.4f), 5);
 		if(!dataTracker.get(STOPPED) && !splitting)
 		{
 			super.tick();
@@ -342,6 +357,16 @@ public class ThrownCoinEntity extends ThrownItemEntity implements ProjectileEnti
 		if(hitTicks == nextHitDelay)
 			hitNext(lastDamageSource, damage, (LivingEntity)getOwner());
 		baseTick();
+	}
+	
+	Pair<Vector3f, Vector3f> getPoint()
+	{
+		float yVel = (float)getVelocity().normalize().y;
+		float xAngle = (float)Math.toRadians(yVel * 90);
+		float yAngle = (float)Math.toRadians(Math.abs(yVel) * MinecraftClient.getInstance().gameRenderer.getCamera().getYaw());
+		Vector3f left =	getPos().toVector3f().add(new Vector3f(0f, 0.075f, 0f).rotateX(xAngle).rotateY(yAngle));
+		Vector3f right = getPos().toVector3f().add(new Vector3f(0f, -0.075f, 0f).rotateX(xAngle).rotateY(yAngle));
+		return new Pair<>(left, right);
 	}
 	
 	@Override

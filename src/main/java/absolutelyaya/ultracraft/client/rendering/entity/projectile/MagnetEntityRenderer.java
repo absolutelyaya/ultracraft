@@ -11,7 +11,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
+import mod.azure.azurelib.renderer.GeoEntityRenderer;
 
 public class MagnetEntityRenderer extends GeoEntityRenderer<MagnetEntity>
 {

@@ -1,11 +1,11 @@
 package absolutelyaya.ultracraft.block;
 
-import absolutelyaya.ultracraft.entity.AbstractUltraHostileEntity;
 import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
@@ -65,7 +65,7 @@ public class HellObserverBlockEntity extends BlockEntity
 		offset = new Vec3i((int)(offset.getX() - Math.floor(size.getX() / 2f)), (int)(offset.getY() - Math.floor(size.getY() / 2f)), (int)(offset.getZ() - Math.floor(size.getZ() / 2f)));
 		Box box = new Box(pos).stretch(size.getX() - 1, size.getY() - 1, size.getZ() - 1).offset(offset.getX(), offset.getY(), offset.getZ());
 		List<PlayerEntity> players = world.getEntitiesByType(TypeFilter.instanceOf(PlayerEntity.class), box, p -> !p.isSpectator());
-		List<AbstractUltraHostileEntity> enemies = world.getEntitiesByType(TypeFilter.instanceOf(AbstractUltraHostileEntity.class), box, e -> true);
+		List<HostileEntity> enemies = world.getEntitiesByType(TypeFilter.instanceOf(HostileEntity.class), box, e -> true);
 		
 		boolean success = check(observer, players.size(), enemies.size());
 		if(observer.halfClosed)

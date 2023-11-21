@@ -12,10 +12,10 @@ import absolutelyaya.ultracraft.client.gui.screen.HellObserverScreen;
 import absolutelyaya.ultracraft.client.gui.screen.ServerConfigScreen;
 import absolutelyaya.ultracraft.client.rendering.UltraHudRenderer;
 import absolutelyaya.ultracraft.compat.PlayerAnimator;
+import absolutelyaya.ultracraft.data.UltraRecipeManager;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.recipe.UltraRecipe;
-import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
 import com.google.common.collect.ImmutableMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -264,7 +264,7 @@ public class ClientPacketRegistry
 					client.player.getWorld().addParticle(ParticleRegistry.RICOCHET_WARNING, source.x, source.y, source.z, 0, 0, 0);
 				else
 					client.player.getWorld().addParticle(new ParryIndicatorParticleEffect(false), source.x, source.y, source.z, 0, 0, 0);
-				client.player.getWorld().playSound(source.x, source.y, source.z, SoundEvents.ENTITY_WARDEN_SONIC_CHARGE, SoundCategory.PLAYERS, 0.75f, 1.65f, false);
+				client.player.getWorld().playSound(source.x, source.y, source.z, SoundRegistry.COIN_WARNING, SoundCategory.PLAYERS, 0.75f, 1.65f, false);
 			});
 		}));
 		ClientPlayNetworking.registerGlobalReceiver(REPLENISH_STAMINA_PACKET_ID, (client, handler, buf, sender) -> {

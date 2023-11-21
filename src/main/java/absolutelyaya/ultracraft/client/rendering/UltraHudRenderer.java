@@ -16,7 +16,9 @@ import me.shedaniel.math.Color;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.*;
+import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.model.json.ModelTransformationMode;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.BannerItem;
@@ -353,6 +355,8 @@ public class UltraHudRenderer
 				stack = ItemRegistry.FAKE_CHEST.getDefaultStack();
 			else if(stack.isOf(Items.ENDER_CHEST))
 				stack = ItemRegistry.FAKE_ENDER_CHEST.getDefaultStack();
+			else if(stack.isOf(ItemRegistry.HELL_SPAWNER))
+				stack = ItemRegistry.FAKE_HELL_SPAWNER.getDefaultStack();
 			else if(client.getItemRenderer().getModel(stack, client.world, client.player, 0).isBuiltin())
 				stack = ItemRegistry.PLACEHOLDER.getDefaultStack();
 			RenderSystem.disableDepthTest();

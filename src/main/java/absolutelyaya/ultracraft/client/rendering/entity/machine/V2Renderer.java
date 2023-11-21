@@ -3,7 +3,6 @@ package absolutelyaya.ultracraft.client.rendering.entity.machine;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.gecko.V2EmissiveLayer;
 import absolutelyaya.ultracraft.client.rendering.entity.feature.gecko.V2RageLayer;
 import absolutelyaya.ultracraft.entity.machine.V2Entity;
-import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -11,9 +10,9 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
-import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
+import mod.azure.azurelib.cache.object.GeoBone;
+import mod.azure.azurelib.renderer.GeoEntityRenderer;
+import mod.azure.azurelib.renderer.layer.BlockAndItemGeoLayer;
 
 public class V2Renderer extends GeoEntityRenderer<V2Entity>
 {
@@ -26,7 +25,7 @@ public class V2Renderer extends GeoEntityRenderer<V2Entity>
 		addRenderLayer(new BlockAndItemGeoLayer<>(this)
 		{
 			@Override
-			protected ItemStack getStackForBone(GeoBone bone, V2Entity animatable)
+			public ItemStack getStackForBone(GeoBone bone, V2Entity animatable)
 			{
 				if(bone.getName().equals(WEAPON))
 					return animatable.getWeapon();
@@ -34,7 +33,7 @@ public class V2Renderer extends GeoEntityRenderer<V2Entity>
 			}
 			
 			@Override
-			protected void renderStackForBone(MatrixStack poseStack, GeoBone bone, ItemStack stack, V2Entity animatable, VertexConsumerProvider bufferSource, float partialTick, int packedLight, int packedOverlay)
+			public void renderStackForBone(MatrixStack poseStack, GeoBone bone, ItemStack stack, V2Entity animatable, VertexConsumerProvider bufferSource, float partialTick, int packedLight, int packedOverlay)
 			{
 				poseStack.push();
 				if(bone.getName().equals(WEAPON))

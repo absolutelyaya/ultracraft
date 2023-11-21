@@ -8,6 +8,7 @@ import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.entity.projectile.ShotgunPelletEntity;
 import absolutelyaya.ultracraft.particle.ParryIndicatorParticleEffect;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileUtil;
@@ -23,8 +24,8 @@ import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
-import software.bernie.geckolib.animatable.GeoItem;
-import software.bernie.geckolib.core.animation.RawAnimation;
+import mod.azure.azurelib.animatable.GeoItem;
+import mod.azure.azurelib.core.animation.RawAnimation;
 
 public abstract class AbstractShotgunItem extends AbstractWeaponItem implements GeoItem
 {
@@ -77,10 +78,10 @@ public abstract class AbstractShotgunItem extends AbstractWeaponItem implements 
 				bullet.setNoGravity(true);
 				world.spawnEntity(bullet);
 			}
-			world.playSound(null, user.getBlockPos(), SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, SoundCategory.PLAYERS,
+			world.playSound(null, user.getBlockPos(), SoundRegistry.SHOTGUN_FIRE, SoundCategory.PLAYERS,
 					1.0f, 0.2f / (user.getRandom().nextFloat() * 0.2f + 0.6f));
 			if(parry)
-				world.playSound(null, ((EntityHitResult)hit).getEntity().getBlockPos(), SoundEvents.ENTITY_ITEM_BREAK, SoundCategory.PLAYERS,
+				world.playSound(null, ((EntityHitResult)hit).getEntity().getBlockPos(), SoundRegistry.SHOTGUN_PARRY, SoundCategory.PLAYERS,
 						0.75f, 0.3f / (user.getRandom().nextFloat() * 0.2f + 0.6f));
 			if(trueParry)
 				Ultracraft.freeze((ServerWorld)world, 5);

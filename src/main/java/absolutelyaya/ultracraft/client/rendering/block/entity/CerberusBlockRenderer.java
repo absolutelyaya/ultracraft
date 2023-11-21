@@ -1,7 +1,7 @@
 package absolutelyaya.ultracraft.client.rendering.block.entity;
 
 import absolutelyaya.ultracraft.block.CerberusBlockEntity;
-import software.bernie.geckolib.renderer.GeoBlockRenderer;
+import mod.azure.azurelib.renderer.GeoBlockRenderer;
 
 public class CerberusBlockRenderer extends GeoBlockRenderer<CerberusBlockEntity>
 {

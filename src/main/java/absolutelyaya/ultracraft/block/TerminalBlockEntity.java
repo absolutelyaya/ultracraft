@@ -3,16 +3,22 @@ package absolutelyaya.ultracraft.block;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.api.terminal.GlobalButtonActions;
+import absolutelyaya.ultracraft.client.ClientGraffitiManager;
+import absolutelyaya.ultracraft.client.ProceduralTextureManager;
 import absolutelyaya.ultracraft.client.gui.terminal.DefaultTabs;
 import absolutelyaya.ultracraft.client.gui.terminal.elements.*;
-import absolutelyaya.ultracraft.client.gui.terminal.elements.ListElement;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.Button;
+import absolutelyaya.ultracraft.data.TerminalScreensaverManager;
 import absolutelyaya.ultracraft.item.TerminalItem;
 import absolutelyaya.ultracraft.registry.BlockEntityRegistry;
 import absolutelyaya.ultracraft.registry.BlockRegistry;
-import absolutelyaya.ultracraft.client.ClientGraffitiManager;
 import absolutelyaya.ultracraft.registry.PacketRegistry;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
+import mod.azure.azurelib.animatable.GeoBlockEntity;
+import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
+import mod.azure.azurelib.core.animatable.instance.InstancedAnimatableInstanceCache;
+import mod.azure.azurelib.core.animation.AnimatableManager;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -21,7 +27,9 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.*;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
@@ -32,13 +40,12 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.ArrayUtils;
-import org.joml.*;
-import software.bernie.geckolib.animatable.GeoBlockEntity;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animatable.instance.InstancedAnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
+import org.joml.Vector2d;
+import org.joml.Vector2f;
+import org.joml.Vector2i;
 
 import java.util.*;
+import java.util.List;
 
 public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 {
@@ -50,8 +57,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			add("+--------------+");
 			add("   Tip of the Day");
 			add("");
-			add("     be there or");
-			add("      be square");
+			add("");
+			add("");
 			add("");
 			add("");
 			add("");
@@ -60,7 +67,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			add("+--------------+");
 		}
 	};
-	int textColor = 0xffffffff;
+	int textColor = 0xffffffff, baseColor = 0xfffcc330;
+	byte graffitiVersion = -1;
 	java.util.List<Integer> palette = new ArrayList<>() {
 		{
 			//0 is reserved for transparency
@@ -111,6 +119,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public TerminalBlockEntity(BlockPos pos, BlockState state)
 	{
 		super(BlockEntityRegistry.TERMINAL, pos, state);
+		if(getWorld() != null && !getWorld().isClient)
+			lines = new ArrayList<>(List.of(TerminalScreensaverManager.getRandomScreensaver()));
 	}
 	
 	@Override
@@ -142,7 +152,6 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		}
 		if(lastHovered instanceof ListElement list && list.getLastHovered() != -1)
 			list.select(list.getLastHovered());
-			
 	}
 	
 	public void scroll(double amount)
@@ -170,6 +179,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		item.setStack(getAsStack());
 		item.setPosition(getPos().toCenterPos());
 		getWorld().spawnEntity(item);
+		markRemoved();
 	}
 	
 	public ItemStack getAsStack()
@@ -177,12 +187,15 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		ItemStack stack = TerminalItem.getStack(base);
 		NbtCompound terminalData = new NbtCompound();
 		terminalData.putInt("txt-clr", textColor);
+		terminalData.putInt("base-clr", baseColor);
 		if(owner != null)
 			terminalData.putUuid("owner", owner);
 		terminalData.put("screensaver", serializeScreensaver());
 		terminalData.putUuid("terminal-id", Objects.requireNonNullElseGet(terminalID, () -> terminalID = UUID.randomUUID()));
 		terminalData.put("graffiti", serializeGraffiti());
+		terminalData.putByte("graffiti-version", graffitiVersion);
 		terminalData.put("mainmenu", serializeMainMenu());
+		terminalData.putInt("base", base.ordinal());
 		
 		NbtCompound base = stack.getOrCreateNbt();
 		base.put("terminalData", terminalData);
@@ -195,13 +208,26 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		if(!stack.hasNbt())
 			return;
 		NbtCompound nbt = stack.getNbt().getCompound("terminalData");
-		textColor = nbt.getInt("txt-clr");
+		if(nbt.contains("txt-clr"))
+			textColor = nbt.getInt("txt-clr");
 		if(nbt.containsUuid("owner"))
 			owner = nbt.getUuid("owner");
-		applyScreensaver(nbt.getCompound("screensaver"));
-		terminalID = nbt.getUuid("terminal-id");
-		applyGraffiti(nbt.getCompound("graffiti"));
-		applyMainMenu(nbt.getCompound("mainmenu"));
+		if(nbt.contains("screensaver"))
+			applyScreensaver(nbt.getCompound("screensaver"));
+		else if(getWorld() != null && !getWorld().isClient)
+			lines = new ArrayList<>(List.of(TerminalScreensaverManager.getRandomScreensaver()));
+		if(nbt.containsUuid("terminal-id"))
+			terminalID = nbt.getUuid("terminal-id");
+		if(nbt.contains("graffiti-version", NbtElement.BYTE_TYPE))
+			graffitiVersion = nbt.getByte("graffiti-version");
+		if(nbt.contains("graffiti"))
+			applyGraffiti(nbt.getCompound("graffiti"));
+		if(nbt.contains("mainmenu"))
+			applyMainMenu(nbt.getCompound("mainmenu"));
+		if(nbt.contains("base", NbtElement.INT_TYPE))
+			setBase(Base.values()[nbt.getInt("base")]);
+		if(base.equals(Base.RGB) && nbt.contains("base-clr"))
+			setBaseColor(nbt.getInt("base-clr"));
 	}
 	
 	@Override
@@ -214,21 +240,20 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public void readNbt(NbtCompound nbt)
 	{
 		super.readNbt(nbt);
-		if(nbt.contains("base", NbtElement.INT_TYPE))
-			base = Base.values()[nbt.getInt("base")];
 		if(nbt.contains("txt-clr", NbtElement.INT_TYPE))
 			textColor = nbt.getInt("txt-clr");
 		if(nbt.containsUuid("owner"))
 			owner = nbt.getUuid("owner");
-		if(nbt.contains("screensaver", NbtElement.COMPOUND_TYPE))
-		{
-			NbtCompound screensaver = nbt.getCompound("screensaver");
-			applyScreensaver(screensaver);
-		}
+		if(nbt.contains("screensaver", NbtElement.COMPOUND_TYPE) && lines instanceof ArrayList<String>)
+			applyScreensaver(nbt.getCompound("screensaver"));
+		else if(getWorld() != null && !getWorld().isClient)
+			lines = new ArrayList<>(List.of(TerminalScreensaverManager.getRandomScreensaver()));
 		if(nbt.containsUuid("terminal-id"))
 			terminalID = nbt.getUuid("terminal-id");
 		else
 			terminalID = UUID.randomUUID();
+		if(nbt.contains("graffiti-version", NbtElement.BYTE_TYPE))
+			graffitiVersion = nbt.getByte("graffiti-version");
 		if(nbt.contains("graffiti", NbtElement.COMPOUND_TYPE))
 		{
 			applyGraffiti(nbt.getCompound("graffiti"));
@@ -237,6 +262,10 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		}
 		if(nbt.contains("mainmenu", NbtElement.COMPOUND_TYPE))
 			applyMainMenu(nbt.getCompound("mainmenu"));
+		if(nbt.contains("base", NbtElement.INT_TYPE))
+			setBase(Base.values()[nbt.getInt("base")]);
+		if(base.equals(Base.RGB) && nbt.contains("base-clr", NbtElement.INT_TYPE))
+			setBaseColor(nbt.getInt("base-clr"));
 	}
 	
 	@Override
@@ -245,10 +274,13 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		super.writeNbt(nbt);
 		nbt.putInt("base", base.ordinal());
 		nbt.putInt("txt-clr", textColor);
+		nbt.putInt("base-clr", baseColor);
 		if(owner != null)
 			nbt.putUuid("owner", owner);
 		nbt.put("screensaver", serializeScreensaver());
 		nbt.putUuid("terminal-id", Objects.requireNonNullElseGet(terminalID, () -> terminalID = UUID.randomUUID()));
+		if(graffitiVersion >= 0)
+			nbt.putByte("graffiti-version", graffitiVersion);
 		nbt.put("graffiti", serializeGraffiti());
 		nbt.put("mainmenu", serializeMainMenu());
 	}
@@ -295,11 +327,32 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	void applyGraffiti(NbtCompound nbt)
 	{
 		palette = Arrays.asList(ArrayUtils.toObject(nbt.getIntArray("palette")));
+		if(graffitiVersion < 1)
+			patchGraffiti(nbt);
 		String pixelString = nbt.getString("pixels");
 		ByteArrayList pixels = new ByteArrayList();
 		for (int i = 0; i < pixelString.length() - 1; i++)
 			pixels.add((byte)Byte.valueOf(pixelString.substring(i, i + 1), 16));
 		graffiti = pixels;
+	}
+	
+	void patchGraffiti(NbtCompound nbt)
+	{
+		if(graffitiVersion == -1)
+		{
+			Ultracraft.LOGGER.info("Legacy Graffiti Found (" + getTerminalID() + ")! Converting Texture from 32x32 to 40x40...");
+			String pixelString = nbt.getString("pixels");
+			StringBuilder builder = new StringBuilder();
+			for (int i = 0; i < pixelString.length() - 1; i++)
+			{
+				builder.append(pixelString.charAt(i));
+				if((i + 1) % 32 == 0)
+					builder.append("00000000");
+			}
+			nbt.putString("pixels", builder.toString());
+		}
+		graffitiVersion = 1;
+		markDirty();
 	}
 	
 	NbtCompound serializeGraffiti()
@@ -335,11 +388,13 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeBlockPos(pos);
 		buf.writeInt(textColor);
+		buf.writeInt(baseColor);
 		buf.writeInt(base.ordinal());
 		buf.writeNbt(serializeScreensaver());
 		buf.writeNbt(serializeMainMenu());
 		ClientPlayNetworking.send(PacketRegistry.TERMINAL_SYNC_C2S_PACKET_ID, buf);
 		markDirty();
+		world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_LISTENERS);
 	}
 	
 	public void syncGraffiti()
@@ -352,18 +407,22 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 		buf.writeIntArray(ArrayUtils.toPrimitive(palette));
 		buf.writeByteArray(ArrayUtils.toPrimitive(pixels));
 		buf.writeInt(getGraffitiRevision());
+		buf.writeByte(1);
 		ClientPlayNetworking.send(PacketRegistry.GRAFFITI_C2S_PACKET_ID, buf);
 		graffitiCamRotation = 0f;
 		
 		ClientGraffitiManager.refreshGraffitiTexture(this);
 		markDirty();
+		world.updateListeners(pos, getCachedState(), getCachedState(), Block.NOTIFY_LISTENERS);
 	}
 	
-	public void applyCustomization(int c, int base, NbtCompound screensaver, NbtCompound mainMenu)
+	public void applyCustomization(int tc, int bc, int base, NbtCompound screensaver, NbtCompound mainMenu)
 	{
-		textColor = c;
+		textColor = tc;
 		if(base >= 0 && base < Base.values().length)
-			this.base = Base.values()[base];
+			setBase(Base.values()[base]);
+		if(this.base.equals(Base.RGB))
+			setBaseColor(bc);
 		applyScreensaver(screensaver);
 		applyMainMenu(mainMenu);
 		markDirty();
@@ -417,6 +476,23 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public void setColorOverride(int colorOverride)
 	{
 		this.colorOverride = colorOverride;
+	}
+	
+	public int getBaseColor()
+	{
+		return baseColor;
+	}
+	
+	public void setBaseColor(int col)
+	{
+		baseColor = col;
+		if(col != base.color && !getBase().equals(Base.RGB))
+			setBase(Base.RGB);
+		if(getTerminalID() == null)
+			terminalID = UUID.randomUUID();
+		if(world != null && world.isClient)
+			ProceduralTextureManager.createHsvMappedTexture(new Identifier(Ultracraft.MOD_ID, "textures/block/terminal/c.png"),
+					Base.YELLOW.getTexture(), new Identifier(Ultracraft.MOD_ID, "procedural/terminal_base/" + getTerminalID().toString()), baseColor);
 	}
 	
 	public float getInactivity()
@@ -514,7 +590,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 			}
 			default -> {
 				sizeOverride = tab.getSizeOverride();
-				colorOverride = tab.getColorOverride();
+				setColorOverride(tab.getColorOverride());
 			}
 		}
 		if(focusedTextbox != null)
@@ -554,6 +630,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public void setBase(Base base)
 	{
 		this.base = base;
+		if(!base.equals(Base.RGB))
+			setBaseColor(base.color);
 	}
 	
 	public Base getBase()
@@ -632,6 +710,8 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public UUID getTerminalID()
 	{
+		if(terminalID == null)
+			return terminalID = UUID.randomUUID();
 		return terminalID;
 	}
 	
@@ -643,6 +723,12 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	public void setGraffitiRevision(int i)
 	{
 		graffitiRevision = i;
+	}
+	
+	public void setGraffitiVersion(byte version)
+	{
+		this.graffitiVersion = version;
+		markDirty();
 	}
 	
 	public Identifier getGraffitiTexture()
@@ -669,7 +755,7 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public void setPixel(int x, int y, byte color)
 	{
-		int i = x + y * 32;
+		int i = x + y * 40;
 		while(graffiti.size() <= i)
 			graffiti.add((byte)0);
 		graffiti.set(i, color);
@@ -725,12 +811,26 @@ public class TerminalBlockEntity extends BlockEntity implements GeoBlockEntity
 	
 	public enum Base
 	{
-		WHITE, LIGHT_GRAY, GRAY, BLACK, BROWN, RED, ORANGE, YELLOW,
-		LIME, GREEN, CYAN, LIGHT_BLUE, BLUE, PURPLE, MAGENTA, PINK;
+		WHITE(0xd7f6fa), LIGHT_GRAY(0xcfc6b8), GRAY(0x7d7071), BLACK(0x282235), BROWN(0x994f51),
+		RED(0xbc2f27), ORANGE(0xf47e1b), YELLOW(0xfcc330), LIME(0xb6d53c), GREEN(0x397b44),
+		CYAN(0x4ae6bf), LIGHT_BLUE(0x28ccdf), BLUE(0x3978a8), PURPLE(0x6e3696), MAGENTA(0xaf3ca7),
+		PINK(0xe98cd1), RGB(0);
+		
+		final int color;
+		
+		Base(int color)
+		{
+			this.color = color;
+		}
 		
 		public Identifier getTexture()
 		{
 			return new Identifier(Ultracraft.MOD_ID, String.format("textures/block/terminal/%s.png", name().toLowerCase()));
+		}
+		
+		public int getColor()
+		{
+			return color;
 		}
 		
 		public String translationKey()

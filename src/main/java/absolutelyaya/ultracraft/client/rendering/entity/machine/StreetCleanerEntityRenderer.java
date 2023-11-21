@@ -1,7 +1,6 @@
 package absolutelyaya.ultracraft.client.rendering.entity.machine;
 
 import absolutelyaya.ultracraft.entity.machine.StreetCleanerEntity;
-import absolutelyaya.ultracraft.entity.machine.SwordsmachineEntity;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -12,9 +11,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import org.joml.AxisAngle4f;
 import org.joml.Quaternionf;
-import software.bernie.geckolib.cache.object.GeoBone;
-import software.bernie.geckolib.renderer.GeoEntityRenderer;
-import software.bernie.geckolib.renderer.layer.BlockAndItemGeoLayer;
+import mod.azure.azurelib.cache.object.GeoBone;
+import mod.azure.azurelib.renderer.GeoEntityRenderer;
+import mod.azure.azurelib.renderer.layer.BlockAndItemGeoLayer;
 
 public class StreetCleanerEntityRenderer extends GeoEntityRenderer<StreetCleanerEntity>
 {
@@ -29,7 +28,7 @@ public class StreetCleanerEntityRenderer extends GeoEntityRenderer<StreetCleaner
 		addRenderLayer(new BlockAndItemGeoLayer<>(this)
 		{
 			@Override
-			protected ItemStack getStackForBone(GeoBone bone, StreetCleanerEntity animatable)
+			public ItemStack getStackForBone(GeoBone bone, StreetCleanerEntity animatable)
 			{
 				if(bone.getName().equals(FLAMETHROWER))
 					return flameThrowerStack;
@@ -37,13 +36,13 @@ public class StreetCleanerEntityRenderer extends GeoEntityRenderer<StreetCleaner
 			}
 			
 			@Override
-			protected ModelTransformationMode getTransformTypeForStack(GeoBone bone, ItemStack stack, StreetCleanerEntity animatable)
+			public ModelTransformationMode getTransformTypeForStack(GeoBone bone, ItemStack stack, StreetCleanerEntity animatable)
 			{
 				return super.getTransformTypeForStack(bone, stack, animatable);
 			}
 			
 			@Override
-			protected void renderStackForBone(MatrixStack poseStack, GeoBone bone, ItemStack stack, StreetCleanerEntity animatable, VertexConsumerProvider bufferSource, float partialTick, int packedLight, int packedOverlay)
+			public void renderStackForBone(MatrixStack poseStack, GeoBone bone, ItemStack stack, StreetCleanerEntity animatable, VertexConsumerProvider bufferSource, float partialTick, int packedLight, int packedOverlay)
 			{
 				poseStack.push();
 				if(bone.getName().equals(FLAMETHROWER))

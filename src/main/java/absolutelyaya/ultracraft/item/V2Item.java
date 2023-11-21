@@ -2,7 +2,7 @@ package absolutelyaya.ultracraft.item;
 
 import absolutelyaya.ultracraft.client.rendering.item.V2PlushieRenderer;
 import net.minecraft.client.render.item.BuiltinModelItemRenderer;
-import software.bernie.geckolib.animatable.client.RenderProvider;
+import mod.azure.azurelib.animatable.client.RenderProvider;
 
 import java.util.function.Consumer;
 

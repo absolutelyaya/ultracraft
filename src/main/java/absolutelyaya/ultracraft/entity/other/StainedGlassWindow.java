@@ -4,6 +4,7 @@ import absolutelyaya.ultracraft.entity.projectile.IIgnoreSharpshooter;
 import absolutelyaya.ultracraft.item.StainedGlassWindowItem;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageSource;
@@ -78,7 +79,7 @@ public class StainedGlassWindow extends AbstractDecorationEntity implements IIgn
 	@Override
 	public void onBreak(@Nullable Entity entity)
 	{
-		playSound(SoundEvents.BLOCK_GLASS_BREAK, 1.0f, 1.0f);
+		playSound(SoundRegistry.STAINED_GLASS_WINDOW_BREAK, 1.0f, 1.0f);
 		if(entity instanceof PlayerEntity player && player.isCreative())
 			return;
 		dropStack(StainedGlassWindowItem.getStack(dataTracker.get(REINFORCED)));
@@ -87,7 +88,7 @@ public class StainedGlassWindow extends AbstractDecorationEntity implements IIgn
 	@Override
 	public void onPlace()
 	{
-		playSound(SoundEvents.BLOCK_GLASS_PLACE, 1.0f, 1.0f);
+		playSound(SoundRegistry.STAINED_GLASS_WINDOW_PLACE, 1.0f, 1.0f);
 	}
 	
 	@Nullable

@@ -19,9 +19,11 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import org.apache.commons.lang3.StringUtils;
-import org.joml.*;
+import org.joml.AxisAngle4f;
+import org.joml.Quaternionf;
+import org.joml.Vector2i;
+import org.joml.Vector3i;
 
-import java.lang.Math;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;

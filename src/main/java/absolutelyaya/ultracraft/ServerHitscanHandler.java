@@ -91,27 +91,27 @@ public class ServerHitscanHandler
 	
 	public static void performHitscan(LivingEntity user, byte type, float damage)
 	{
-		performHitscan(user, type, damage, 1, null);
+		performHitscan(user, type, damage, 1, DamageSources.GUN, null);
 	}
 	
 	public static void performHitscan(LivingEntity user, byte type, float damage, HitscanExplosionData explosion)
 	{
-		performHitscan(user, type, damage, 1, explosion);
+		performHitscan(user, type, damage, 1, DamageSources.GUN, explosion);
 	}
 	
-	public static void performHitscan(LivingEntity user, byte type, int damage, int maxHits, boolean breakBlocks)
+	public static void performHitscan(LivingEntity user, byte type, int damage, int maxHits, boolean breakBlocks, RegistryKey<DamageType> damageType)
 	{
-		performHitscan(user, type, damage, maxHits, new HitscanExplosionData(2f, 0f, 0f, breakBlocks));
+		performHitscan(user, type, damage, maxHits, damageType, new HitscanExplosionData(2f, 0f, 0f, breakBlocks));
 	}
 	
-	public static void performHitscan(LivingEntity user, byte type, float damage, int maxHits, @Nullable HitscanExplosionData explosion)
+	public static void performHitscan(LivingEntity user, byte type, float damage, int maxHits, RegistryKey<DamageType> damageType, @Nullable HitscanExplosionData explosion)
 	{
 		Vec3d origin = user.getEyePos();
 		Vec3d visualOrigin = origin.add(
 				new Vec3d(-0.5f * (user instanceof PlayerEntity player && player.getMainArm().equals(Arm.LEFT) ? -1 : 1), -0.2f, 0.4f)
 						.rotateX(-(float)Math.toRadians(user.getPitch())).rotateY(-(float) Math.toRadians(user.getYaw())));
 		Vec3d dest = user.getEyePos().add(user.getRotationVec(0.5f).multiply(64.0));
-		new Hitscan(user, origin, visualOrigin, dest, type, damage, DamageSources.GUN).maxHits(maxHits).explosion(explosion).perform();
+		new Hitscan(user, origin, visualOrigin, dest, type, damage, damageType).maxHits(maxHits).explosion(explosion).perform();
 	}
 	
 	static boolean isValidTarget(Entity entity, byte type)

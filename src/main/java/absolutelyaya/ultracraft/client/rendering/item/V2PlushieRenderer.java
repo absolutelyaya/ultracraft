@@ -3,7 +3,7 @@ package absolutelyaya.ultracraft.client.rendering.item;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.item.PlushieItem;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib.model.DefaultedItemGeoModel;
+import mod.azure.azurelib.model.DefaultedItemGeoModel;
 
 public class V2PlushieRenderer extends AbstractPlushieRenderer<PlushieItem>
 {

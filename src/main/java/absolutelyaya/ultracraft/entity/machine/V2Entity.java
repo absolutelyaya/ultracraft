@@ -43,15 +43,15 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.*;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.AnimationState;
-import software.bernie.geckolib.core.animation.RawAnimation;
-import software.bernie.geckolib.core.object.PlayState;
-import software.bernie.geckolib.util.GeckoLibUtil;
+import mod.azure.azurelib.animatable.GeoEntity;
+import mod.azure.azurelib.core.animatable.GeoAnimatable;
+import mod.azure.azurelib.core.animatable.instance.AnimatableInstanceCache;
+import mod.azure.azurelib.core.animation.AnimatableManager;
+import mod.azure.azurelib.core.animation.AnimationController;
+import mod.azure.azurelib.core.animation.RawAnimation;
+import mod.azure.azurelib.core.object.PlayState;
+import mod.azure.azurelib.util.AzureLibUtil;
+import mod.azure.azurelib.core.animation.AnimationState;
 
 import java.util.EnumSet;
 
@@ -70,7 +70,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 	static protected final TrackedData<Byte> MOVEMENT_MODE = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.BYTE);
 	static protected final TrackedData<Boolean> ENRAGED = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	static protected final TrackedData<ItemStack> WEAPON = DataTracker.registerData(V2Entity.class, TrackedDataHandlerRegistry.ITEM_STACK);
-	private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
+	private final AnimatableInstanceCache cache = AzureLibUtil.createInstanceCache(this);
 	protected static final byte ANIMATION_IDLE = 0;
 	protected static final byte ANIMATION_INTRO = 1;
 	protected static final byte ANIMATION_SLIDE = 2;
@@ -385,7 +385,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		BeamProjectileEntity beam = BeamProjectileEntity.spawn(getWorld(), this, 5f, ServerHitscanHandler.NORMAL);
 		beam.setVelocity(nextShotDir.multiply(7.5f));
 		beam.setDamage(1.5f);
-		playSound(SoundEvents.ENTITY_FIREWORK_ROCKET_BLAST, 0.75f, 0.9f + (getRandom().nextFloat() - 0.5f) * 0.2f);
+		playSound(SoundRegistry.REVOLVER_FIRE, 0.75f, 0.9f + (getRandom().nextFloat() - 0.5f) * 0.2f);
 	}
 	
 	void firePiercer()
@@ -393,7 +393,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 		BeamProjectileEntity beam = BeamProjectileEntity.spawn(getWorld(), this, 5f, ServerHitscanHandler.REVOLVER_PIERCE);
 		beam.setVelocity(nextShotDir.multiply(7.5f));
 		beam.setDamage(2f);
-		playSound(SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 1f, 0.85f + (getRandom().nextFloat() - 0.5f) * 0.2f);
+		playSound(SoundRegistry.PIERCER_FIRE, 1f, 0.85f + (getRandom().nextFloat() - 0.5f) * 0.2f);
 	}
 	
 	Vec3d aim(float predict)
@@ -414,7 +414,7 @@ public class V2Entity extends AbstractUltraHostileEntity implements IAntiCheeseB
 			bullet.setIgnored(getClass());
 			getWorld().spawnEntity(bullet);
 		}
-		playSound(SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, 1.0f, 0.2f / (getRandom().nextFloat() * 0.2f + 0.6f));
+		playSound(SoundRegistry.SHOTGUN_FIRE, 1.0f, 0.2f / (getRandom().nextFloat() * 0.2f + 0.6f));
 	}
 	
 	void ejectCore()

@@ -119,9 +119,11 @@ public class ClientGraffitiManager
 	public static void refreshGraffitiTexture(TerminalBlockEntity terminal)
 	{
 		NativeImage image = makeGraffitiImage(terminal);
+		if(image == null)
+			return;
 		AbstractTexture texture = new NativeImageBackedTexture(image);
 		if(terminal.getGraffitiTexture() == null)
-			terminal.setGraffitiTexture(new Identifier(Ultracraft.MOD_ID, "graffiti/" + terminal.getTerminalID().toString()));
+			terminal.setGraffitiTexture(new Identifier(Ultracraft.MOD_ID, "procedural/graffiti/" + terminal.getTerminalID().toString()));
 		MinecraftClient.getInstance().getTextureManager().registerTexture(terminal.getGraffitiTexture(), texture);
 	}
 	
@@ -135,14 +137,14 @@ public class ClientGraffitiManager
 	
 	static NativeImage makeGraffitiImage(TerminalBlockEntity terminal)
 	{
-		NativeImage image = new NativeImage(NativeImage.Format.RGBA, 32, 32, false);
-		image.fillRect(0, 0, 32, 32, 0x00000000);
-		for (int i = 0; i < 32 * 32; i++)
+		NativeImage image = new NativeImage(NativeImage.Format.RGBA, 40, 40, false);
+		image.fillRect(0, 0, 40, 40, 0x00000000);
+		for (int i = 0; i < 40 * 40; i++)
 		{
 			if(terminal.getGraffiti().size() <= i)
 				break;
-			int x = i % 32;
-			int y = i / 32;
+			int x = i % 40;
+			int y = i / 40;
 			int color = terminal.getPaletteColor(terminal.getGraffiti().get(i));
 			int a = (color >> 24) & 0xff;
 			int r = (color >> 16) & 0xff;

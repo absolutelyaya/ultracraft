@@ -2,7 +2,6 @@ package absolutelyaya.ultracraft.mixin.client.render;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.ChainParryAccessor;
-import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.client.UltracraftClient;
 import absolutelyaya.ultracraft.client.rendering.entity.other.ParryAuraRenderer;
 import absolutelyaya.ultracraft.util.RenderingUtil;

@@ -2,12 +2,14 @@ package absolutelyaya.ultracraft.mixin.client.gui;
 
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.registry.SoundRegistry;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.screen.DeathScreen;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Final;
@@ -71,8 +73,7 @@ public abstract class DeathScreenMixin extends Screen
 			context.drawText(textRenderer, t, (width / 2 - textRenderer.getWidth(t) / 2), 80, 0xdff6f5, false);
 		if(time >= 20f)
 		{
-			//TODO: get an actual "hah" sound effect
-			//client.player.playSound(SoundEvents.BLOCK_NOTE_BLOCK_BIT.value(), SoundCategory.MASTER, 0.5f, 0.256f);
+			client.player.playSound(SoundRegistry.LAUGH, SoundCategory.MASTER, 0.5f, 0.256f);
 			time = 0f;
 		}
 		ci.cancel();

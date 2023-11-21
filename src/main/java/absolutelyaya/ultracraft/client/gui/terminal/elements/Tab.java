@@ -11,7 +11,7 @@ import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector2d;
 import org.joml.Vector2f;
 import org.joml.Vector2i;
-import software.bernie.geckolib.core.object.Color;
+import mod.azure.azurelib.core.object.Color;
 
 import java.util.ArrayList;
 import java.util.List;

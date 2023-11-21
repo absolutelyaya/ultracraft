@@ -82,6 +82,7 @@
   "item.ultracraft.terminal.flavor.purple": "Grimace",
   "item.ultracraft.terminal.flavor.magenta": "Flower Blossoms",
   "item.ultracraft.terminal.flavor.pink": "Strawberries",
+  "item.ultracraft.terminal.flavor.rgb": "Creativity",
   "item.ultracraft.harpoon": "Harpoon",
   "item.ultracraft.harpoon_gun": "Repulsive Skewer",
   "item.ultracraft.soap": "Soap",
@@ -93,6 +94,8 @@
   "item.ultracraft.florp": "Florp",
   "item.ultracraft.florp.hiddenlore": "Hampter",
   "item.ultracraft.cancer_bullet": "Cancer Bullet",
+
+  "color.minecraft.rgb": "Custom",
 
   "rei-group.ultracraft.terminals": "Terminal Variants",
 
@@ -235,6 +238,10 @@
   "death.attack.cancer": "%1$s got ultracancer from %2$s",
   "death.attack.cancer.player": "%1$s got ultracancer from %2$s",
   "death.attack.cancer.item": "%1$s got ultracancer from %2$s using %3$s",
+  "death.attack.piercer": "%1$s was pierced by %2$s",
+  "death.attack.piercer.item": "%1$s was pierced by %2$s using %3$s",
+  "death.attack.core_eject": "%1$s was Core-Ejected by %2$s",
+  "death.attack.core_eject.item": "%1$s was Core-Ejected by %2$s using %3$s",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 

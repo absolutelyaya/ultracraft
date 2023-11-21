@@ -4,12 +4,12 @@ import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.accessor.WingedPlayerEntity;
 import absolutelyaya.ultracraft.api.terminal.TerminalCodeRegistry;
 import absolutelyaya.ultracraft.block.TerminalBlockEntity;
-import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
-import absolutelyaya.ultracraft.client.gui.terminal.DefaultTabs;
-import absolutelyaya.ultracraft.client.gui.terminal.elements.TextBox;
-import absolutelyaya.ultracraft.client.gui.widget.TerminalPaletteWidget;
-import absolutelyaya.ultracraft.client.gui.widget.SimpleColorSelectionWidget;
 import absolutelyaya.ultracraft.client.ClientGraffitiManager;
+import absolutelyaya.ultracraft.client.gui.terminal.DefaultTabs;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.Tab;
+import absolutelyaya.ultracraft.client.gui.terminal.elements.TextBox;
+import absolutelyaya.ultracraft.client.gui.widget.SimpleColorSelectionWidget;
+import absolutelyaya.ultracraft.client.gui.widget.TerminalPaletteWidget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -28,7 +28,7 @@ public class TerminalScreen extends Screen
 {
 	public static final Identifier CHECKERS = new Identifier(Ultracraft.MOD_ID, "textures/gui/graffiti_checkers.png");
 	
-	SimpleColorSelectionWidget textColorPicker, paletteColorPicker;
+	SimpleColorSelectionWidget textColorPicker, baseColorPicker, paletteColorPicker;
 	TerminalBlockEntity terminal;
 	TerminalPaletteWidget paletteWidget;
 	Tab lastTab = new DefaultTabs.MainMenu();
@@ -53,6 +53,10 @@ public class TerminalScreen extends Screen
 				new Vector3i(width - 160, 32, 155), () -> terminal.getTextColor(),
 				i -> terminal.setTextColor((0xff << 24) + i));
 		textColorPicker.setAlpha(1f);
+		baseColorPicker = new SimpleColorSelectionWidget(textRenderer, Text.translatable("terminal.customize.base-clr"),
+				new Vector3i(width - 160, 124, 155), () -> terminal.getBaseColor(),
+				i -> terminal.setBaseColor(i));
+		baseColorPicker.setAlpha(1f);
 		paletteWidget = new TerminalPaletteWidget(new Vector2i(16, height / 2 - 16 * 16 / 2), 16, terminal, i -> {
 			paletteColorPicker.forceUpdate();
 			lastSelected = i;
@@ -96,6 +100,7 @@ public class TerminalScreen extends Screen
 				if(!lastTab.id.equals(Tab.CUSTOMIZATION_ID))
 				{
 					textColorPicker.setActive(true);
+					baseColorPicker.setActive(true);
 					editPalleteCheckbox.active = false;
 					editPalleteCheckbox.visible = false;
 					exportButton.active = false;
@@ -105,6 +110,7 @@ public class TerminalScreen extends Screen
 					paletteColorPicker.setActive(false);
 				}
 				textColorPicker.render(context, mouseX, mouseY, delta);
+				baseColorPicker.render(context, mouseX, mouseY, delta);
 			}
 			case Tab.GRAFFITI_ID -> {
 				renderGraffitiMenu(context, mouseX, mouseY, delta);
@@ -115,6 +121,7 @@ public class TerminalScreen extends Screen
 				if(!lastTab.equals(terminal.getTab()))
 				{
 					textColorPicker.setActive(false);
+					baseColorPicker.setActive(false);
 					paletteWidget.setActive(false);
 					editPalleteCheckbox.active = false;
 					editPalleteCheckbox.visible = false;
@@ -161,24 +168,23 @@ public class TerminalScreen extends Screen
 			if(terminal.getGraffitiTexture() != null)
 			{
 				int scale = client.options.getGuiScale().getValue();
-				int x = 64, y = height / 2 - (scale == 0 || scale == 4 ? 96 : 64);
+				int x = 48, y = height / 2 - (scale == 0 || scale == 4 ? 128 : 96);
 				graffitiTexturePos = new Vector2i(x, y);
 				context.getMatrices().push();
 				context.getMatrices().translate(x, y, 0f);
-				context.getMatrices().scale(0.5f, 0.5f, 0.5f);
-				context.drawTexture(CHECKERS, 0, 0, 0, 0, 256, 256);
-				context.drawTexture(terminal.getGraffitiTexture(), 0, 0, 0, 0, 256, 256);
+				context.getMatrices().scale(4f, 4f, 4f);
+				context.drawTexture(CHECKERS, 0, 0, 0, 0, 40, 40, 40, 40);
+				context.drawTexture(terminal.getGraffitiTexture(), 0, 0, 0, 0, 40, 40, 40, 40);
 				context.getMatrices().pop();
-				context.drawBorder(x - 1, y - 1, 34, 90, 0xffffffff);
-				context.drawBorder(x + 96 - 1, y - 1, 34, 90, 0xffffffff);
-				context.drawBorder(x + 32, y - 1, 64, 130, 0xffffffff);
-				context.fill(x, y + 89, x + 32, y + 128, 0x88000000);
-				context.fill(x + 96, y + 89, x + 32 + 96, y + 128, 0x88000000);
-				context.drawBorder(x - 1, y - 1, 130, 130, 0xffffffff);
-				if(mouseX > graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 128 && mouseY > graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 128)
+				context.drawBorder(x - 1, y - 1, 34, 162, 0xffffffff); //left
+				context.drawBorder(x + 96 - 1, y - 1, 34, 162, 0xffffffff); //right
+				context.drawBorder(x + 32, y - 1, 64, 162, 0xffffffff); //back
+				context.fill(x + 96 + 33, y, x + 160, y + 160, 0x88000000);
+				context.drawBorder(x - 1, y - 1, 162, 162, 0xffffffff);
+				if(mouseX >= graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 160 && mouseY >= graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 160)
 				{
-					int mx = Math.round(mouseX / 4f) * 4;
-					int my = Math.round(mouseY / 4f) * 4;
+					int mx = Math.round((mouseX - 2) / 4f) * 4;
+					int my = Math.round((mouseY - 2) / 4f) * 4;
 					int c = paletteWidget.getSelectedColor();
 					if(c != 0)
 						context.fill(mx, my, mx + 4, my + 4, terminal.getPaletteColor(c));
@@ -205,13 +211,15 @@ public class TerminalScreen extends Screen
 	{
 		if (textColorPicker.mouseDragged(mouseX, mouseY, button, deltaX, deltaY))
 			return true;
+		if(baseColorPicker.mouseDragged(mouseX, mouseY, button, deltaX, deltaY))
+			return true;
 		if(paletteColorPicker.mouseDragged(mouseX, mouseY, button, deltaX, deltaY))
 			return true;
 		if(!editPalleteCheckbox.isChecked() && terminal.getTab().id.equals(Tab.GRAFFITI_ID) &&
-				   mouseX > graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 128 && mouseY > graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 128)
+				   mouseX >= graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 160 && mouseY >= graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 160)
 		{
-			int x = (int)Math.round((mouseX - graffitiTexturePos.x) / 128f * 32f);
-			int y = (int)Math.round((mouseY - graffitiTexturePos.y) / 128f * 32f);
+			int x = (int)Math.round((mouseX - graffitiTexturePos.x - 2) / 160f * 40f);
+			int y = (int)Math.round((mouseY - graffitiTexturePos.y - 2) / 160f * 40f);
 			terminal.setPixel(x, y, (byte)paletteWidget.getSelectedColor());
 			return true;
 		}
@@ -225,14 +233,18 @@ public class TerminalScreen extends Screen
 		if(!exportName.isMouseOver(mouseX, mouseY))
 			exportName.setFocused(false);
 		if(!editPalleteCheckbox.isChecked() && terminal.getTab().id.equals(Tab.GRAFFITI_ID) &&
-				   mouseX > graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 128 && mouseY > graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 128)
+				   mouseX >= graffitiTexturePos.x && mouseX < graffitiTexturePos.x + 160 && mouseY >= graffitiTexturePos.y && mouseY < graffitiTexturePos.y + 160)
 		{
-			int x = (int)Math.round((mouseX - graffitiTexturePos.x) / 128f * 32f);
-			int y = (int)Math.round((mouseY - graffitiTexturePos.y) / 128f * 32f);
+			int x = (int)Math.round((mouseX - graffitiTexturePos.x - 2) / 160f * 40f);
+			int y = (int)Math.round((mouseY - graffitiTexturePos.y - 2) / 160f * 40f);
 			terminal.setPixel(x, y, (byte)paletteWidget.getSelectedColor());
 			return true;
 		}
 		if (textColorPicker.mouseClicked(mouseX, mouseY, button))
+			return true;
+		if (baseColorPicker.mouseClicked(mouseX, mouseY, button))
+			return true;
+		if (paletteColorPicker.mouseClicked(mouseX, mouseY, button))
 			return true;
 		if (paletteWidget.mouseClicked(mouseX, mouseY, button))
 			return true;
@@ -243,6 +255,10 @@ public class TerminalScreen extends Screen
 	public boolean mouseReleased(double mouseX, double mouseY, int button)
 	{
 		if (textColorPicker.mouseReleased(mouseX, mouseY, button))
+			return true;
+		if (baseColorPicker.mouseReleased(mouseX, mouseY, button))
+			return true;
+		if (paletteColorPicker.mouseReleased(mouseX, mouseY, button))
 			return true;
 		return super.mouseReleased(mouseX, mouseY, button);
 	}
@@ -303,6 +319,10 @@ public class TerminalScreen extends Screen
 		}
 		if(textColorPicker.keyPressed(keyCode, scanCode, modifiers))
 			return true;
+		if(baseColorPicker.keyPressed(keyCode, scanCode, modifiers))
+			return true;
+		if(paletteColorPicker.keyPressed(keyCode, scanCode, modifiers))
+			return true;
 		return super.keyPressed(keyCode, scanCode, modifiers);
 	}
 	
@@ -337,6 +357,10 @@ public class TerminalScreen extends Screen
 			secretTimer = 2f;
 		}
 		if(textColorPicker.charTyped(chr, modifiers))
+			return true;
+		if(baseColorPicker.charTyped(chr, modifiers))
+			return true;
+		if(paletteColorPicker.charTyped(chr, modifiers))
 			return true;
 		return super.charTyped(chr, modifiers);
 	}

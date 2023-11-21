@@ -12,11 +12,11 @@ import absolutelyaya.ultracraft.components.player.IArmComponent;
 import absolutelyaya.ultracraft.components.player.IWingDataComponent;
 import absolutelyaya.ultracraft.components.player.IWingedPlayerComponent;
 import absolutelyaya.ultracraft.damage.DamageSources;
+import absolutelyaya.ultracraft.data.UltraRecipeManager;
 import absolutelyaya.ultracraft.entity.projectile.AbstractSkewerEntity;
 import absolutelyaya.ultracraft.entity.projectile.ThrownCoinEntity;
 import absolutelyaya.ultracraft.item.AbstractWeaponItem;
 import absolutelyaya.ultracraft.item.SoapItem;
-import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -134,13 +134,14 @@ public class PacketRegistry
 						Ultracraft.freeze(player, 10);
 						target.damage(DamageSources.get(world, DamageSources.INTERRUPT, player), 6);
 						mp.onInterrupt(player);
-						world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
+						world.playSound(null, player.getBlockPos(), SoundRegistry.GENERIC_INTERRUPT, SoundCategory.PLAYERS, 0.75f, 2f);
 						player.heal(4);
 					}
 					else
 					{
-						world.playSound(null, player.getBlockPos(), SoundEvents.ENTITY_PLAYER_ATTACK_CRIT, SoundCategory.PLAYERS, 0.75f, 0.5f);
 						boolean knuckle = arm.isKnuckleblaster();
+						world.playSound(null, player.getBlockPos(), knuckle ? SoundRegistry.KNUCKLEBLASTER_PUNCH : SoundRegistry.FEEDBACKER_PUNCH ,
+								SoundCategory.PLAYERS, 0.75f, 0.5f);
 						target.damage(DamageSources.get(world, knuckle ? DamageSources.KNUCKLE_PUNCH : DamageSources.PUNCH, player), knuckle ? 2.5f : 1f);
 						//TODO: make punch damage configurable
 					}
@@ -218,7 +219,7 @@ public class PacketRegistry
 				}
 				else if(!(parried instanceof ThrownCoinEntity))
 					Ultracraft.freeze(player, 10);
-				world.playSound(null, player.getBlockPos(), SoundEvents.BLOCK_ANVIL_LAND, SoundCategory.PLAYERS, 0.75f, 2f);
+				world.playSound(null, player.getBlockPos(), SoundRegistry.PARRY, SoundCategory.PLAYERS, 0.75f, 2f);
 				ProjectileEntityAccessor pa = (ProjectileEntityAccessor)parried;
 				pa.setParried(true, player);
 				parried.setVelocity(forward.multiply(chainingAllowed ? 2f + 0.2f * ((ChainParryAccessor)pa).getParryCount() : 2.5f));
@@ -278,6 +279,7 @@ public class PacketRegistry
 			{
 				wings.setVisible(wingsActive);
 				wings.sync();
+				((WingedPlayerEntity)player).updateSpeedGamerule();
 				if(whitelisted)
 					return;
 				PacketByteBuf cbuf = new PacketByteBuf(Unpooled.buffer());
@@ -292,7 +294,6 @@ public class PacketRegistry
 			Vector3f wingColor = buf.readVector3f(), metalColor = buf.readVector3f();
 			String pattern = Ultracraft.checkSupporter(player.getUuid(), false) ? buf.readString() : "";
 			server.execute(() -> {
-				wings.setVisible(wingsActive);
 				wings.setColor(wingColor, 0);
 				wings.setColor(metalColor, 1);
 				wings.setPattern(pattern);
@@ -360,7 +361,7 @@ public class PacketRegistry
 					ServerPlayNetworking.send((ServerPlayerEntity)p, SKIM_S2C_PACKET_ID, cbuf);
 			});
 			server.execute(() -> {
-				player.playSound(SoundEvents.ENTITY_SALMON_FLOP, SoundCategory.PLAYERS, 1f, 0.8f + player.getRandom().nextFloat() * 0.4f);
+				player.playSound(SoundRegistry.WATER_SKIM, SoundCategory.PLAYERS, 1f, 0.8f + player.getRandom().nextFloat() * 0.4f);
 				player.getWorld().addParticle(ParticleRegistry.RIPPLE, pos.x, pos.y, pos.z, 0, 0, 0);
 			});
 		});
@@ -406,13 +407,14 @@ public class PacketRegistry
 		ServerPlayNetworking.registerGlobalReceiver(TERMINAL_SYNC_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
 			BlockPos pos = buf.readBlockPos();
 			int textColor = buf.readInt();
+			int baseColor = buf.readInt();
 			int base = buf.readInt();
 			NbtCompound screenSaver = buf.readNbt();
 			NbtCompound mainMenu = buf.readNbt();
 			server.execute(() ->  {
 				BlockEntity be = player.getWorld().getBlockEntity(pos);
 				if(be instanceof TerminalBlockEntity terminal)
-					terminal.applyCustomization(textColor, base, screenSaver, mainMenu);
+					terminal.applyCustomization(textColor, baseColor, base, screenSaver, mainMenu);
 			});
 		});
 		ServerPlayNetworking.registerGlobalReceiver(GRAFFITI_C2S_PACKET_ID, (server, player, handler, buf, sender) -> {
@@ -420,6 +422,7 @@ public class PacketRegistry
 			int[] palette = buf.readIntArray(15);
 			byte[] pixels = buf.readByteArray();
 			int revision = buf.readInt();
+			byte version = buf.readByte();
 			server.execute(() -> {
 				BlockEntity be = player.getWorld().getBlockEntity(pos);
 				if(be instanceof TerminalBlockEntity terminal)
@@ -427,6 +430,7 @@ public class PacketRegistry
 					terminal.setPalette(Arrays.asList(ArrayUtils.toObject(palette)));
 					terminal.setGraffiti(ByteArrayList.of(pixels));
 					terminal.setGraffitiRevision(revision);
+					terminal.setGraffitiVersion(version);
 				}
 			});
 		});

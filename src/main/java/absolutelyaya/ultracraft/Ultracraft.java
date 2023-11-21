@@ -3,11 +3,13 @@ package absolutelyaya.ultracraft;
 import absolutelyaya.ultracraft.accessor.LivingEntityAccessor;
 import absolutelyaya.ultracraft.command.Commands;
 import absolutelyaya.ultracraft.command.WhitelistCommand;
+import absolutelyaya.ultracraft.components.player.IWingDataComponent;
+import absolutelyaya.ultracraft.data.TerminalScreensaverManager;
+import absolutelyaya.ultracraft.data.UltraRecipeManager;
 import absolutelyaya.ultracraft.item.AbstractNailgunItem;
 import absolutelyaya.ultracraft.item.MarksmanRevolverItem;
 import absolutelyaya.ultracraft.item.SharpshooterRevolverItem;
 import absolutelyaya.ultracraft.recipe.RecipeSerializers;
-import absolutelyaya.ultracraft.recipe.UltraRecipeManager;
 import absolutelyaya.ultracraft.registry.*;
 import com.google.gson.JsonObject;
 import com.mojang.logging.LogUtils;
@@ -49,7 +51,6 @@ public class Ultracraft implements ModInitializer
 	public static boolean DYN_LIGHTS;
 	static int freezeTicks;
     static Map<UUID, Integer> supporterCache = new HashMap<>(), supporterCacheAdditions = new HashMap<>();
-    public static final UltraRecipeManager RECIPE_MANAGER = new UltraRecipeManager();
     
     @Override
     public void onInitialize()
@@ -69,6 +70,8 @@ public class Ultracraft implements ModInitializer
         StatusEffectRegistry.register();
         ScreenHandlerRegistry.registerServer();
         StatisticRegistry.register();
+        new UltraRecipeManager();
+        new TerminalScreensaverManager();
         
         ServerLifecycleEvents.SERVER_STARTED.register(server -> {
         
@@ -104,6 +107,13 @@ public class Ultracraft implements ModInitializer
             ServerPlayerEntity player = networkHandler.player;
             GameruleRegistry.syncAll(player);
             UltraRecipeManager.sync(player);
+            GameruleRegistry.Setting hivel = player.getWorld().getGameRules().get(GameruleRegistry.HIVEL_MODE).get();
+            if(!hivel.equals(GameruleRegistry.Setting.FREE))
+            {
+                IWingDataComponent wings = UltraComponents.WING_DATA.get(player);
+                wings.setVisible(hivel.equals(GameruleRegistry.Setting.FORCE_ON));
+                wings.sync();
+            }
         });
         ServerPlayConnectionEvents.INIT.register(((handler, server) -> {
             ServerPlayerEntity player = handler.player;

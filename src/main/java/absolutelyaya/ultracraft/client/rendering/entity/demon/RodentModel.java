@@ -3,7 +3,7 @@ package absolutelyaya.ultracraft.client.rendering.entity.demon;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.entity.demon.RodentEntity;
 import net.minecraft.util.Identifier;
-import software.bernie.geckolib.model.GeoModel;
+import mod.azure.azurelib.model.GeoModel;
 
 public class RodentModel extends GeoModel<RodentEntity>
 {

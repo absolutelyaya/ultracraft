@@ -4,10 +4,10 @@ import absolutelyaya.ultracraft.ExplosionHandler;
 import absolutelyaya.ultracraft.accessor.EntityAccessor;
 import absolutelyaya.ultracraft.accessor.ProjectileEntityAccessor;
 import absolutelyaya.ultracraft.client.UltracraftClient;
+import absolutelyaya.ultracraft.damage.DamageSources;
 import absolutelyaya.ultracraft.damage.DamageTypeTags;
 import absolutelyaya.ultracraft.entity.demon.MaliciousFaceEntity;
 import absolutelyaya.ultracraft.entity.machine.StreetCleanerEntity;
-import absolutelyaya.ultracraft.entity.machine.V2Entity;
 import absolutelyaya.ultracraft.registry.EntityRegistry;
 import absolutelyaya.ultracraft.registry.GameruleRegistry;
 import absolutelyaya.ultracraft.registry.ItemRegistry;
@@ -169,7 +169,8 @@ public class EjectedCoreEntity extends ThrownItemEntity implements ProjectileEnt
 	
 	void explode(Entity exploder)
 	{
-		ExplosionHandler.explosion(null, getWorld(), getPos(), getDamageSources().explosion(this, exploder), 10f, 4f, 3f, true);
+		ExplosionHandler.explosion(null, getWorld(), getPos(), DamageSources.get(getWorld(), DamageSources.CORE_EJECT, this, exploder),
+				10f, 4f, 3f, true);
 		getWorld().sendEntityStatus(this, (byte)3);
 		kill();
 	}
