@@ -164,6 +164,7 @@
   "entity.ultracraft.beam": "A Hitscan that's actually a projectile ._.",
   "entity.ultracraft.rodent": "Cancerous Rodent",
   "entity.ultracraft.rodent.prefix": "VERY ",
+  "entity.ultracraft.greaterfilth": "Greater Filth",
 
   "effect.ultracraft.chilled": "Chilled",
   "effect.ultracraft.instant_energy": "Instant Energy",
@@ -242,6 +243,10 @@
   "death.attack.piercer.item": "%1$s was pierced by %2$s using %3$s",
   "death.attack.core_eject": "%1$s was Core-Ejected by %2$s",
   "death.attack.core_eject.item": "%1$s was Core-Ejected by %2$s using %3$s",
+  "death.attack.obliteration": "%1$s was utterly obliterated by %2$s",
+  "death.attack.obliteration.item": "%1$s was utterly obliterated by %2$s using %3$s",
+  "death.attack.devoured": "%1$s was devoured by %2$s",
+  "death.attack.devoured.item": "%1$s was devoured by %2$s using %3$s",
 
   "itemGroup.ultracraft.item": "ULTRACRAFT",
 

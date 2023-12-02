@@ -3,6 +3,7 @@ package absolutelyaya.ultracraft.registry;
 import absolutelyaya.ultracraft.Ultracraft;
 import absolutelyaya.ultracraft.entity.demon.*;
 import absolutelyaya.ultracraft.entity.husk.FilthEntity;
+import absolutelyaya.ultracraft.entity.husk.GreaterFilthEntity;
 import absolutelyaya.ultracraft.entity.husk.SchismEntity;
 import absolutelyaya.ultracraft.entity.husk.StrayEntity;
 import absolutelyaya.ultracraft.entity.machine.*;
@@ -58,6 +59,9 @@ public class EntityRegistry
 	public static final EntityType<RodentEntity> RODENT = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "rodent"),
 			EntityType.Builder.create(RodentEntity::new, SpawnGroup.MONSTER).setDimensions(0.25F, 0.25F).maxTrackingRange(8).build("rodent"));
+	public static final EntityType<GreaterFilthEntity> GREATER_FILTH = Registry.register(Registries.ENTITY_TYPE,
+			new Identifier(Ultracraft.MOD_ID, "greaterfilth"),
+			EntityType.Builder.create(GreaterFilthEntity::new, SpawnGroup.MONSTER).setDimensions(0.6F, 1.95F).maxTrackingRange(8).build("greaterfilth"));
 	
 	public static final EntityType<HellBulletEntity> HELL_BULLET = Registry.register(Registries.ENTITY_TYPE,
 			new Identifier(Ultracraft.MOD_ID, "hell_bullet"),
@@ -165,5 +169,6 @@ public class EntityRegistry
 		FabricDefaultAttributeRegistry.register(STREET_CLEANER, StreetCleanerEntity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(V2, V2Entity.getDefaultAttributes());
 		FabricDefaultAttributeRegistry.register(RODENT, RodentEntity.getDefaultAttributes());
+		FabricDefaultAttributeRegistry.register(GREATER_FILTH, GreaterFilthEntity.getDefaultAttributes());
 	}
 }

@@ -19,7 +19,6 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.HostileEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.joml.Vector2i;
@@ -53,7 +52,7 @@ public class FilthEntity extends AbstractHuskEntity implements GeoEntity, MeleeI
 	public FilthEntity(EntityType<? extends HostileEntity> entityType, World world)
 	{
 		super(entityType, world);
-		this.setPathfindingPenalty(PathNodeType.DANGER_FIRE, -1.0f);
+		setPathfindingPenalty(PathNodeType.DANGER_FIRE, -1.0f);
 		if(!world.isClient)
 			dataTracker.set(RARE, random.nextInt(10000) == 0);
 	}

@@ -8,9 +8,8 @@ import net.minecraft.entity.mob.HostileEntity;
 public abstract class TimedAttackGoal<T extends HostileEntity & IAnimatedEnemy> extends Goal
 {
 	protected final T mob;
-	protected final int randomCooldownRange = 40;
 	protected LivingEntity target;
-	protected int timer, baseCooldown = 40;
+	protected int timer, baseCooldown = 40, randomCooldownRange = 40;
 	final protected byte animIdle, animAttack;
 	final protected int attackLength;
 	
